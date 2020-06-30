@@ -24,19 +24,19 @@
 - name: Install Kernel RPMs
   yum:
     name: "{{ deploy_kernel_staging_dir }}/{{ item.path | basename }}"
-  become: yes
+  become: true
   loop: "{{ kernel_rpms.files }}"
   loop_control:
     label: "{{ item.path | basename }}"
 
 - name: Set default grub
   command: "grub2-set-default 'CentOS Linux ({{ target_kernel_version }}) 7 (Core)'"
-  become: yes
+  become: true  # noqa 301
 
 - name: Reboot system
   reboot:
     reboot_timeout: "{{ deploy_kernel_reboot_timeout }}"
-  become: yes
+  become: true
 
 - name: Delete staging directory for Kernel RPMs
   file:
