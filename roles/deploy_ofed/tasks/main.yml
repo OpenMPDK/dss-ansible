@@ -1,0 +1,34 @@
+---
+
+- name: Identify OFED tarball
+  find:
+    path: "{{ deploy_ofed_path }}"
+    patterns: '*.tgz'
+  delegate_to: localhost
+  run_once: true
+  register: ofed_tgz
+
+- name: Set OFED version variables
+  set_fact:
+    ofed_target_version: "{{ ofed_tgz.files[0].path | basename | regex_search(ofed_regexp,'\\2') | first }}"
+    ofed_dir: "{{ ofed_tgz.files[0].path | basename | regex_search(ofed_regexp,'\\1') | first }}"
+  vars:
+    ofed_regexp: '(MLNX_OFED_LINUX-(.+)-rhel.+).tgz'
+
+- name: Check OFED version
+  command: ofed_info -n
+  failed_when: false
+  changed_when: false
+  register: ofed_version
+
+- name: Deploy OFED
+  import_tasks: deploy_ofed.yml
+  when: >
+    ofed_version.rc != 0 or
+    ofed_version.stdout != ofed_target_version
+
+- name: Assert target OFED version
+  assert:
+    that: ofed_version.stdout == ofed_target_version
+    fail_msg: "Expected OFED version {{ ofed_target_version }} but found {{ ofed_version.stdout }}"
+    success_msg: "Detected target OFED version {{ ofed_target_version }}"

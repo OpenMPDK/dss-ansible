@@ -1,0 +1,56 @@
+---
+
+- name: Install OFED dependencies
+  yum:
+    name:
+      - elfutils-libelf-devel
+      - python-devel
+      - lsof
+      - redhat-rpm-config
+      - rpm-build
+      - gcc
+      - createrepo
+      - tcl
+      - gcc-gfortran
+      - tcsh
+      - tk
+  become: yes
+
+- name: Create staging directory for OFED tgz
+  file:
+    path: "{{ deploy_ofed_staging_dir }}"
+    state: directory
+
+- name: Unarchive OFED tgz
+  unarchive:
+    src: "{{ ofed_tgz.files[0].path }}"
+    dest: "{{ deploy_ofed_staging_dir }}"
+
+- name: Install OFED
+  command: "./mlnxofedinstall --add-kernel-support --force"
+  args:
+    chdir: "{{ deploy_ofed_staging_dir }}/{{ ofed_dir }}"
+  become: yes
+
+- name: Delete staging directory for OFED tgz
+  file:
+    path: "{{ deploy_ofed_staging_dir }}"
+    state: absent
+  become: yes
+
+- name: Stop and disable openibd service
+  service:
+    name: openibd
+    state: stopped
+    enabled: no
+  become: yes
+
+- name: Remove lmnx-ofa_kernel modules
+  file:
+    path: "/lib/modules/{{ ansible_kernel }}/extra/mlnx-ofa_kernel"
+    state: absent
+  become: yes
+
+- name: Reload module dependencies
+  command: depmod -a
+  become: yes

@@ -10,3 +10,4 @@
   roles:
     - validate_centos
     - deploy_kernel
+    - deploy_ofed

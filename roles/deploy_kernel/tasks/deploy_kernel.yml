@@ -1,0 +1,47 @@
+---
+
+- name: Identify kernel RPMs
+  find:
+    path: "{{ deploy_kernel_path }}"
+    patterns: '*.rpm'
+  delegate_to: localhost
+  run_once: true
+  register: kernel_rpms
+
+- name: Create staging directory for Kernel RPMs
+  file:
+    path: "{{ deploy_kernel_staging_dir }}"
+    state: directory
+
+- name: Copy Kernel RPMs
+  copy:
+    src: "{{ item.path }}"
+    dest: "{{ deploy_kernel_staging_dir }}"
+  loop: "{{ kernel_rpms.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+
+- name: Install Kernel RPMs
+  yum:
+    name: "{{ deploy_kernel_staging_dir }}/{{ item.path | basename }}"
+  become: yes
+  loop: "{{ kernel_rpms.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+
+- name: Set default grub
+  command: "grub2-set-default 'CentOS Linux ({{ target_kernel_version }}) 7 (Core)'"
+  become: yes
+
+- name: Reboot system
+  reboot:
+    reboot_timeout: "{{ deploy_kernel_reboot_timeout }}"
+  become: yes
+
+- name: Delete staging directory for Kernel RPMs
+  file:
+    path: "{{ deploy_kernel_staging_dir }}"
+    state: absent
+
+- name: Gather facts post-reboot
+  setup:
