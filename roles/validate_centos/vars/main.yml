@@ -1,0 +1,4 @@
+---
+
+validate_centos_distro: CentOS
+validate_centos_version: 7.4
