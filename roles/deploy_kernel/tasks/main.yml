@@ -1,0 +1,24 @@
+---
+
+- name: Identify target kernel version
+  find:
+    path: "{{ deploy_kernel_path }}"
+    patterns: 'kernel-*.rpm'
+    excludes: 'devel,headers'
+  delegate_to: localhost
+  run_once: true
+  register: kernel_version
+
+- name: Set target kernel version variable
+  set_fact:
+    target_kernel_version: "{{ kernel_version.files[0].path | regex_search('kernel-(.+)-.+','\\1') | first }}"
+
+- name: Upgrade Kernel
+  import_tasks: upgrade_kernel.yml
+  when: ansible_kernel != target_kernel_version
+
+- name: Assert target kernel version
+  assert:
+    that: ansible_kernel == target_kernel_version
+    fail_msg: "Expected kernel version {{ target_kernel_version }} but found {{ ansible_kernel }}"
+    success_msg: "Detected target kernel version {{ target_kernel_version }}"
