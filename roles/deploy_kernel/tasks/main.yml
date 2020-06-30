@@ -13,8 +13,8 @@
   set_fact:
     target_kernel_version: "{{ kernel_version.files[0].path | regex_search('kernel-(.+)-.+','\\1') | first }}"
 
-- name: Upgrade Kernel
-  import_tasks: upgrade_kernel.yml
+- name: Deploy Kernel
+  import_tasks: deploy_kernel.yml
   when: ansible_kernel != target_kernel_version
 
 - name: Assert target kernel version
