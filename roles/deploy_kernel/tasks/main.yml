@@ -15,10 +15,10 @@
 
 - name: Deploy Kernel
   import_tasks: deploy_kernel.yml
-  when: ansible_kernel != target_kernel_version
+  when: ansible_kernel is version (target_kernel_version, '!=')
 
 - name: Assert target kernel version
   assert:
-    that: ansible_kernel == target_kernel_version
+    that: ansible_kernel is version (target_kernel_version, '==')
     fail_msg: "Expected kernel version {{ target_kernel_version }} but found {{ ansible_kernel }}"
     success_msg: "Detected target kernel version {{ target_kernel_version }}"

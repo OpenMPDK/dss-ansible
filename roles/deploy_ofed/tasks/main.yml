@@ -25,10 +25,10 @@
   import_tasks: deploy_ofed.yml
   when: >
     ofed_version.rc != 0 or
-    ofed_version.stdout != ofed_target_version
+    ofed_version.stdout is version(ofed_target_version, '!=')
 
 - name: Assert target OFED version
   assert:
-    that: ofed_version.stdout == ofed_target_version
+    that: ofed_version.stdout is version(ofed_target_version, '==')
     fail_msg: "Expected OFED version {{ ofed_target_version }} but found {{ ofed_version.stdout }}"
     success_msg: "Detected target OFED version {{ ofed_target_version }}"
