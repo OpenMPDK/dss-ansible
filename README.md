@@ -12,6 +12,22 @@ Add hosts to the inventory file `hosts` according to their group.
 
 Ensure that SSH key authentication is configured for all hosts in your cluster. See https://docs.ansible.com/ansible/latest/user_guide/connection_details.html for details.
 
+### Inventory requirements
+
+#### Server requirements
+
+* Pre-deployed with CentOS 7.4 1708
+* Hostnames pre-configured
+* Manangement NIC configured and accessible by the Ansible deployment host
+* Mellanox ConnectX-6 adapter(s) installed
+* Samsung PM983 SSD's installed (Model: `SAMSUNG MZ4LB3T8HALS-00003`)
+
+#### Client requirements
+
+* Pre-deployed with any x86_64 linux OS (Prefered: CentOS 7.4 1708)
+* Hostnames pre-configured
+* Manangement NIC configured and accessible by the Ansible deployment host
+
 ## Deploy
 
 To deploy the cluster, use: `ansible-playbook deploy_all.yml`
