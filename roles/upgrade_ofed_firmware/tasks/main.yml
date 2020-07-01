@@ -1,0 +1,12 @@
+---
+
+- name: Query OFED devices
+  command: ibdev2netdev
+  changed_when: false
+  failed_when: false
+  register: ibdev2netdev
+
+- name: Print ibdev2netdev
+  debug:
+    msg: "{{ item }}"
+  loop: "{{ ibdev2netdev.stdout_lines }}"
