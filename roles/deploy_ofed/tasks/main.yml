@@ -30,10 +30,10 @@
 - name: Check OFED version post-deploy
   command: ofed_info -n
   changed_when: false
-  register: ofed_version
+  register: post_ofed_version
 
 - name: Assert target OFED version
   assert:
-    that: ofed_version.stdout is version(ofed_target_version, '==')
-    fail_msg: "Expected OFED version {{ ofed_target_version }} but found {{ ofed_version.stdout }}"
+    that: post_ofed_version.stdout is version(ofed_target_version, '==')
+    fail_msg: "Expected OFED version {{ ofed_target_version }} but found {{ post_ofed_version.stdout }}"
     success_msg: "Detected target OFED version {{ ofed_target_version }}"
