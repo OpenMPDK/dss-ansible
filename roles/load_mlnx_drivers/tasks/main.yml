@@ -1,0 +1,10 @@
+---
+
+- name: Load Mellanox modules
+  modprobe:
+    name: "{{ item }}"
+    state: present
+  become: true
+  loop:
+    - mlx5_ib
+    - rdma_ucm

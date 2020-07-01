@@ -12,4 +12,5 @@
     - validate_centos
     - deploy_kernel
     - deploy_ofed
+    - load_mlnx_drivers
     - upgrade_ofed_firmware
