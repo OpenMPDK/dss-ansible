@@ -45,7 +45,7 @@
     enabled: false
   become: true
 
-- name: Remove lmnx-ofa_kernel modules
+- name: Remove mlnx-ofa_kernel modules
   file:
     path: "/lib/modules/{{ ansible_kernel }}/extra/mlnx-ofa_kernel"
     state: absent
