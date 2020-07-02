@@ -13,6 +13,7 @@
     - deploy_kernel
     - deploy_ofed
     - load_mlnx_drivers
-    - upgrade_ofed_firmware
+    # - upgrade_ofed_firmware
     - deploy_target
     - deploy_host
+    - configure_target

@@ -1,0 +1,8 @@
+---
+
+- name: Append IP to mlx_ip_list
+  set_fact:
+    mlx_ip_list: "{{ mlx_ip_list + [ lookup('vars', 'ansible_' + mellanox_device.netdev).ipv4.address ] }}"
+  when:
+    - lookup('vars', 'ansible_' + mellanox_device.netdev).ipv4 is defined
+    - mellanox_device.status == 'Up'
