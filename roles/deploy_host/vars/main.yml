@@ -1,0 +1,4 @@
+---
+
+deploy_host_path: "{{ playbook_dir }}/deploy/host"
+deploy_host_dest_dir: /usr/dss/
