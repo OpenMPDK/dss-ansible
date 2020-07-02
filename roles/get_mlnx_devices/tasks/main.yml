@@ -1,0 +1,20 @@
+---
+
+- name: Query OFED Devices (ibdev2netdev)
+  command: ibdev2netdev -v
+  changed_when: false
+  register: mlx_list
+
+- name: Set ibdev2netdev variable
+  set_fact:
+    ibdev2netdev: "{{ mlx_list.stdout | regex_findall('(mlx[\\d]_[\\d]).+ConnectX-(\\d).+ fw ([^ ]+).+ ==> ([^ ]+) \\((Up|Down)\\)', '\\1, \\2, \\3, \\4, \\5') }}"
+
+- name: Create list of Mellanox device dict
+  set_fact:
+    mellanox_devices: "{{ mellanox_devices | default([]) +
+                        [{'ibdev': item.0,
+                          'ConnectX': item.1 | int,
+                          'fw': item.2,
+                          'netdev': item.3,
+                          'status': item.4  }] }}"
+  loop: "{{ ibdev2netdev }}"
