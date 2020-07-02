@@ -20,6 +20,7 @@ Ensure that SSH key authentication is configured for all hosts in your cluster. 
 * Hostnames pre-configured
 * Manangement NIC configured and accessible by the Ansible deployment host
 * Mellanox ConnectX-6 adapter(s) installed
+* IP Addresses assigned to Mellanox ConnectX adapter(s)
 * Samsung PM983 SSD's installed (Model: `SAMSUNG MZ4LB3T8HALS-00003`)
 
 #### Client requirements
