@@ -14,3 +14,4 @@
     - deploy_ofed
     - load_mlnx_drivers
     - upgrade_ofed_firmware
+    - deploy_target
