@@ -1,0 +1,3 @@
+---
+
+deploy_nvme_cli_staging_dir: /tmp/nvme-cli

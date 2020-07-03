@@ -17,3 +17,4 @@
     - deploy_target
     - deploy_host
     - configure_target
+    - deploy_nvme_cli

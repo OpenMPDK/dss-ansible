@@ -1,0 +1,4 @@
+---
+
+deploy_nvme_cli_version: 1.8.1
+deploy_nvme_cli_url: "https://github.com/linux-nvme/nvme-cli/archive/v{{ deploy_nvme_cli_version }}.tar.gz"

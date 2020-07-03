@@ -1,0 +1,24 @@
+---
+
+- name: Check nvme-cli version
+  command: nvme --version
+  changed_when: false
+  failed_when: false
+  register: nvme_cli_version
+
+- name: Install nvme-cli
+  import_tasks: deploy_nvme_cli.yml
+  when: >
+    nvme_cli_version.stdout is not defined or
+    nvme_cli_version.stdout.split(' ')[-1] is version(deploy_nvme_cli_version, '!=')
+
+- name: Check nvme-cli version post-install
+  command: nvme --version
+  changed_when: false
+  register: post_nvme_cli_version
+
+- name: Assert nvme-cli version post-install
+  assert:
+    that: post_nvme_cli_version.stdout.split(' ')[-1] is version(deploy_nvme_cli_version, '==')
+    fail_msg: "Expected nvme-cli version {{ deploy_nvme_cli_version }}. Detected nvme-cli version {{ post_nvme_cli_version.stdout.split(' ')[-1] }}"
+    success_msg: "Detected target nvme-cli version {{ deploy_nvme_cli_version }}."

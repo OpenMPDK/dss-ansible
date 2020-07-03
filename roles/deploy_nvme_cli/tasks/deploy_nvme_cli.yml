@@ -1,0 +1,38 @@
+---
+
+- name: Uninstall package manager version of nvme-cli
+  yum:
+    name: nvme-cli
+    state: absent
+  become: true
+
+- name: Create nvme-cli staging directory
+  file:
+    path: "{{ deploy_nvme_cli_staging_dir }}"
+    state: directory
+
+- name: Download nvme-cli source
+  unarchive:
+    src: "{{ deploy_nvme_cli_url }}"
+    dest: "{{ deploy_nvme_cli_staging_dir }}"
+    remote_src: true
+    extra_opts: [--strip-components=1]
+
+- name: Make nvme-cli
+  command: make
+  args:
+    chdir: "{{ deploy_nvme_cli_staging_dir }}"
+
+- name: Copy nvme-cli to sbin path
+  copy:
+    src: "{{ deploy_nvme_cli_staging_dir }}/nvme"
+    dest: /sbin/nvme
+    mode: 0751
+    force: true
+    remote_src: true
+  become: true
+
+- name: Delete nvme-cli staging directory
+  file:
+    path: "{{ deploy_nvme_cli_staging_dir }}"
+    state: absent
