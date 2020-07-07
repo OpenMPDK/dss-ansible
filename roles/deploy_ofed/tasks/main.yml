@@ -1,19 +1,14 @@
 ---
 
-- name: Identify OFED tarball
-  find:
-    path: "{{ deploy_ofed_path }}"
-    patterns: '*.tgz'
-  delegate_to: localhost
-  run_once: true
-  register: ofed_tgz
-
 - name: Set OFED version variables
   set_fact:
-    ofed_target_version: "{{ ofed_tgz.files[0].path | basename | regex_search(ofed_regexp,'\\2') | first }}"
-    ofed_dir: "{{ ofed_tgz.files[0].path | basename | regex_search(ofed_regexp,'\\1') | first }}"
-  vars:
-    ofed_regexp: '(MLNX_OFED_LINUX-(.+)-rhel.+).tgz'
+    ofed_local_path: "{{ item.local_path }}" 
+    ofed_target_version: "{{ item.version }}"
+    ofed_dir: "{{ item.dir }}"
+  loop: "{{ ofed_files }}"
+  loop_control:
+    label: "{{ item.filename }}"
+  when: ansible_distribution_version is version(item.distribution_version, '==')
 
 - name: Check OFED version
   command: ofed_info -n

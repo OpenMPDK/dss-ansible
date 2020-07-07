@@ -1,8 +1,15 @@
 ---
 
+- name: Install epel-release
+  yum:
+    name: epel-release
+  become: true
+
 - name: Install OFED dependencies
   yum:
     name:
+      - pciutils
+      - wget
       - elfutils-libelf-devel
       - python-devel
       - lsof
@@ -10,6 +17,9 @@
       - rpm-build
       - gcc
       - createrepo
+      - gtk2
+      - atk
+      - cairo
       - tcl
       - gcc-gfortran
       - tcsh
@@ -23,7 +33,7 @@
 
 - name: Unarchive OFED tgz
   unarchive:
-    src: "{{ ofed_tgz.files[0].path }}"
+    src: "{{ ofed_local_path }}"
     dest: "{{ deploy_ofed_staging_dir }}"
 
 - name: Install OFED
