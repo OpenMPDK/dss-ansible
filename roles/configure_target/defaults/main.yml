@@ -1,0 +1,8 @@
+---
+
+configure_target_rocev2_vlans:
+  - 31
+  - 32
+configure_target_tcp_vlans:
+  - 41
+  - 42
