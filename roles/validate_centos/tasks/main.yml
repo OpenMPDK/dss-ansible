@@ -4,7 +4,10 @@
   assert:
     that:
       - ansible_distribution == validate_centos_distro
-      - ansible_distribution_version is version(validate_centos_version, '==')
+      - ansible_distribution_version in supported_distributions
     fail_msg: |
-      Server must be {{ validate_centos_distro }} version {{ validate_centos_version }}.
+      Server must be {{ validate_centos_distro }} version {{ supported_distributions }}.
       Detected {{ ansible_distribution }} version {{ ansible_distribution_version }}.
+    success_msg: "Detected {{ ansible_distribution }} version {{ ansible_distribution_version }}."
+  vars:
+    supported_distributions: "{{ ofed_files | map(attribute='distribution_version') | list }}"
