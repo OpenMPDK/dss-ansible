@@ -1,0 +1,3 @@
+---
+
+deploy_ofed_path: "{{ playbook_dir }}/deploy/ofed"

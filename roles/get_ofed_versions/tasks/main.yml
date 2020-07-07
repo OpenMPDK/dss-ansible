@@ -1,0 +1,24 @@
+---
+
+- name: Find OFED binaries
+  find:
+    path: "{{ deploy_ofed_path }}"
+    patterns: '*.tgz'
+  delegate_to: localhost
+  run_once: true
+  register: ofed_tgz
+
+- name: Set list of detected OFED files
+  set_fact:
+    ofed_files: "{{ ofed_files | default([]) +
+                        [{'local_path': item.path,
+                          'filename': item.path | basename,
+                          'dir': item.path | basename | regex_search(ofed_regex, '\\1') | first,
+                          'version': item.path | basename | regex_search(ofed_regex, '\\2') | first,
+                          'distribution_version': item.path | basename | regex_search(ofed_regex, '\\3') | first }] }}"
+  with_items: "{{ ofed_tgz.files }}"
+  run_once: true
+  vars:
+    ofed_regex: '(MLNX_OFED_LINUX-(.+)-rhel([\d]\.[\d])-x86_64).tgz$'
+  loop_control:
+    label: "{{ item.path }}"
