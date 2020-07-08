@@ -1,5 +1,10 @@
 ---
 
+- name: Install nvme-cli build dependencies
+  yum:
+    name: gcc
+  become: true
+
 - name: Uninstall package manager version of nvme-cli
   yum:
     name: nvme-cli
