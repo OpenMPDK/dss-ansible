@@ -21,7 +21,7 @@
 - name: Make nvme-cli
   command: make
   args:
-    chdir: "{{ deploy_nvme_cli_staging_dir }}"
+    chdir: "{{ deploy_nvme_cli_staging_dir }}"   # noqa 301
 
 - name: Copy nvme-cli to sbin path
   copy:
