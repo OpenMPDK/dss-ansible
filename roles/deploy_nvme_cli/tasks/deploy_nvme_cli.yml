@@ -11,6 +11,12 @@
     state: absent
   become: true
 
+- name: Uninstall existing version of nvme-cli
+  import_tasks: remove_nvme_cli.yml
+  until:
+    - nvme_path.rc is defined
+    - nvme_path.rc != 0
+
 - name: Create nvme-cli staging directory
   file:
     path: "{{ deploy_nvme_cli_staging_dir }}"
@@ -31,7 +37,7 @@
 - name: Copy nvme-cli to sbin path
   copy:
     src: "{{ deploy_nvme_cli_staging_dir }}/nvme"
-    dest: /sbin/nvme
+    dest: /usr/local/bin/nvme
     mode: 0751
     force: true
     remote_src: true
