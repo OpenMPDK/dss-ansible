@@ -1,0 +1,44 @@
+---
+
+- name: Create ConnectX-6 firmware staging directory
+  file:
+    path: "{{ connectx6_staging_dir }}"
+    state: directory
+
+- name: Download ConnectX-6 firmware for adapter {{ mlx_ibdev }}
+  unarchive:
+    src: "{{ fw_url }}"
+    dest: "{{ connectx6_staging_dir }}"
+    remote_src: true
+
+- name: Upgrade ConnectX-6 firmware for adapter {{ mlx_ibdev }}
+  command: "flint -d {{ mlx_ibdev }} -i {{ fw_file }} -y b"
+  args:
+    chdir: "{{ connectx6_staging_dir }}"
+  register: fw_upgrade
+  become: true
+  vars:
+    fw_file: "{{ fw_url | basename | replace('.zip','') }}"
+  changed_when: "'The firmware image was already updated on flash' not in fw_upgrade.stdout"
+  failed_when:
+    - fw_upgrade.rc != 0
+    - "'The firmware image was already updated on flash' not in fw_upgrade.stdout"
+
+- name: Reset ConnectX-6 adapter {{ mlx_ibdev }}
+  command: "mlxfwreset -d {{ mlx_ibdev }} reset -y"
+  args:
+    chdir: "{{ connectx6_staging_dir }}"
+  become: true  # noqa 301
+
+- name: Get post-upgrade Firmware version for adapter {{ mlx_ibdev }}
+  command: "flint -d {{ mlx_ibdev }} query"
+  changed_when: false
+  register: post_upgrade_flint
+
+- name: Assert firmware upgrade success for adapter {{ mlx_ibdev }}
+  assert:
+    that: post_upgrade_fw is version(target_fw, '==')
+    fail_msg: "Expected firmware {{ target_fw }} but found {{ post_upgrade_fw }}"
+    success_msg: "Found firmware version {{ post_upgrade_fw }}"
+  vars:
+    post_upgrade_fw: "{{ post_upgrade_flint.stdout | regex_search('FW Version: +(.+)','\\1') | first }}"

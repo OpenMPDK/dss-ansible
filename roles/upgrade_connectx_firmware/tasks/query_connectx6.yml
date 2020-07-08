@@ -1,0 +1,14 @@
+---
+
+- name: Query ConnectX-6 adapter {{ mlx_ibdev }}
+  command: "flint -d {{ mlx_ibdev }} query"
+  changed_when: false
+  register: flint_query
+
+- name: Upgrade ConnectX-6 adapter {{ mlx_ibdev }}
+  include_tasks: upgrade_connectx6.yml
+  vars:
+    psid: "{{ flint_query.stdout | regex_search('PSID: +(.+)','\\1') | first }}"
+    fw_url: "{{ connectx6_fw[psid] }}"
+    target_fw: "{{ fw_url | regex_search('rel-([^-]+)-','\\1') | first | replace('_','.') }}"
+  when: pre_upgrade_fw is version(target_fw, '!=')

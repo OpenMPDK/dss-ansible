@@ -1,5 +1,0 @@
----
-
-- name: Get list of Mellanox adapters
-  include_role:
-    name: get_mlnx_devices

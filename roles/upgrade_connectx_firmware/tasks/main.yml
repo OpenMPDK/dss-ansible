@@ -1,0 +1,20 @@
+---
+
+- name: Get list of Mellanox adapters
+  include_role:
+    name: get_mlnx_devices
+
+- name: Query ConnectX-6 adapters for firmware upgrade
+  include_tasks: query_connectx6.yml
+  vars:
+    pre_upgrade_fw: "{{ item.fw }}"
+    mlx_ibdev: "{{ item.ibdev }}"
+  loop: "{{ mellanox_devices }}"
+  loop_control:
+    label: "{{ item.ibdev }}"
+  when: item.ConnectX == 6
+
+- name: Delete ConnectX-6 firmware staging directory
+  file:
+    path: "{{ connectx6_staging_dir }}"
+    state: absent
