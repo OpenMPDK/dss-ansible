@@ -1,0 +1,4 @@
+---
+
+upgrade_kvssd_firmware_path: "{{ playbook_dir }}/deploy/kvssd_fw"
+upgrade_kvssd_firmware_staging_dir: /tmp/kvssd_fw

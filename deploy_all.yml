@@ -13,6 +13,7 @@
     - validate_centos
     - deploy_kernel
     - deploy_nvme_cli
+    - upgrade_kvssd_firmware
     - deploy_ofed
     - load_mlnx_drivers
     - upgrade_connectx_firmware

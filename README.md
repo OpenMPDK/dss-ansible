@@ -25,6 +25,7 @@ Ensure that SSH key authentication is configured for all hosts in your cluster. 
 * Mellanox ConnectX-6 adapter(s) installed
 * IP Addresses assigned to Mellanox ConnectX adapter(s)
 * Samsung PM983 SSD's installed (Model: `SAMSUNG MZ4LB3T8HALS-00003`)
+  - KVSSD model can be user-defined in `group_vars/servers.yml`
 
 #### Client requirements
 

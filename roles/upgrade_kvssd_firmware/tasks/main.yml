@@ -1,0 +1,78 @@
+---
+
+- name: Identify kvssd firmware
+  find:
+    path: "{{ upgrade_kvssd_firmware_path }}"
+    patterns: '*.bin'
+  delegate_to: localhost
+  run_once: true
+  register: firmware_bin
+
+- name: Assert kvssd firmware found
+  assert:
+    that: firmware_bin.files | count == 1
+    fail_msg: "Expected 1 but found {{ firmware_bin.files | count }} firmware files. Please download firmware bin to {{ upgrade_kvssd_firmware_path }}"
+    success_msg: "Found {{ firmware_bin.files[0].path | basename }}"
+
+- name: Set target firmware version
+  set_fact:
+    target_fw_version: "{{ (firmware_bin.files[0].path | basename ).split('_') | first }}"
+
+- name: Query list of NVMe devices
+  command: nvme list -o json
+  changed_when: false
+  register: nvme_list
+  become: true
+
+- name: Set kvssd_upgrade_list variable
+  set_fact:
+    kvssd_upgrade_list: "{{ kvssd_upgrade_list | default([]) + [ item.DevicePath ] }}"
+  loop: "{{ (nvme_list.stdout | from_json).Devices }}"
+  loop_control:
+    label: "{{ item.DevicePath }}"
+  when:
+    - item.ModelNumber == kvssd_model
+    - item.Firmware != target_fw_version
+
+- name: Create KVSSD firmware staging directory
+  file:
+    path: "{{ upgrade_kvssd_firmware_staging_dir }}"
+    state: directory
+  when: kvssd_upgrade_list is defined
+
+- name: Copy KVSSD firmware
+  copy:
+    src: "{{ firmware_bin.files[0].path }}"
+    dest: "{{ upgrade_kvssd_firmware_staging_dir }}"
+  when: kvssd_upgrade_list is defined
+
+- name: Upgrade KVSSD firmware
+  include_tasks: upgrade_kvssd_firmware.yml
+  vars:
+    kvssd_device_path: "{{ item | regex_replace('n\\d+$', '') }}"
+    kvssd_fw_bin: "{{ upgrade_kvssd_firmware_staging_dir }}/{{ firmware_bin.files[0].path | basename }}"
+  loop: "{{ kvssd_upgrade_list }}"
+  when: kvssd_upgrade_list is defined
+
+- name: Remove KVSSD firmware staging directory
+  file:
+    path: "{{ upgrade_kvssd_firmware_staging_dir }}"
+    state: absent
+
+- name: Query post-upgrade list of NVMe devices
+  command: nvme list -o json
+  changed_when: false
+  register: post_nvme_list
+  become: true
+
+- name: Assert post-upgrade firmware
+  assert:
+    that: item.Firmware == target_fw_version
+    fail_msg: "{{ item.DevicePath }} expected firmware {{ target_fw_version }}, found {{ item.Firmware }}"
+    success_msg: "{{ item.DevicePath }} has firmware {{ item.Firmware }}"
+    quiet: yes
+  loop: "{{ (post_nvme_list.stdout | from_json).Devices }}"
+  loop_control:
+    label: "{{ item.DevicePath }}"
+  when:
+    - item.ModelNumber == kvssd_model
