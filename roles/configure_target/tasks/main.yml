@@ -4,10 +4,6 @@
   include_role:
     name: get_mlnx_devices
 
-- name: Set mlx_ip_list
-  set_fact:
-    mlx_ip_list: []
-
 - name: Get IP of active interfaces
   include_tasks: get_mlx_ip.yml
   loop: "{{ mellanox_devices }}"
@@ -18,7 +14,7 @@
 
 - name: Assert that at least one Mellanox IP is present
   assert:
-    that: mlx_ip_list | length > 0
+    that: mlx_ip_list is defined
     fail_msg: "No IPs configured on any Mellanox adapter. Please configure at least one IP to deploy target."
     success_msg: "Mellanox IP(s) detected."
 
