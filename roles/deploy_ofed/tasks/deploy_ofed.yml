@@ -33,8 +33,9 @@
 
 - name: Unarchive OFED tgz
   unarchive:
-    src: "{{ ofed_local_path }}"
+    src: "{{ ofed_url }}"
     dest: "{{ deploy_ofed_staging_dir }}"
+    remote_src: true
 
 - name: Install OFED
   command: "./mlnxofedinstall --add-kernel-support --force"
