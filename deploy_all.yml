@@ -12,10 +12,10 @@
     - get_ofed_versions
     - validate_centos
     - deploy_kernel
+    - deploy_nvme_cli
     - deploy_ofed
     - load_mlnx_drivers
-    # - upgrade_ofed_firmware
-    - deploy_nvme_cli
+    - upgrade_connectx_firmware
     - deploy_target
     - deploy_host
     - configure_target
