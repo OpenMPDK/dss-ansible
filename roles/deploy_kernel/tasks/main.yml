@@ -12,9 +12,9 @@
 - name: Assert kernel RPMs are found
   assert:
     that: kernel_version.files | length > 0
-  fail_msg: "No kernel RPMs found. Please download RPM's to {{ deploy_kernel_path }}"
+    fail_msg: "No kernel RPMs found. Please download RPM's to {{ deploy_kernel_path }}"
+    success_msg: "Found kernel RPMs"
   run_once: true
-  success_msg: "Found kernel RPMs"
 
 - name: Set target kernel version variable
   set_fact:
