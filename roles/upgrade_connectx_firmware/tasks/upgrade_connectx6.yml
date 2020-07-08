@@ -26,8 +26,6 @@
 
 - name: Reset ConnectX-6 adapter {{ mlx_ibdev }}
   command: "mlxfwreset -d {{ mlx_ibdev }} reset -y"
-  args:
-    chdir: "{{ connectx6_staging_dir }}"
   become: true  # noqa 301
 
 - name: Get post-upgrade Firmware version for adapter {{ mlx_ibdev }}
