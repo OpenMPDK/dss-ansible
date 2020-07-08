@@ -2,7 +2,7 @@
 
 - name: Set OFED version variables
   set_fact:
-    ofed_local_path: "{{ item.local_path }}" 
+    ofed_local_path: "{{ item.local_path }}"
     ofed_target_version: "{{ item.version }}"
     ofed_dir: "{{ item.dir }}"
   loop: "{{ ofed_files }}"
