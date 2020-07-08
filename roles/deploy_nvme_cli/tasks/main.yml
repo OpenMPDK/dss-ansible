@@ -13,7 +13,7 @@
     nvme_cli_version.stdout.split(' ')[-1] is version(deploy_nvme_cli_version, '!=')
 
 - name: Check nvme-cli version post-install
-  shell: nvme --version
+  command: nvme --version
   changed_when: false
   register: post_nvme_cli_version
 
