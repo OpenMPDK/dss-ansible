@@ -31,10 +31,10 @@
   args:
     chdir: "{{ deploy_nvme_cli_staging_dir }}"   # noqa 301
 
-- name: Copy nvme-cli to sbin path
+- name: Copy nvme-cli to usr/bin path
   copy:
     src: "{{ deploy_nvme_cli_staging_dir }}/nvme"
-    dest: /usr/sbin/nvme
+    dest: /usr/bin/nvme
     mode: 0751
     force: true
     remote_src: true
