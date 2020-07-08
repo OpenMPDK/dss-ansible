@@ -15,7 +15,7 @@
   set_fact:
     mellanox_devices: "{{ mellanox_devices | default([]) +
                         [{'ibdev': ibdev_val,
-                          'ConnectX': connectx_val,
+                          'ConnectX': connectx_val | int,
                           'fw': fw_val,
                           'netdev': netdev_val,
                           'status': status_val }] }}"
@@ -25,7 +25,7 @@
   vars:
     mlx_regex: '(mlx[\d]_[\d]).+ConnectX-(\d).+ fw ([^ ]+).+ ==> ([^ ]+) \((Up|Down)\)'
     ibdev_val: "{{ item | regex_search(mlx_regex, '\\1') | first }}"
-    connectx_val: "{{ item | regex_search(mlx_regex, '\\2') | first | int }}"
+    connectx_val: "{{ item | regex_search(mlx_regex, '\\2') | first }}"
     fw_val: "{{ item | regex_search(mlx_regex, '\\3') | first }}"
     netdev_val: "{{ item | regex_search(mlx_regex, '\\4') | first }}"
     status_val: "{{ item | regex_search(mlx_regex, '\\5') | first }}"
