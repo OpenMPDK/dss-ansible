@@ -13,9 +13,6 @@
 
 - name: Uninstall existing version of nvme-cli
   import_tasks: remove_nvme_cli.yml
-  until:
-    - nvme_path.rc is defined
-    - nvme_path.rc != 0
 
 - name: Create nvme-cli staging directory
   file:
