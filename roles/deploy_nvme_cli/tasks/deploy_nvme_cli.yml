@@ -34,7 +34,7 @@
 - name: Copy nvme-cli to sbin path
   copy:
     src: "{{ deploy_nvme_cli_staging_dir }}/nvme"
-    dest: /usr/local/bin/nvme
+    dest: /usr/sbin/nvme
     mode: 0751
     force: true
     remote_src: true
