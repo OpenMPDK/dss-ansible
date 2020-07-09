@@ -1,5 +1,9 @@
 ---
 
+- name: Get OFED versions
+  include_role:
+    name: get_ofed_versions
+
 - name: Validate CentOS Version
   assert:
     that:
