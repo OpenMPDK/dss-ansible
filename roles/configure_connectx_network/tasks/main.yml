@@ -1,0 +1,21 @@
+---
+
+- name: Get RoCEv2 IP Addresses
+  include_role:
+    name: get_vlan_ips
+  vars:
+    vlan_list: "{{ rocev2_vlans }}"
+
+- name: Print RoCEv2 VLANs
+  debug:
+    var: vlan_ip_list
+
+- name: Get TCP IP Addresses
+  include_role:
+    name: get_vlan_ips
+  vars:
+    vlan_list: "{{ tcp_vlans }}"
+
+- name: Print TCP VLANs
+  debug:
+    var: vlan_ip_list
