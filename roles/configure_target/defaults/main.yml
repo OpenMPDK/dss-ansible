@@ -1,8 +1,17 @@
 ---
 
-configure_target_rocev2_vlans:
-  - 31
-  - 32
-configure_target_tcp_vlans:
-  - 41
-  - 42
+num_subsystems: 1
+rocev2_vlans:
+  - id: 31
+    ip_prefix: 201.0.0
+    netmask: 255.0.0.0
+  - id: 32
+    ip_prefix: 203.0.0
+    netmask: 255.0.0.0
+tcp_vlans:
+  - id: 41
+    ip_prefix: 202.0.0
+    netmask: 255.0.0.0
+  - id: 42
+    ip_prefix: 204.0.0
+    netmask: 255.0.0.0
