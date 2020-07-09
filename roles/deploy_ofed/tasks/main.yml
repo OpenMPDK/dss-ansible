@@ -1,5 +1,9 @@
 ---
 
+- name: Get OFED versions
+  include_role:
+    name: get_ofed_versions
+
 - name: Set OFED version variables
   set_fact:
     ofed_url: "{{ item.url }}"
