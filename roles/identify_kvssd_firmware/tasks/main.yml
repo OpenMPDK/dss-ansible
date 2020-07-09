@@ -1,0 +1,19 @@
+---
+
+- name: Identify kvssd firmware
+  find:
+    path: "{{ kvssd_firmware_path }}"
+    patterns: '*.bin'
+  delegate_to: localhost
+  run_once: true
+  register: firmware_bin
+
+- name: Assert kvssd firmware found
+  assert:
+    that: firmware_bin.files | count == 1
+    fail_msg: "Expected 1 but found {{ firmware_bin.files | count }} firmware files. Please download firmware bin to {{ kvssd_firmware_path }}"
+    success_msg: "Found {{ firmware_bin.files[0].path | basename }}"
+
+- name: Set target firmware version
+  set_fact:
+    target_fw_version: "{{ (firmware_bin.files[0].path | basename ).split('_') | first }}"
