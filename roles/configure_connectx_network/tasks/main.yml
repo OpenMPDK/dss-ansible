@@ -13,7 +13,7 @@
 
 - name: Get list of last_octet amongst all hosts
   set_fact:
-    last_octet_list: "{{ last_octet_list | default([]) + [ hostvars[item].last_octet | int ]}}"
+    last_octet_list: "{{ last_octet_list | default([]) + [ hostvars[item].last_octet | int ] }}"
   loop: "{{ ansible_play_hosts_all }}"
   run_once: true
   when:
@@ -33,7 +33,7 @@
 
 - name: Get final list of last_octet amongst all hosts
   set_fact:
-    final_last_octet_list: "{{ final_last_octet_list | default([]) + [ hostvars[item].last_octet | int ]}}"
+    final_last_octet_list: "{{ final_last_octet_list | default([]) + [ hostvars[item].last_octet | int ] }}"
   loop: "{{ ansible_play_hosts_all }}"
   run_once: true
   when:

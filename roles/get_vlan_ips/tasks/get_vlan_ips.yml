@@ -13,4 +13,3 @@
     - mellanox_device.status == 'Up'
     - lookup('vars', vlan_device, default='') != ''
     - lookup('vars', vlan_device).ipv4.address is defined
-  
