@@ -3,6 +3,7 @@
 - name: Identify kvssd firmware
   include_role:
     name: identify_kvssd_firmware
+  when: target_fw_version is not defined
 
 - name: Query list of NVMe devices
   command: nvme list -o json
