@@ -1,21 +1,78 @@
 ---
 
-- name: Get RoCEv2 IP Addresses
-  include_role:
-    name: get_vlan_ips
+- name: Get IP last octet from hostname
+  set_fact:
+    last_octet: "{{ short_hostname | regex_search(octet_regex,'\\1') | first | int }}"
   vars:
-    vlan_list: "{{ rocev2_vlans }}"
+    short_hostname: "{{ ansible_hostname.split('.').0 }}"
+    octet_regex: '[^\d]+([\d]+)$'
+  when:
+    - short_hostname is search(octet_regex,'\\1')
+    - short_hostname | regex_search(octet_regex,'\\1') | first | int >= 1
+    - short_hostname | regex_search(octet_regex,'\\1') | first | int <= 255
 
-- name: Print RoCEv2 VLANs
-  debug:
-    var: vlan_ip_list
+- name: Get list of last_octet amongst all hosts
+  set_fact:
+    last_octet_list: "{{ last_octet_list | default([]) + [ hostvars[item].last_octet | int ]}}"
+  loop: "{{ ansible_play_hosts_all }}"
+  run_once: true
+  when:
+    - hostvars[item].last_octet is defined
 
-- name: Get TCP IP Addresses
+- name: Use inventory ID number if hostnames do not contain unique numbers between 1 and 255
+  set_fact:
+    last_octet: "{{ ansible_loop.index }}"
+  when: >
+    item == inventory_hostname and
+    (last_octet_list is not defined or
+    last_octet_list | count != ansible_play_hosts_all | count or
+    last_octet_list | count != last_octet_list | unique | count)
+  loop: "{{ ansible_play_hosts_all }}"
+  loop_control:
+    extended: true
+
+- name: Get final list of last_octet amongst all hosts
+  set_fact:
+    final_last_octet_list: "{{ final_last_octet_list | default([]) + [ hostvars[item].last_octet | int ]}}"
+  loop: "{{ ansible_play_hosts_all }}"
+  run_once: true
+  when:
+    - hostvars[item].last_octet is defined
+
+- name: Assert last_octet is valid
+  assert:
+    that:
+      - last_octet | int >= 1
+      - last_octet | int <= 255
+      - final_last_octet_list | count == ansible_play_hosts_all | count
+      - final_last_octet_list | count == last_octet_list | unique | count
+    fail_msg: "Invalid last_octet: {{ last_octet }}"
+    success_msg: "Valid last_octet: {{ last_octet }}"
+
+- name: Get list of Mellanox devices
   include_role:
-    name: get_vlan_ips
-  vars:
-    vlan_list: "{{ tcp_vlans }}"
+    name: get_mlnx_devices
 
-- name: Print TCP VLANs
-  debug:
-    var: vlan_ip_list
+# TODO: assert num up adapters == num vlans
+
+# TODO: set ifcfg template for each adapter
+
+# - name: Get RoCEv2 IP Addresses
+#   include_role:
+#     name: get_vlan_ips
+#   vars:
+#     vlan_list: "{{ rocev2_vlans }}"
+
+# - name: Print RoCEv2 VLANs
+#   debug:
+#     var: vlan_ip_list
+
+# - name: Get TCP IP Addresses
+#   include_role:
+#     name: get_vlan_ips
+#   vars:
+#     vlan_list: "{{ tcp_vlans }}"
+
+# - name: Print TCP VLANs
+#   debug:
+#     var: vlan_ip_list
