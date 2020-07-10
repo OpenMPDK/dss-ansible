@@ -1,79 +1,67 @@
 ---
 
-- name: Get IP last octet from hostname
-  set_fact:
-    last_octet: "{{ short_hostname | regex_search(octet_regex,'\\1') | first | int }}"
-  vars:
-    short_hostname: "{{ ansible_hostname.split('.').0 }}"
-    octet_regex: '[^\d]+([\d]+)$'
-  when:
-    - short_hostname is search(octet_regex,'\\1')
-    - short_hostname | regex_search(octet_regex,'\\1') | first | int >= 1
-    - short_hostname | regex_search(octet_regex,'\\1') | first | int <= 255
-
-- name: Get list of last_octet amongst all hosts
-  set_fact:
-    last_octet_list: "{{ last_octet_list | default([]) + [ hostvars[item].last_octet | int ] }}"
-  loop: "{{ ansible_play_hosts_all }}"
-  run_once: true
-  when:
-    - hostvars[item].last_octet is defined
-
-- name: Use inventory ID number if hostnames do not contain unique numbers between 1 and 255
-  set_fact:
-    last_octet: "{{ ansible_loop.index }}"
-  when: >
-    item == inventory_hostname and
-    (last_octet_list is not defined or
-    last_octet_list | count != ansible_play_hosts_all | count or
-    last_octet_list | count != last_octet_list | unique | count)
-  loop: "{{ ansible_play_hosts_all }}"
-  loop_control:
-    extended: true
-
-- name: Get final list of last_octet amongst all hosts
-  set_fact:
-    final_last_octet_list: "{{ final_last_octet_list | default([]) + [ hostvars[item].last_octet | int ] }}"
-  loop: "{{ ansible_play_hosts_all }}"
-  run_once: true
-  when:
-    - hostvars[item].last_octet is defined
-
-- name: Assert last_octet is valid
+- name: Assert rocev2_vlans and tcp_vlans lists are balanced
   assert:
-    that:
-      - last_octet | int >= 1
-      - last_octet | int <= 255
-      - final_last_octet_list | count == ansible_play_hosts_all | count
-      - final_last_octet_list | count == last_octet_list | unique | count
-    fail_msg: "Invalid last_octet: {{ last_octet }}"
-    success_msg: "Valid last_octet: {{ last_octet }}"
+    that: rocev2_vlans | count == tcp_vlans | count
+    fail_msg: "Found {{ rocev2_vlans | count }} rocev2_vlans and {{ tcp_vlans | count }} tcp_vlans. These numbers must match."
+    success_msg: "Found {{ rocev2_vlans | count }} rocev2_vlans and {{ tcp_vlans | count }} tcp_vlans."
+
+- name: Set combined_vlans list
+  set_fact:
+    combined_vlans: "{{ combined_vlans | default([]) + [ item.0 ] + [ item.1 ] }}"
+  run_once: true
+  with_together:
+    - "{{ rocev2_vlans }}"
+    - "{{ tcp_vlans }}"
+  loop_control:
+    label: "rocev2 id: {{ item.0.id }}, tcp id: {{ item.1.id }}"
+
+- name: Get IP address last octet for ConnectX Devices
+  include_tasks: get_last_octet.yml
 
 - name: Get list of Mellanox devices
   include_role:
     name: get_mlnx_devices
   when: mellanox_devices is not defined
 
-# TODO: assert num up adapters == num vlans
+- name: Set up_devices list
+  set_fact:
+    up_devices: "{{ mellanox_devices | selectattr('status', 'equalto', 'Up') | list }}"
 
-# TODO: set ifcfg template for each adapter
+- name: Assert number of 'Up' adapters == number of VLANs
+  assert:
+    that: up_devices | count == combined_vlans | count
+    fail_msg: |
+      Found {{ up_devices | count }} 'Up' ConnectX adapters.
+      This needs to match the number of VLAN's: {{ combined_vlans | count }}.
+      Ensure all ConnectX adapters are connected to switch.
+      If necessary, configure the list of 'rocev2_vlans' and 'tcp_vlans' in {{ playbook_dir }}/group_vars/servers.yml
+    success_msg: "Found {{ up_devices | count }} 'Up' ConnectX adapters for {{ combined_vlans | count }} VLANs."
 
-# - name: Get RoCEv2 IP Addresses
-#   include_role:
-#     name: get_vlan_ips
-#   vars:
-#     vlan_list: "{{ rocev2_vlans }}"
+- name: create test dir for template (TEMPORARY)
+  file:
+    path: /tmp/mlnx_vlan_test
+    state: directory
 
-# - name: Print RoCEv2 VLANs
-#   debug:
-#     var: vlan_ip_list
+- name: Configure ConnectX adapters
+  template:
+    src: vlan_ifcfg.j2
+    dest: "/etc/sysconfig/network-scripts/ifcfg-{{ device.netdev }}.{{ vlan.id }}"
+  with_together:
+    - "{{ up_devices }}"
+    - "{{ combined_vlans }}"
+  loop_control:
+    label: "{{ device.ibdev }}: {{ vlan.id }}"
+  vars:
+    device: "{{ item.0 }}"
+    vlan: "{{ item.1 }}"
+    priority: "{{ (vlan.id | string)[0] }}"
+  become: true
+  register: connectx_config
 
-# - name: Get TCP IP Addresses
-#   include_role:
-#     name: get_vlan_ips
-#   vars:
-#     vlan_list: "{{ tcp_vlans }}"
-
-# - name: Print TCP VLANs
-#   debug:
-#     var: vlan_ip_list
+- name: Restart network service if ConnectX configuration changed
+  service:
+    name: network
+    status: restarted
+  become: true
+  when: connectx_config.changed  # noqa 503
