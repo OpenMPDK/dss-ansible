@@ -11,10 +11,6 @@
     fail_msg: "Found 0 ConnectX devices"
     success_msg: "Found {{ mlx_list.stdout_lines | length }} devices"
 
-- name: Initialize mellanox_devices variable
-  set_fact:
-    mellanox_devices: []
-
 - name: Create list of ConnectX device dict
   set_fact:
     mellanox_devices: "{{ mellanox_devices | default([]) +
