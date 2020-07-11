@@ -60,3 +60,5 @@
     - Restart network service
     - Reload facts
   become: true
+
+- meta: flush_handlers
