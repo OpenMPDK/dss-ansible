@@ -1,18 +1,44 @@
 ---
 
-- name: nvme fw-download {{ kvssd_device_path }} -i {{ kvssd_fw_bin }}
+- name: nvme fw-download
   command: "nvme fw-download {{ kvssd_device_path }} -f {{ kvssd_fw_bin }}"
+  vars:
+    kvssd_device_path: "{{ item | regex_replace('n\\d+$', '') }}"
+    kvssd_fw_bin: "{{ upgrade_kvssd_firmware_staging_dir }}/{{ firmware_bin.files[0].path | basename }}"
+  loop: "{{ kvssd_upgrade_list }}"
+  loop_control:
+    label: "{{ kvssd_device_path }}"
   become: true  # noqa 301
 
-- name: nvme fw-activate {{ kvssd_device_path }} -s 0 -a 1
+- name: nvme fw-activate
   command: "nvme fw-activate {{ kvssd_device_path }} -s 0 -a 1"
   register: fw_activate
   until:
     - '"Resource temporarily unavailable" not in fw_activate.stderr'
     - '"Interrupted system call" not in fw_activate.stderr'
     - '"The command was aborted due to a Command Abort request" not in fw_activate.stderr'
+  vars:
+    kvssd_device_path: "{{ item | regex_replace('n\\d+$', '') }}"
+    kvssd_fw_bin: "{{ upgrade_kvssd_firmware_staging_dir }}/{{ firmware_bin.files[0].path | basename }}"
+  loop: "{{ kvssd_upgrade_list }}"
+  loop_control:
+    label: "{{ kvssd_device_path }}"
   become: true  # noqa 301
 
-- name: nvme reset {{ kvssd_device_path }}
+- name: nvme reset
   command: "nvme reset {{ kvssd_device_path }}"
+  register: nvme_reset
+  async: 300
+  poll: 0
+  vars:
+    kvssd_device_path: "{{ item | regex_replace('n\\d+$', '') }}"
+  loop: "{{ kvssd_upgrade_list }}"
+  loop_control:
+    label: "{{ kvssd_device_path }}"
   become: true  # noqa 301
+
+- name: Check async nvme reset
+  include_tasks: check_async.yml
+  vars:
+    async_name: "nvme reset"
+    async_tasks: "{{ nvme_reset.results }}"
