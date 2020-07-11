@@ -3,7 +3,7 @@
 - name: Restart network service
   service:
     name: network
-    status: restarted
+    state: restarted
   become: true
 
 - name: Reload facts
