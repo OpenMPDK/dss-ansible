@@ -56,12 +56,7 @@
     device: "{{ item.0 }}"
     vlan: "{{ item.1 }}"
     priority: "{{ (vlan.id | string)[0] }}"
+  notify:
+    - Restart network service
+    - Reload facts
   become: true
-  register: connectx_config
-
-- name: Restart network service if ConnectX configuration changed
-  service:
-    name: network
-    status: restarted
-  become: true
-  when: connectx_config.changed  # noqa 503

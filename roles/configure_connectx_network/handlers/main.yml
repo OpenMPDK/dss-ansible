@@ -1,0 +1,10 @@
+---
+
+- name: Restart network service
+  service:
+    name: network
+    status: restarted
+  become: true
+
+- name: Reload facts
+  setup:
