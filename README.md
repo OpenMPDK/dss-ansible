@@ -1,6 +1,6 @@
-# facebook_deploy
+# deploy
 
-Ansible automated deployment for Facebook Project
+Ansible automated deployment for DSS software
 
 ## Requirements
 
