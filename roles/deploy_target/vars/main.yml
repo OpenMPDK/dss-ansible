@@ -1,4 +1,4 @@
 ---
 
-deploy_target_path: "{{ playbook_dir }}/deploy/target"
+deploy_target_path: "{{ playbook_dir }}/artifacts/target"
 deploy_target_dest_dir: /usr/dss/nkv-target

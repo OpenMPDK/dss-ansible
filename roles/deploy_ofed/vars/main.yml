@@ -1,4 +1,4 @@
 ---
 
-deploy_ofed_path: "{{ playbook_dir }}/deploy/ofed"
+deploy_ofed_path: "{{ playbook_dir }}/artifacts/ofed"
 deploy_ofed_staging_dir: /tmp/ofed
