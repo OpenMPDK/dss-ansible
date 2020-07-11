@@ -1,0 +1,80 @@
+---
+
+- name: Install lldpad
+  yum:
+    name: lldpad
+    state: present
+  become: true
+
+- name: Start and enable lldpad service
+  service:
+    name: lldpad
+    state: started
+    enabled: true
+  become: true
+
+- name: Get list of Mellanox devices
+  include_role:
+    name: get_mlnx_devices
+  when: mellanox_devices is not defined
+
+- name: Set up_devices list
+  set_fact:
+    up_devices: "{{ mellanox_devices | selectattr('status', 'equalto', 'Up') | list }}"
+
+- name: Get lldp adminStatus for up devices
+  command: "lldptool get-lldp -i {{ item.netdev }} adminStatus"
+  changed_when: false
+  loop: "{{ up_devices }}"
+  loop_control:
+    label: "{{ item.netdev }}"
+  register: lldp_adminStatus
+  become: true
+
+- name: Set lldp adminStatus for up devices
+  command: "lldptool set-lldp -i {{ item.item.netdev }} adminStatus=rxtx"
+  when: item.stdout != "adminStatus=rxtx"
+  loop: "{{ lldp_adminStatus.results }}"
+  loop_control:
+    label: "{{ item.item.netdev }}"
+  notify:
+    - Restart lldpad
+  become: true
+
+- name: Get tlv sysName enableTx for up devices
+  command: "lldptool get-tlv -i {{ item.netdev }} -V sysName -c enableTx"
+  changed_when: false
+  loop: "{{ up_devices }}"
+  loop_control:
+    label: "{{ item.netdev }}"
+  register: tlv_sysName
+  become: true
+
+- name: Set tlv sysName enableTx for up devices
+  command: "lldptool set-tlv -i {{ item.item.netdev }} -V sysName -c enableTx=yes"
+  when: item.stdout != "enableTx=yes"
+  loop: "{{ tlv_sysName.results }}"
+  loop_control:
+    label: "{{ item.item.netdev }}"
+  notify:
+    - Restart lldpad
+  become: true
+
+- name: Get tlv portDesc enableTx for up devices
+  command: "lldptool get-tlv -i {{ item.netdev }} -V portDesc -c enableTx"
+  changed_when: false
+  loop: "{{ up_devices }}"
+  loop_control:
+    label: "{{ item.netdev }}"
+  register: tlv_portDesc
+  become: true
+
+- name: Set tlv portDesc enableTx for up devices
+  command: "lldptool set-tlv -i {{ item.item.netdev }} -V portDesc -c enableTx=yes"
+  when: item.stdout != "enableTx=yes"
+  loop: "{{ tlv_portDesc.results }}"
+  loop_control:
+    label: "{{ item.item.netdev }}"
+  notify:
+    - Restart lldpad
+  become: true

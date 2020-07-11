@@ -1,0 +1,7 @@
+---
+
+- name: Restart lldpad
+  service:
+    name: lldpad
+    state: restarted
+  become: true

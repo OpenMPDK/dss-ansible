@@ -16,6 +16,7 @@
     - deploy_ofed
     - upgrade_connectx_firmware
     - configure_connectx_network
+    - configure_lldpad
     - deploy_target
     - deploy_host
     - configure_target
