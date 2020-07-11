@@ -57,7 +57,6 @@
     that: item.Firmware == target_fw_version
     fail_msg: "{{ item.DevicePath }} expected firmware {{ target_fw_version }}, found {{ item.Firmware }}"
     success_msg: "{{ item.DevicePath }} has firmware {{ item.Firmware }}"
-    quiet: yes
   loop: "{{ (post_nvme_list.stdout | from_json).Devices }}"
   loop_control:
     label: "{{ item.DevicePath }}"
