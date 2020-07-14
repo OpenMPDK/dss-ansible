@@ -1,0 +1,19 @@
+---
+
+- name: Initialize mac_address_list
+  set_fact:
+    mac_address_list: []
+
+- name: Get list of MAC addresses for VLAN ID {{ vlan.id }}
+  set_fact:
+    mac_address_list: "{{ mac_address_list + [ mac_address ] }}"
+  loop: "{{ mellanox_devices }}"
+  loop_control:
+    loop_var: mellanox_device
+    label: "{{ mellanox_device.netdev }}"
+  vars:
+    vlan_device: "ansible_{{ mellanox_device.netdev }}.{{ vlan.id }}"
+    mac_address: "{{ lookup('vars', vlan_device).macaddress }}"
+  when:
+    - mellanox_device.status == 'Up'
+    - lookup('vars', vlan_device, default='') != ''  # noqa 602
