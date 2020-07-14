@@ -1,6 +1,6 @@
 ---
 
-- name: Deploy Servers
+- name: Configure Servers
   hosts: servers
   pre_tasks:
     - name: Verify minimum Ansible version
@@ -17,6 +17,13 @@
     - upgrade_connectx_firmware
     - configure_connectx_network
     - configure_lldpad
+
+- name: Configure Switch
+  import_playbook: configure_onyx_vlans.yml
+
+- name: Deploy DSS software
+  hosts: servers
+  roles:
     - deploy_target
     - deploy_host
     - configure_target
