@@ -38,11 +38,6 @@
       If necessary, configure the list of 'rocev2_vlans' and 'tcp_vlans' in {{ playbook_dir }}/group_vars/servers.yml
     success_msg: "Found {{ up_devices | count }} 'Up' ConnectX adapters for {{ combined_vlans | count }} VLANs."
 
-- name: create test dir for template (TEMPORARY)
-  file:
-    path: /tmp/mlnx_vlan_test
-    state: directory
-
 - name: Configure ConnectX adapters
   template:
     src: vlan_ifcfg.j2
