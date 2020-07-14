@@ -1,14 +1,15 @@
 ---
 
-- name: Identify path of existing nvme_cli
-  command: which nvme
+- name: Identify all paths of existing nvme_cli
+  command: which -a nvme
   changed_when: false
   failed_when: false
   register: nvme_path
 
-- name: Remove existing nvme_cli
+- name: Remove all existing nvme_cli
   file:
-    path: "{{ nvme_path.stdout }}"
+    path: "{{ item }}"
     state: absent
+  loop: "{{ nvme_path.stdout_lines }}"
   become: true
   when: nvme_path.rc == 0
