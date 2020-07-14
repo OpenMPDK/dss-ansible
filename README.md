@@ -27,18 +27,26 @@ Ensure that SSH key authentication is configured for all hosts in your cluster. 
   - Example: `testhost01` (zero-padding not required)
   - This number will be used to configure IP addresses of all ConnectX-6 adapters (last octet)
   - If a unique number between 1-255 cannot be derived from the hostname, the Ansible inventory ID will be used instead
-  - IP prefix, netmask and VLAN ID can be user-defined in `group_vars/servers.yml`
+  - IP prefix, netmask and VLAN ID can be user-defined in `group_vars/all.yml`
 * ConnectX-6 adapters must be connected to Onyx Switch (Status: `up`)
 * Number of `up` ConnectX-6 adapters must be an even number
-* Number of `up` ConnectX-6 adapters must match combined number of `rocev2_vlans` and `tcp_vlans` defined in `group_vars/servers.yml`
+* Number of `up` ConnectX-6 adapters must match combined number of `rocev2_vlans` and `tcp_vlans` defined in `group_vars/all.yml`
 * Samsung PM983 SSD's installed (Model: `SAMSUNG MZ4LB3T8HALS-00003`)
-  - KVSSD model can be user-defined in `group_vars/servers.yml`
+  - KVSSD model can be user-defined in `group_vars/all.yml`
 
 #### Client requirements
 
 * Pre-deployed with any x86_64 linux OS (Prefered: CentOS 7.4 1708)
 * Hostnames pre-configured
 * Manangement NIC configured and accessible by the Ansible deployment host
+
+#### Onyx Switch requirements
+
+* Onyx version 3.8.2306 preferred
+* Administrator credentials for switch required
+  - Note: Since ssh keys cannot be copied to Onyx switch, passkey will need to be used
+  - Either provide `ansible_ssh_pass` var for `onyx` group in `hosts` (insecure) or use Ansible Vault <https://docs.ansible.com/ansible/latest/user_guide/vault.html>
+* Note: Onyx ansible modules are not idempotent, and will report `changed` even if no changes are made
 
 ## Deploy
 
