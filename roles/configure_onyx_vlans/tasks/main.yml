@@ -1,0 +1,29 @@
+---
+
+- name: Query lldp remote
+  onyx_command:
+    commands: show lldp remote
+  register: lldp_list
+
+- name: Enable PFC
+  onyx_config:
+    lines:
+      - dcb priority-flow-control enable force
+
+- name: Set PFC priorities
+  onyx_config:
+    lines:
+      - "dcb priority-flow-control priority {{ item }} enable"
+  loop: "{{ (rocev2_priority_list + tcp_priority_list) | unique }}"
+
+- name: Configure VLANs
+  include_tasks: configure_vlan.yml
+  vars:
+    vlan_id: "{{ item.id }}"
+    vlan_prefix: "{{ item.prefix }}"
+    mac_addresses: "{{ item.mac_list }}"
+    server_host: "{{ groups['servers'][0] }}"
+    vlan_mac_list: "{{ hostvars[server_host]['vlan_mac_list'] }}"
+  loop: "{{ vlan_mac_list }}"
+  loop_control:
+    label: "{{ vlan_id }}"
