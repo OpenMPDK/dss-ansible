@@ -1,0 +1,23 @@
+---
+
+- name: Configure server networking
+  hosts: servers
+  pre_tasks:
+    - name: Verify minimum Ansible version
+      assert:
+        that: "ansible_version.full is version_compare('2.9', '>=')"
+        msg: "You must update Ansible to at least 2.9 to use this playbook"
+      run_once: true
+  roles:
+    - get_vlan_mac_list
+
+- name: Configure Onyx VLANs
+  hosts: onyx
+  connection: network_cli
+  gather_facts: false
+  become: true
+  become_method: enable
+  vars:
+    ansible_network_os: onyx
+  roles:
+    - configure_onyx_vlans
