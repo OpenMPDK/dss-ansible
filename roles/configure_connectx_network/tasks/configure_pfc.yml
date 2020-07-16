@@ -4,6 +4,7 @@
   include_role:
     name: get_vlan_devices
   vars:
+    device_type: netdev
     vlan_list: "{{ pfc_vlan_list }}"
 
 - name: Query mlnx_qos for {{ vlan_label }}
