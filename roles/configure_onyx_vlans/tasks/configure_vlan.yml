@@ -3,12 +3,12 @@
 - name: Configure {{ vlan_prefix }}{{ vlan_id }}
   onyx_vlan:
     vlan_id: "{{ vlan_id }}"
-    name: "{{ vlan_prefix }}{{vlan_id}}"
+    name: "{{ vlan_prefix }}{{ vlan_id }}"
 
 - name: Initialize interfaces
   set_fact:
     interfaces: []
-    
+
 - name: Set interfaces for {{ vlan_prefix }}{{ vlan_id }}
   set_fact:
     interfaces: "{{ interfaces | default([]) + [ lldp_list.stdout.0 | regex_search(lldp_regex, '\\1') | first ] }}"
@@ -34,8 +34,6 @@
   onyx_pfc_interface:
     name: "Eth{{ interface }}"
     state: enabled
-      - "Eth{{ interface }}"
-      - enabled
   loop: "{{ interfaces }}"
   loop_control:
     loop_var: interface
