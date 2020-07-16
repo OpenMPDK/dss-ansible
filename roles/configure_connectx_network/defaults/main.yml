@@ -1,0 +1,24 @@
+---
+
+num_vlans_per_nic: 1
+rocev2_vlans:
+  - id: 31
+    ip_prefix: 201.0.0
+    netmask: 255.0.0.0
+  - id: 32
+    ip_prefix: 203.0.0
+    netmask: 255.0.0.0
+tcp_vlans:
+  - id: 41
+    ip_prefix: 202.0.0
+    netmask: 255.0.0.0
+  - id: 42
+    ip_prefix: 204.0.0
+    netmask: 255.0.0.0
+rocev2_priority_list:
+  - 0
+  - 3
+tcp_priority_list:
+  - 0
+  - 3
+  - 4

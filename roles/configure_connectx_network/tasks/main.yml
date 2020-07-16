@@ -57,3 +57,19 @@
   become: true
 
 - meta: flush_handlers
+
+# - name: Configure PFC for each adapter
+#   include_tasks: configure_pfc.yml
+#   vars:
+#     vlan_label: "{{ vlangroup.label }}"
+#     pfc_vlan_list: "{{ vlangroup.vlan_list }}"
+#     priority_list: "{{ vlangroup.priority_list }}"
+#   loop:
+#     - label: RoCEv2 VLANs
+#       vlan_list: "{{ rocev2_vlans }}"
+#       priority_list: "{{ rocev2_priority_list }}"
+#     - label: TCP VLANs
+#       vlan_list: "{{ tcp_vlans }}"
+#       priority_list: "{{ tcp_priority_list }}"
+#   loop_control:
+#     loop_var: vlangroup
