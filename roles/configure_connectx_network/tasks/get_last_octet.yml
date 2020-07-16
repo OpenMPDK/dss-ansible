@@ -14,7 +14,7 @@
 - name: Get list of last_octet amongst all hosts
   set_fact:
     last_octet_list: "{{ last_octet_list | default([]) + [ hostvars[item].last_octet | int ] }}"
-  loop: "{{ ansible_play_hosts_all }}"
+  loop: "{{ ansible_play_hosts }}"
   run_once: true
   when:
     - hostvars[item].last_octet is defined
@@ -25,16 +25,16 @@
   when: >
     item == inventory_hostname and
     (last_octet_list is not defined or
-    last_octet_list | count != ansible_play_hosts_all | count or
+    last_octet_list | count != ansible_play_hosts | count or
     last_octet_list | count != last_octet_list | unique | count)
-  loop: "{{ ansible_play_hosts_all }}"
+  loop: "{{ ansible_play_hosts }}"
   loop_control:
     extended: true
 
 - name: Get final list of last_octet amongst all hosts
   set_fact:
     final_last_octet_list: "{{ final_last_octet_list | default([]) + [ hostvars[item].last_octet | int ] }}"
-  loop: "{{ ansible_play_hosts_all }}"
+  loop: "{{ ansible_play_hosts }}"
   run_once: true
   when:
     - hostvars[item].last_octet is defined
@@ -44,7 +44,7 @@
     that:
       - last_octet | int >= 1
       - last_octet | int <= 255
-      - final_last_octet_list | count == ansible_play_hosts_all | count
+      - final_last_octet_list | count == ansible_play_hosts | count
       - final_last_octet_list | count == last_octet_list | unique | count
     fail_msg: "Invalid last_octet: {{ last_octet }}"
     success_msg: "Valid last_octet: {{ last_octet }}"
