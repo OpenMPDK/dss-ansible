@@ -1,0 +1,18 @@
+---
+
+- name: Get list of Mellanox adapters
+  include_role:
+    name: get_mlnx_devices
+  when: mellanox_devices is not defined
+
+- name: Initialize vlan_device_list variable
+  set_fact:
+    vlan_device_list: []
+
+- name: Get list of VLAN devices
+  include_tasks: get_vlan_devices.yml
+  loop: "{{ mellanox_devices }}"
+  vars:
+    mellanox_device: "{{ item }}"
+  loop_control:
+    label: "{{ item.ibdev }}"

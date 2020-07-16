@@ -1,0 +1,15 @@
+---
+
+- name: Append device to vlan_device_list for device {{ mellanox_device.netdev }}
+  set_fact:
+    vlan_device_list: "{{ vlan_device_list | default([]) + [ mellanox_device.netdev ] }}"
+  loop: "{{ vlan_list }}"
+  loop_control:
+    loop_var: vlan
+    label: "VLAN ID: {{ vlan.id }}"
+  vars:
+    vlan_device: "ansible_{{ mellanox_device.netdev }}.{{ vlan.id }}"
+  when:
+    - mellanox_device.status == 'Up'
+    - lookup('vars', vlan_device, default='') != ''  # noqa 602
+    - lookup('vars', vlan_device).ipv4.address is defined
