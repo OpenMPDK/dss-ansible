@@ -1,0 +1,47 @@
+---
+
+- name: Get list of devices for {{ vlan_label }}
+  include_role:
+    name: get_vlan_devices
+  vars:
+    device_type: ibdev
+    vlan_list: "{{ configure_vlan_list }}"
+
+- name: Query mlxconfig for {{ vlan_label }}
+  command: "mlxconfig -d {{ ibdev_device }} q"
+  changed_when: false
+  register: mlxconfig
+  loop: "{{ vlan_device_list }}"
+  loop_control:
+    loop_var: ibdev_device
+  become: true
+
+- name: Set ROCE_CC_PRIO_MASK_P1 for {{ vlan_label }}
+  command: "mlxconfig -d {{ item.ibdev_device }} -y s ROCE_CC_PRIO_MASK_P1=8"
+  loop: "{{ mlxconfig.results }}"
+  loop_control:
+    label: "{{ item.ibdev_device }}"
+  vars:
+    found_setting: "{{ item.stdout | regex_search('ROCE_CC_PRIO_MASK_P1 +([^ ]+)','\\1') | first }}"
+  when: found_setting != '8'
+  become: true
+
+- name: Set CNP_DSCP_P1 for {{ vlan_label }}
+  command: "mlxconfig -d {{ item.ibdev_device }} -y s CNP_DSCP_P1=48"
+  loop: "{{ mlxconfig.results }}"
+  loop_control:
+    label: "{{ item.ibdev_device }}"
+  vars:
+    found_setting: "{{ item.stdout | regex_search('CNP_DSCP_P1 +([^ ]+)','\\1') | first }}"
+  when: found_setting != '48'
+  become: true
+
+- name: Set CNP_802P_PRIO_P1 for {{ vlan_label }}
+  command: "mlxconfig -d {{ item.ibdev_device }} -y s CNP_802P_PRIO_P1=6"
+  loop: "{{ mlxconfig.results }}"
+  loop_control:
+    label: "{{ item.ibdev_device }}"
+  vars:
+    found_setting: "{{ item.stdout | regex_search('CNP_802P_PRIO_P1 +([^ ]+)','\\1') | first }}"
+  when: found_setting != '6'
+  become: true

@@ -58,6 +58,19 @@
 
 - meta: flush_handlers
 
+- name: Configure DCQCN for each device
+  include_tasks: configure_dcqcn.yml
+  vars:
+    vlan_label: "{{ vlangroup.label }}"
+    configure_vlan_list: "{{ vlangroup.vlan_list }}"
+  loop:
+    - label: RoCEv2 VLANs
+      vlan_list: "{{ rocev2_vlans }}"
+    - label: TCP VLANs
+      vlan_list: "{{ tcp_vlans }}"
+  loop_control:
+    loop_var: vlangroup
+
 # - name: Configure PFC for each adapter
 #   include_tasks: configure_pfc.yml
 #   vars:
