@@ -11,4 +11,4 @@
     state: stopped
     enabled: false
   notify: Set IRQ affinity
-  become: yes
+  become: true
