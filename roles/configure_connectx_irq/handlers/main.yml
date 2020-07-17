@@ -1,0 +1,9 @@
+---
+
+- name: Set IRQ affinity
+  command: "set_irq_affinity.sh {{ device.ibdev }}"
+  loop: "{{ mellanox_devices }}"
+  loop_control:
+    loop_var: device
+    label: "{{ device.ibdev }}"
+  become: true
