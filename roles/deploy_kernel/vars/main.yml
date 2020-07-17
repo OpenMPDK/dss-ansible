@@ -2,4 +2,3 @@
 
 deploy_kernel_path: "{{ playbook_dir }}/artifacts/kernel"
 deploy_kernel_staging_dir: /tmp/kernel_rpms
-deploy_kernel_reboot_timeout: 3600

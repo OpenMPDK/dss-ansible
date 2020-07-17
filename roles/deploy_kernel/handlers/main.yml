@@ -13,7 +13,7 @@
 
 - name: Reboot system
   reboot:
-    reboot_timeout: "{{ deploy_kernel_reboot_timeout }}"
+    reboot_timeout: "{{ reboot_timeout }}"
   become: true
 
 - name: Gather facts post-reboot
