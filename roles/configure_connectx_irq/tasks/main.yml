@@ -12,3 +12,5 @@
     enabled: false
   notify: Set IRQ affinity
   become: true
+
+- meta: flush_handlers
