@@ -58,6 +58,10 @@
 
 - meta: flush_handlers
 
+- name: Configure IRQ
+  include_role:
+    name: configure_connectx_irq
+
 - name: Configure DCQCN for each device
   include_tasks: configure_dcqcn.yml
   vars:
@@ -70,6 +74,8 @@
       vlan_list: "{{ tcp_vlans }}"
   loop_control:
     loop_var: vlangroup
+
+- meta: flush_handlers
 
 # - name: Configure PFC for each adapter
 #   include_tasks: configure_pfc.yml
