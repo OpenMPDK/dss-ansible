@@ -31,17 +31,12 @@
 
 - name: Set default grub
   command: "grub2-set-default 'CentOS Linux ({{ target_kernel_version }}) 7 (Core)'"
+  notify:
+    - Reboot system
+    - Gather facts post-reboot
   become: true  # noqa 301
-
-- name: Reboot system
-  reboot:
-    reboot_timeout: "{{ deploy_kernel_reboot_timeout }}"
-  become: true
 
 - name: Delete staging directory for Kernel RPMs
   file:
     path: "{{ deploy_kernel_staging_dir }}"
     state: absent
-
-- name: Gather facts post-reboot
-  setup:

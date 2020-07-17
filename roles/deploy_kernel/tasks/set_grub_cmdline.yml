@@ -1,0 +1,32 @@
+---
+
+- name: Set GRUB_CMDLINE_LINUX options
+  lineinfile:
+    path: /etc/default/grub
+    state: present
+    backrefs: yes
+    regexp: '^(GRUB_CMDLINE_LINUX=(?!.* {{ grub.match }})\"[^\"]+)(\".*)'
+    line: '\1 {{ grub.set }}\2'
+  loop:
+    - match: crashkernel
+      set: crashkernel=1
+    - match: rhgb
+      set: rhgb
+    - match: quiet
+      set: quiet
+    - match: iommu
+      set: iommu=off
+    - match: processor.max_cstate
+      set: processor.max_cstate=1
+    - match: pcie_aspm
+      set: pcie_aspm=off
+    - match: rcu_nocbs
+      set: rcu_nocbs=0-255
+  loop_control:
+    loop_var: grub
+    label: "{{ grub.match }}"
+  notify:
+    - Identify UEFI boot
+    - Execute grub2-mkconfig
+    - Reboot system
+  become: true
