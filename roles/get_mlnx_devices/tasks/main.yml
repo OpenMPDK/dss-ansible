@@ -18,7 +18,8 @@
 - name: Create list of ConnectX device dict
   set_fact:
     mellanox_devices: "{{ mellanox_devices | default([]) +
-                        [{'ibdev': ibdev_val,
+                        [{'hw_addr': hw_addr,
+                          'ibdev': ibdev_val,
                           'ConnectX': connectx_val | int,
                           'fw': fw_val,
                           'netdev': netdev_val,
@@ -27,9 +28,10 @@
   loop_control:
     label: "{{ ibdev_val }}"
   vars:
-    mlx_regex: '(mlx[\d]_[\d])(?:.+ConnectX-(\d))?.+fw ([^ ]+).+ ==> ([^ ]+) \((Up|Down)\)'
-    ibdev_val: "{{ item | regex_search(mlx_regex, '\\1') | first }}"
-    connectx_val: "{{ item | regex_search(mlx_regex, '\\2') | first }}"
-    fw_val: "{{ item | regex_search(mlx_regex, '\\3') | first }}"
-    netdev_val: "{{ item | regex_search(mlx_regex, '\\4') | first }}"
-    status_val: "{{ item | regex_search(mlx_regex, '\\5') | first }}"
+    mlx_regex: '([^ ]+) (mlx[\d]_[\d])(?:.+ConnectX-(\d))?.+fw ([^ ]+).+ ==> ([^ ]+) \((Up|Down)\)'
+    hw_addr: "{{ item | regex_search(mlx_regex, '\\1') | first }}"
+    ibdev_val: "{{ item | regex_search(mlx_regex, '\\2') | first }}"
+    connectx_val: "{{ item | regex_search(mlx_regex, '\\3') | first }}"
+    fw_val: "{{ item | regex_search(mlx_regex, '\\4') | first }}"
+    netdev_val: "{{ item | regex_search(mlx_regex, '\\5') | first }}"
+    status_val: "{{ item | regex_search(mlx_regex, '\\6') | first }}"
