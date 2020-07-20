@@ -28,22 +28,34 @@
   set_fact:
     up_devices: "{{ mellanox_devices | selectattr('status', 'equalto', 'Up') | list }}"
 
-- name: Assert number of 'Up' adapters == number of VLANs
+- name: Assert (number of up_devices * num_vlans_per_nic) == number of VLANs
   assert:
-    that: up_devices | count == combined_vlans | count
+    that: (up_devices | count) * num_vlans_per_nic == combined_vlans | count
     fail_msg: |
-      Found {{ up_devices | count }} 'Up' ConnectX adapters.
-      This needs to match the number of VLAN's: {{ combined_vlans | count }}.
+      Found {{ up_devices | count }} 'Up' ConnectX adapters with {{ num_vlans_per_nic }} VLANs per NIC.
+      The sum of which needs to match the number of VLAN's: {{ combined_vlans | count }}.
       Ensure all ConnectX adapters are connected to switch.
-      If necessary, configure the list of 'rocev2_vlans' and 'tcp_vlans' in {{ playbook_dir }}/group_vars/servers.yml
-    success_msg: "Found {{ up_devices | count }} 'Up' ConnectX adapters for {{ combined_vlans | count }} VLANs."
+      If necessary, configure the list of 'rocev2_vlans' and 'tcp_vlans' in {{ playbook_dir }}/group_vars/all.yml
+      Alternatively, adjust the 'num_vlans_per_nic' var in in {{ playbook_dir }}/group_vars/all.yml
+    success_msg: >
+      Found {{ up_devices | count }} 'Up' ConnectX adapters with {{ num_vlans_per_nic }}
+      VLANS per NIC for {{ combined_vlans | count }} VLANs.
+
+- name: Set vlan_up_devices var
+  set_fact:
+    vlan_up_devices: "{{ vlan_up_devices | default([]) + [ item.0 ] }}"
+  with_nested:
+    - "{{ up_devices }}"
+    - "{{ range(num_vlans_per_nic) | list }}"
+  loop_control:
+    label: "{{ item.0.ibdev }} - {{ item.1 }}"
 
 - name: Configure ConnectX adapters
   template:
     src: vlan_ifcfg.j2
     dest: "/etc/sysconfig/network-scripts/ifcfg-{{ device.netdev }}.{{ vlan.id }}"
   with_together:
-    - "{{ up_devices }}"
+    - "{{ vlan_up_devices }}"
     - "{{ combined_vlans }}"
   loop_control:
     label: "{{ device.ibdev }}: {{ vlan.id }}"
