@@ -27,7 +27,7 @@
   loop_control:
     label: "{{ ibdev_val }}"
   vars:
-    mlx_regex: '(mlx[\d]_[\d]).+ConnectX-(\d).+ fw ([^ ]+).+ ==> ([^ ]+) \((Up|Down)\)'
+    mlx_regex: '(mlx[\d]_[\d])(?:.+ConnectX-(\d))?.+fw ([^ ]+).+ ==> ([^ ]+) \((Up|Down)\)'
     ibdev_val: "{{ item | regex_search(mlx_regex, '\\1') | first }}"
     connectx_val: "{{ item | regex_search(mlx_regex, '\\2') | first }}"
     fw_val: "{{ item | regex_search(mlx_regex, '\\3') | first }}"
