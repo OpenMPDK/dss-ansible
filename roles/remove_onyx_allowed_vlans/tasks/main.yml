@@ -1,0 +1,33 @@
+---
+
+- name: Query lldp remote
+  onyx_command:
+    commands: show lldp remote
+  register: lldp_list
+
+- name: Assert MAC addresses found in switch lldp list
+  assert:
+    that: lldp_list.stdout.0 is search(mac_address)
+    fail_msg: "MAC address not found in switch lldp remote. Ensure lldpad is configured on all hosts"
+    success_msg: "Found MAC address"
+  loop: "{{ connectx_mac_address_list }}"
+  loop_control:
+    loop_var: mac_address
+
+- name: Set interfaces
+  set_fact:
+    interfaces: "{{ interfaces | default([]) + [ lldp_list.stdout.0 | regex_search(lldp_regex, '\\1') | first ] }}"
+  loop: "{{ connectx_mac_address_list }}"
+  loop_control:
+    loop_var: mac_address
+  vars:
+    lldp_regex: "Eth([^ ]+) +{{ mac_address }}"
+
+- name: Remove allowed VLANs
+  onyx_config:
+    lines:
+      - "interface ethernet {{ interface }} switchport hybrid allowed-vlan none"
+    save: yes
+  loop: "{{ interfaces }}"
+  loop_control:
+    loop_var: interface
