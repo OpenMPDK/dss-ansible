@@ -9,6 +9,15 @@
   set_fact:
     interfaces: []
 
+- name: Assert MAC addresses found in switch lldp list
+  assert:
+    that: lldp_list.stdout.0 is search(mac_address)
+    fail_msg: "MAC address not found in switch lldp remote. Ensure lldpad is configured on all hosts"
+    success_msg: "Found MAC address"
+  loop: "{{ mac_addresses }}"
+  loop_control:
+    loop_var: mac_address
+
 - name: Set interfaces for {{ vlan_prefix }}{{ vlan_id }}
   set_fact:
     interfaces: "{{ interfaces | default([]) + [ lldp_list.stdout.0 | regex_search(lldp_regex, '\\1') | first ] }}"
