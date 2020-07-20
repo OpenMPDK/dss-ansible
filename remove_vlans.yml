@@ -1,0 +1,26 @@
+---
+
+- name: Remove ConnectX VLANs
+  hosts: servers
+  pre_tasks:
+    - name: Verify minimum Ansible version
+      assert:
+        that: "ansible_version.full is version_compare('2.9', '>=')"
+        msg: "You must update Ansible to at least 2.9 to use this playbook"
+      run_once: true
+  roles:
+    - remove_connectx_vlans
+    - get_connectx_mac_list
+
+- name: Remove Onyx allowed VLANs
+  hosts: onyx
+  connection: network_cli
+  gather_facts: false
+  become: true
+  become_method: enable
+  vars:
+    ansible_network_os: onyx
+    server_host: "{{ groups['servers'][0] }}"
+    connectx_mac_address_list: "{{ hostvars[server_host]['connectx_mac_address_list'] }}"
+  roles:
+    - remove_onyx_allowed_vlans
