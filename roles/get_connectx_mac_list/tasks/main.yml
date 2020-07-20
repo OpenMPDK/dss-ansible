@@ -1,0 +1,20 @@
+---
+
+- name: Get list of Mellanox adapters
+  include_role:
+    name: get_mlnx_devices
+  when: mellanox_devices is not defined
+
+- name: Get list of MAC addresses
+  set_fact:
+    connectx_mac_address_list: "{{ connectx_mac_address_list | default([]) + [ mac_address ] }}"
+  loop: "{{ mellanox_devices }}"
+  loop_control:
+    loop_var: mellanox_device
+    label: "{{ mellanox_device.netdev }}"
+  vars:
+    vlan_device: "ansible_{{ mellanox_device.netdev }}"
+    mac_address: "{{ lookup('vars', vlan_device).macaddress }}"
+  when:
+    - mellanox_device.status == 'Up'
+    - lookup('vars', vlan_device, default='') != ''  # noqa 602
