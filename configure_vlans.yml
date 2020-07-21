@@ -1,6 +1,6 @@
 ---
 
-- name: Configure server networking
+- name: Configure ConnectX VLANs
   hosts: servers
   pre_tasks:
     - name: Verify minimum Ansible version
@@ -9,6 +9,8 @@
         msg: "You must update Ansible to at least 2.9 to use this playbook"
       run_once: true
   roles:
+    - configure_connectx_network
+    - configure_lldpad
     - get_vlan_mac_list
 
 - name: Configure Onyx VLANs
