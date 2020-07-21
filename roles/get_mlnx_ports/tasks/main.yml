@@ -35,3 +35,31 @@
     fw_val: "{{ item | regex_search(mlx_regex, '\\4') | first }}"
     netdev_val: "{{ item | regex_search(mlx_regex, '\\5') | first }}"
     status_val: "{{ item | regex_search(mlx_regex, '\\6') | first }}"
+
+- name: Get NUMA for each adapter
+  slurp:
+    src: "/sys/class/net/{{ item.netdev }}//device/numa_node"
+  loop: "{{ mellanox_devices }}"
+  loop_control:
+    label: "{{ item.ibdev }}"
+  register: numas
+ 
+- name: Set mellanox devices list with numa
+  set_fact:
+    mellanox_devices_numa: "{{ mellanox_devices_numa | default([]) +
+                              [{'hw_addr': item.0.hw_addr,
+                                'ibdev': item.0.ibdev,
+                                'ConnectX': item.0.ConnectX | int,
+                                'fw': item.0.fw,
+                                'netdev': item.0.netdev,
+                                'status': item.0.status,
+                                'numa': item.1.content | b64decode | first | int }] }}"
+  with_together:
+    - "{{ mellanox_devices }}"
+    - "{{ numas.results }}"
+  loop_control:
+    label: "{{ item.0.ibdev }}"
+
+- name: print mellanox_devices_numa
+  debug:
+    msg: "{{ mellanox_devices_numa | sort(attribute='ibdev') | sort(attribute='hw_addr') | sort(attribute='numa') }}"

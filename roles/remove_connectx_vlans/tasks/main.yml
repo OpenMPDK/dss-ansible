@@ -1,8 +1,8 @@
 ---
 
-- name: Get list of Mellanox devices
+- name: Get list of Mellanox ports
   include_role:
-    name: get_mlnx_devices
+    name: get_mlnx_ports
   when: mellanox_devices is not defined
 
 - name: Find existing vlan configuration for each adapter
