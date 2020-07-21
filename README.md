@@ -29,10 +29,10 @@ Ensure that SSH key authentication is configured for all hosts in your cluster. 
   - If a unique number between 1-255 cannot be derived from the hostname, the Ansible inventory ID will be used instead
   - IP prefix, netmask and VLAN ID can be user-defined in `group_vars/all.yml`
 * ConnectX-6 adapters must be connected to Onyx Switch (Status: `Up`)
-* By default, `num_vlans_per_nic` is `1` for optimal bandwidth
+* By default, `num_vlans_per_port` is `1` for optimal bandwidth
   - This value can be optionally changed in `group_vars/all.yml`
-* Number of `Up` ConnectX-6 adapters, times `num_vlans_per_nic` must be an even number
-* Number of `Up` ConnectX-6 adapters, times `num_vlans_per_nic` must match combined number of `rocev2_vlans` and `tcp_vlans` defined in `group_vars/all.yml`
+* Number of `Up` ConnectX-6 adapters, times `num_vlans_per_port` must be an even number
+* Number of `Up` ConnectX-6 adapters, times `num_vlans_per_port` must match combined number of `rocev2_vlans` and `tcp_vlans` defined in `group_vars/all.yml`
 * Samsung PM983 SSD's installed (Model: `SAMSUNG MZ4LB3T8HALS-00003`)
   - KVSSD model can be user-defined in `group_vars/all.yml`
 
