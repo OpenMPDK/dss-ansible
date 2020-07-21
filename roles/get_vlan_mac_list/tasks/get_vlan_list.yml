@@ -10,7 +10,7 @@
 - name: Set combined_mac_list
   set_fact:
     combined_mac_list: "{{ combined_mac_list | default([]) }} + {{ hostvars[host].mac_address_list }}"
-  loop: "{{ ansible_play_hosts_all }}"
+  loop: "{{ ansible_play_hosts }}"
   loop_control:
     loop_var: host
   run_once: true
