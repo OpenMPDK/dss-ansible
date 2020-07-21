@@ -21,6 +21,6 @@
   vars:
     ansible_network_os: onyx
     server_host: "{{ groups['servers'][0] }}"
-    connectx_mac_address_list: "{{ hostvars[server_host]['connectx_mac_address_list'] }}"
+    combined_connectx_mac_list: "{{ hostvars[server_host]['combined_connectx_mac_list'] }}"
   roles:
     - remove_onyx_allowed_vlans
