@@ -32,13 +32,13 @@
   assert:
     that: (up_devices | count) * num_vlans_per_port == combined_vlans | count
     fail_msg: |
-      Found {{ up_devices | count }} 'Up' ConnectX adapters with {{ num_vlans_per_port }} VLANs per NIC.
-      The sum of which needs to match the number of VLAN's: {{ combined_vlans | count }}.
-      Ensure all ConnectX adapters are connected to switch.
+      Found {{ up_devices | count }} 'Up' ConnectX ports with {{ num_vlans_per_port }} VLANs per port.
+      The sum of which needs to match the number of VLANs: {{ combined_vlans | count }}.
+      Ensure all ConnectX ports are connected to switch.
       If necessary, configure the list of 'rocev2_vlans' and 'tcp_vlans' in {{ playbook_dir }}/group_vars/all.yml
       Alternatively, adjust the 'num_vlans_per_port' var in in {{ playbook_dir }}/group_vars/all.yml
     success_msg: >
-      Found {{ up_devices | count }} 'Up' ConnectX adapters with {{ num_vlans_per_port }}
+      Found {{ up_devices | count }} 'Up' ConnectX ports with {{ num_vlans_per_port }}
       VLANS per NIC for {{ combined_vlans | count }} VLANs.
 
 - name: Set vlan_up_devices var
