@@ -1,4 +1,4 @@
 ---
 
-deploy_host_path: "{{ playbook_dir }}/artifacts/host"
+deploy_host_path: "{{ playbook_dir }}/artifacts"
 deploy_host_dest_dir: /usr/dss/

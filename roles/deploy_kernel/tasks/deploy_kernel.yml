@@ -3,7 +3,7 @@
 - name: Identify kernel RPMs
   find:
     path: "{{ deploy_kernel_path }}"
-    patterns: '*.rpm'
+    patterns: 'kernel-*.rpm'
   delegate_to: localhost
   run_once: true
   register: kernel_rpms

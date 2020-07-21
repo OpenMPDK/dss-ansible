@@ -3,7 +3,7 @@
 - name: Identify target tarball
   find:
     path: "{{ deploy_target_path }}"
-    patterns: '*.tgz'
+    patterns: 'nkv-target*.tgz'
   delegate_to: localhost
   run_once: true
   register: target_tgz
@@ -19,6 +19,5 @@
   unarchive:
     src: "{{ target_tgz.files[0].path }}"
     dest: "{{ deploy_target_dest_dir }}"
-    creates: "{{ deploy_target_dest_dir }}/bin/nvmf_tgt"
     extra_opts: [--strip-components=1]
   become: true
