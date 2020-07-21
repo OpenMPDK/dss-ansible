@@ -52,3 +52,9 @@ Ensure that SSH key authentication is configured for all hosts in your cluster. 
 To deploy the cluster, use: `ansible-playbook deploy_all.yml`
 
 Note that priviledged credentials are required. By default, `sudo` is used. If a password is required for `sudo`, it can be provided from the command line using the `-K` or `--ask-become-pass` flag. See <https://docs.ansible.com/ansible/latest/user_guide/become.html> for additional details.
+
+## Reset
+
+To remove VLANs, use `ansible-playbook reset_vlans.yml`
+
+This will remove all VLAN configuration for all ConnectX adapters on all servers (including IP address assignment), as well as remove all allowed VLANs for each switchport each adapter is connected to. This is useful, for example, if you wish to alter your VLAN configuration if it has already been set.
