@@ -1,6 +1,6 @@
 ---
 
-- name: Verify minimum Ansible version
+- name: Deploy DSS software
   hosts: servers
   pre_tasks:
     - name: Verify minimum Ansible version
@@ -8,12 +8,7 @@
         that: "ansible_version.full is version_compare('2.9', '>=')"
         msg: "You must update Ansible to at least 2.9 to use this playbook"
       run_once: true
-
-- name: Configure Servers
-  import_playbook: configure_servers.yml
-
-- name: Configure VLANs
-  import_playbook: configure_vlans.yml
-
-- name: Deploy DSS software
-  import_playbook: deploy_dss_software.yml
+  roles:
+    - deploy_target
+    - deploy_host
+    - configure_target
