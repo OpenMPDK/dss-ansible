@@ -22,14 +22,17 @@ Ensure that SSH key authentication is configured for all hosts in your cluster. 
 * Manangement NIC configured and accessible by the Ansible deployment host
 * Manangement NIC has internet access
 * Mellanox ConnectX-6 adapter(s) installed
+  - ConnectX-4 and 5 also supported
 * Hostnames should be defined and contain a unique number between 1-255 at the end of the name
   - Example: `testhost01` (zero-padding not required)
   - This number will be used to configure IP addresses of all ConnectX-6 adapters (last octet)
   - If a unique number between 1-255 cannot be derived from the hostname, the Ansible inventory ID will be used instead
   - IP prefix, netmask and VLAN ID can be user-defined in `group_vars/all.yml`
 * ConnectX-6 adapters must be connected to Onyx Switch (Status: `Up`)
-* Number of `Up` ConnectX-6 adapters must be an even number
-* Number of `Up` ConnectX-6 adapters must match combined number of `rocev2_vlans` and `tcp_vlans` defined in `group_vars/all.yml`
+* By default, `num_vlans_per_nic` is `1` for optimal bandwidth
+  - This value can be optionally changed in `group_vars/all.yml`
+* Number of `Up` ConnectX-6 adapters, times `num_vlans_per_nic` must be an even number
+* Number of `Up` ConnectX-6 adapters, times `num_vlans_per_nic` must match combined number of `rocev2_vlans` and `tcp_vlans` defined in `group_vars/all.yml`
 * Samsung PM983 SSD's installed (Model: `SAMSUNG MZ4LB3T8HALS-00003`)
   - KVSSD model can be user-defined in `group_vars/all.yml`
 
