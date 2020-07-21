@@ -7,7 +7,7 @@
 - name: Get list of MAC addresses for VLAN ID {{ vlan.id }}
   set_fact:
     mac_address_list: "{{ mac_address_list + [ mac_address ] }}"
-  loop: "{{ mellanox_devices }}"
+  loop: "{{ mellanox_ports }}"
   loop_control:
     loop_var: mellanox_device
     label: "{{ mellanox_device.netdev }}"

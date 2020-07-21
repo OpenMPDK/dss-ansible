@@ -3,7 +3,7 @@
 - name: Get list of Mellanox ports
   include_role:
     name: get_mlnx_ports
-  when: mellanox_devices is not defined
+  when: mellanox_ports is not defined
 
 - name: Initialize vlan_ip_list variable
   set_fact:
@@ -11,7 +11,7 @@
 
 - name: Get list of VLAN IP addresses
   include_tasks: get_vlan_ips.yml
-  loop: "{{ mellanox_devices }}"
+  loop: "{{ mellanox_ports }}"
   vars:
     mellanox_device: "{{ item }}"
   loop_control:

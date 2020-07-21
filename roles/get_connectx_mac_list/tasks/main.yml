@@ -3,12 +3,12 @@
 - name: Get list of Mellanox ports
   include_role:
     name: get_mlnx_ports
-  when: mellanox_devices is not defined
+  when: mellanox_ports is not defined
 
 - name: Get list of MAC addresses
   set_fact:
     connectx_mac_address_list: "{{ connectx_mac_address_list | default([]) + [ mac_address ] }}"
-  loop: "{{ mellanox_devices }}"
+  loop: "{{ mellanox_ports }}"
   loop_control:
     loop_var: mellanox_device
     label: "{{ mellanox_device.netdev }}"

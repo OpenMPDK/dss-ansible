@@ -3,7 +3,7 @@
 - name: Get list of Mellanox ports
   include_role:
     name: get_mlnx_ports
-  when: mellanox_devices is not defined
+  when: mellanox_ports is not defined
 
 - name: Find existing vlan configuration for each adapter
   find:
@@ -11,7 +11,7 @@
     use_regex: true
     patterns: "ifcfg-{{ item.netdev }}\\.[\\d]+"
   register: configured_vlan_files
-  loop: "{{ mellanox_devices }}"
+  loop: "{{ mellanox_ports }}"
   loop_control:
     label: "{{ item.netdev }}"
 
