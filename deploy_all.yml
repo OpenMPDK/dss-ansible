@@ -15,11 +15,9 @@
     - upgrade_kvssd_firmware
     - deploy_ofed
     - upgrade_connectx_firmware
-    - configure_connectx_network
-    - configure_lldpad
 
-- name: Configure Switch
-  import_playbook: configure_onyx_vlans.yml
+- name: Configure VLANs
+  import_playbook: configure_vlans.yml
 
 - name: Deploy DSS software
   hosts: servers
