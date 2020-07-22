@@ -79,4 +79,61 @@
     - Restart lldpad
   become: true
 
+- name: Get tlv sysDesc enableTx for up devices
+  command: "lldptool get-tlv -i {{ item.netdev }} -V sysDesc -c enableTx"
+  changed_when: false
+  loop: "{{ up_devices }}"
+  loop_control:
+    label: "{{ item.netdev }}"
+  register: tlv_sysDesc
+  become: true
+
+- name: Set tlv sysDesc enableTx for up devices
+  command: "lldptool set-tlv -i {{ item.item.netdev }} -V sysDesc -c enableTx=yes"
+  when: item.stdout != "enableTx=yes"
+  loop: "{{ tlv_sysDesc.results }}"
+  loop_control:
+    label: "{{ item.item.netdev }}"
+  notify:
+    - Restart lldpad
+  become: true
+
+- name: Get tlv sysCap enableTx for up devices
+  command: "lldptool get-tlv -i {{ item.netdev }} -V sysCap -c enableTx"
+  changed_when: false
+  loop: "{{ up_devices }}"
+  loop_control:
+    label: "{{ item.netdev }}"
+  register: tlv_sysCap
+  become: true
+
+- name: Set tlv sysCap enableTx for up devices
+  command: "lldptool set-tlv -i {{ item.item.netdev }} -V sysCap -c enableTx=yes"
+  when: item.stdout != "enableTx=yes"
+  loop: "{{ tlv_sysCap.results }}"
+  loop_control:
+    label: "{{ item.item.netdev }}"
+  notify:
+    - Restart lldpad
+  become: true
+
+- name: Get tlv mngAddr enableTx for up devices
+  command: "lldptool get-tlv -i {{ item.netdev }} -V mngAddr -c enableTx"
+  changed_when: false
+  loop: "{{ up_devices }}"
+  loop_control:
+    label: "{{ item.netdev }}"
+  register: tlv_mngAddr
+  become: true
+
+- name: Set tlv mngAddr enableTx for up devices
+  command: "lldptool set-tlv -i {{ item.item.netdev }} -V mngAddr -c enableTx=yes"
+  when: item.stdout != "enableTx=yes"
+  loop: "{{ tlv_mngAddr.results }}"
+  loop_control:
+    label: "{{ item.item.netdev }}"
+  notify:
+    - Restart lldpad
+  become: true
+
 - meta: flush_handlers
