@@ -15,6 +15,7 @@
     - "{{ tcp_vlans }}"
   loop_control:
     label: "rocev2 id: {{ item.0.id }}, tcp id: {{ item.1.id }}"
+  when: inventory_hostname in groups['servers']
 
 - name: Get IP address last octet for ConnectX Devices
   include_tasks: get_last_octet.yml
