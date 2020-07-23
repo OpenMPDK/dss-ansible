@@ -6,7 +6,9 @@
   loop: "{{ groups['clients'] + groups['servers'] }}"
   loop_control:
     loop_var: host
-  when: hostvars[host]['vlan_mac_list'] is defined
+  when:
+    - hostvars[host]['vlan_mac_list'] is defined
+    - vlan_mac_list is not defined
 
 - name: Query lldp remote
   onyx_command:
