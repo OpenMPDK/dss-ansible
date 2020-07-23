@@ -1,5 +1,7 @@
 ---
 
+mtu_size: 9000
+link_speed: 200G
 rocev2_vlans:
   - id: 31
     ip_prefix: 201.0.0
