@@ -17,10 +17,24 @@
     fail_msg: "No RoCEv2 IPs configured on any Mellanox adapter. Please configure at least one IP to deploy target."
     success_msg: "RoCEv2 IP(s) detected."
 
-- name: Debug dss_target.py output
-  debug:
-    msg: >
-      ./dss_target.py configure --ip_addrs
+- name: Configure target with dss_target.py
+  command: >
+      ./dss_target.py configure -ip_addrs
       {% for ip in vlan_ip_list %}{{ ip }}{% if not loop.last %} {% endif %}{% endfor %}
       -kv_fw {{ target_fw_version }}
       -kv_ssc {{ num_subsystems }}
+  args:
+    chdir: "{{ configure_target_dest_dir }}/bin"
+    creates: nvmf.in.conf
+  register: dss_target_configure
+  become: true
+
+- name: Assert dss_target.py success
+  assert:
+    that:
+      - "'drive setup to system is done' in dss_target_configure.stdout"
+      - "'hugepage setup is done' in dss_target_configure.stdout"
+      - "'drive setup to userspace is done' in dss_target_configure.stdout"
+    success_msg: "dss_target.py successfully configured target"
+    fail_msg: "dss_target.py failed to configure target"
+  when: dss_target_configure.changed
