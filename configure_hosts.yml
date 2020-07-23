@@ -1,7 +1,9 @@
 ---
 
-- name: Configure Servers
-  hosts: servers
+- name: Configure Hosts
+  hosts:
+    - clients
+    - servers
   pre_tasks:
     - name: Verify minimum Ansible version
       assert:
