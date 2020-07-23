@@ -1,7 +1,9 @@
 ---
 
 - name: Configure ConnectX VLANs
-  hosts: servers
+  hosts:
+    - servers
+    - clients
   pre_tasks:
     - name: Verify minimum Ansible version
       assert:
