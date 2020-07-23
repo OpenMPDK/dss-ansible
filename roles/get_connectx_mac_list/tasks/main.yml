@@ -21,7 +21,7 @@
 
 - name: Set combined_connectx_mac_list
   set_fact:
-    combined_connectx_mac_list: "{{ combined_mac_list | default([]) }} + {{ hostvars[host].connectx_mac_address_list }}"
+    combined_connectx_mac_list: "{{ combined_connectx_mac_list | default([]) }} + {{ hostvars[host].connectx_mac_address_list }}"
   loop: "{{ ansible_play_hosts }}"
   loop_control:
     loop_var: host
