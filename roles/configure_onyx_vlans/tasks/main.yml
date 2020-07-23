@@ -1,5 +1,13 @@
 ---
 
+- name: Find a host that has a defined vlan_mac_list
+  set_fact:
+    vlan_mac_list: "{{ hostvars[host]['vlan_mac_list'] }}"
+  loop: "{{ groups['clients'] + groups['servers'] }}"
+  loop_control:
+    loop_var: host
+  when: hostvars[host]['vlan_mac_list'] is defined
+
 - name: Query lldp remote
   onyx_command:
     commands: show lldp remote
@@ -22,8 +30,6 @@
     vlan_id: "{{ item.id }}"
     vlan_prefix: "{{ item.prefix }}"
     mac_addresses: "{{ item.mac_list }}"
-    server_host: "{{ groups['servers'][0] }}"
-    vlan_mac_list: "{{ hostvars[server_host]['vlan_mac_list'] }}"
   loop: "{{ vlan_mac_list }}"
   loop_control:
     label: "{{ vlan_id }}"
