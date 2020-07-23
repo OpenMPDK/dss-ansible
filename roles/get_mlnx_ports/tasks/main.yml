@@ -43,7 +43,7 @@
   loop_control:
     label: "{{ item.ibdev }}"
   register: numas
- 
+
 - name: Set mellanox devices list with numa
   set_fact:
     mellanox_devices_numa: "{{ mellanox_devices_numa | default([]) +
