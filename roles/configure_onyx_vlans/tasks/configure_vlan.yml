@@ -46,3 +46,12 @@
   loop: "{{ interfaces }}"
   loop_control:
     loop_var: interface
+
+# - name: Configure MTU and link speed for {{ vlan_prefix }}{{ vlan_id }}
+#   onyx_interface:
+#     name: "Eth{{ interface }}"
+#     speed: "{{ link_speed }}"
+#     mtu: "{{ mtu_size }}"
+#   loop: "{{ interfaces }}"
+#   loop_control:
+#     loop_var: interface
