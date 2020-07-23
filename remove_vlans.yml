@@ -1,7 +1,9 @@
 ---
 
 - name: Remove ConnectX VLANs
-  hosts: servers
+  hosts:
+    - servers
+    - clients
   pre_tasks:
     - name: Verify minimum Ansible version
       assert:
@@ -20,7 +22,5 @@
   become_method: enable
   vars:
     ansible_network_os: onyx
-    server_host: "{{ groups['servers'][0] }}"
-    combined_connectx_mac_list: "{{ hostvars[server_host]['combined_connectx_mac_list'] }}"
   roles:
     - remove_onyx_allowed_vlans
