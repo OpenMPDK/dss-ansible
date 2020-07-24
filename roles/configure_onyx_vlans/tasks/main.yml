@@ -10,6 +10,12 @@
     - hostvars[host]['vlan_mac_list'] is defined
     - vlan_mac_list is not defined
 
+- name: Assert vlan_mac_list is defined
+  assert:
+    that: vlan_mac_list is defined
+    fail_msg: Unable to obtain a list of MAC addresses from hosts. Check for playbook failures.
+    quiet: true
+
 - name: Query lldp remote
   onyx_command:
     commands: show lldp remote
