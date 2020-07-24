@@ -48,3 +48,14 @@
   when: found_setting != '6'
   notify: Reboot system
   become: true
+
+- name: Set PCI_WR_ORDERING for {{ vlan_label }}
+  command: "mlxconfig -d {{ item.ibdev_device }} -y s PCI_WR_ORDERING=1"
+  loop: "{{ mlxconfig.results }}"
+  loop_control:
+    label: "{{ item.ibdev_device }}"
+  vars:
+    found_setting: "{{ item.stdout | regex_search('PCI_WR_ORDERING +([^ ]+)','\\1') | first }}"
+  when: found_setting != 'force_relax(1)'
+  notify: Reboot system
+  become: true
