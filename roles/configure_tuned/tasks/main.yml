@@ -1,0 +1,9 @@
+---
+
+- name: Start and enable tuned service
+  service:
+    name: tuned
+    state: started
+    enabled: true
+  notify: Set tuned profile
+  become: true
