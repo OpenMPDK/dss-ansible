@@ -51,15 +51,16 @@
   loop_control:
     label: "{{ item.0.ibdev }} - {{ item.1 }}"
 
-- name: Set MTU for primary adapters
-  lineinfile:
-    path: "/etc/sysconfig/network-scripts/ifcfg-{{ device.netdev }}"
-    regexp: '^MTU='
-    line: "MTU={{ mtu_size }}"
-  loop: "{{ vlan_up_devices }}"
-  loop_control:
-    label "{{ device.ibdev }}"
-  become: true
+# - name: Set MTU for primary adapters
+#   lineinfile:
+#     path: "/etc/sysconfig/network-scripts/ifcfg-{{ device.netdev }}"
+#     regexp: '^MTU='
+#     line: "MTU={{ mtu_size }}"
+#   loop: "{{ vlan_up_devices }}"
+#   loop_control:
+#     loop_var: device
+#     label: "{{ device.ibdev }}"
+#   become: true
 
 - name: Configure ConnectX adapters
   template:
