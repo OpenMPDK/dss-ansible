@@ -1,0 +1,25 @@
+---
+
+- name: Get TCP IP Addresses
+  include_role:
+    name: get_vlan_ips
+
+- name: Initialized combined_vlan_ip_list
+  set_fact:
+    combined_vlan_ip_list: []
+  run_once: true
+
+- name: Set combined_vlan_ip_list
+  set_fact:
+    combined_vlan_ip_list: "{{ combined_vlan_ip_list | default([]) }} + {{ hostvars[host].vlan_ip_list }}"
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    loop_var: host
+  run_once: true
+
+- name: Ping all endpoints
+  command: "ping -c 1 {{ ip_address }}"
+  changed_when: false
+  loop: "{{ combined_vlan_ip_list }}"
+  loop_control:
+    loop_var: ip_address
