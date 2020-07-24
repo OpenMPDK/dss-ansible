@@ -15,6 +15,9 @@
 - name: Configure VLANs
   import_playbook: configure_vlans.yml
 
+- name: Sanity Check Networking
+  import_playbook: sanity_check.yml
+
 - name: Upgrade KVSSD Firmware
   import_playbook: upgrade_kvssd_firmware.yml
 
