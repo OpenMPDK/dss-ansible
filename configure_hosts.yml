@@ -14,6 +14,5 @@
     - validate_centos
     - deploy_kernel
     - deploy_nvme_cli
-    - upgrade_kvssd_firmware
     - deploy_ofed
     - upgrade_connectx_firmware
