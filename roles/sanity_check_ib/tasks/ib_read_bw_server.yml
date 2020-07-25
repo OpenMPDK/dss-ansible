@@ -1,0 +1,15 @@
+---
+
+- name: Iterate ib_read_bw clients for {{ server_hostname }}, VLAN_ID {{ server_vlan_id }}
+  include_tasks: ib_read_bw_client.yml
+  loop: "{{ combined_ib_devices }}"
+  loop_control:
+    loop_var: client_ib_device
+  vars:
+    client_vlan_id: "{{ client_ib_device.vlan_id }}"
+    client_ibdev: "{{ client_ib_device.ibdev }}"
+    client_hostname: "{{ client_ib_device.hostname }}"
+    client_ip_address: "{{ client_ib_device.ip_address }}"
+    client_gid_index: "{{ client_ib_device.gid_index }}"
+  when:
+    - server_vlan_id == client_vlan_id

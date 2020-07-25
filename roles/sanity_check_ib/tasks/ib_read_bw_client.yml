@@ -1,0 +1,43 @@
+---
+
+- name: Start ib_read_bw server {{ server_hostname }} VLAN_ID {{ server_vlan_id }}
+  command: "ib_read_bw -d {{ server_ibdev }} -x {{ server_gid_index }} -q 1 -s 1048576 -S 3 --report_gbits"
+  async: 10
+  poll: 0
+  become: true
+  when:
+    - inventory_hostname == server_hostname
+    - inventory_hostname != client_hostname
+
+- name: Start ib_read_bw client for server {{ server_hostname }} VLAN_ID {{ server_vlan_id }}
+  command: "ib_read_bw -d {{ client_ibdev }} -x {{ client_gid_index }} -q 1 -s 1048576 -D 5 {{ server_ip_address }} -S 3 --report_gbits"
+  become: true
+  register: ib_results
+  when:
+    - inventory_hostname == client_hostname
+    - inventory_hostname != server_hostname
+
+- name: Collect ib_read_bw results for server {{ server_hostname }} VLAN_ID {{ server_vlan_id }}
+  set_fact:
+    combined_ib_results: "{{ combined_ib_results | default([]) +
+                          [{'bytes': bytes,
+                            'iterations': iterations,
+                            'bw_peak': bw_peak,
+                            'bw_avg': bw_avg,
+                            'msg_rate': msg_rate,
+                            'server_hostname': server_hostname,
+                            'client_hostname': client_hostname,
+                            'server_ip': server_ip_address,
+                            'client_ip': client_ip_address,
+                            'vlan_id': server_vlan_id }] }}"
+  vars:
+    result_regex: '([\d]+)\s+([\d]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)'
+    bytes: "{{ ib_results.stdout | regex_search(result_regex, '\\1') | first }}"
+    iterations: "{{ ib_results.stdout | regex_search(result_regex, '\\2') | first }}"
+    bw_peak: "{{ ib_results.stdout | regex_search(result_regex, '\\3') | first }}"
+    bw_avg: "{{ ib_results.stdout | regex_search(result_regex, '\\4') | first }}"
+    msg_rate: "{{ ib_results.stdout | regex_search(result_regex, '\\5') | first }}"
+  when:
+    - inventory_hostname == client_hostname
+    - inventory_hostname != server_hostname
+  
