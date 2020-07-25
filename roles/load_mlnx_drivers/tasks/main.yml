@@ -5,6 +5,10 @@
     name: "{{ item }}"
     state: present
   become: true
-  loop:
-    - mlx5_ib
-    - rdma_ucm
+  loop: "{{ load_mlnx_drivers_modules }}"
+
+- name: Create modules-load.d template
+  template:
+    src: dss_mlnx.conf.j2
+    dest: "{{ load_mlnx_drivers_path }}/{{ load_mlnx_drivers_script_name }}"
+  become: true

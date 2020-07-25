@@ -1,0 +1,7 @@
+---
+
+load_mlnx_drivers_path: /etc/modules-load.d
+load_mlnx_drivers_script_name: dss_mlnx.conf
+load_mlnx_drivers_modules:
+  - mlx5_ib
+  - rdma_ucm
