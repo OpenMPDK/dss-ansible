@@ -12,3 +12,4 @@
     - deploy_target
     - deploy_host
     - configure_target
+    - configure_dss_host
