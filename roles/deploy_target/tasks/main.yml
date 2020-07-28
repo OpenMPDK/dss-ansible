@@ -21,3 +21,14 @@
     dest: "{{ deploy_target_dest_dir }}"
     extra_opts: [--strip-components=1]
   become: true
+
+- name: Install tbb-devel
+  yum:
+    name: tbb-devel
+  become: true
+
+- name: Create log dir
+  file:
+    path: "{{ configure_target_log_dir }}"
+    state: directory
+  become: true
