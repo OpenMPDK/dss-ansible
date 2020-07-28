@@ -51,6 +51,19 @@
   loop_control:
     label: "{{ item.0.ibdev }} - {{ item.1 }}"
 
+- name: Configure parent adapters
+  template:
+    src: parent_ifcfg.j2
+    dest: "/etc/sysconfig/network-scripts/ifcfg-{{ device.netdev }}"
+  loop: "{{ vlan_up_devices }}"
+  loop_control:
+    label: "{{ device.netdev }}"
+    loop_var: device
+  notify:
+    - Restart network service
+    - Reload facts
+  become: true
+
 - name: Configure ConnectX adapters
   template:
     src: vlan_ifcfg.j2
