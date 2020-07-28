@@ -1,6 +1,6 @@
 ---
 
-- name: Sanity Check RoCEv2
+- name: Sanity Check Ping RoCEv2
   hosts: servers
   pre_tasks:
     - name: Verify minimum Ansible version
@@ -13,7 +13,7 @@
   roles:
     - sanity_check_ping
 
-- name: Sanity Check TCP
+- name: Sanity Check Ping TCP
   hosts:
     - clients
     - servers
@@ -21,3 +21,8 @@
     vlan_list: "{{ tcp_vlans }}"
   roles:
     - sanity_check_ping
+
+- name: Sanity Check ib_read_bw RoCEv2
+  hosts: servers
+  roles:
+    - sanity_check_ib
