@@ -1,0 +1,35 @@
+---
+
+- name: Find running target process
+  shell: "ps aux | grep [n]vmf_tgt"
+  register: nvmf_ps
+  changed_when: false
+  failed_when: false
+
+- name: Kill target processes
+  command: "kill -2 {{ pid }}"
+  register: kill_nvmf
+  changed_when: kill_nvmf.stdout is not search('No such process')
+  failed_when: false
+  loop: "{{ nvmf_ps.stdout_lines }}"
+  vars:
+    pid_regex: '[^\s]+\s+([\d]+)'
+    pid: "{{ item | regex_search(pid_regex, '\\1') | first }}"
+  become: true
+
+- name: Move disks back to kernel mode (spdk reset)
+  command: ./setup.sh reset
+  args:
+    chdir: "{{ reset_target_scripts_dir }}"
+  register: setup_reset
+  changed_when: setup_reset.stdout is search('uio_pci_generic -> nvme')
+  become: true
+
+- name: Remove nvmf.in.conf
+  file:
+    path: "{{ reset_target_bin_dir }}/nvmf.in.conf"
+    state: absent
+  loop:
+    - "{{ reset_target_bin_dir }}/nvmf.in.conf"
+    - "{{ reset_target_bin_dir }}/dss_target.out"
+  become: true

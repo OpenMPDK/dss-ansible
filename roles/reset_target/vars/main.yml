@@ -1,0 +1,4 @@
+---
+
+reset_target_scripts_dir: /usr/dss/nkv-target/scripts
+reset_target_bin_dir: /usr/dss/nkv-target/bin
