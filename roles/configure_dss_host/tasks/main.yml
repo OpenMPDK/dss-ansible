@@ -1,0 +1,26 @@
+---
+
+- name: Copy nvme.h file
+  copy:
+    src: "{{ configure_dss_host_dir }}/openmpdk_driver/kernel_v5.1_nvmf/nvme.h"
+    dest: /usr/src/kernels/5.1.0/include/linux/
+    remote_src: true
+  become: true
+
+- name: Copy nvme_ioctol.h file
+  copy:
+    src: "{{ configure_dss_host_dir }}/openmpdk_driver/kernel_v5.1_nvmf/nvme.h"
+    dest: /usr/src/kernels/5.1.0/include/uapi/linux/
+    remote_src: true
+  become: true
+
+- name: Make clean KV NVMe driver
+  make:
+    chdir: "{{ configure_dss_host_dir }}/openmpdk_driver/kernel_v5.1_nvmf/"
+    target: clean
+  become: true
+
+- name: Make KV NVMe driver
+  make:
+    chdir: "{{ configure_dss_host_dir }}/openmpdk_driver/kernel_v5.1_nvmf/"
+  become: true
