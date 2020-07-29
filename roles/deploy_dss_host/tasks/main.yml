@@ -10,7 +10,7 @@
 
 - name: Create host destination path
   file:
-    path: "{{ deploy_host_dest_dir }}"
+    path: "{{ deploy_host_dest_dir }}/nkv-sdk"
     state: directory
     mode: '0555'
   register: create_host_dir
