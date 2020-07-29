@@ -2,19 +2,19 @@
 
 - name: Stat nvmf.in.conf
   stat:
-    path: "{{ configure_target_dest_dir }}/bin/nvmf.in.conf"
+    path: "{{ start_dss_target_dest_dir }}/bin/nvmf.in.conf"
   register: nvmf_ini_conf
 
 - name: Stat dss_target.out
   stat:
-    path: "{{ configure_target_dest_dir }}/bin/dss_target.out"
+    path: "{{ start_dss_target_dest_dir }}/bin/dss_target.out"
   register: dss_target_out
 
 - name: Get spdk status
   command: ./setup.sh status
   changed_when: false
   args:
-    chdir: "{{ configure_target_dest_dir }}/scripts"
+    chdir: "{{ start_dss_target_dest_dir }}/scripts"
   register: spdk_status
   become: true
 
@@ -27,7 +27,7 @@
 
 - name: Read dss_target.out
   slurp:
-    src: "{{ configure_target_dest_dir }}/bin/dss_target.out"
+    src: "{{ start_dss_target_dest_dir }}/bin/dss_target.out"
   register: dss_target_out
 
 - name: Get nvmf_tgt command from dss_target.py script
@@ -46,8 +46,8 @@
   failed_when: false
 
 - name: Start DSS target process
-  shell: nohup {{ nvmf_tgt_cmd }} > {{ configure_target_log_dir }}/nkv-target.log 2>&1 &
+  shell: nohup {{ nvmf_tgt_cmd }} > {{ start_dss_target_log_dir }}/nkv-target.log 2>&1 &
   args:
-    chdir: "{{ configure_target_dest_dir }}/bin"
+    chdir: "{{ start_dss_target_dest_dir }}/bin"
   when: nvmf_ps.rc != 0
   become: true

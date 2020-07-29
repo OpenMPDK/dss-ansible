@@ -1,4 +1,4 @@
 ---
 
-configure_target_dest_dir: /usr/dss/nkv-target
-configure_target_log_dir: /var/log/dss/
+start_dss_target_dest_dir: /usr/dss/nkv-target
+start_dss_target_log_dir: /var/log/dss/
