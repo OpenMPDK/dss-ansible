@@ -1,0 +1,4 @@
+---
+
+deploy_dss_minio_path: "{{ playbook_dir }}/artifacts"
+deploy_dss_minio_dest_dir: /usr/dss/nkv-minio
