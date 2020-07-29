@@ -1,6 +1,6 @@
 ---
 
-- name: Reset DSS software
+- name: Stop DSS software
   hosts: servers
   pre_tasks:
     - name: Verify minimum Ansible version
@@ -9,5 +9,5 @@
         msg: "You must update Ansible to at least 2.9 to use this playbook"
       run_once: true
   roles:
-    - reset_dss_host
-    - reset_dss_target
+    - stop_dss_host
+    - stop_dss_target

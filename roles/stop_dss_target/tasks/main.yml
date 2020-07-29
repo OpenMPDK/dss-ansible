@@ -17,7 +17,7 @@
     pid: "{{ item | regex_search(pid_regex, '\\1') | first }}"
   become: true
 
-- name: Wait for running target process post-kill
+- name: Wait for nvmf_tgt process to stop
   shell: "ps aux | grep [n]vmf_tgt"
   register: postnvmf_ps
   until: postnvmf_ps.rc != 0
@@ -29,18 +29,18 @@
 - name: Move disks back to kernel mode (spdk reset)
   command: ./dss_target.py reset
   args:
-    chdir: "{{ reset_target_bin_dir }}"
+    chdir: "{{ stop_dss_target_bin_dir }}"
   register: target_reset
   changed_when: target_reset.stdout is search('uio_pci_generic -> nvme')
   become: true
 
 - name: Remove target config files
   file:
-    path: "{{ reset_target_bin_dir }}/{{ dss_file }}"
+    path: "{{ stop_dss_target_bin_dir }}/{{ dss_file }}"
     state: absent
   loop:
-    - "{{ reset_target_bin_dir }}/nvmf.in.conf"
-    - "{{ reset_target_bin_dir }}/dss_target.out"
+    - "{{ stop_dss_target_bin_dir }}/nvmf.in.conf"
+    - "{{ stop_dss_target_bin_dir }}/dss_target.out"
   loop_control:
     loop_var: dss_file
   become: true
