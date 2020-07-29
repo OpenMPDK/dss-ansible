@@ -1,0 +1,18 @@
+---
+
+- name: Remove DSS software
+  hosts: servers
+  pre_tasks:
+    - name: Verify minimum Ansible version
+      assert:
+        that: "ansible_version.full is version_compare('2.9', '>=')"
+        msg: "You must update Ansible to at least 2.9 to use this playbook"
+      run_once: true
+
+- name: Stop DSS Software
+  import_playbook: stop_dss_software.yml
+  
+- name: Remove DSS software
+  hosts: servers
+  roles:
+    - remove_dss_software
