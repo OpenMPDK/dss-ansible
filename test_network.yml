@@ -1,22 +1,22 @@
 ---
 
-- name: Sanity Check Ping RoCEv2
+- name: Test Ping RoCEv2
   hosts: servers
   vars:
     vlan_list: "{{ rocev2_vlans }}"
   roles:
-    - sanity_check_ping
+    - test_network_ping
 
-- name: Sanity Check Ping TCP
+- name: Test Ping TCP
   hosts:
     - clients
     - servers
   vars:
     vlan_list: "{{ tcp_vlans }}"
   roles:
-    - sanity_check_ping
+    - test_network_ping
 
-- name: Sanity Check ib_read_bw RoCEv2
+- name: Test ib_read_bw RoCEv2
   hosts: servers
   roles:
-    - sanity_check_ib
+    - test_network_ib
