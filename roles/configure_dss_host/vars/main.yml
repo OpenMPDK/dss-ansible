@@ -1,3 +1,6 @@
 ---
 
 configure_dss_host_dir: /usr/dss/nkv-sdk
+configure_dss_host_port: 1024
+configure_dss_host_qpairs: 32
+configure_dss_host_mem_align: 4

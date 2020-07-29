@@ -1,26 +1,66 @@
 ---
 
-- name: Copy nvme.h file
-  copy:
-    src: "{{ configure_dss_host_dir }}/openmpdk_driver/kernel_v5.1_nvmf/nvme.h"
-    dest: /usr/src/kernels/5.1.0/include/linux/
-    remote_src: true
+- name: Configure Driver
+  command: ./dss_host.py config_driver
+  args:
+    chdir: "{{ configure_dss_host_dir }}/bin"
+    creates: "{{ configure_dss_host_dir }}/openmpdk_driver/kernel_v5.1_nvmf/nvme.ko"
   become: true
 
-- name: Copy nvme_ioctol.h file
-  copy:
-    src: "{{ configure_dss_host_dir }}/openmpdk_driver/kernel_v5.1_nvmf/nvme.h"
-    dest: /usr/src/kernels/5.1.0/include/uapi/linux/
-    remote_src: true
+- name: Get RoCEv2 IP Addresses of first VLAN in list
+  include_role:
+    name: get_vlan_ips
+  vars:
+    vlan_list: "[{{ rocev2_vlans | first }}]"
+
+- name: Assert that at least one RoCEv2 IP is present
+  assert:
+    that: vlan_ip_list is defined
+    fail_msg: "No RoCEv2 IPs configured on any Mellanox adapter. Please configure at least one IP to deploy target."
+    success_msg: "RoCEv2 IP(s) detected."
+
+- name: Set combined RoCEv2 IP List
+  set_fact:
+    first_vlan_ip_list: "{{ first_vlan_ip_list | default([]) + hostvars[host].vlan_ip_list }}"
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    loop_var: host
+  run_once: true
+
+- name: Get all RoCEv2 IP Addresses
+  include_role:
+    name: get_vlan_ips
+  vars:
+    vlan_list: "{{ rocev2_vlans }}"
+
+- name: Set combined RoCEv2 IP List
+  set_fact:
+    combined_vlan_ip_list: "{{ combined_vlan_ip_list | default([]) + hostvars[host].vlan_ip_list }}"
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    loop_var: host
+  run_once: true
+
+- name: NVMe list subsystems
+  command: nvme list-subsys
+  changed_when: false
+  register: nvme_subsys
   become: true
 
-- name: Make clean KV NVMe driver
-  make:
-    chdir: "{{ configure_dss_host_dir }}/openmpdk_driver/kernel_v5.1_nvmf/"
-    target: clean
-  become: true
+- name: Check subsystems are mounted
+  set_fact:
+    subsystems_found: true
+  loop: "{{ combined_vlan_ip_list }}"
+  loop_control:
+    loop_var: ip_addr
+  when: nvme_subsys.stdout is search(ip_addr)
 
-- name: Make KV NVMe driver
-  make:
-    chdir: "{{ configure_dss_host_dir }}/openmpdk_driver/kernel_v5.1_nvmf/"
+- name: Configure Driver
+  command: >
+    ./dss_host.py config_host -a
+    {% for ip in first_vlan_ip_list %}{{ ip }}:{{ configure_dss_host_port }}{% if not loop.last %} {% endif %}{% endfor %}
+    -i {{ configure_dss_host_qpairs }} -m {{ configure_dss_host_mem_align }}
+  args:
+    chdir: "{{ configure_dss_host_dir }}/bin"
+  when: subsystems_found is not defined
   become: true
