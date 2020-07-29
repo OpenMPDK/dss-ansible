@@ -3,8 +3,8 @@
 - name: Configure Driver
   command: ./dss_host.py config_driver
   args:
-    chdir: "{{ configure_dss_host_dir }}/bin"
-    creates: "{{ configure_dss_host_dir }}/openmpdk_driver/kernel_v5.1_nvmf/nvme.ko"
+    chdir: "{{ start_dss_host_dir }}/bin"
+    creates: "{{ start_dss_host_dir }}/openmpdk_driver/kernel_v5.1_nvmf/nvme.ko"
   become: true
 
 - name: Get RoCEv2 IP Addresses of first VLAN in list
@@ -58,9 +58,9 @@
 - name: Configure Driver
   command: >
     ./dss_host.py config_host -a
-    {% for ip in first_vlan_ip_list %}{{ ip }}:{{ configure_dss_host_port }}{% if not loop.last %} {% endif %}{% endfor %}
-    -i {{ configure_dss_host_qpairs }} -m {{ configure_dss_host_mem_align }}
+    {% for ip in first_vlan_ip_list %}{{ ip }}:{{ start_dss_host_port }}{% if not loop.last %} {% endif %}{% endfor %}
+    -i {{ start_dss_host_qpairs }} -m {{ start_dss_host_mem_align }}
   args:
-    chdir: "{{ configure_dss_host_dir }}/bin"
+    chdir: "{{ start_dss_host_dir }}/bin"
   when: subsystems_found is not defined
   become: true
