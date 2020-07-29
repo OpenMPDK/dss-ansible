@@ -1,4 +1,5 @@
 ---
 
-deploy_target_path: "{{ playbook_dir }}/artifacts"
-deploy_target_dest_dir: /usr/dss/nkv-target
+deploy_dss_target_path: "{{ playbook_dir }}/artifacts"
+deploy_dss_target_dest_dir: /usr/dss/nkv-target
+deploy_dss_target_log_dir: /var/log/dss
