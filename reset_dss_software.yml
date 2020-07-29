@@ -9,4 +9,5 @@
         msg: "You must update Ansible to at least 2.9 to use this playbook"
       run_once: true
   roles:
-    - reset_target
+    - reset_dss_host
+    - reset_dss_target
