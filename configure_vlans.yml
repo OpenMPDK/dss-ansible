@@ -4,12 +4,6 @@
   hosts:
     - servers
     - clients
-  pre_tasks:
-    - name: Verify minimum Ansible version
-      assert:
-        that: "ansible_version.full is version_compare('2.9', '>=')"
-        msg: "You must update Ansible to at least 2.9 to use this playbook"
-      run_once: true
   roles:
     - configure_connectx_network
     - configure_lldpad
