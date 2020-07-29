@@ -1,5 +1,15 @@
 ---
 
+- name: Stat DSS Target path
+  stat:
+    path: "{{ start_dss_target_dest_dir }}"
+  register: dss_target_path
+
+- name: Assert DSS Target path exists
+  assert:
+    that: dss_target_path.stat.exists
+    fail_msg: DSS Target is not installed. Execute 'deploy_dss_software.yml' playbook first.
+
 - name: Stat nvmf.in.conf
   stat:
     path: "{{ start_dss_target_dest_dir }}/bin/nvmf.in.conf"
