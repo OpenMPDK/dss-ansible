@@ -5,5 +5,6 @@
   roles:
     - deploy_dss_target
     - deploy_dss_host
-    - start_dss_target
-    - start_dss_host
+
+- name: Start DSS Software
+  import_playbook: start_dss_software.yml
