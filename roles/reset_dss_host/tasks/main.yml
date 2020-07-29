@@ -1,0 +1,6 @@
+---
+
+- name: Remove DSS Host
+  command: ./dss_host.py remove
+  args:
+    chdir: "{{ reset_dss_host_dir }}/bin"
