@@ -24,7 +24,7 @@
       -kv_fw {{ target_fw_version }}
       -kv_ssc {{ num_subsystems }}
   args:
-    chdir: "{{ configure_target_dest_dir }}/bin"
+    chdir: "{{ start_dss_target_dest_dir }}/bin"
   register: dss_target_configure
   become: true
 
@@ -41,5 +41,5 @@
 - name: Save output of dss_target.py
   copy:
     content: "{{ dss_target_configure.stdout }}"
-    dest: "{{ configure_target_dest_dir }}/bin/dss_target.out"
+    dest: "{{ start_dss_target_dest_dir }}/bin/dss_target.out"
   become: true
