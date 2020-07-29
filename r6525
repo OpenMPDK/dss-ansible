@@ -1,6 +1,5 @@
 [servers]
 r6525-cluster-node[1:4].msl.lab ansible_user=root
-r6525-cluster-node[1:4]qq.msl.lab ansible_user=root
 
 [clients]
 # msl-ssg-dl[09:16].msl.lab ansible_user=root
