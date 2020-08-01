@@ -49,13 +49,15 @@
   changed_when: false
   failed_when: false
 
-- name: debug instances
-  debug:
-    msg: Missing instance
+- name: Set missing_instance var
+  set_fact:
+    missing_instance: true
   loop: "{{ tcp_vlan_ip_list }}"
   loop_control:
     loop_var: ip_address
-  when: ip_address not in minio_ps.stdout
+  vars:
+    ip_string: "{{ ip_address }}:{{ start_dss_minio_port }}"
+  when: ip_string not in minio_ps.stdout
 
 - name: Start minio instances
   shell: "nohup sh ./minio_startup_{{ ip_address }}.sh > {{ start_dss_minio_log_dir }}/nkv-minio_{{ ip_address }}.log 2>&1 &"
@@ -64,4 +66,25 @@
   loop: "{{ tcp_vlan_ip_list }}"
   loop_control:
     loop_var: ip_address
+  when: missing_instance is defined
   become: true
+
+- name: Read minio instance logs
+  command: "cat {{ start_dss_minio_log_dir }}/nkv-minio_{{ ip_address }}.log"
+  loop: "{{ tcp_vlan_ip_list }}"
+  changed_when: false
+  loop_control:
+    loop_var: ip_address
+  register: minio_logs
+  become: true
+
+- name: Assert minio instances online
+  assert:
+    that: "'0 Offline' in minio_log.stdout"
+    fail_msg: Offline instances detected
+    success_msg: Instance online
+    quiet: true
+  loop: "{{ minio_logs.results }}"
+  loop_control:
+    loop_var: minio_log
+    label: "{{ minio_log.ip_address }}"
