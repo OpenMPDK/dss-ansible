@@ -1,0 +1,32 @@
+---
+
+- name: Identify kvssd firmware
+  include_role:
+    name: identify_kvssd_firmware
+  when: target_fw_version is not defined
+
+- name: Query list of NVMe devices
+  command: nvme list -o json
+  changed_when: false
+  register: nvme_list
+  become: true
+
+- name: Set kvssd_format_list variable
+  set_fact:
+    kvssd_format_list: "{{ kvssd_format_list | default([]) + [ item.DevicePath ] }}"
+  loop: "{{ (nvme_list.stdout | from_json).Devices }}"
+  loop_control:
+    label: "{{ item.DevicePath }}"
+  when:
+    - item.ModelNumber == kvssd_model
+    - item.Firmware == target_fw_version
+
+- name: Format kvssd devices
+  command: "nvme format {{ kvssd_device_path }} -s0 -n1"
+  vars:
+    kvssd_device_path: "{{ item | regex_replace('n\\d+$', '') }}"
+    kvssd_fw_bin: "{{ upgrade_kvssd_firmware_staging_dir }}/{{ firmware_bin.files[0].path | basename }}"
+  loop: "{{ kvssd_format_list }}"
+  loop_control:
+    label: "{{ kvssd_device_path }}"
+  become: true  # noqa 301
