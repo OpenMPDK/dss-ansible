@@ -6,7 +6,6 @@
     - clients
   roles:
     - configure_connectx_network
-    - configure_lldpad
     - get_vlan_mac_list
 
 - name: Configure Onyx VLANs

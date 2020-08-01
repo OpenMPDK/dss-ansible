@@ -10,3 +10,4 @@
     - deploy_nvme_cli
     - deploy_ofed
     - upgrade_connectx_firmware
+    - configure_lldpad
