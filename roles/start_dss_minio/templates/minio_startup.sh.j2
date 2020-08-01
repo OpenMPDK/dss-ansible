@@ -1,0 +1,29 @@
+#!/bin/bash
+
+export LD_LIBRARY_PATH="../lib"
+export MINIO_NKV_CONFIG="../conf/nkv_config.json"
+export MINIO_ACCESS_KEY=minio
+export MINIO_SECRET_KEY=minio123
+export MINIO_STORAGE_CLASS_STANDARD=EC:{{ start_dss_minio_ec }}
+export MINIO_NKV_MAX_VALUE_SIZE=1048576
+export MINIO_NKV_TIMEOUT=20
+export MINIO_NKV_SYNC=1
+export MINIO_ON_KV=1
+export MINIO_NKV_USE_CUSTOM_READER=1
+export MINIO_NKV_SHARED_SYNC_INTERVAL=2
+export MINIO_INSTANCE_HOST_PORT={{ tcp_ip }}:{{ start_dss_minio_port }}
+export MINIO_NKV_SHARED=1
+export MINIO_EC_BLOCK_SIZE=65536
+export MINIO_ENABLE_NO_LOCK_READ=1
+export MINIO_ENABLE_NO_READ_VERIFY=1
+#export MINIO_NKV_CHECKSUM=1
+ulimit -n 65535
+ulimit -c unlimited
+
+./minio server --address {{ tcp_ip }}:{{ start_dss_minio_port }}
+{%- for vlan in combined_vlan_ip_map -%}
+    {%- set vlan_index = loop.index0 -%}
+    {%- for ip in vlan.tcp -%}
+        {{ ' ' }}http://{{ ip }}:{{ start_dss_minio_port }}/dev/nvme{{ '{' }}{{ subsys_range[vlan_index].min }}...{{ subsys_range[vlan_index].max }}{{ '}' }}n1
+    {%- endfor -%}
+{%- endfor %}

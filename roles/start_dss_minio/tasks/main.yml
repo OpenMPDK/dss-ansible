@@ -1,0 +1,67 @@
+---
+
+- name: Get all RoCEv2 IP Addresses
+  include_role:
+    name: get_vlan_ips
+  vars:
+    vlan_list: "{{ rocev2_vlans }}"
+
+- name: Set rocev2_vlan_ip_list var
+  set_fact:
+    rocev2_vlan_ip_list: "{{ vlan_ip_list }}"
+
+- name: Get all TCP IP Addresses
+  include_role:
+    name: get_vlan_ips
+  vars:
+    vlan_list: "{{ tcp_vlans }}"
+
+- name: Set tcp_vlan_ip_list var
+  set_fact:
+    tcp_vlan_ip_list: "{{ vlan_ip_list }}"
+
+- name: Stat minio startup scripts
+  stat:
+    path: "{{ start_dss_minio_host_bin_dir }}/minio_startup_{{ ip_address }}.sh"
+  loop: "{{ tcp_vlan_ip_list }}"
+  loop_control:
+    loop_var: ip_address
+  register: minio_script_stat
+
+- name: Check for missing startup scripts
+  set_fact:
+    missing_script: true
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    loop_var: host
+  vars:
+    host_stats: "{{ hostvars[host].minio_script_stat.results | map(attribute='stat.exists') | list }}"
+  when: false in host_stats
+  run_once: true
+
+- name: Generate minio startup scripts
+  include_tasks: generate_scripts_v2.yml
+  when: missing_script is defined
+
+- name: Check for running minio instances
+  shell: "ps aux | grep '[m]inio server'"
+  register: minio_ps
+  changed_when: false
+  failed_when: false
+
+- name: debug instances
+  debug:
+    msg: Missing instance
+  loop: "{{ tcp_vlan_ip_list }}"
+  loop_control:
+    loop_var: ip_address
+  when: ip_address not in minio_ps.stdout
+
+- name: Start minio instances
+  shell: "nohup sh ./minio_startup_{{ ip_address }}.sh > {{ start_dss_minio_log_dir }}/nkv-minio_{{ ip_address }}.log 2>&1 &"
+  args:
+    chdir: "{{ start_dss_minio_host_bin_dir }}"
+  loop: "{{ tcp_vlan_ip_list }}"
+  loop_control:
+    loop_var: ip_address
+  become: true

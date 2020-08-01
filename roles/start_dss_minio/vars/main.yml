@@ -1,0 +1,6 @@
+---
+
+start_dss_minio_port: 9000
+start_dss_minio_ec: 2
+start_dss_minio_host_bin_dir: /usr/dss/nkv-sdk/bin
+start_dss_minio_log_dir: /var/log/dss

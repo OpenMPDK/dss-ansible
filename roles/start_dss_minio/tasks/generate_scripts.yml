@@ -1,0 +1,144 @@
+---
+
+- name: Generate minio startup scripts on control host
+  command: "./dss_host.py config_minio --port {{ start_dss_minio_port }} --ec {{ start_dss_minio_ec }}"
+  args:
+    chdir: "{{ start_dss_minio_host_bin_dir }}"
+  run_once: true
+  become: true
+
+- name: Find minio startup scripts on control host
+  find:
+    path: "{{ start_dss_minio_host_bin_dir }}"
+    patterns: 'minio_startup_*.sh'
+  register: minio_scripts
+  run_once: true
+
+- name: Read etc_hosts file on control host
+  command: "cat {{ start_dss_minio_host_bin_dir }}/etc_hosts"
+  changed_when: false
+  register: etc_hosts
+  run_once: true
+
+- name: Set rocev2_minio_map var on control host
+  set_fact:
+    rocev2_minio_map: "{{ rocev2_minio_map | default([]) +
+                      [{'ip_addr': host_ip,
+                        'name': host_minio_name }] }}"
+  vars:
+    host_regex: '([\d]+\.[\d]+\.[\d]+\.[\d]+)\s+(dssminio\d+)'
+    host_ip: "{{ etc_host_line | regex_search(host_regex, '\\1') | first }}"
+    host_minio_name: "{{ etc_host_line | regex_search(host_regex, '\\2') | first }}"
+  loop: "{{ etc_hosts.stdout_lines }}"
+  loop_control:
+    loop_var: etc_host_line
+  when: etc_host_line is search('dssminio')
+  run_once: true
+
+- name: Find TCP IP pair for minio hosts
+  include_tasks: set_tcp_minio_map.yml
+  loop: "{{ rocev2_minio_map }}"
+  loop_control:
+    loop_var: minio_host
+    label: "{{ minio_host.name }}"
+  vars:
+    minio_name: "{{ minio_host.name }}"
+    minio_rocev2_ip: "{{ minio_host.ip_addr }}"
+
+- name: Set combined_tcp_minio_map var on control host
+  set_fact:
+    combined_tcp_minio_map: "{{ combined_tcp_minio_map | default([]) + host_tcp_minio_map }}"
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    loop_var: host
+  vars:
+    host_tcp_minio_map: "{{ hostvars[host].tcp_minio_map }}"
+  run_once: true
+
+- name: Replace minio hostnames in startup scripts on control host
+  replace:
+    path: "{{ script_path }}"
+    regexp: >-
+      ^(?P<pre>.+){{ minio_name }}(?P<post>.+)$
+    replace: >-
+      \g<pre>{{ tcp_ip }}\g<post>
+  with_nested:
+    - "{{ minio_scripts.files | map(attribute='path') | list }}"
+    - "{{ combined_tcp_minio_map }}"
+  vars:
+    script_path: "{{ item.0 }}"
+    minio_name: "{{ item.1.name }}"
+    tcp_ip: "{{ item.1.tcp_ip }}"
+  loop_control:
+    label: "{{ script_path }} - {{ minio_name }} - {{ tcp_ip }}"
+  run_once: true
+  become: true
+
+- name: Replace RoCEv2 IP's in startup scripts on control host
+  replace:
+    path: "{{ script_path }}"
+    regexp: >-
+      ^(?P<pre>.+){{ rocev2_ip }}(?P<post>.+)$
+    replace: >-
+      \g<pre>{{ tcp_ip }}\g<post>
+  with_nested:
+    - "{{ minio_scripts.files | map(attribute='path') | list }}"
+    - "{{ combined_tcp_minio_map }}"
+  vars:
+    script_path: "{{ item.0 }}"
+    tcp_ip: "{{ item.1.tcp_ip }}"
+    rocev2_ip: "{{ item.1.rocev2_ip }}"
+  loop_control:
+    label: "{{ script_path }} - {{ rocev2_ip }} - {{ tcp_ip }}"
+  when: rocev2_ip in script_path
+  run_once: true
+  become: true
+
+- name: Read contents of scripts
+  command: "cat {{ script_path }}"
+  changed_when: false
+  loop: "{{ minio_scripts.files | map(attribute='path') | list }}"
+  loop_control:
+    loop_var: script_path
+  register: script_contents
+  run_once: true
+
+- name: Write scripts to all hosts
+  copy:
+    content: "{{ minio_script.stdout }}"
+    dest: "{{ new_script_path }}"
+    mode: '0751'
+  with_nested:
+    - "{{ script_contents.results }}"
+    - "{{ combined_tcp_minio_map }}"
+  loop_control:
+    label: "{{ old_script_path }}"
+  vars:
+    minio_script: "{{ item.0 }}"
+    path_re_match: >-
+      ^(?P<pre>.+){{ rocev2_ip }}(?P<post>.+)$
+    path_re_replace: >-
+      \g<pre>{{ tcp_ip }}\g<post>
+    old_script_path: "{{ minio_script.script_path }}"
+    new_script_path: "{{ old_script_path | regex_replace(path_re_match, path_re_replace) }}"
+    rocev2_ip: "{{ item.1.rocev2_ip }}"
+    tcp_ip: "{{ item.1.tcp_ip }}"
+    ip_regex: '.+_(\d+\.\d+\.\d+\.\d+).sh'
+    script_ip: "{{ old_script_path | regex_search(ip_regex, '\\1') | first }}"
+  when: 
+    - script_ip == rocev2_ip
+    - script_ip in rocev2_vlan_ip_list
+  become: true
+
+- name: Remove original scripts from control host
+  file:
+    path: "{{ script_path }}"
+    state: absent
+  loop: "{{ minio_scripts.files | map(attribute='path') | list }}"
+  loop_control:
+    loop_var: script_path
+  vars:
+    ip_regex: '.+_(\d+\.\d+\.\d+\.\d+).sh'
+    ip_addr: "{{ script_path | regex_search(ip_regex, '\\1') | first }}"
+  run_once: true
+  become: true
