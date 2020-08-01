@@ -1,5 +1,25 @@
 ---
 
+- name: Stat DSS Minio path
+  stat:
+    path: "{{ start_dss_minio_dir }}"
+  register: dss_minio_path
+
+- name: Assert DSS Minio path exists
+  assert:
+    that: dss_minio_path.stat.exists
+    fail_msg: DSS Minio is not installed. Execute 'deploy_dss_software.yml' playbook first.
+
+- name: Stat DSS Host path
+  stat:
+    path: "{{ start_dss_minio_host_bin_dir }}"
+  register: dss_host_path
+
+- name: Assert DSS Host path exists
+  assert:
+    that: dss_host_path.stat.exists
+    fail_msg: DSS Host is not installed. Execute 'deploy_dss_software.yml' playbook first.
+
 - name: Get all RoCEv2 IP Addresses
   include_role:
     name: get_vlan_ips
