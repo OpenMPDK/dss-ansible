@@ -1,12 +1,12 @@
 ---
 
-- name: Append IP to vlan_ip_list for device {{ mellanox_device.netdev }}
+- name: Append IP to vlan_ip_list for VLAN ID {{ vlan.id }}
   set_fact:
     vlan_ip_list: "{{ vlan_ip_list | default([]) + [ lookup('vars', vlan_device).ipv4.address ] }}"
-  loop: "{{ vlan_list }}"
+  loop: "{{ mellanox_ports }}"
   loop_control:
-    loop_var: vlan
-    label: "VLAN ID: {{ vlan.id }}"
+    loop_var: mellanox_device
+    label: "{{ mellanox_device.netdev }}.{{ vlan.id }}"
   vars:
     vlan_device: "ansible_{{ mellanox_device.netdev }}.{{ vlan.id }}"
   when:

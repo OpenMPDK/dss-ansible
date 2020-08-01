@@ -11,8 +11,7 @@
 
 - name: Get list of VLAN IP addresses
   include_tasks: get_vlan_ips.yml
-  loop: "{{ mellanox_ports }}"
-  vars:
-    mellanox_device: "{{ item }}"
+  loop: "{{ vlan_list }}"
   loop_control:
-    label: "{{ item.ibdev }}"
+    loop_var: vlan
+    label: "VLAN ID: {{ vlan.id }}"
