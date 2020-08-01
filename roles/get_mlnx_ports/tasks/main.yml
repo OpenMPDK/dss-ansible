@@ -1,9 +1,5 @@
 ---
 
-- name: Load Mellanox Drivers
-  include_role:
-    name: load_mlnx_drivers
-
 - name: Query ConnectX Devices (ibdev2netdev)
   command: ibdev2netdev -v
   changed_when: false
