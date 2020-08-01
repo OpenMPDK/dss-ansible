@@ -20,10 +20,11 @@ export MINIO_ENABLE_NO_READ_VERIFY=1
 ulimit -n 65535
 ulimit -c unlimited
 
-./minio server --address {{ tcp_ip }}:{{ start_dss_minio_port }}
+{{ start_dss_minio_dir }}/minio server --address {{ tcp_ip }}:{{ start_dss_minio_port }}
 {%- for vlan in combined_vlan_ip_map -%}
     {%- set vlan_index = loop.index0 -%}
     {%- for ip in vlan.tcp -%}
         {{ ' ' }}http://{{ ip }}:{{ start_dss_minio_port }}/dev/nvme{{ '{' }}{{ subsys_range[vlan_index].min }}...{{ subsys_range[vlan_index].max }}{{ '}' }}n1
     {%- endfor -%}
-{%- endfor %}
+{%- endfor -%}
+{{ ' ' }}| grep -v 'Pool count' --line-buffered
