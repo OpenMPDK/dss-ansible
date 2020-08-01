@@ -1,5 +1,5 @@
 [servers]
-msl-ssg-sm[1:2].msl.lab ansible_user=root num_vlans_per_port=2
+msl-ssg-sm[1:4].msl.lab ansible_user=root num_vlans_per_port=2
 
 [clients]
 
