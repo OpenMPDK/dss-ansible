@@ -22,3 +22,16 @@
     dest: "{{ deploy_dss_minio_dest_dir }}"
   when: create_minio_dir.changed
   become: true
+
+- name: Create minio symlink to host bin dir
+  file:
+    src: "{{ deploy_dss_minio_dest_dir }}/minio"
+    dest: "{{ deploy_dss_minio_host_bin_dir }}/minio"
+    state: link
+  become: true
+
+- name: Create log dir
+  file:
+    path: "{{ deploy_dss_minio_log_dir }}"
+    state: directory
+  become: true
