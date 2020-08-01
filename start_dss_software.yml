@@ -5,3 +5,4 @@
   roles:
     - start_dss_target
     - start_dss_host
+    - start_dss_minio

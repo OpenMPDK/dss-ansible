@@ -3,5 +3,6 @@
 - name: Stop DSS software
   hosts: servers
   roles:
+    - stop_dss_minio
     - stop_dss_host
     - stop_dss_target
