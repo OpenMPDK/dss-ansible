@@ -50,7 +50,9 @@
   failed_when: false
 
 - name: Start minio instances
-  shell: "nohup sh ./minio_startup_{{ ip_address }}.sh > {{ start_dss_minio_log_dir }}/nkv-minio_{{ ip_address }}.log 2>&1 &"
+  shell: >
+    nohup ./minio_startup_{{ ip_address }}.sh >
+    {{ start_dss_minio_log_dir }}/nkv-minio_{{ ip_address }}.log 2>&1 &
   args:
     chdir: "{{ start_dss_minio_host_bin_dir }}"
   loop: "{{ tcp_vlan_ip_list }}"
@@ -60,6 +62,23 @@
     server_string: "server --address {{ ip_address }}:{{ start_dss_minio_port }}"
   when: server_string not in minio_ps.stdout
   become: true
+
+- name: Check for running minio instances post-start
+  shell: "ps aux | grep '[m]inio server'"
+  register: post_minio_ps
+  changed_when: false
+  failed_when: false
+
+- name: Assert minio instances running
+  assert:
+    that: server_string in post_minio_ps.stdout
+    fail_msg: Minio instance not running
+    quiet: true
+  loop: "{{ tcp_vlan_ip_list }}"
+  loop_control:
+    loop_var: ip_address
+  vars:
+    server_string: "server --address {{ ip_address }}:{{ start_dss_minio_port }}"
 
 - name: Read minio instance logs
   command: "cat {{ start_dss_minio_log_dir }}/nkv-minio_{{ ip_address }}.log"
