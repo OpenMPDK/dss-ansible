@@ -35,8 +35,8 @@
   loop_control:
     loop_var: host
   vars:
-    host_stats: "{{ hostvars[host].minio_script_stat.results | map(attribute='stat.exists') | list }}"
-  when: false in host_stats
+    script_exists: "{{ hostvars[host].minio_script_stat.results | map(attribute='stat.exists') | list }}"
+  when: false in script_exists
   run_once: true
 
 - name: Generate minio startup scripts
@@ -49,16 +49,6 @@
   changed_when: false
   failed_when: false
 
-- name: Set missing_instance var
-  set_fact:
-    missing_instance: true
-  loop: "{{ tcp_vlan_ip_list }}"
-  loop_control:
-    loop_var: ip_address
-  vars:
-    ip_string: "{{ ip_address }}:{{ start_dss_minio_port }}"
-  when: ip_string not in minio_ps.stdout
-
 - name: Start minio instances
   shell: "nohup sh ./minio_startup_{{ ip_address }}.sh > {{ start_dss_minio_log_dir }}/nkv-minio_{{ ip_address }}.log 2>&1 &"
   args:
@@ -66,7 +56,9 @@
   loop: "{{ tcp_vlan_ip_list }}"
   loop_control:
     loop_var: ip_address
-  when: missing_instance is defined
+  vars:
+    server_string: "server --address {{ ip_address }}:{{ start_dss_minio_port }}"
+  when: server_string not in minio_ps.stdout
   become: true
 
 - name: Read minio instance logs
