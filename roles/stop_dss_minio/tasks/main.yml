@@ -1,0 +1,18 @@
+---
+
+- name: Check for running minio instances
+  shell: "ps aux | grep '[m]inio server'"
+  register: minio_ps
+  changed_when: false
+  failed_when: false
+
+- name: Kill minio processes
+  command: "kill -9 {{ pid }}"
+  register: kill_minio
+  changed_when: kill_minio.stdout is not search('No such process')
+  failed_when: false
+  loop: "{{ minio_ps.stdout_lines }}"
+  vars:
+    pid_regex: '[^\s]+\s+([\d]+)'
+    pid: "{{ item | regex_search(pid_regex, '\\1') | first }}"
+  become: true
