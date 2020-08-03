@@ -8,7 +8,8 @@ ansible_user=root
 [clients]
 
 [onyx]
-10.1.51.128 ansible_user=msl-ssg
+10.1.51.128
 
 [onyx:vars]
+ansible_user=msl-ssg
 ansible_ssh_pass=msl-ssg
