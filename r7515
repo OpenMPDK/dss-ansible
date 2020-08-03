@@ -1,0 +1,14 @@
+[servers]
+msl-dpe-da1.msl.lab
+msl-dpe-da[8:10].msl.lab
+
+[servers:vars]
+ansible_user=root
+
+[clients]
+
+[onyx]
+10.1.51.128 ansible_user=msl-ssg
+
+[onyx:vars]
+ansible_ssh_pass=msl-ssg
