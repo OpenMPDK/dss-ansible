@@ -9,7 +9,6 @@
 - name: Set combined_vlans list
   set_fact:
     combined_vlans: "{{ combined_vlans | default([]) + [ item.0 ] + [ item.1 ] }}"
-  run_once: true
   with_together:
     - "{{ rocev2_vlans }}"
     - "{{ tcp_vlans }}"
