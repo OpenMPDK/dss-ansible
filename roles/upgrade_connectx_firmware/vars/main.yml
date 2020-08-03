@@ -2,16 +2,16 @@
 
 connectx6_staging_dir: /tmp/connectx6
 connectx6_fw:  
-  MT_0000000228: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_27_6008-MCX654106A-HCA_Ax-UEFI-14.20.25-FlexBoot-3.5.903.bin.zip
-  MT_0000000227: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_27_6008-MCX654106A-ECA_Ax-UEFI-14.20.25-FlexBoot-3.5.903.bin.zip
-  MT_0000000226: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_27_6008-MCX654105A-HCA_Ax-UEFI-14.20.25-FlexBoot-3.5.903.bin.zip
-  MT_0000000297: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_27_6008-MCX653436A-HDA_Ax-UEFI-14.20.25-FlexBoot-3.5.903.bin.zip
-  MT_0000000296: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_27_6008-MCX653435A-HDA_Ax-UEFI-14.20.25-FlexBoot-3.5.903.bin.zip
-  MT_0000000295: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_27_6008-MCX653435A-EDA_Ax-UEFI-14.20.25-FlexBoot-3.5.903.bin.zip
-  MT_0000000225: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_27_6008-MCX653106A-HDA_Ax-UEFI-14.20.25-FlexBoot-3.5.903.bin.zip
-  MT_0000000219: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_27_6008-MCX653106A-EFA_Ax-UEFI-14.20.25-FlexBoot-3.5.903.bin.zip
-  MT_0000000224: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_27_6008-MCX653106A-ECA_Ax-UEFI-14.20.25-FlexBoot-3.5.903.bin.zip
-  MT_0000000223: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_27_6008-MCX653105A-HDA_Ax-UEFI-14.20.25-FlexBoot-3.5.903.bin.zip
-  MT_0000000237: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_27_6008-MCX653105A-EFA_Ax-UEFI-14.20.25-FlexBoot-3.5.903.bin.zip
-  MT_0000000222: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_27_6008-MCX653105A-ECA_Ax-UEFI-14.20.25-FlexBoot-3.5.903.bin.zip
-  MT_0000000473: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_27_6008-MCX651105A-EDA_Ax-UEFI-14.20.25-FlexBoot-3.5.903.bin.zip
+  MT_0000000228: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_28_1002-MCX654106A-HCA_Ax-UEFI-14.21.16-FlexBoot-3.6.101.bin.zip
+  MT_0000000227: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_28_1002-MCX654106A-ECA_Ax-UEFI-14.21.16-FlexBoot-3.6.101.bin.zip
+  MT_0000000226: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_28_1002-MCX654105A-HCA_Ax-UEFI-14.21.16-FlexBoot-3.6.101.bin.zip
+  MT_0000000297: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_28_1002-MCX653436A-HDA_Ax-UEFI-14.21.16-FlexBoot-3.6.101.bin.zip
+  MT_0000000296: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_28_1002-MCX653435A-HDA_Ax-UEFI-14.21.16-FlexBoot-3.6.101.bin.zip
+  MT_0000000295: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_28_1002-MCX653435A-EDA_Ax-UEFI-14.21.16-FlexBoot-3.6.101.bin.zip
+  MT_0000000225: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_28_1002-MCX653106A-HDA_Ax-UEFI-14.21.16-FlexBoot-3.6.101.bin.zip
+  MT_0000000219: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_28_1002-MCX653106A-EFA_Ax-UEFI-14.21.16-FlexBoot-3.6.101.bin.zip
+  MT_0000000224: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_28_1002-MCX653106A-ECA_Ax-UEFI-14.21.16-FlexBoot-3.6.101.bin.zip
+  MT_0000000223: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_28_1002-MCX653105A-HDA_Ax-UEFI-14.21.16-FlexBoot-3.6.101.bin.zip
+  MT_0000000237: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_28_1002-MCX653105A-EFA_Ax-UEFI-14.21.16-FlexBoot-3.6.101.bin.zip
+  MT_0000000222: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_28_1002-MCX653105A-ECA_Ax-UEFI-14.21.16-FlexBoot-3.6.101.bin.zip
+  MT_0000000473: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_28_1002-MCX651105A-EDA_Ax-UEFI-14.21.16-FlexBoot-3.6.101.bin.zip
