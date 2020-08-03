@@ -1,7 +1,7 @@
 ---
 
 - name: Check for running minio instances
-  shell: "ps aux | grep '[m]inio server'"
+  shell: "ps aux | grep '[m]inio server' | grep -v grep"
   register: minio_ps
   changed_when: false
   failed_when: false
@@ -20,7 +20,7 @@
   become: true
 
 - name: Wait for minio processes to stop
-  shell: "ps aux | grep '[m]inio server'"
+  shell: "ps aux | grep '[m]inio server' | grep -v grep"
   register: postminio_ps
   until: postminio_ps.rc != 0
   retries: 120

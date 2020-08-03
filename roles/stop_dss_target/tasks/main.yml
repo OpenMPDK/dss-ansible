@@ -1,7 +1,7 @@
 ---
 
 - name: Find running target process
-  shell: "ps aux | grep [n]vmf_tgt"
+  shell: "ps aux | grep [n]vmf_tgt | grep -v grep"
   register: nvmf_ps
   changed_when: false
   failed_when: false
@@ -18,7 +18,7 @@
   become: true
 
 - name: Wait for nvmf_tgt process to stop
-  shell: "ps aux | grep [n]vmf_tgt"
+  shell: "ps aux | grep [n]vmf_tgt | grep -v grep"
   register: postnvmf_ps
   until: postnvmf_ps.rc != 0
   retries: 120

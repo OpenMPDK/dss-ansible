@@ -50,7 +50,7 @@
   when: ansible_processor_vcpus > 128
 
 - name: Find running target process
-  shell: "ps aux | grep [n]vmf_tgt"
+  shell: "ps aux | grep [n]vmf_tgt | grep -v grep"
   register: nvmf_ps
   changed_when: false
   failed_when: false
