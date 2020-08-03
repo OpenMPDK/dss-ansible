@@ -7,6 +7,7 @@
     short_hostname: "{{ ansible_hostname.split('.').0 }}"
     octet_regex: '[^\d]+([\d]+)$'
   when:
+    - last_octet is not defined
     - short_hostname is search(octet_regex,'\\1')
     - short_hostname | regex_search(octet_regex,'\\1') | first | int >= 1
     - short_hostname | regex_search(octet_regex,'\\1') | first | int <= 255
