@@ -125,7 +125,7 @@
     tcp_ip: "{{ item.1.tcp_ip }}"
     ip_regex: '.+_(\d+\.\d+\.\d+\.\d+).sh'
     script_ip: "{{ old_script_path | regex_search(ip_regex, '\\1') | first }}"
-  when: 
+  when:
     - script_ip == rocev2_ip
     - script_ip in rocev2_vlan_ip_list
   become: true

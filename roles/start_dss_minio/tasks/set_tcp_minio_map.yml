@@ -10,7 +10,7 @@
     - "{{ rocev2_vlan_ip_list }}"
     - "{{ tcp_vlan_ip_list }}"
   loop_control:
-    label: "found: {{ minio_rocev2_ip }}, set {{ rocev2_ip }} => {{ tcp_ip }}" 
+    label: "found: {{ minio_rocev2_ip }}, set {{ rocev2_ip }} => {{ tcp_ip }}"
   vars:
     rocev2_ip: "{{ item.0 }}"
     tcp_ip: "{{ item.1 }}"

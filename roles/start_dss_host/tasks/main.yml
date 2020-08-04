@@ -9,7 +9,7 @@
   assert:
     that: dss_host_path.stat.exists
     fail_msg: DSS Host is not installed. Execute 'deploy_dss_software.yml' playbook first.
-    
+
 - name: Configure Driver
   command: ./dss_host.py config_driver
   args:

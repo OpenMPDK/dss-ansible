@@ -57,4 +57,4 @@
   when: >
     openibd_service.changed or
     rm_mlnx_ofa_kernel.changed
-  become: true   # noqa 301
+  become: true   # noqa 301 503

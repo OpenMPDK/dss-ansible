@@ -11,7 +11,7 @@
   vars:
     tcp_ip: "{{ item.0 }}"
     rocev2_ip: "{{ item.1 }}"
-  
+
 - name: Set combined_vlan_ip_map
   set_fact:
     combined_vlan_ip_map: "{{ combined_vlan_ip_map | default([]) }} +
