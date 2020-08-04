@@ -5,7 +5,7 @@
   args:
     chdir: "{{ start_dss_minio_host_bin_dir }}"
   run_once: true
-  become: true
+  become: true  # noqa 301
 
 - name: Find minio startup scripts on control host
   find:
