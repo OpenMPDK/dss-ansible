@@ -48,20 +48,3 @@
     path: "{{ deploy_ofed_staging_dir }}"
     state: absent
   become: true
-
-- name: Stop and disable openibd service
-  service:
-    name: openibd
-    state: stopped
-    enabled: false
-  become: true
-
-- name: Remove mlnx-ofa_kernel modules
-  file:
-    path: "/lib/modules/{{ ansible_kernel }}/extra/mlnx-ofa_kernel"
-    state: absent
-  become: true
-
-- name: Reload module dependencies
-  command: depmod -a
-  become: true   # noqa 301

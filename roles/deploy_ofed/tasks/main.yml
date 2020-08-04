@@ -36,3 +36,25 @@
     that: post_ofed_version.stdout is version(ofed_target_version, '==')
     fail_msg: "Expected OFED version {{ ofed_target_version }} but found {{ post_ofed_version.stdout }}"
     success_msg: "Detected target OFED version {{ ofed_target_version }}"
+
+- name: Stop and disable openibd service
+  service:
+    name: openibd
+    state: stopped
+    enabled: false
+  register: openibd_service
+  become: true
+
+- name: Remove mlnx-ofa_kernel modules
+  file:
+    path: "/lib/modules/{{ ansible_kernel }}/extra/mlnx-ofa_kernel"
+    state: absent
+  register: rm_mlnx_ofa_kernel
+  become: true
+
+- name: Reload module dependencies
+  command: depmod -a
+  when: >
+    openibd_service.changed or
+    rm_mlnx_ofa_kernel.changed
+  become: true   # noqa 301
