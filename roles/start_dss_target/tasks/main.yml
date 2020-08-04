@@ -36,13 +36,15 @@
     spdk_status.stdout is not search('uio_pci_generic')
 
 - name: Read dss_target.out
-  slurp:
-    src: "{{ start_dss_target_dest_dir }}/bin/dss_target.out"
-  register: dss_target_out
+  command: "cat {{ start_dss_target_dest_dir }}/bin/dss_target.out"
+  become: true
+  register: dss_target_out  # noqa 301
 
 - name: Get nvmf_tgt command from dss_target.py script
   set_fact:
-    nvmf_tgt_cmd: "{{ dss_target_out['content'] | b64decode | regex_search('Execute the following command to start the target application: (.+)', '\\1') | first }}"
+    nvmf_tgt_cmd: "{{ dss_target_out.stdout | regex_search(nvmf_tgt_re, '\\1') | first }}"
+  vars:
+    nvmf_tgt_re: 'Execute the following command to start the target application: (.+)'
 
 - name: Set hardcoded nvmf_tgt command if more than 128 cores
   set_fact:
@@ -50,7 +52,7 @@
   when: ansible_processor_vcpus > 128
 
 - name: Find running target process
-  shell: "ps aux | grep [n]vmf_tgt | grep -v grep"
+  command: "pgrep -ax reactor_0"
   register: nvmf_ps
   changed_when: false
   failed_when: false

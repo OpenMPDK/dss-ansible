@@ -1,7 +1,7 @@
 ---
 
 - name: Find running target process
-  shell: "ps aux | grep [n]vmf_tgt | grep -v grep"
+  command: "pgrep -x reactor_0"
   register: nvmf_ps
   changed_when: false
   failed_when: false
@@ -12,13 +12,12 @@
   changed_when: kill_nvmf.stdout is not search('No such process')
   failed_when: false
   loop: "{{ nvmf_ps.stdout_lines }}"
-  vars:
-    pid_regex: '[^\s]+\s+([\d]+)'
-    pid: "{{ item | regex_search(pid_regex, '\\1') | first }}"
+  loop_control:
+    loop_var: pid
   become: true
 
 - name: Wait for nvmf_tgt process to stop
-  shell: "ps aux | grep [n]vmf_tgt | grep -v grep"
+  command: "pgrep -x reactor_0"
   register: postnvmf_ps
   until: postnvmf_ps.rc != 0
   retries: 120

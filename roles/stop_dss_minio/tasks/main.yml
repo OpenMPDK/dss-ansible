@@ -1,7 +1,7 @@
 ---
 
 - name: Check for running minio instances
-  shell: "ps aux | grep '[m]inio server' | grep -v grep"
+  command: "pgrep -x minio"
   register: minio_ps
   changed_when: false
   failed_when: false
@@ -13,14 +13,11 @@
   failed_when: false
   loop: "{{ minio_ps.stdout_lines }}"
   loop_control:
-    label: "{{ pid }}"
-  vars:
-    pid_regex: '[^\s]+\s+([\d]+)'
-    pid: "{{ item | regex_search(pid_regex, '\\1') | first }}"
+    loop_var: pid
   become: true
 
 - name: Wait for minio processes to stop
-  shell: "ps aux | grep '[m]inio server' | grep -v grep"
+  command: "pgrep -x minio"
   register: postminio_ps
   until: postminio_ps.rc != 0
   retries: 120
