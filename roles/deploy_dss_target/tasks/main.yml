@@ -1,5 +1,12 @@
 ---
 
+- name: Install target runtime dependencies
+  yum:
+    name: "{{ item }}"
+  loop:
+    - tbb-devel
+  become: true
+
 - name: Identify target tarball
   find:
     path: "{{ deploy_dss_target_path }}"
@@ -22,11 +29,6 @@
     dest: "{{ deploy_dss_target_dest_dir }}"
     extra_opts: [--strip-components=1]
   when: create_target_dir.changed  # noqa 503
-  become: true
-
-- name: Install tbb-devel
-  yum:
-    name: tbb-devel
   become: true
 
 - name: Create log dir
