@@ -46,7 +46,7 @@
 
 - name: Set hardcoded nvmf_tgt command if more than 128 cores
   set_fact:
-    nvmf_tgt_cmd: "./nvmf_tgt -c nvmf.in.conf -r /var/run/spdk.sock -m 0xffffffff0000000000000000ffffffff" 
+    nvmf_tgt_cmd: "./nvmf_tgt -c nvmf.in.conf -r /var/run/spdk.sock -m 0xffffffff0000000000000000ffffffff"
   when: ansible_processor_vcpus > 128
 
 - name: Find running target process

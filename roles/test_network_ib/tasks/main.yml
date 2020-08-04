@@ -14,7 +14,7 @@
 
 - name: Set ib_devices var
   set_fact:
-    ib_devices: "{{ ib_devices | default([]) + 
+    ib_devices: "{{ ib_devices | default([]) +
                 [{ 'ibdev': ibdev,
                   'gid_index': gid_index,
                   'ip_address': ip_address,
@@ -58,7 +58,7 @@
     fail_msg: "Expected bw: {{ min_linkspeed }}. Actual bw: {{ ib_result.bw_avg }}"
     quiet: true
   vars:
-    min_linkspeed: "{{ [ib_result.server_linkspeed, ib_result.client_linkspeed] | min | float * 0.0009}}"
+    min_linkspeed: "{{ [ib_result.server_linkspeed, ib_result.client_linkspeed] | min | float * 0.0009 }}"
   loop: "{{ combined_ib_results }}"
   loop_control:
     loop_var: ib_result

@@ -2,7 +2,7 @@
 
 - name: Stop DSS Software
   import_playbook: stop_dss_software.yml
-  
+
 - name: Remove DSS software
   hosts: servers
   roles:
