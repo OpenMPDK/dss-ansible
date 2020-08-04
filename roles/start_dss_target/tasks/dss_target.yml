@@ -26,7 +26,7 @@
   args:
     chdir: "{{ start_dss_target_dest_dir }}/bin"
   register: dss_target_configure
-  become: true
+  become: true  # noqa 301
 
 - name: Assert dss_target.py success
   assert:
@@ -36,7 +36,7 @@
       - "'drive setup to userspace is done' in dss_target_configure.stdout"
     success_msg: "dss_target.py successfully configured target"
     fail_msg: "dss_target.py failed to configure target"
-  when: dss_target_configure.changed
+  when: dss_target_configure.changed  # noqa 503
 
 - name: Save output of dss_target.py
   copy:
