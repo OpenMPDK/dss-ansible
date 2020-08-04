@@ -1,6 +1,6 @@
 ---
 
-- name: Get TCP IP Addresses
+- name: Get IP Addresses
   include_role:
     name: get_vlan_ips
 
