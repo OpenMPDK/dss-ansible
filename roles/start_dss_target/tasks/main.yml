@@ -38,7 +38,8 @@
 - name: Read dss_target.out
   command: "cat {{ start_dss_target_dest_dir }}/bin/dss_target.out"
   become: true
-  register: dss_target_out  # noqa 301
+  changed_when: false
+  register: dss_target_out
 
 - name: Get nvmf_tgt command from dss_target.py script
   set_fact:
