@@ -71,11 +71,27 @@
     label: "{{ ansible_loop.index0 }}"
   run_once: true
 
-- name: Create minio scripts
-  template:
-    src: minio_startup.sh.j2
-    dest: "{{ start_dss_minio_host_bin_dir }}/minio_startup_{{ tcp_ip }}.sh"
-    mode: '0751'
-  loop: "{{ tcp_vlan_ip_list }}"
+- name: Get numactl hardware information
+  command: numactl --hardware
+  changed_when: false
+  register: numactl_hardware
+
+- name: Set num_numa_nodes
+  set_fact:
+    num_numa_nodes: "{{ numactl_hardware.stdout | regex_search(numa_re, '\\1') | first | int }}"
+  vars:
+    numa_re: 'available: ([\d]+) nodes'
+
+- name: Query up adapters
+  shell: "ip address show | grep 'state UP'"
+  changed_when: false
+  register: up_adapters
+
+- name: Set numactl string and generate minio scripts
+  include_tasks: set_numa_gen_script.yml
+  loop: "{{ range(0, tcp_vlan_ip_list | length) | list }}"
   loop_control:
-    loop_var: tcp_ip
+    loop_var: vlan_pair
+    extended: true
+  vars:
+    tcp_ip: "{{ tcp_vlan_ip_list[ansible_loop.index0] }}"

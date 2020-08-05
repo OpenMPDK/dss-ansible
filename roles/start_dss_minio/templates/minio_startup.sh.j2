@@ -20,6 +20,9 @@ export MINIO_ENABLE_NO_READ_VERIFY=1
 ulimit -n 65535
 ulimit -c unlimited
 
+{% if num_numa_nodes | int > 1 -%}
+    numactl -N {{ numa_node }} -i {{ numa_node }},{{ (numa_node | int - 1) | abs }}{{ ' '}}
+{%- endif -%}
 {{ start_dss_minio_dir }}/minio server --address {{ tcp_ip }}:{{ start_dss_minio_port }}
 {%- for vlan in combined_vlan_ip_map -%}
     {%- set vlan_index = loop.index0 -%}
