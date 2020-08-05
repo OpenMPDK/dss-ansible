@@ -37,7 +37,7 @@
 
 - name: Deploy host from tarball
   unarchive:
-    src: "{{ host_tgz.files[0].path }}"
+    src: "{{ (host_tgz.files | sort(attribute='ctime', reverse=true) | first).path }}"
     dest: "{{ deploy_host_dest_dir }}"
     extra_opts: [--strip-components=1]
   when: create_host_dir.changed  # noqa 503
