@@ -1,5 +1,12 @@
 ---
 
+- name: Install minio dependencies
+  yum:
+    name: "{{ item }}"
+  loop:
+    - numactl
+  become: true
+
 - name: Identify host tarball
   find:
     path: "{{ deploy_dss_minio_path }}"
