@@ -2,14 +2,7 @@
 r6525-cluster-node[1:4].msl.lab
 
 [clients]
-msl-ssg-dl09.msl.lab last_octet=209
-msl-ssg-dl10.msl.lab last_octet=210
-msl-ssg-dl11.msl.lab last_octet=211
-msl-ssg-dl12.msl.lab last_octet=212
-msl-ssg-dl13.msl.lab last_octet=213
-msl-ssg-dl14.msl.lab last_octet=214
-msl-ssg-dl15.msl.lab last_octet=215
-msl-ssg-dl16.msl.lab last_octet=216
+msl-ssg-dl[09:16].msl.lab
 
 [onyx]
 10.1.51.74
@@ -19,6 +12,7 @@ ansible_user=root
 
 [clients:vars]
 ansible_user=root
+last_octet_offset=200
 
 [onyx:vars]
 ansible_user=admin
