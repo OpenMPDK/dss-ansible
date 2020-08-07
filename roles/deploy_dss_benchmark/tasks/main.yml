@@ -1,0 +1,48 @@
+---
+
+- name: Check if python3 is available
+  command: yum list python3
+  changed_when: false
+  failed_when: false
+  register: list_python3
+
+- name: Check if python34 is available for fallback
+  command: yum list python34
+  changed_when: false
+  when: list_python3.rc != 0
+  register: list_python34
+
+- name: Set python3 download name
+  set_fact:
+    python3_name: "python3{% if list_python3.rc != 0 %}4{% endif %}"
+
+- name: Install DSS benchmark dependencies
+  yum:
+    name:
+      - "{{ python3_name }}"
+      - zstd
+  become: true
+
+- name: Identify benchmark tarball
+  find:
+    path: "{{ deploy_benchmark_path }}"
+    patterns: 'dss-benchmark-*.gz'
+  delegate_to: localhost
+  run_once: true
+  register: benchmark_tgz
+
+- name: Create benchmark destination path
+  file:
+    path: "{{ deploy_benchmark_dest_dir }}"
+    state: directory
+    mode: '0555'
+  register: create_benchmark_dir
+  become: true
+
+- name: Deploy benchmark from tarball
+  unarchive:
+    src: "{{ (benchmark_tgz.files | sort(attribute='ctime', reverse=true) | first).path }}"
+    dest: "{{ deploy_benchmark_dest_dir }}"
+    extra_opts: [--strip-components=1]
+  when: create_benchmark_dir.changed  # noqa 503
+  become: true

@@ -1,0 +1,4 @@
+---
+
+deploy_benchmark_path: "{{ playbook_dir }}/artifacts"
+deploy_benchmark_dest_dir: /usr/dss/nkv-benchmark
