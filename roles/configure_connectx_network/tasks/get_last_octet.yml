@@ -2,7 +2,7 @@
 
 - name: Get IP last octet from hostname
   set_fact:
-    last_octet: "{{ short_hostname | regex_search(octet_regex,'\\1') | first | int }}"
+    last_octet: "{{ (short_hostname | regex_search(octet_regex,'\\1') | first | int) + last_octet_offset | int }}"
   vars:
     short_hostname: "{{ ansible_hostname.split('.').0 }}"
     octet_regex: '[^\d]+([\d]+)$'
@@ -22,7 +22,7 @@
 
 - name: Use inventory ID number if hostnames do not contain unique numbers between 1 and 255
   set_fact:
-    last_octet: "{{ ansible_loop.index }}"
+    last_octet: "{{ ansible_loop.index + last_octet_offset | int }}"
   when: >
     item == inventory_hostname and
     (last_octet_list is not defined or

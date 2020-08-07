@@ -31,10 +31,10 @@
   vars:
     lldp_regex: "Eth([^ ]+) +{{ mac_address }}"
 
-- name: Remove allowed VLANs
+- name: Set switchport mode access
   onyx_config:
     lines:
-      - "interface ethernet {{ interface }} switchport hybrid allowed-vlan none"
+      - "interface ethernet {{ interface }} switchport mode access"
     save: yes
   loop: "{{ interfaces }}"
   loop_control:

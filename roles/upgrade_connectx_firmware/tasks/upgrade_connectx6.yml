@@ -1,5 +1,10 @@
 ---
 
+- name: Install unzip
+  yum:
+    name: unzip
+  become: true
+
 - name: Create ConnectX-6 firmware staging directory
   file:
     path: "{{ connectx6_staging_dir }}"

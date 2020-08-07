@@ -2,13 +2,18 @@
 msl-dpe-da1.msl.lab
 msl-dpe-da[8:10].msl.lab
 
-[servers:vars]
-ansible_user=root
-
 [clients]
+msl-ssg-dl[01:08].msl.lab
 
 [onyx]
 10.1.51.128
+
+[servers:vars]
+ansible_user=root
+
+[clients:vars]
+ansible_user=root
+last_octet_offset=200
 
 [onyx:vars]
 ansible_user=msl-ssg
