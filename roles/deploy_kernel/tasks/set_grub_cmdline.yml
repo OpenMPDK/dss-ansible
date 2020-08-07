@@ -30,3 +30,16 @@
     - Execute grub2-mkconfig
     - Reboot system
   become: true
+
+- name: Set GRUB_DEFAULT
+  lineinfile:
+    path: /etc/default/grub
+    state: present
+    backrefs: yes
+    regexp: '^GRUB_DEFAULT=.+'
+    line: 'GRUB_DEFAULT=saved'
+  notify:
+    - Identify UEFI boot
+    - Execute grub2-mkconfig
+    - Reboot system
+  become: true
