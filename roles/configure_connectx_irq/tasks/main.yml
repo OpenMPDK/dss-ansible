@@ -4,5 +4,5 @@
   service:
     name: irqbalance
     state: started
-    enabled: enabled
+    enabled: true
   become: true
