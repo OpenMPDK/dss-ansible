@@ -68,7 +68,8 @@
 - name: Configure Driver
   command: >
     ./dss_host.py config_host -a
-    {% for ip in first_vlan_ip_list %}{{ ip }}:{{ start_dss_host_port }}{% if not loop.last %} {% endif %}{% endfor %}
+    {% for ip in first_vlan_ip_list %}{{ ip }}{% if not loop.last %} {% endif %}{% endfor %}
+    -p {{ start_dss_host_port }}
     -i {{ start_dss_host_qpairs }} -m {{ start_dss_host_mem_align }}
   args:
     chdir: "{{ start_dss_host_dir }}/bin"
