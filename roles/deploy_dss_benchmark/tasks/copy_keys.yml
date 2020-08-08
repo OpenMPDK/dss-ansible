@@ -17,7 +17,7 @@
     creates: "{{ rsa_key }}"
 
 - name: Fetch user's public SSH key
-  shell: "cat {{ rsa_key }}.pub"
+  command: "cat {{ rsa_key }}.pub"
   vars:
     rsa_key: "{{ ansible_env.HOME }}/.ssh/{{ deploy_benchmark_ssh_key_name }}"
   register: ssh_keys
@@ -38,7 +38,7 @@
     label: "{{ key_host }}"
 
 - name: Scan machine RSA keys by short hostname
-  shell: "ssh-keyscan -t rsa {{ scan_hostname }}"
+  command: "ssh-keyscan -t rsa {{ scan_hostname }}"
   register: ssh_keys_short
   loop: "{{ ansible_play_hosts }}"
   loop_control:
@@ -49,7 +49,7 @@
   changed_when: false
 
 - name: Scan machine RSA keys by inventory name
-  shell: "ssh-keyscan -t rsa {{ hostname }}"
+  command: "ssh-keyscan -t rsa {{ hostname }}"
   register: ssh_keys_inventory
   loop: "{{ ansible_play_hosts }}"
   loop_control:
