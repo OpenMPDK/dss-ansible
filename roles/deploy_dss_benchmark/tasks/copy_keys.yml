@@ -1,0 +1,78 @@
+---
+
+- name: Remove clients from /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    state: absent
+    regexp: "{{ hostvars[host].inventory_hostname_short }}"
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    loop_var: host
+
+- name: Generate RSA keys
+  command: "ssh-keygen -q -t rsa -f {{ rsa_key }} -N ''"
+  vars:
+    rsa_key: "{{ ansible_env.HOME }}/.ssh/{{ deploy_benchmark_ssh_key_name }}"
+  args:
+    creates: "{{ rsa_key }}"
+
+- name: Fetch user's public SSH key
+  shell: "cat {{ rsa_key }}.pub"
+  vars:
+    rsa_key: "{{ ansible_env.HOME }}/.ssh/{{ deploy_benchmark_ssh_key_name }}"
+  register: ssh_keys
+  changed_when: false
+
+- name: Add all user keys to authorized_keys
+  authorized_key:
+    user: "{{ ansible_user }}"
+    key: "{{ ssh_key }}"
+  delegate_to: "{{ key_host }}"
+  with_nested:
+    - "{{ ssh_keys.stdout }}"
+    - "{{ ansible_play_hosts }}"
+  vars:
+    ssh_key: "{{ item[0] }}"
+    key_host: "{{ item[1] }}"
+  loop_control:
+    label: "{{ key_host }}"
+
+- name: Scan machine RSA keys by short hostname
+  shell: "ssh-keyscan -t rsa {{ scan_hostname }}"
+  register: ssh_keys_short
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    loop_var: hostname
+  vars:
+    scan_hostname: "{{ hostvars[hostname].inventory_hostname_short }}"
+  failed_when: ssh_keys.stdout == ''
+  changed_when: false
+
+- name: Scan machine RSA keys by inventory name
+  shell: "ssh-keyscan -t rsa {{ hostname }}"
+  register: ssh_keys_inventory
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    loop_var: hostname
+  failed_when: ssh_keys.stdout == ''
+  changed_when: false
+
+- name: Add all host keys to known_hosts - short
+  known_hosts:
+    path: "{{ ansible_env.HOME }}/.ssh/known_hosts"
+    name: "{{ host }}"
+    key: "{{ item.stdout }}"
+  loop: "{{ ssh_keys_short.results }}"
+  loop_control:
+    label: "{{ item.hostname }}"
+  vars:
+    host: "{{ hostvars[item.hostname].inventory_hostname_short }}"
+
+- name: Add all host keys to known_hosts - inventory
+  known_hosts:
+    path: "{{ ansible_env.HOME }}/.ssh/known_hosts"
+    name: "{{ item.hostname }}"
+    key: "{{ item.stdout }}"
+  loop: "{{ ssh_keys_inventory.results }}"
+  loop_control:
+    label: "{{ item.hostname }}"

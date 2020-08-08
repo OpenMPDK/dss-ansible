@@ -2,3 +2,4 @@
 
 deploy_benchmark_path: "{{ playbook_dir }}/artifacts"
 deploy_benchmark_dest_dir: /usr/dss/nkv-benchmark
+deploy_benchmark_ssh_key_name: id_rsa

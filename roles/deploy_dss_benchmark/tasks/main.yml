@@ -4,12 +4,16 @@
   command: yum list python3
   changed_when: false
   failed_when: false
+  args:
+    warn: false
   register: list_python3
 
 - name: Check if python34 is available for fallback
   command: yum list python34
   changed_when: false
   when: list_python3.rc != 0
+  args:
+    warn: false
   register: list_python34
 
 - name: Set python3 download name
@@ -46,3 +50,6 @@
     extra_opts: [--strip-components=1]
   when: create_benchmark_dir.changed  # noqa 503
   become: true
+
+- name: Copy SSH keys between clients
+  include_tasks: copy_keys.yml
