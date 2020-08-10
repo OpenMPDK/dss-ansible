@@ -1,0 +1,4 @@
+---
+
+- name: Copy SSH keys between clients
+  include_tasks: copy_keys.yml
