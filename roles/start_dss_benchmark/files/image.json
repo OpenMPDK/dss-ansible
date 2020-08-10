@@ -1,0 +1,8 @@
+[
+    {
+        "Prefix": "image/" ,
+        "MinSize": "8MiB" ,
+        "MaxSize": "16MiB" ,
+        "DistType": "Uniform"
+    }
+]
