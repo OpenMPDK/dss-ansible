@@ -12,14 +12,14 @@
 - name: Generate RSA keys
   command: "ssh-keygen -q -t rsa -f {{ rsa_key }} -N ''"
   vars:
-    rsa_key: "{{ ansible_env.HOME }}/.ssh/{{ deploy_benchmark_ssh_key_name }}"
+    rsa_key: "{{ ansible_env.HOME }}/.ssh/{{ start_dss_benchmark_ssh_key_name }}"
   args:
     creates: "{{ rsa_key }}"
 
 - name: Fetch user's public SSH key
   command: "cat {{ rsa_key }}.pub"
   vars:
-    rsa_key: "{{ ansible_env.HOME }}/.ssh/{{ deploy_benchmark_ssh_key_name }}"
+    rsa_key: "{{ ansible_env.HOME }}/.ssh/{{ start_dss_benchmark_ssh_key_name }}"
   register: ssh_keys
   changed_when: false
 
