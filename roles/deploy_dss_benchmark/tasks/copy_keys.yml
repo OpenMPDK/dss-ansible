@@ -5,59 +5,52 @@
     path: /etc/hosts
     state: absent
     regexp: "{{ hostvars[host].inventory_hostname_short }}"
-  loop: "{{ ansible_play_hosts }}"
+  loop: "{{ groups['clients'] + groups['servers'] }}"
   loop_control:
     loop_var: host
+  run_once: true
 
-- name: Generate RSA keys
+- name: Generate RSA key on master client
   command: "ssh-keygen -q -t rsa -f {{ rsa_key }} -N ''"
   vars:
     rsa_key: "{{ ansible_env.HOME }}/.ssh/{{ deploy_dss_benchmark_ssh_key_name }}"
   args:
     creates: "{{ rsa_key }}"
+  run_once: true
 
-- name: Fetch user's public SSH key
+- name: Read master client public SSH key
   command: "cat {{ rsa_key }}.pub"
   vars:
     rsa_key: "{{ ansible_env.HOME }}/.ssh/{{ deploy_dss_benchmark_ssh_key_name }}"
   register: ssh_keys
   changed_when: false
+  run_once: true
 
-- name: Add all user keys to authorized_keys
+- name: Add master client key to authorized_keys
   authorized_key:
     user: "{{ ansible_user }}"
     key: "{{ ssh_key }}"
   delegate_to: "{{ key_host }}"
-  with_nested:
-    - "{{ ssh_keys.stdout }}"
-    - "{{ ansible_play_hosts }}"
-  vars:
-    ssh_key: "{{ item[0] }}"
-    key_host: "{{ item[1] }}"
+  loop: "{{ groups['clients'] + groups['servers'] }}"
   loop_control:
-    label: "{{ key_host }}"
+    loop_var: key_host
+  vars:
+    ssh_key: "{{ ssh_keys.stdout }}"
+  run_once: true
 
-- name: Scan machine RSA keys by short hostname
-  command: "ssh-keyscan -t rsa {{ scan_hostname }}"
+- name: Scan machine RSA keys by IP address
+  command: "ssh-keyscan -t rsa {{ scan_ip }}"
   register: ssh_keys_short
-  loop: "{{ ansible_play_hosts }}"
+  loop: "{{ groups['clients'] + groups['servers'] }}"
   loop_control:
     loop_var: hostname
   vars:
-    scan_hostname: "{{ hostvars[hostname].inventory_hostname_short }}"
+    scan_ip: "{{ hostvars[hostname].ansible_default_ipv4.address }}"
   failed_when: ssh_keys.stdout == ''
   changed_when: false
+  run_once: true
 
-- name: Scan machine RSA keys by inventory name
-  command: "ssh-keyscan -t rsa {{ hostname }}"
-  register: ssh_keys_inventory
-  loop: "{{ ansible_play_hosts }}"
-  loop_control:
-    loop_var: hostname
-  failed_when: ssh_keys.stdout == ''
-  changed_when: false
-
-- name: Add all host keys to known_hosts - short
+- name: Add all host keys to master client's known_hosts 
   known_hosts:
     path: "{{ ansible_env.HOME }}/.ssh/known_hosts"
     name: "{{ host }}"
@@ -66,13 +59,5 @@
   loop_control:
     label: "{{ item.hostname }}"
   vars:
-    host: "{{ hostvars[item.hostname].inventory_hostname_short }}"
-
-- name: Add all host keys to known_hosts - inventory
-  known_hosts:
-    path: "{{ ansible_env.HOME }}/.ssh/known_hosts"
-    name: "{{ item.hostname }}"
-    key: "{{ item.stdout }}"
-  loop: "{{ ssh_keys_inventory.results }}"
-  loop_control:
-    label: "{{ item.hostname }}"
+    host: "{{ hostvars[item.hostname].ansible_default_ipv4.address }}"
+  run_once: true
