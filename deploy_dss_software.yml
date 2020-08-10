@@ -7,5 +7,10 @@
     - deploy_dss_host
     - deploy_dss_minio
 
+- name: Deploy DSS benchmark
+  hosts: clients
+  roles:
+    - deploy_dss_benchmark
+
 - name: Start DSS Software
   import_playbook: start_dss_software.yml
