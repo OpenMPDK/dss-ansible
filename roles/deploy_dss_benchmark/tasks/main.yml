@@ -50,3 +50,6 @@
     extra_opts: [--strip-components=1]
   when: create_benchmark_dir.changed  # noqa 503
   become: true
+
+- name: Copy SSH keys between clients
+  include_tasks: copy_keys.yml
