@@ -1,4 +1,4 @@
 ---
 
-start_benchmark_dest_dir: /usr/dss/nkv-benchmark
-start_benchmark_ssh_key_name: id_rsa
+start_dss_benchmark_dest_dir: /usr/dss/nkv-benchmark
+start_dss_benchmark_ssh_key_name: id_rsa
