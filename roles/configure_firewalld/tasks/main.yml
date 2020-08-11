@@ -1,0 +1,8 @@
+---
+
+- name: Firewall is stopped and disabled
+  service:
+    name: firewalld
+    state: stopped
+    enabled: false
+  become: true

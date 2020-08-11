@@ -43,13 +43,6 @@
     fail_msg: "Expected kernel version {{ target_kernel_version }} but found {{ ansible_kernel }}"
     success_msg: "Detected target kernel version {{ target_kernel_version }}"
 
-- name: Firewall is stopped and disabled
-  service:
-    name: firewalld
-    state: stopped
-    enabled: false
-  become: true
-
 - name: Install utils
   yum:
     name:
