@@ -1,7 +1,7 @@
 ---
 
 connectx6_staging_dir: /tmp/connectx6
-connectx6_fw:  
+connectx6_fw:
   MT_0000000228: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_28_1002-MCX654106A-HCA_Ax-UEFI-14.21.16-FlexBoot-3.6.101.bin.zip
   MT_0000000227: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_28_1002-MCX654106A-ECA_Ax-UEFI-14.21.16-FlexBoot-3.6.101.bin.zip
   MT_0000000226: http://www.mellanox.com/downloads/firmware/fw-ConnectX6-rel-20_28_1002-MCX654105A-HCA_Ax-UEFI-14.21.16-FlexBoot-3.6.101.bin.zip

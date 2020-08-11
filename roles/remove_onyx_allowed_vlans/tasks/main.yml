@@ -35,7 +35,7 @@
   onyx_config:
     lines:
       - "interface ethernet {{ interface }} switchport mode access"
-    save: yes
+    save: true
   loop: "{{ interfaces }}"
   loop_control:
     loop_var: interface

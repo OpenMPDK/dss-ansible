@@ -1,10 +1,15 @@
 [servers]
-msl-ssg-sm[1:4].msl.lab ansible_user=root num_vlans_per_port=2
+msl-ssg-sm[1:4].msl.lab
 
 [clients]
 
 [onyx]
-msl-ssg-mlnx02.msl.lab ansible_user=admin
+msl-ssg-mlnx02.msl.lab
+
+[servers:vars]
+ansible_user=root
+num_vlans_per_port=2
 
 [onyx:vars]
+ansible_user=admin
 ansible_ssh_pass=msl-ssg
