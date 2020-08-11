@@ -32,14 +32,13 @@
     python3
     {{ start_dss_benchmark_dest_dir }}/scripts/bench.py
     benchmark
-    --num_clients 1
+    --num-clients 1
     --warp-binary {{ start_dss_benchmark_dest_dir }}/warp
     --access-key minio
     --secret-key minio123
     --output-dir {{ start_dss_benchmark_log_dir }}
     --duration 60s
     --concurrent 1
-    --cluster-config
     --cluster-config {{ start_dss_benchmark_dest_dir }}/cluster.json
   become: true
   run_once: true
