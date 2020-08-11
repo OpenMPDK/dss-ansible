@@ -10,11 +10,31 @@
     that: dss_host_path.stat.exists
     fail_msg: DSS Host is not installed. Execute 'deploy_dss_software.yml' playbook first.
 
+- name: Stat KV kernel drivers
+  stat:
+    path: "{{ start_dss_host_dir }}/openmpdk_driver/kernel_v5.1_nvmf/{{ item }}"
+  register: kv_kernel_drivers
+  loop:
+    - nvme-core.ko
+    - nvme-fabrics.ko
+    - nvme-fc.ko
+    - nvme-rdma.ko
+    - nvme-tcp.ko
+    - nvme.ko
+
+- name: Check for missing KV kernel drivers
+  set_fact:
+    missing_drivers: true
+  when: not item.stat.exists
+  loop: "{{ kv_kernel_drivers.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+
 - name: Configure Driver
   command: ./dss_host.py config_driver
   args:
     chdir: "{{ start_dss_host_dir }}/bin"
-    creates: "{{ start_dss_host_dir }}/openmpdk_driver/kernel_v5.1_nvmf/nvme.ko"
+  when: missing_drivers is defined
   become: true
 
 - name: Get RoCEv2 IP Addresses of first VLAN in list
