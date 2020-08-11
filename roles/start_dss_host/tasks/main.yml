@@ -1,5 +1,15 @@
 ---
 
+- name: Install DSS Host dependencies
+  yum:
+    name:
+      - boost-devel
+      - libcurl-devel
+      - numactl-devel
+      - tbb-devel
+      - jemalloc-devel
+  become: true
+
 - name: Stat DSS Host path
   stat:
     path: "{{ start_dss_host_dir }}"
