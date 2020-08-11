@@ -26,7 +26,7 @@
   notify:
     - Reboot system
     - Gather facts post-reboot
-  become: true  # noqa 301
+  become: true
 
 - name: Delete staging directory for Kernel RPMs
   file:

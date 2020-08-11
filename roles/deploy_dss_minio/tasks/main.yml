@@ -27,7 +27,7 @@
   unarchive:
     src: "{{ (minio_tgz.files | sort(attribute='ctime', reverse=true) | first).path }}"
     dest: "{{ deploy_dss_minio_dest_dir }}"
-  when: create_minio_dir.changed  # noqa 503
+  when: create_minio_dir.changed
   become: true
 
 - name: Create minio symlink to host bin dir

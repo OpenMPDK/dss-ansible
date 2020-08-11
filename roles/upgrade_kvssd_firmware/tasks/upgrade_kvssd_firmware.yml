@@ -8,7 +8,7 @@
   loop: "{{ kvssd_upgrade_list }}"
   loop_control:
     label: "{{ kvssd_device_path }}"
-  become: true  # noqa 301
+  become: true
 
 - name: nvme fw-activate
   command: "nvme fw-activate {{ kvssd_device_path }} -s 0 -a 1"
@@ -23,7 +23,7 @@
   loop: "{{ kvssd_upgrade_list }}"
   loop_control:
     label: "{{ kvssd_device_path }}"
-  become: true  # noqa 301
+  become: true
 
 - name: nvme reset
   command: "nvme reset {{ kvssd_device_path }}"
@@ -35,7 +35,7 @@
   loop: "{{ kvssd_upgrade_list }}"
   loop_control:
     label: "{{ kvssd_device_path }}"
-  become: true  # noqa 301
+  become: true
 
 - name: Check async nvme reset
   include_tasks: check_async.yml

@@ -41,7 +41,7 @@
   command: "./mlnxofedinstall --add-kernel-support --force"
   args:
     chdir: "{{ deploy_ofed_staging_dir }}/{{ ofed_dir }}"
-  become: true   # noqa 301
+  become: true
 
 - name: Delete staging directory for OFED tgz
   file:

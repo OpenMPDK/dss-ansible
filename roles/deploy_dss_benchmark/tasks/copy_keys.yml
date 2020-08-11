@@ -46,7 +46,7 @@
     loop_var: hostname
   vars:
     scan_ip: "{{ hostvars[hostname].ansible_default_ipv4.address }}"
-  failed_when: ssh_keys.stdout == ''  # noqa 602
+  failed_when: ssh_keys.stdout == ''
   changed_when: false
   run_once: true
 

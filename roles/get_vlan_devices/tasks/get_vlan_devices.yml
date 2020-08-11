@@ -12,5 +12,5 @@
     device: "{% if device_type == 'netdev' %}{{ mellanox_device.netdev }}{% elif device_type == 'ibdev' %}{{ mellanox_device.ibdev }}{% endif %}"
   when:
     - mellanox_device.status == 'Up'
-    - lookup('vars', vlan_device, default='') != ''  # noqa 602
+    - lookup('vars', vlan_device, default='') != ''
     - lookup('vars', vlan_device).ipv4.address is defined
