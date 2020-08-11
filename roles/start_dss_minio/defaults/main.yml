@@ -2,3 +2,15 @@
 
 minio_port: 9000
 minio_ec: 2
+minio_nkv_max_value_size: 1048576
+minio_nkv_timeout: 20
+minio_nkv_sync: 1
+minio_on_kv: 1
+minio_nkv_use_custom_reader: 1
+minio_nkv_shared_sync_interval: 2
+minio_nkv_shared: 1
+minio_ec_block_size: 65536
+minio_enable_no_lock_read: 1
+minio_enable_no_lock_verify: 1
+minio_access_key: minio
+minio_secret_key: minio123
