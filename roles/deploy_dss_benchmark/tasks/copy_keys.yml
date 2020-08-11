@@ -46,11 +46,11 @@
     loop_var: hostname
   vars:
     scan_ip: "{{ hostvars[hostname].ansible_default_ipv4.address }}"
-  failed_when: ssh_keys.stdout == ''
+  failed_when: ssh_keys.stdout == ''  # noqa 602
   changed_when: false
   run_once: true
 
-- name: Add all host keys to master client's known_hosts 
+- name: Add all host keys to master client's known_hosts
   known_hosts:
     path: "{{ ansible_env.HOME }}/.ssh/known_hosts"
     name: "{{ host }}"
