@@ -27,9 +27,21 @@
   unarchive:
     src: "{{ (benchmark_tgz.files | sort(attribute='ctime', reverse=true) | first).path }}"
     dest: "{{ deploy_dss_benchmark_dest_dir }}"
-    extra_opts: [--strip-components=1]
+    extra_opts: [--strip-components=2]
   when: create_benchmark_dir.changed  # noqa 503
+  become: true
+
+- name: Install python dependencies from requirements.txt
+  command: "python3 -m pip install -r {{ deploy_dss_benchmark_dest_dir }}/scripts/requirements.txt"
+  register: benchmark_requirements
+  changed_when: "'Successfully installed' in benchmark_requirements.stdout"
   become: true
 
 - name: Copy Master SSH keys to all clients and servers
   include_tasks: copy_keys.yml
+
+- name: Create log dir
+  file:
+    path: "{{ deploy_dss_benchmark_log_dir }}"
+    state: directory
+  become: true
