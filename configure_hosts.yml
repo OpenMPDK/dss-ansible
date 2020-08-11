@@ -5,12 +5,12 @@
     - clients
     - servers
   roles:
-    - validate_centos
-    - deploy_kernel
+    # - validate_centos
+    # - deploy_kernel
     - configure_tuned
-    - deploy_nvme_cli
-    - deploy_ofed
-    - load_mlnx_drivers
-    - configure_irq
-    - upgrade_connectx_firmware
-    - configure_lldpad
+    # - deploy_nvme_cli
+    # - deploy_ofed
+    # - load_mlnx_drivers
+    # - configure_irq
+    # - upgrade_connectx_firmware
+    # - configure_lldpad

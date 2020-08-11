@@ -1,5 +1,0 @@
----
-
-- name: Set tuned profile
-  command: tuned-adm profile throughput-performance
-  become: true
