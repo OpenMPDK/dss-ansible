@@ -85,10 +85,6 @@
 
 - meta: flush_handlers
 
-- name: Configure IRQ
-  include_role:
-    name: configure_connectx_irq
-
 - name: Configure Tuned
   include_role:
     name: configure_tuned
