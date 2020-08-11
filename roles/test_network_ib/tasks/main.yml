@@ -10,7 +10,7 @@
   command: show_gids
   changed_when: false
   register: gids_list
-  become: yes
+  become: true
 
 - name: Set ib_devices var
   set_fact:

@@ -4,7 +4,7 @@
   lineinfile:
     path: /etc/default/grub
     state: present
-    backrefs: yes
+    backrefs: true
     regexp: '^(GRUB_CMDLINE_LINUX=(?!.* {{ grub.match }})\"[^\"]+)(\".*)'
     line: '\1 {{ grub.set }}\2'
   loop:
@@ -35,7 +35,7 @@
   lineinfile:
     path: /etc/default/grub
     state: present
-    backrefs: yes
+    backrefs: true
     regexp: '^GRUB_DEFAULT=.+'
     line: 'GRUB_DEFAULT=saved'
   notify:
