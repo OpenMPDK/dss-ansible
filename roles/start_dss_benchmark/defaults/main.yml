@@ -1,0 +1,8 @@
+---
+
+benchmark_objects: 1000
+benchmark_clients: 20
+benchmark_duration: 120s
+benchmark_concurrent: 1
+benchmark_access_key: minio
+benchmark_secret_key: minio123
