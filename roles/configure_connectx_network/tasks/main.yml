@@ -85,10 +85,6 @@
 
 - meta: flush_handlers
 
-- name: Configure Tuned
-  include_role:
-    name: configure_tuned
-
 - name: Configure DCQCN for each device
   include_tasks: configure_dcqcn.yml
   vars:
