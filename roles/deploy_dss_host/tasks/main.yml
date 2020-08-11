@@ -3,6 +3,11 @@
 - name: Install DSS host dependencies
   yum:
     name:
+      - boost-devel
+      - libcurl-devel
+      - numactl-devel
+      - tbb-devel
+      - jemalloc-devel
       - python-pip
       - lshw
   become: true
