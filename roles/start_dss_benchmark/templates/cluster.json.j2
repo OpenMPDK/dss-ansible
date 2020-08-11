@@ -10,7 +10,7 @@
         {
             "minioServers": ["{{ tcp_ip }}:{{minio_port}}"],
             "minioHosts": ["{{ hostvars[server].inventory_hostname }}"],
-            "minioBucket:": "benchmark-bucket-{{ client_index.value + 1 }}",
+            "minioBucket": "benchmark-bucket-{{ client_index.value + 1 }}",
             "warpClients": ["{{ hostvars[groups['clients'][client_index.value]].ansible_default_ipv4.address }}"]
         }
             {%- if ((not loop.last) and
