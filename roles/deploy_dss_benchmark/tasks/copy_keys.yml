@@ -1,0 +1,63 @@
+---
+
+- name: Remove clients from /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    state: absent
+    regexp: "{{ hostvars[host].inventory_hostname_short }}"
+  loop: "{{ groups['clients'] + groups['servers'] }}"
+  loop_control:
+    loop_var: host
+  run_once: true
+
+- name: Generate RSA key on master client
+  command: "ssh-keygen -q -t rsa -f {{ rsa_key }} -N ''"
+  vars:
+    rsa_key: "{{ ansible_env.HOME }}/.ssh/{{ deploy_dss_benchmark_ssh_key_name }}"
+  args:
+    creates: "{{ rsa_key }}"
+  run_once: true
+
+- name: Read master client public SSH key
+  command: "cat {{ rsa_key }}.pub"
+  vars:
+    rsa_key: "{{ ansible_env.HOME }}/.ssh/{{ deploy_dss_benchmark_ssh_key_name }}"
+  register: ssh_keys
+  changed_when: false
+  run_once: true
+
+- name: Add master client key to authorized_keys
+  authorized_key:
+    user: "{{ ansible_user }}"
+    key: "{{ ssh_key }}"
+  delegate_to: "{{ key_host }}"
+  loop: "{{ groups['clients'] + groups['servers'] }}"
+  loop_control:
+    loop_var: key_host
+  vars:
+    ssh_key: "{{ ssh_keys.stdout }}"
+  run_once: true
+
+- name: Scan machine RSA keys by IP address
+  command: "ssh-keyscan -t rsa {{ scan_ip }}"
+  register: ssh_keys_short
+  loop: "{{ groups['clients'] + groups['servers'] }}"
+  loop_control:
+    loop_var: hostname
+  vars:
+    scan_ip: "{{ hostvars[hostname].ansible_default_ipv4.address }}"
+  failed_when: ssh_keys.stdout == ''
+  changed_when: false
+  run_once: true
+
+- name: Add all host keys to master client's known_hosts 
+  known_hosts:
+    path: "{{ ansible_env.HOME }}/.ssh/known_hosts"
+    name: "{{ host }}"
+    key: "{{ item.stdout }}"
+  loop: "{{ ssh_keys_short.results }}"
+  loop_control:
+    label: "{{ item.hostname }}"
+  vars:
+    host: "{{ hostvars[item.hostname].ansible_default_ipv4.address }}"
+  run_once: true

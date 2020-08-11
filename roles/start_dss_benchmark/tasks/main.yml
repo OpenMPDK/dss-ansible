@@ -1,0 +1,56 @@
+---
+
+- name: Generate cluster.json template to master client
+  template:
+    src: cluster.json.j2
+    dest: "{{ start_dss_benchmark_dest_dir }}/cluster.json"
+  become: true
+  run_once: true
+
+- name: Copy image.json to master client
+  copy:
+    src: image.json
+    dest: "{{ start_dss_benchmark_dest_dir }}/image.json"
+  become: true
+  run_once: true
+
+- name: Prepare and execute benchmark
+  block:
+    - name: Execute generate on master client
+      command: >
+        python3
+        {{ start_dss_benchmark_dest_dir }}/scripts/bench.py
+        generate
+        --cluster-config {{ start_dss_benchmark_dest_dir }}/cluster.json
+        --obj-dist-file {{ start_dss_benchmark_dest_dir }}/image.json
+        --objects {{ benchmark_objects }}
+        --warp-binary {{ start_dss_benchmark_dest_dir }}/warp
+        --output-dir {{ start_dss_benchmark_log_dir }}
+      become: true
+      run_once: true
+
+    - name: Execute benchmark on master client
+      command: >
+        python3
+        {{ start_dss_benchmark_dest_dir }}/scripts/bench.py
+        benchmark
+        --num-clients {{ benchmark_clients }}
+        --warp-binary {{ start_dss_benchmark_dest_dir }}/warp
+        --access-key {{ benchmark_access_key }}
+        --secret-key {{ benchmark_secret_key }}
+        --output-dir {{ start_dss_benchmark_log_dir }}
+        --duration {{ benchmark_duration }}
+        --concurrent {{ benchmark_concurrent }}
+        --cluster-config {{ start_dss_benchmark_dest_dir }}/cluster.json
+      become: true
+      run_once: true
+
+  rescue:
+    - name: Terminate failed benchmark
+      command: >
+        python3
+        {{ start_dss_benchmark_dest_dir }}/scripts/bench.py
+        terminate
+        --cluster-config {{ start_dss_benchmark_dest_dir }}/cluster.json
+      become: true
+      run_once: true

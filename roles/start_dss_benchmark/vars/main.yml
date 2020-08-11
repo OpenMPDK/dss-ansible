@@ -1,0 +1,4 @@
+---
+
+start_dss_benchmark_dest_dir: /usr/dss/nkv-benchmark
+start_dss_benchmark_log_dir: /var/log/dss

@@ -79,7 +79,7 @@
   loop_control:
     loop_var: ip_address
   vars:
-    server_string: "server --address {{ ip_address }}:{{ start_dss_minio_port }}"
+    server_string: "server --address {{ ip_address }}:{{ minio_port }}"
   when: server_string not in minio_ps.stdout
   become: true
 
@@ -98,7 +98,7 @@
   loop_control:
     loop_var: ip_address
   vars:
-    server_string: "server --address {{ ip_address }}:{{ start_dss_minio_port }}"
+    server_string: "server --address {{ ip_address }}:{{ minio_port }}"
 
 - name: Read minio instance logs
   command: "cat {{ start_dss_minio_log_dir }}/nkv-minio_{{ ip_address }}.log"

@@ -1,7 +1,7 @@
 ---
 
 - name: Generate minio startup scripts on control host
-  command: "./dss_host.py config_minio --port {{ start_dss_minio_port }} --ec {{ start_dss_minio_ec }}"
+  command: "./dss_host.py config_minio --port {{ minio_port }} --ec {{ minio_ec }}"
   args:
     chdir: "{{ start_dss_minio_host_bin_dir }}"
   run_once: true

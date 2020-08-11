@@ -1,0 +1,4 @@
+---
+
+minio_port: 9000
+minio_ec: 2

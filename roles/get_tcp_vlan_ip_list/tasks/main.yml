@@ -1,0 +1,13 @@
+---
+
+- name: Get all TCP IP Addresses
+  include_role:
+    name: get_vlan_ips
+  vars:
+    vlan_list: "{{ tcp_vlans }}"
+  when: tcp_vlan_ip_list is not defined
+
+- name: Set tcp_vlan_ip_list var
+  set_fact:
+    tcp_vlan_ip_list: "{{ vlan_ip_list }}"
+  when: tcp_vlan_ip_list is not defined
