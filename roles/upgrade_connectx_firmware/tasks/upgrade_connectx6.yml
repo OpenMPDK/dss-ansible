@@ -31,7 +31,7 @@
 
 - name: Reset ConnectX-6 adapter {{ mlx_ibdev }}
   command: "mlxfwreset -d {{ mlx_ibdev }} reset -y"
-  become: true  # noqa 301
+  become: true
 
 - name: Get post-upgrade Firmware version for adapter {{ mlx_ibdev }}
   command: "flint -d {{ mlx_ibdev }} query"

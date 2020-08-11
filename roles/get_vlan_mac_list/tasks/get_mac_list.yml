@@ -16,4 +16,4 @@
     mac_address: "{{ lookup('vars', vlan_device).macaddress }}"
   when:
     - mellanox_device.status == 'Up'
-    - lookup('vars', vlan_device, default='') != ''  # noqa 602
+    - lookup('vars', vlan_device, default='') != ''
