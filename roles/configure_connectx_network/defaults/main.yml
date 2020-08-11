@@ -24,4 +24,3 @@ tcp_priority_list:
   - 0
   - 3
   - 4
-reboot_timeout: 3600
