@@ -20,10 +20,10 @@
 
 - name: Set tuned off
   command: tuned-adm off
-  when: "'throughput-performance' not in tuned_active.stdout"
+  when: tuned_profile not in tuned_active.stdout
   become: true
 
 - name: Set tuned profile
-  command: tuned-adm profile throughput-performance
-  when: "'throughput-performance' not in tuned_active.stdout"
+  command: "tuned-adm profile {{ tuned_profile }}"
+  when: tuned_profile not in tuned_active.stdout
   become: true
