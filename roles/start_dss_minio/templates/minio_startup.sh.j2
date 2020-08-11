@@ -1,21 +1,21 @@
 #!/bin/bash
 
-export LD_LIBRARY_PATH="../lib"
-export MINIO_NKV_CONFIG="../conf/nkv_config.json"
-export MINIO_ACCESS_KEY=minio
-export MINIO_SECRET_KEY=minio123
+export LD_LIBRARY_PATH="{{ start_dss_minio_host_dir }}/lib"
+export MINIO_NKV_CONFIG="{{ start_dss_minio_host_dir }}/conf/nkv_config.json"
+export MINIO_ACCESS_KEY={{ minio_access_key }}
+export MINIO_SECRET_KEY={{ minio_secret_key }}
 export MINIO_STORAGE_CLASS_STANDARD=EC:{{ minio_ec }}
-export MINIO_NKV_MAX_VALUE_SIZE=1048576
-export MINIO_NKV_TIMEOUT=20
-export MINIO_NKV_SYNC=1
-export MINIO_ON_KV=1
-export MINIO_NKV_USE_CUSTOM_READER=1
-export MINIO_NKV_SHARED_SYNC_INTERVAL=2
+export MINIO_NKV_MAX_VALUE_SIZE={{ minio_nkv_max_value_size }}
+export MINIO_NKV_TIMEOUT={{ minio_nkv_timeout }}
+export MINIO_NKV_SYNC={{ minio_nkv_sync }}
+export MINIO_ON_KV={{ minio_on_kv }}
+export MINIO_NKV_USE_CUSTOM_READER={{ minio_nkv_use_custom_reader }}
+export MINIO_NKV_SHARED_SYNC_INTERVAL={{ minio_nkv_shared_sync_interval }}
 export MINIO_INSTANCE_HOST_PORT={{ tcp_ip }}:{{ minio_port }}
-export MINIO_NKV_SHARED=1
-export MINIO_EC_BLOCK_SIZE=65536
-export MINIO_ENABLE_NO_LOCK_READ=1
-export MINIO_ENABLE_NO_READ_VERIFY=1
+export MINIO_NKV_SHARED={{ minio_nkv_shared }}
+export MINIO_EC_BLOCK_SIZE={{ minio_ec_block_size }}
+export MINIO_ENABLE_NO_LOCK_READ={{ minio_enable_no_lock_read }}
+export MINIO_ENABLE_NO_READ_VERIFY={{ minio_enable_no_lock_verify }}
 #export MINIO_NKV_CHECKSUM=1
 ulimit -n 65535
 ulimit -c unlimited

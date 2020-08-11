@@ -1,5 +1,6 @@
 ---
 
 start_dss_minio_dir: /usr/dss/nkv-minio
-start_dss_minio_host_bin_dir: /usr/dss/nkv-sdk/bin
+start_dss_minio_host_dir: /usr/dss/nkv-sdk
+start_dss_minio_host_bin_dir: "{{ start_dss_minio_host_dir }}/bin"
 start_dss_minio_log_dir: /var/log/dss
