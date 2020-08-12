@@ -1,0 +1,8 @@
+---
+
+- name: Install utils
+  yum:
+    name:
+      - net-tools
+      - pciutils
+  become: true

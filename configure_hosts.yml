@@ -7,8 +7,13 @@
   roles:
     - validate_centos
     - deploy_kernel
+    - configure_firewalld
+    - configure_tuned
+    - deploy_utils
     - deploy_nvme_cli
     - deploy_ofed
     - load_mlnx_drivers
+    - configure_dcqcn
+    - configure_irq
     - upgrade_connectx_firmware
     - configure_lldpad

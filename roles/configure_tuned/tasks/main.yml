@@ -1,9 +1,29 @@
 ---
 
+- name: Install tuned
+  yum:
+    name: tuned
+  become: true
+
 - name: Start and enable tuned service
   service:
     name: tuned
     state: started
     enabled: true
-  notify: Set tuned profile
+  become: true
+
+- name: Check tuned active profile
+  command: tuned-adm active
+  changed_when: false
+  register: tuned_active
+  become: true
+
+- name: Set tuned off
+  command: tuned-adm off
+  when: tuned_profile not in tuned_active.stdout
+  become: true
+
+- name: Set tuned profile
+  command: "tuned-adm profile {{ tuned_profile }}"
+  when: tuned_profile not in tuned_active.stdout
   become: true

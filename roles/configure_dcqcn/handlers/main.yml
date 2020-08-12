@@ -1,0 +1,6 @@
+---
+
+- name: Reboot system
+  reboot:
+    reboot_timeout: "{{ reboot_timeout }}"
+  become: true
