@@ -1,4 +1,4 @@
 ---
 
-deploy_kernel_path: "{{ playbook_dir }}/artifacts"
+deploy_kernel_path: "{{ inventory_dir }}/artifacts"
 deploy_kernel_staging_dir: /tmp/kernel_rpms

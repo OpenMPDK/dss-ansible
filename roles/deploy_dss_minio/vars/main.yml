@@ -1,6 +1,6 @@
 ---
 
-deploy_dss_minio_path: "{{ playbook_dir }}/artifacts"
+deploy_dss_minio_path: "{{ inventory_dir }}/artifacts"
 deploy_dss_minio_dest_dir: /usr/dss/nkv-minio
 deploy_dss_minio_host_bin_dir: /usr/dss/nkv-sdk/bin
 deploy_dss_minio_log_dir: /var/log/dss
