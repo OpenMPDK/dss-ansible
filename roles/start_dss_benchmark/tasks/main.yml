@@ -35,6 +35,8 @@
         {{ start_dss_benchmark_dest_dir }}/scripts/bench.py
         benchmark
         --num-clients {{ benchmark_clients }}
+        --rate-limit {{ benchmark_rate_limit }}
+        --software-rate-limit {{ benchmark_software_rate_limit }}
         --warp-binary {{ start_dss_benchmark_dest_dir }}/warp
         --access-key {{ minio_access_key }}
         --secret-key {{ minio_secret_key }}
@@ -42,6 +44,7 @@
         --duration {{ benchmark_duration }}
         --concurrent {{ benchmark_concurrent }}
         --cluster-config {{ start_dss_benchmark_dest_dir }}/cluster.json
+        --ustat-binary-path {{ start_dss_benchmark_dest_dir }}/ustat
       become: true
       run_once: true
 
