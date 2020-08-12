@@ -1,0 +1,6 @@
+---
+
+- name: Cleanup DSS minio
+  hosts: servers
+  roles:
+    - cleanup_dss_minio
