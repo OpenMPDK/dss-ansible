@@ -1,0 +1,29 @@
+---
+
+- name: List NVMe subsystems
+  command: nvme list-subsys
+  changed_when: false
+  register: nvme_subsys
+  become: true
+  run_once: true
+
+- name: Set nvme_subsys_list
+  set_fact:
+    nvme_subsys_list: "{{ nvme_subsys_list | default([]) + [ nvme_num ] }}"
+  loop: "{{ nvme_subsys.stdout_lines }}"
+  loop_control:
+    loop_var: nvme_line
+  vars:
+    nvme_regex: >-
+      nvme(\d+) rdma traddr=([^ ]+)
+    nvme_num: "{{ nvme_line | regex_search(nvme_regex, '\\1') | first }}"
+  when: nvme_line is search(nvme_regex)
+  run_once: true
+
+- name: Execute minio_cleanup.sh
+  shell: "./minio_cleanup.sh {{ nvme_subsys_list | min }} {{ nvme_subsys_list | max }}"
+  args:
+    chdir: "{{ cleanup_dss_minio_bin_dir }}"
+  when: nvme_subsys_list is defined
+  become: true
+  run_once: true
