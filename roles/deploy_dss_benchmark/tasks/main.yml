@@ -15,6 +15,14 @@
   run_once: true
   register: benchmark_tgz
 
+- name: Identify target tarball
+  find:
+    path: "{{ deploy_dss_benchmark_path }}"
+    patterns: 'nkv-target*.tgz'
+  delegate_to: localhost
+  run_once: true
+  register: target_tgz
+
 - name: Create benchmark destination path
   file:
     path: "{{ deploy_dss_benchmark_dest_dir }}"
@@ -28,6 +36,17 @@
     src: "{{ (benchmark_tgz.files | sort(attribute='ctime', reverse=true) | first).path }}"
     dest: "{{ deploy_dss_benchmark_dest_dir }}"
     extra_opts: [--strip-components=2]
+  when: create_benchmark_dir.changed
+  become: true
+
+- name: Deploy ustat from target tarball
+  unarchive:
+    src: "{{ (target_tgz.files | sort(attribute='ctime', reverse=true) | first).path }}"
+    dest: "{{ deploy_dss_benchmark_dest_dir }}"
+    extra_opts:
+      - --strip=2
+      - --wildcards
+      - '*/ustat'
   when: create_benchmark_dir.changed
   become: true
 

@@ -21,6 +21,8 @@ minio_secret_key: minio123
 
 benchmark_objects: 1000
 benchmark_clients: 20
+benchmark_rate_limit: 0
+benchmark_software_rate_limit: 250MiB
 benchmark_duration: 120s
 benchmark_concurrent: 1
 
