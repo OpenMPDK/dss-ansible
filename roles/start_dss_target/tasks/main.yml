@@ -58,9 +58,29 @@
   changed_when: false
   failed_when: false
 
+- name: Tail /var/log/messages
+  shell: "tail -f /var/log/messages > {{ start_dss_target_log_dir }}/nkv-target-dmesg.log"
+  async: 300
+  poll: 0
+  become: true
+
 - name: Start DSS target process
   shell: nohup {{ nvmf_tgt_cmd }} > {{ start_dss_target_log_dir }}/nkv-target.log 2>&1 &
   args:
     chdir: "{{ start_dss_target_dest_dir }}/bin"
   when: nvmf_ps.rc != 0
   become: true
+
+- name: Assert subsystems initialized
+  command: "cat {{ start_dss_target_log_dir }}/nkv-target-dmesg.log"
+  changed_when: false
+  failed_when: false
+  register: subsystem_initialized
+  vars:
+    search_string: Initialized subsystem
+  become: true
+  until:
+    - subsystem_initialized.stdout is search(search_string)
+    - subsystem_initialized.stdout | regex_findall(search_string) | length == num_subsystems
+  retries: 60
+  delay: 5
