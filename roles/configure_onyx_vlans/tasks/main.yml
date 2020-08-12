@@ -26,11 +26,15 @@
     lines:
       - dcb priority-flow-control enable force
 
+- name: Set pfc_prio_list
+  set_fact:
+    pfc_prio_list: "{% for vlan in (rocev2_vlans + tcp_vlans) | map(attribute='id') | list %}[ {{ (vlan | string)[0] }} ] + {% endfor %}[ 0 ]"
+
 - name: Set PFC priorities
   onyx_config:
     lines:
       - "dcb priority-flow-control priority {{ item }} enable"
-  loop: "{{ (rocev2_priority_list + tcp_priority_list) | unique }}"
+  loop: "{{ pfc_prio_list | unique }}"
 
 - name: Configure VLANs
   include_tasks: configure_vlan.yml
