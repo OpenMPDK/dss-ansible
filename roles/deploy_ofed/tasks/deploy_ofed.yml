@@ -48,3 +48,7 @@
     path: "{{ deploy_ofed_staging_dir }}"
     state: absent
   become: true
+
+- name: Set mlnx_tune profile
+  command: "mlnx_tune {{ mlnx_tune_profile }}"
+  become: true
