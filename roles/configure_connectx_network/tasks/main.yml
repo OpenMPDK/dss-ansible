@@ -35,8 +35,8 @@
       Found {{ up_devices | count }} 'Up' ConnectX ports with {{ num_vlans_per_port }} VLANs per port.
       The sum of which needs to match the number of VLANs: {{ combined_vlans | count }}.
       Ensure all ConnectX ports are connected to switch.
-      If necessary, configure the list of 'rocev2_vlans' and 'tcp_vlans' in {{ playbook_dir }}/group_vars/all.yml
-      Alternatively, adjust the 'num_vlans_per_port' var in in {{ playbook_dir }}/group_vars/all.yml
+      If necessary, configure the list of 'rocev2_vlans' and 'tcp_vlans' in {{ inventory_dir }}/group_vars/all.yml
+      Alternatively, adjust the 'num_vlans_per_port' var in in {{ inventory_dir }}/group_vars/all.yml
     success_msg: >
       Found {{ up_devices | count }} 'Up' ConnectX ports with {{ num_vlans_per_port }}
       VLANS per NIC for {{ combined_vlans | count }} VLANs.
