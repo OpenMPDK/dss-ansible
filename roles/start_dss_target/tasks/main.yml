@@ -62,6 +62,7 @@
   shell: "tail -f /var/log/messages > {{ start_dss_target_log_dir }}/nkv-target-dmesg.log"
   async: 300
   poll: 0
+  when: nvmf_ps.rc != 0
   become: true
 
 - name: Start DSS target process
@@ -83,4 +84,5 @@
     - subsystem_initialized.stdout is search(search_string)
     - subsystem_initialized.stdout | regex_findall(search_string) | length == num_subsystems
   retries: 60
+  when: subsystem_initialized.rc == 0
   delay: 5
