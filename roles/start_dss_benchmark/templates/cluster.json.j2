@@ -1,5 +1,4 @@
 {
-    "master": "{{ inventory_hostname }}",
     "subnets": [
 {%- set client_index = namespace(value=0) -%}
 {% for server in groups['servers'] -%}
