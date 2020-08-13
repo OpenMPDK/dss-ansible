@@ -53,17 +53,16 @@
 - name: Find min/max devmap
   set_fact:
     subsys_range: >-
-      {% set min = namespace(value=999) -%}
-      {%- set max = namespace(value=0) -%}
+      {% set dev_range = { 'min': 999, 'max': 0 } -%}
       {%- for subsys in rocev2_devmap -%}
         {%- if subsys.ip in vlan_pair.rocev2 -%}
-          {%- if subsys.dev | int < min.value | int %}{% set min.value = subsys.dev %}{% endif -%}
-          {%- if subsys.dev | int > max.value | int %}{% set max.value = subsys.dev %}{% endif -%}
+          {%- if subsys.dev | int < dev_range.min | int %}{% if dev_range.update({ 'min': subsys.dev, 'max': dev_range.max }) %}{% endif %}{% endif -%}
+          {%- if subsys.dev | int > dev_range.max | int %}{% if dev_range.update({ 'min': dev_range.min, 'max': subsys.dev }) %}{% endif %}{% endif -%}
         {%- endif -%}
       {%- endfor -%}
       {{ subsys_range | default([]) +
-        [{'min': min.value,
-          'max': max.value}] }}
+        [{'min': dev_range.min,
+          'max': dev_range.max}] }}
   loop: "{{ combined_vlan_ip_map }}"
   loop_control:
     loop_var: vlan_pair
