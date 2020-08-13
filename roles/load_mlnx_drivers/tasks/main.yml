@@ -11,4 +11,5 @@
   template:
     src: dss_mlnx.conf.j2
     dest: "{{ load_mlnx_drivers_path }}/{{ load_mlnx_drivers_script_name }}"
+    mode: 0644
   become: true

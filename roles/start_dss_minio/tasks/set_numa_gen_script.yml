@@ -25,6 +25,6 @@
   template:
     src: minio_startup.sh.j2
     dest: "{{ start_dss_minio_host_bin_dir }}/minio_startup_{{ tcp_ip }}.sh"
-    mode: '0751'
+    mode: 0751
   vars:
     numa_node: "{{ device_numa_node.stdout }}"

@@ -4,6 +4,7 @@
   template:
     src: cluster.json.j2
     dest: "{{ start_dss_benchmark_dest_dir }}/cluster.json"
+    mode: 0644
   become: true
   run_once: true
 
@@ -11,6 +12,7 @@
   copy:
     src: image.json
     dest: "{{ start_dss_benchmark_dest_dir }}/image.json"
+    mode: 0644
   become: true
   run_once: true
 
@@ -37,6 +39,7 @@
         --num-clients {{ benchmark_clients }}
         --rate-limit {{ benchmark_rate_limit }}
         --software-rate-limit {{ benchmark_software_rate_limit }}
+        --ustat-profiles "{{ benchmark_ustat_profiles }}"
         --warp-binary {{ start_dss_benchmark_dest_dir }}/warp
         --access-key {{ minio_access_key }}
         --secret-key {{ minio_secret_key }}

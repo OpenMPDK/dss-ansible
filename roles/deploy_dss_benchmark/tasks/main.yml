@@ -27,7 +27,7 @@
   file:
     path: "{{ deploy_dss_benchmark_dest_dir }}"
     state: directory
-    mode: '0555'
+    mode: 0555
   register: create_benchmark_dir
   become: true
 
@@ -36,6 +36,8 @@
     src: "{{ (benchmark_tgz.files | sort(attribute='ctime', reverse=true) | first).path }}"
     dest: "{{ deploy_dss_benchmark_dest_dir }}"
     extra_opts: [--strip-components=2]
+    owner: root
+    group: root
   when: create_benchmark_dir.changed
   become: true
 
@@ -47,6 +49,8 @@
       - --strip=2
       - --wildcards
       - '*/ustat'
+    owner: root
+    group: root
   when: create_benchmark_dir.changed
   become: true
 
