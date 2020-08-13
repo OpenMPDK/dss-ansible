@@ -60,7 +60,7 @@
   run_once: true
 
 - name: Generate minio startup scripts
-  include_tasks: generate_scripts_v2.yml
+  include_tasks: generate_scripts.yml
   when: missing_script is defined
 
 - name: Check for running minio instances

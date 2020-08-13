@@ -1,144 +1,97 @@
 ---
 
-- name: Generate minio startup scripts on control host
-  command: "./dss_host.py config_minio --port {{ minio_port }} --ec {{ minio_ec }}"
-  args:
-    chdir: "{{ start_dss_minio_host_bin_dir }}"
-  run_once: true
-  become: true
-
-- name: Find minio startup scripts on control host
-  find:
-    path: "{{ start_dss_minio_host_bin_dir }}"
-    patterns: 'minio_startup_*.sh'
-  register: minio_scripts
-  run_once: true
-
-- name: Read etc_hosts file on control host
-  command: "cat {{ start_dss_minio_host_bin_dir }}/etc_hosts"
-  changed_when: false
-  register: etc_hosts
-  run_once: true
-
-- name: Set rocev2_minio_map var on control host
+- name: Set TCP - RoCEv2 IP map
   set_fact:
-    rocev2_minio_map: "{{ rocev2_minio_map | default([]) +
-                      [{'ip_addr': host_ip,
-                        'name': host_minio_name }] }}"
+    vlan_ip_map: "{{ vlan_ip_map | default([]) +
+                  [{'tcp_ip': tcp_ip,
+                    'rocev2_ip': rocev2_ip }] }}"
+  with_together:
+    - "{{ tcp_vlan_ip_list }}"
+    - "{{ rocev2_vlan_ip_list }}"
   vars:
-    host_regex: '([\d]+\.[\d]+\.[\d]+\.[\d]+)\s+(dssminio\d+)'
-    host_ip: "{{ etc_host_line | regex_search(host_regex, '\\1') | first }}"
-    host_minio_name: "{{ etc_host_line | regex_search(host_regex, '\\2') | first }}"
-  loop: "{{ etc_hosts.stdout_lines }}"
-  loop_control:
-    loop_var: etc_host_line
-  when: etc_host_line is search('dssminio')
-  run_once: true
+    tcp_ip: "{{ item.0 }}"
+    rocev2_ip: "{{ item.1 }}"
 
-- name: Find TCP IP pair for minio hosts
-  include_tasks: set_tcp_minio_map.yml
-  loop: "{{ rocev2_minio_map }}"
-  loop_control:
-    loop_var: minio_host
-    label: "{{ minio_host.name }}"
-  vars:
-    minio_name: "{{ minio_host.name }}"
-    minio_rocev2_ip: "{{ minio_host.ip_addr }}"
-
-- name: Set combined_tcp_minio_map var on control host
+- name: Set combined_vlan_ip_map
   set_fact:
-    combined_tcp_minio_map: "{{ combined_tcp_minio_map | default([]) + host_tcp_minio_map }}"
-  loop: "{{ ansible_play_hosts }}"
+    combined_vlan_ip_map: "{{ combined_vlan_ip_map | default([]) }} +
+      [{ 'rocev2': [{% for host in ansible_play_hosts -%}
+      '{{ hostvars[host].vlan_ip_map[ansible_loop.index0].rocev2_ip }}'
+      {%- if not loop.last %}, {% endif %}{% endfor %}],
+          'tcp': [{% for host in ansible_play_hosts -%}
+      '{{ hostvars[host].vlan_ip_map[ansible_loop.index0].tcp_ip }}'
+      {%- if not loop.last %}, {% endif %}{% endfor %}] }]"
+  loop: "{{ range(0, vlan_ip_map | length) | list }}"
   loop_control:
-    loop_var: host
-  vars:
-    host_tcp_minio_map: "{{ hostvars[host].tcp_minio_map }}"
+    label: "{{ ansible_loop.index0 }}"
+    extended: true
   run_once: true
 
-- name: Replace minio hostnames in startup scripts on control host
-  replace:
-    path: "{{ script_path }}"
-    regexp: >-
-      ^(?P<pre>.+){{ minio_name }}(?P<post>.+)$
-    replace: >-
-      \g<pre>{{ tcp_ip }}\g<post>
-  with_nested:
-    - "{{ minio_scripts.files | map(attribute='path') | list }}"
-    - "{{ combined_tcp_minio_map }}"
-  vars:
-    script_path: "{{ item.0 }}"
-    minio_name: "{{ item.1.name }}"
-    tcp_ip: "{{ item.1.tcp_ip }}"
-  loop_control:
-    label: "{{ script_path }} - {{ minio_name }} - {{ tcp_ip }}"
-  run_once: true
-  become: true
-
-- name: Replace RoCEv2 IP's in startup scripts on control host
-  replace:
-    path: "{{ script_path }}"
-    regexp: >-
-      ^(?P<pre>.+){{ rocev2_ip }}(?P<post>.+)$
-    replace: >-
-      \g<pre>{{ tcp_ip }}\g<post>
-  with_nested:
-    - "{{ minio_scripts.files | map(attribute='path') | list }}"
-    - "{{ combined_tcp_minio_map }}"
-  vars:
-    script_path: "{{ item.0 }}"
-    tcp_ip: "{{ item.1.tcp_ip }}"
-    rocev2_ip: "{{ item.1.rocev2_ip }}"
-  loop_control:
-    label: "{{ script_path }} - {{ rocev2_ip }} - {{ tcp_ip }}"
-  when: rocev2_ip in script_path
-  run_once: true
-  become: true
-
-- name: Read contents of scripts
-  command: "cat {{ script_path }}"
+- name: NVMe list subsystems
+  command: nvme list-subsys
   changed_when: false
-  loop: "{{ minio_scripts.files | map(attribute='path') | list }}"
-  loop_control:
-    loop_var: script_path
-  register: script_contents
-  run_once: true
-
-- name: Write scripts to all hosts
-  copy:
-    content: "{{ minio_script.stdout }}"
-    dest: "{{ new_script_path }}"
-    mode: 0751
-  with_nested:
-    - "{{ script_contents.results }}"
-    - "{{ combined_tcp_minio_map }}"
-  loop_control:
-    label: "{{ old_script_path }}"
-  vars:
-    minio_script: "{{ item.0 }}"
-    path_re_match: >-
-      ^(?P<pre>.+){{ rocev2_ip }}(?P<post>.+)$
-    path_re_replace: >-
-      \g<pre>{{ tcp_ip }}\g<post>
-    old_script_path: "{{ minio_script.script_path }}"
-    new_script_path: "{{ old_script_path | regex_replace(path_re_match, path_re_replace) }}"
-    rocev2_ip: "{{ item.1.rocev2_ip }}"
-    tcp_ip: "{{ item.1.tcp_ip }}"
-    ip_regex: '.+_(\d+\.\d+\.\d+\.\d+).sh'
-    script_ip: "{{ old_script_path | regex_search(ip_regex, '\\1') | first }}"
-  when:
-    - script_ip == rocev2_ip
-    - script_ip in rocev2_vlan_ip_list
+  register: nvme_subsys
   become: true
 
-- name: Remove original scripts from control host
-  file:
-    path: "{{ script_path }}"
-    state: absent
-  loop: "{{ minio_scripts.files | map(attribute='path') | list }}"
+- name: Parse nvme list subsys
+  set_fact:
+    rocev2_devmap: "{{ rocev2_devmap | default([]) +
+                    [{'dev': nvme_num,
+                      'ip': rocev2_ip }] }}"
+    msg: "{{ nvme_num }} - {{ rocev2_ip }}"
+  loop: "{{ nvme_subsys.stdout_lines }}"
   loop_control:
-    loop_var: script_path
+    loop_var: nvme_line
   vars:
-    ip_regex: '.+_(\d+\.\d+\.\d+\.\d+).sh'
-    ip_addr: "{{ script_path | regex_search(ip_regex, '\\1') | first }}"
+    nvme_regex: >-
+      nvme(\d+) rdma traddr=([^ ]+)
+    nvme_num: "{{ nvme_line | regex_search(nvme_regex, '\\1') | first }}"
+    rocev2_ip: "{{ nvme_line | regex_search(nvme_regex, '\\2') | first }}"
+  when: nvme_line is search('traddr')
   run_once: true
-  become: true
+
+- name: Find min/max devmap
+  set_fact:
+    subsys_range: >-
+      {% set min = namespace(value=999) -%}
+      {%- set max = namespace(value=0) -%}
+      {%- for subsys in rocev2_devmap -%}
+        {%- if subsys.ip in vlan_pair.rocev2 -%}
+          {%- if subsys.dev | int < min.value | int %}{% set min.value = subsys.dev %}{% endif -%}
+          {%- if subsys.dev | int > max.value | int %}{% set max.value = subsys.dev %}{% endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ subsys_range | default([]) +
+        [{'min': min.value,
+          'max': max.value}] }}
+  loop: "{{ combined_vlan_ip_map }}"
+  loop_control:
+    loop_var: vlan_pair
+    extended: true
+    label: "{{ ansible_loop.index0 }}"
+  run_once: true
+
+- name: Get numactl hardware information
+  command: numactl --hardware
+  changed_when: false
+  register: numactl_hardware
+
+- name: Set num_numa_nodes
+  set_fact:
+    num_numa_nodes: "{{ numactl_hardware.stdout | regex_search(numa_re, '\\1') | first | int }}"
+  vars:
+    numa_re: 'available: ([\d]+) nodes'
+
+- name: Query up adapters
+  shell: "ip address show | grep 'state UP'"
+  changed_when: false
+  register: up_adapters
+
+- name: Set numactl string and generate minio scripts
+  include_tasks: set_numa_gen_script.yml
+  loop: "{{ range(0, tcp_vlan_ip_list | length) | list }}"
+  loop_control:
+    loop_var: vlan_pair
+    extended: true
+  vars:
+    tcp_ip: "{{ tcp_vlan_ip_list[ansible_loop.index0] }}"
