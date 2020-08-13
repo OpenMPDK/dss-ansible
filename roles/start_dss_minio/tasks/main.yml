@@ -100,22 +100,14 @@
   vars:
     server_string: "server --address {{ ip_address }}:{{ minio_port }}"
 
-- name: Read minio instance logs
+- name: Assert minio instances online
   command: "cat {{ start_dss_minio_log_dir }}/nkv-minio_{{ ip_address }}.log"
   loop: "{{ tcp_vlan_ip_list }}"
   changed_when: false
   loop_control:
     loop_var: ip_address
   register: minio_logs
+  until: minio_logs.stdout is search('0 Offline')
+  retries: 12
+  delay: 5
   become: true
-
-- name: Assert minio instances online
-  assert:
-    that: "'0 Offline' in minio_log.stdout"
-    fail_msg: Offline instances detected
-    success_msg: Instance online
-    quiet: true
-  loop: "{{ minio_logs.results }}"
-  loop_control:
-    loop_var: minio_log
-    label: "{{ minio_log.ip_address }}"
