@@ -39,6 +39,7 @@
         --num-clients {{ benchmark_clients }}
         --rate-limit {{ benchmark_rate_limit }}
         --software-rate-limit {{ benchmark_software_rate_limit }}
+        --ustat-profiles "{{ benchmark_ustat_profiles }}"
         --warp-binary {{ start_dss_benchmark_dest_dir }}/warp
         --access-key {{ minio_access_key }}
         --secret-key {{ minio_secret_key }}
