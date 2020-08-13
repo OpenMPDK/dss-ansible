@@ -57,7 +57,7 @@ It is recommended to use [Ansible vault](https://docs.ansible.com/ansible/latest
   - Example: `testhost01` (zero-padding not required)
   - This number will be used to configure the last octet of the IP addresses of all high-speed ConnectX adapters
   - If a unique number between 1-255 cannot be derived from the hostname, Ansible will automatically assign a unique inventory ID to be used instead
-  - Alternatively, the last octet can be explicitly defined for each host using the `last_octet` host_var. example inventory:
+  - Alternatively, the last octet can be explicitly defined for each host using the `last_octet` host_var. Example inventory:
 ```
 [servers]
 hostname1.domain.com last_octet=12
