@@ -54,6 +54,7 @@
   template:
     src: parent_ifcfg.j2
     dest: "/etc/sysconfig/network-scripts/ifcfg-{{ device.netdev }}"
+    mode: 0644
   loop: "{{ vlan_up_devices }}"
   loop_control:
     label: "{{ device.netdev }}"
@@ -67,6 +68,7 @@
   template:
     src: vlan_ifcfg.j2
     dest: "/etc/sysconfig/network-scripts/ifcfg-{{ device.netdev }}.{{ vlan.id }}"
+    mode: 0644
   with_together:
     - "{{ vlan_up_devices }}"
     - "{{ combined_vlans }}"

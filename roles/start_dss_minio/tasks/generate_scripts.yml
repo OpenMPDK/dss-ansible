@@ -107,7 +107,7 @@
   copy:
     content: "{{ minio_script.stdout }}"
     dest: "{{ new_script_path }}"
-    mode: '0751'
+    mode: 0751
   with_nested:
     - "{{ script_contents.results }}"
     - "{{ combined_tcp_minio_map }}"

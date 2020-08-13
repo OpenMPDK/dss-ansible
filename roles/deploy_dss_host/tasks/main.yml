@@ -36,7 +36,7 @@
   file:
     path: "{{ deploy_host_dest_dir }}"
     state: directory
-    mode: '0555'
+    mode: 0555
   register: create_host_dir
   become: true
 

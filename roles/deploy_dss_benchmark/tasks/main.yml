@@ -27,7 +27,7 @@
   file:
     path: "{{ deploy_dss_benchmark_dest_dir }}"
     state: directory
-    mode: '0555'
+    mode: 0555
   register: create_benchmark_dir
   become: true
 
