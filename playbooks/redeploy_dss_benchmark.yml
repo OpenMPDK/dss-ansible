@@ -1,0 +1,7 @@
+---
+
+- name: Remove DSS Benchmark
+  import_playbook: remove_dss_benchmark.yml
+
+- name: Deploy DSS Benchmark
+  import_playbook: deploy_dss_benchmark.yml

@@ -1,0 +1,7 @@
+---
+
+- name: Remove DSS benchmark
+  hosts:
+    - clients
+  roles:
+    - remove_dss_software
