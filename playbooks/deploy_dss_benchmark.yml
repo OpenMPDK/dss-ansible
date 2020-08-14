@@ -1,0 +1,9 @@
+---
+
+- name: Gather facts on servers
+  hosts: servers
+
+- name: Deploy DSS benchmark
+  hosts: clients
+  roles:
+    - deploy_dss_benchmark
