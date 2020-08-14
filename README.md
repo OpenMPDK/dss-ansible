@@ -6,12 +6,12 @@ Ansible automated deployment for DSS software
 
 To deploy the cluster using Ansible, the host system must use Ansible version 2.9 or later.
 
-To check the currently-installed version of ansible:
+To check the currently-installed version of Ansible:
 ```
 ansible --version
 ```
 
-To install the latest version of ansible:
+To install the latest version of Ansible:
 * Install pip:
 ```
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
@@ -89,41 +89,113 @@ tcp_vlans:
 0000:8f:00.0 mlx5_2 (MT4123 - MCX653105A-HDAT) ConnectX-6 VPI adapter card, HDR IB (200Gb/s) and 200GbE, single-port QSFP56 fw 20.28.1002 port 1 (ACTIVE) ==> p2p1 (Up)
 0000:c4:00.0 mlx5_3 (MT4123 - MCX653105A-HDAT) ConnectX-6 VPI adapter card, HDR IB (200Gb/s) and 200GbE, single-port QSFP56 fw 20.28.1002 port 1 (ACTIVE) ==> p3p1 (Up)
 ```
-* There must be a direct correlation of the number of ConnectX ports to the number of VLANs defined in `group_vars/all.yml`
+* There is a direct relationship of the number of ConnectX ports to the number of VLANs defined in `group_vars/all.yml`
   * By default, `num_vlans_per_port` is `1`, as defined in `group_vars/servers.yml` and `group_vars/clients.yml`
-    * This would mean that there must be an equal number of ConnectX ports to VLANs defined in `group_vars/all.yml`
+    * This would mean that there must be an equal number of `Up` ConnectX ports to VLANs defined in `group_vars/all.yml`
   * If `num_vlans_per_port` is set to `2` for example, then 2 ConnectX ports can be mapped to 4 total VLANs (`tcp_vlans` + `rocev2_vlans`)
   * Alternatively, the number of VLANs listed under `tcp_vlans` and `rocev2_vlans` can be reduced or increased to match the number of ConnectX ports for each group.
-
-
-  - This value can be optionally changed in `group_vars/all.yml`
-* Number of `Up` ConnectX-6 adapters, times `num_vlans_per_port` must be an even number
-* Number of `Up` ConnectX-6 adapters, times `num_vlans_per_port` must match combined number of `rocev2_vlans` and `tcp_vlans` defined in `group_vars/all.yml`
+  * Number of VLANS listed under `rocev2_vlans` must match the number of VLANS listed under `tcp_vlans`, defined in `group_vars/all.yml`
+  * Number of `Up` ConnectX adapters, times `num_vlans_per_port` must match combined number of `rocev2_vlans` and `tcp_vlans` defined in `group_vars/all.yml`
 * Samsung PM983 SSD's installed (Model: `SAMSUNG MZ4LB3T8HALS-00003`)
   - KVSSD model can be user-defined in `group_vars/all.yml`
 
 #### Client requirements
 
-* Pre-deployed with any x86_64 linux OS (Prefered: CentOS 7.4 1708)
-* Hostnames pre-configured
-* Manangement NIC configured and accessible by the Ansible deployment host
+* The client requirements are identical to server requirements, with the exception that only TCP VLANs are configured on clients
+  * Note that it is required to leave the `combined_vlans: "{{ tcp_vlans }}"` setting as-is in `group_vars/clients.yml`
 
 #### Onyx Switch requirements
 
-* Onyx version 3.8.2306 preferred
-* Administrator credentials for switch required
+* Onyx version must be 3.6.8130 or later
+* Administrator credentials for switch are required
   - Note: Since ssh keys cannot be copied to Onyx switch, passkey will need to be used
   - Either provide `ansible_ssh_pass` var for `onyx` group in `hosts` (insecure) or use Ansible Vault <https://docs.ansible.com/ansible/latest/user_guide/vault.html>
 * Note: Onyx ansible modules are not idempotent, and will report `changed` even if no changes are made
 
-## Deploy
+## Configure hosts
 
-To deploy the cluster, use: `ansible-playbook deploy_all.yml`
+`ansible-playbook playbooks/configure_hosts.yml`
 
-Note that priviledged credentials are required. By default, `sudo` is used. If a password is required for `sudo`, it can be provided from the command line using the `-K` or `--ask-become-pass` flag. See <https://docs.ansible.com/ansible/latest/user_guide/become.html> for additional details.
+This playbook will automatically configure all hosts (clients + servers) and execute a number of roles including:
+* validate_centos
+* deploy_kernel
+* configure_firewalld
+* configure_tuned
+* deploy_utils
+* deploy_nvme_cli
+* deploy_ofed
+* load_mlnx_drivers
+* configure_lldpad
+* configure_dcqcn
+* configure_irq
+* upgrade_connectx_firmware
 
-## Reset
+## Configure VLANs
 
-To remove VLANs, use `ansible-playbook reset_vlans.yml`
+`ansible-playbook playbooks/configure_vlans.yml`
 
-This will remove all VLAN configuration for all ConnectX adapters on all servers (including IP address assignment), as well as remove all allowed VLANs for each switchport each adapter is connected to. This is useful, for example, if you wish to alter your VLAN configuration if it has already been set.
+This playbook will automatically configure the high-speed ConnectX adapters, as well as the Mellanox Onyx switch.
+It will automatically assign IP addresses, VLANs, as well as a number of other performance configurations.
+
+## Remove VLANS
+
+`ansible-playbook playbooks/configure_vlans.yml`
+
+This playbook will remove all VLAN configuration from the high-speed ConnectX adapters on all hosts (clients + servers) as well as the switch.
+This is useful if you wish to change the VLAN configuration (change number of VLANs, change VLAN ID's, add or remove ConnectX ports, etc)
+
+## Validate network
+
+`ansible-playbook playbooks/test_network.yml`
+
+This playbook will automatically validate the network configuration by performing the following tests:
+* Ping all RoCEv2 endpoints between all servers
+* Ping all TCP endpoitns between all servers and clients
+* Perform ib_read_bw test between all servers and validate bandwidth is >= 90% of link speed
+
+## Deploy DSS Software
+
+`ansible-playbook playbooks/deploy_dss_software.yml`
+
+This playbook will deploy the DSS target, host, and minio stack on all servers, as well as DSS benchmark software to all clients.
+Upon successful deployment, the target, host, and minio services will be started and ready to test.
+
+## Remove DSS Software
+
+This playbook will stop and remove all DSS software from all hosts.
+
+## Re-deploy DSS Software
+
+`ansible-playbook playbooks/redeploy_dss_software.yml`
+
+This playbook will stop and remove all DSS software from all hosts. Then DSS software will be deployed and started again.
+This is useful to upgrade DSS software in place, or if you would like to re-deploy the software with new configuration settings.
+
+## Restart DSS Software
+
+`ansible-playbook playbooks/restart_dss_software.yml`
+
+This playbook will stop all running DSS software in the target/host/minio stack, and restart all services, without making configuration changes.
+
+## Reset DSS Software
+
+`ansible-playbook playbooks/redeploy_dss_software.yml`
+
+This playbook is the same as the above `redeploy_dss_software` playbook, with the exception that all KV SSD's on all servers will also be formated prior to re-deploying DSS software.
+This is useful if the cluster storage subsystems are in a bad state, or you wish to re-deploy the cluster from a clean state.
+
+## Cleanup DSS Minio
+
+`ansible-playbook playbooks/redeploy_dss_minio.yml`
+
+While the DSS software is up-and-running, this playbook will remove all objects from all Minio instances without the need to re-deploy or format the KVSSDs.
+
+## Start DSS Benchmark
+
+`ansible-playbook playbooks/start_dss_benchmark.yml`
+
+This playbook will execute the DSS Benchmark from all clients against all servers in the cluster.
+
+Benchmark results can be found on the client "master node" in `/var/logs/dss`
+
+The client "master node" is the first client in the `hosts` inventory file
