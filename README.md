@@ -57,7 +57,7 @@ It is recommended to use [Ansible vault](https://docs.ansible.com/ansible/latest
   - Example: `testhost01` (zero-padding not required)
   - This number will be used to configure the last octet of the IP addresses of all high-speed ConnectX adapters
   - If a unique number between 1-255 cannot be derived from the hostname, Ansible will automatically assign a unique inventory ID to be used instead
-  - Alternatively, the last octet can be explicitly defined for each host using the `last_octet` host_var. Example inventory:
+  - Alternatively, the last octet can be explicitly defined for each host using the `last_octet` host_var. Example `hosts` inventory:
 ```
 [servers]
 hostname1.domain.com last_octet=12
@@ -101,7 +101,7 @@ tcp_vlans:
 
 #### Client requirements
 
-* The client requirements are identical to server requirements, with the exception that only TCP VLANs are configured on clients
+* The client requirements are identical to server requirements, with the exception that only TCP VLANs are configured on clients, and KV SSD's are not required.
   * Note that it is required to leave the `combined_vlans: "{{ tcp_vlans }}"` setting as-is in `group_vars/clients.yml`
 
 #### Onyx Switch requirements
@@ -109,8 +109,7 @@ tcp_vlans:
 * Onyx version must be 3.6.8130 or later
 * Administrator credentials for switch are required
   - Note: Since ssh keys cannot be copied to Onyx switch, passkey will need to be used
-  - Either provide `ansible_ssh_pass` var for `onyx` group in `hosts` (insecure) or use Ansible Vault <https://docs.ansible.com/ansible/latest/user_guide/vault.html>
-* Note: Onyx ansible modules are not idempotent, and will report `changed` even if no changes are made
+  - Either provide `ansible_ssh_pass` var for `onyx` group in `hosts` (insecure) or use [Ansible Vault](https://docs.ansible.com/ansible/latest/user_guide/vault.html)
 
 ## Configure hosts
 
@@ -135,7 +134,9 @@ This playbook will automatically configure all hosts (clients + servers) and exe
 `ansible-playbook playbooks/configure_vlans.yml`
 
 This playbook will automatically configure the high-speed ConnectX adapters, as well as the Mellanox Onyx switch.
-It will automatically assign IP addresses, VLANs, as well as a number of other performance configurations.
+It will automatically assign IP addresses, VLANs, as well as perform a number of other performance configurations.
+
+Note: Onyx ansible modules are not idempotent, and will report `changed` even if no changes are made.
 
 ## Remove VLANS
 
@@ -159,6 +160,18 @@ This playbook will automatically validate the network configuration by performin
 
 This playbook will deploy the DSS target, host, and minio stack on all servers, as well as DSS benchmark software to all clients.
 Upon successful deployment, the target, host, and minio services will be started and ready to test.
+
+## Deploy all
+
+`ansible-playbook playbooks/deploy_all.yml`
+
+This playbook is a "one-click" automated deployment that will perform all of the following playbooks:
+* `configure_hosts`
+* `configure_vlans`
+* `test_network`
+* `deploy_dss_software`
+
+It is recommended, however, to execute each playbook one-at-a-time instead in case troubleshooting is required.
 
 ## Remove DSS Software
 
