@@ -1,6 +1,6 @@
 {
     "subnets": [
-{%- set client_index = namespace(value=0) -%}
+{%- set client_index = { 'value': 0 } -%}
 {% for server in groups['servers'] -%}
     {% set server_loop = loop -%}
     {% for tcp_ip in hostvars[server].tcp_vlan_ip_list -%}
@@ -17,7 +17,7 @@
                 (groups['clients'][client_index.value + 1] is defined) -%}
             ,
             {%- endif -%}
-        {% set client_index.value = client_index.value + 1 -%}
+        {% if client_index.update({ 'value': client_index.value + 1 }) %}{% endif -%}
         {% endif -%}
     {% endfor -%}
 {% endfor %}
