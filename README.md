@@ -203,6 +203,24 @@ This is useful if the cluster storage subsystems are in a bad state, or you wish
 
 While the DSS software is up-and-running, this playbook will remove all objects from all Minio instances without the need to re-deploy or format the KVSSDs.
 
+## Remove DSS Benchmark
+
+`ansible-playbook playbooks/remove_dss_benchmark.yml`
+
+Uninstall DSS Software from client hosts
+
+## Deploy DSS Benchmark
+
+`ansible-playbook playbooks/deploy_dss_benchmark.yml`
+
+Install DSS Software to client hosts
+
+## Re-deploy DSS Benchmark
+
+`ansible-playbook playbooks/redeploy_dss_benchmark.yml`
+
+Remove, then install DSS Software to client hosts. Useful to upgrade to a newer version, while leaving DSS Servers running.
+
 ## Start DSS Benchmark
 
 `ansible-playbook playbooks/start_dss_benchmark.yml`
