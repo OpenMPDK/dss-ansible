@@ -14,7 +14,5 @@
     - deploy_ofed
     - load_mlnx_drivers
     - configure_lldpad
-    - configure_dcqcn
     - configure_irq
     - upgrade_connectx_firmware
-    - remove_packet_pacing

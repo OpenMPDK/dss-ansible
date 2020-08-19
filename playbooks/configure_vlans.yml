@@ -6,6 +6,8 @@
     - clients
   roles:
     - configure_connectx_network
+    - configure_dcqcn
+    - remove_packet_pacing
     - get_vlan_mac_list
 
 - name: Configure Onyx VLANs
