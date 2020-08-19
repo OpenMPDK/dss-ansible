@@ -9,7 +9,14 @@
     label: "VLAN ID: {{ vlan.id }}"
   vars:
     vlan_device: "ansible_{{ mellanox_device.netdev }}.{{ vlan.id }}"
-    device: "{% if device_type == 'netdev' %}{{ mellanox_device.netdev }}{% elif device_type == 'ibdev' %}{{ mellanox_device.ibdev }}{% endif %}"
+    device: >-
+      {%- if device_type == 'netdev' -%}
+        {{ mellanox_device.netdev }}
+      {%- elif device_type == 'ibdev' -%}
+        {{ mellanox_device.ibdev }}
+      {%- elif device_type == 'netdev_child' -%}
+        {{ mellanox_device.netdev }}.{{ vlan.id }}
+      {%- endif -%}
   when:
     - mellanox_device.status == 'Up'
     - lookup('vars', vlan_device, default='') != ''
