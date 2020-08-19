@@ -6,6 +6,8 @@
     - get_tcp_vlan_ip_list
 
 - name: Start DSS Benchmark
-  hosts: clients
+  hosts:
+    - clients
+    - servers
   roles:
     - start_dss_benchmark
