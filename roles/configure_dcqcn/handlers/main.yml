@@ -1,6 +1,6 @@
 ---
 
-- name: Reboot system
+- name: Reboot system - dcqcn
   reboot:
     reboot_timeout: "{{ reboot_timeout }}"
   become: true
