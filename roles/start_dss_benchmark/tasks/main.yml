@@ -5,16 +5,18 @@
     src: cluster.json.j2
     dest: "{{ start_dss_benchmark_dest_dir }}/cluster.json"
     mode: 0644
-  become: true
   run_once: true
+  when: inventory_hostname in groups['clients']
+  become: true
 
 - name: Copy image.json to master client
   copy:
     src: image.json
     dest: "{{ start_dss_benchmark_dest_dir }}/image.json"
     mode: 0644
-  become: true
   run_once: true
+  when: inventory_hostname in groups['clients']
+  become: true
 
 - name: Prepare and execute benchmark
   block:
@@ -28,8 +30,9 @@
         --objects {{ benchmark_objects }}
         --warp-binary {{ start_dss_benchmark_dest_dir }}/warp
         --output-dir {{ start_dss_benchmark_log_dir }}
-      become: true
       run_once: true
+      when: inventory_hostname in groups['clients']
+      become: true
 
     - name: Execute benchmark on master client
       command: >
@@ -48,8 +51,9 @@
         --concurrent {{ benchmark_concurrent }}
         --cluster-config {{ start_dss_benchmark_dest_dir }}/cluster.json
         --ustat-binary-path {{ start_dss_benchmark_dest_dir }}/ustat
-      become: true
       run_once: true
+      when: inventory_hostname in groups['clients']
+      become: true
 
   rescue:
     - name: Terminate failed benchmark
@@ -58,5 +62,11 @@
         {{ start_dss_benchmark_dest_dir }}/scripts/bench.py
         terminate
         --cluster-config {{ start_dss_benchmark_dest_dir }}/cluster.json
-      become: true
       run_once: true
+      when: inventory_hostname in groups['clients']
+      become: true
+
+    - name: Remove packet pacing from servers
+      include_role:
+        name: remove_packet_pacing
+      when: inventory_hostname in groups['servers']

@@ -2,6 +2,7 @@
 
 device_type: netdev
 # device_type: ibdev
+# device_type: netdev_child
 vlan_list: "{{ rocev2_vlans + tcp_vlans }}"
 rocev2_vlans:
   - id: 31
