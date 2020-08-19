@@ -1,0 +1,25 @@
+---
+
+- name: Get list of devices
+  include_role:
+    name: get_vlan_devices
+  vars:
+    device_type: netdev_child
+
+- name: Get packet pacing status
+  command: "tc qdisc show dev {{ device }}"
+  changed_when: false
+  loop: "{{ vlan_device_list }}"
+  loop_control:
+    loop_var: device
+  register: packet_pacing_status
+  become: true
+
+- name: Delete packet pacing rules
+  command: "tc qdisc del dev {{ pacing_status.device }} root"
+  when: pacing_status.stdout is not search('noqueue')
+  loop: "{{ packet_pacing_status.results }}"
+  loop_control:
+    loop_var: pacing_status
+    label: "{{ pacing_status.device }}"
+  become: true
