@@ -5,6 +5,7 @@
     name: "{{ item }}"
   loop:
     - tbb-devel
+    - libaio-devel
   become: true
 
 - name: Identify target tarball
