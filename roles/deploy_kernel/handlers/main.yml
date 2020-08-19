@@ -11,7 +11,7 @@
   vars:
     grubpath: "/boot/{% if uefi.stat.exists %}efi/EFI/centos{% else %}grub2{% endif %}/grub.cfg"
 
-- name: Reboot system
+- name: Reboot system - kernel
   reboot:
     reboot_timeout: "{{ reboot_timeout }}"
   become: true

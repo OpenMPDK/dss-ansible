@@ -24,7 +24,7 @@
   vars:
     found_setting: "{{ item.stdout | regex_search('ROCE_CC_PRIO_MASK_P1 +([^ ]+)','\\1') | first }}"
   when: found_setting != '8'
-  notify: Reboot system
+  notify: Reboot system - dcqcn
   become: true
 
 - name: Set CNP_DSCP_P1 for {{ vlan_label }}
@@ -35,7 +35,7 @@
   vars:
     found_setting: "{{ item.stdout | regex_search('CNP_DSCP_P1 +([^ ]+)','\\1') | first }}"
   when: found_setting != '48'
-  notify: Reboot system
+  notify: Reboot system - dcqcn
   become: true
 
 - name: Set CNP_802P_PRIO_P1 for {{ vlan_label }}
@@ -46,7 +46,7 @@
   vars:
     found_setting: "{{ item.stdout | regex_search('CNP_802P_PRIO_P1 +([^ ]+)','\\1') | first }}"
   when: found_setting != '6'
-  notify: Reboot system
+  notify: Reboot system - dcqcn
   become: true
 
 - name: Set PCI_WR_ORDERING for {{ vlan_label }}
@@ -57,5 +57,5 @@
   when:
     - item.stdout is regex("ConnectX(5|6)")
     - item.stdout is not regex('PCI_WR_ORDERING +force_relax')
-  notify: Reboot system
+  notify: Reboot system - dcqcn
   become: true

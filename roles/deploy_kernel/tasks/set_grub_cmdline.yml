@@ -28,7 +28,7 @@
   notify:
     - Identify UEFI boot
     - Execute grub2-mkconfig
-    - Reboot system
+    - Reboot system - kernel
   become: true
 
 - name: Set GRUB_DEFAULT
@@ -41,5 +41,5 @@
   notify:
     - Identify UEFI boot
     - Execute grub2-mkconfig
-    - Reboot system
+    - Reboot system - kernel
   become: true
