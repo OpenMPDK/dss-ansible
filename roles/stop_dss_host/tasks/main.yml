@@ -10,3 +10,4 @@
   args:
     chdir: "{{ stop_dss_host_dir }}/bin"
   when: dss_host_path.stat.exists
+  become: true

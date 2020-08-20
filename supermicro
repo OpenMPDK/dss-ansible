@@ -7,7 +7,7 @@ msl-ssg-sm[1:4].msl.lab num_vlans_per_port=2
 msl-ssg-mlnx02.msl.lab
 
 [servers:vars]
-ansible_user=root
+ansible_user=ansible
 
 [onyx:vars]
 ansible_user=admin
