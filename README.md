@@ -230,3 +230,9 @@ This playbook will execute the DSS Benchmark from all clients against all server
 Benchmark results can be found on the client "master node" in `/var/logs/dss`
 
 The client "master node" is the first client in the `hosts` inventory file
+
+## Remove Packet Pacing
+
+`ansible-playbook playbooks/remove_packet_pacing.yml`
+
+This playbook removes kernel-based packet pacing from all servers. The `remove_packet_pacing` role is automatically executed during `configure_vlans` playbook, as well as as rescue block if the DSS Benchmark fails.
