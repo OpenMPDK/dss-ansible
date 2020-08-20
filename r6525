@@ -8,10 +8,10 @@ msl-ssg-dl[09:16].msl.lab
 10.1.51.74
 
 [servers:vars]
-ansible_user=root
+ansible_user=ansible
 
 [clients:vars]
-ansible_user=root
+ansible_user=ansible
 last_octet_offset=200
 
 [onyx:vars]
