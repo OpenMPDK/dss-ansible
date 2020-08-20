@@ -11,6 +11,7 @@
   loop_control:
     loop_var: async_task
     label: "{{ async_task.item }}"
+  become: true
 
 - name: Assert async {{ async_name }} completion
   assert:
