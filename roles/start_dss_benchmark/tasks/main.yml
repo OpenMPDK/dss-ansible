@@ -23,13 +23,13 @@
     - name: Execute generate on master client
       command: >
         python3
-        {{ start_dss_benchmark_dest_dir }}/scripts/bench.py
+        "{{ start_dss_benchmark_dest_dir }}/scripts/bench.py"
         generate
-        --cluster-config {{ start_dss_benchmark_dest_dir }}/cluster.json
-        --obj-dist-file {{ start_dss_benchmark_dest_dir }}/image.json
-        --objects {{ benchmark_objects }}
-        --warp-binary {{ start_dss_benchmark_dest_dir }}/warp
-        --output-dir {{ start_dss_benchmark_log_dir }}
+        --cluster-config "{{ start_dss_benchmark_dest_dir }}/cluster.json"
+        --obj-dist-file "{{ start_dss_benchmark_dest_dir }}/image.json"
+        --objects "{{ benchmark_objects }}"
+        --warp-binary "{{ start_dss_benchmark_dest_dir }}/warp"
+        --output-dir "{{ start_dss_benchmark_log_dir }}"
       run_once: true
       when: inventory_hostname in groups['clients']
       become: true
@@ -37,20 +37,20 @@
     - name: Execute benchmark on master client
       command: >
         python3
-        {{ start_dss_benchmark_dest_dir }}/scripts/bench.py
+        "{{ start_dss_benchmark_dest_dir }}/scripts/bench.py"
         benchmark
-        --num-clients {{ benchmark_clients }}
-        --rate-limit {{ benchmark_rate_limit }}
-        --software-rate-limit {{ benchmark_software_rate_limit }}
+        --num-clients "{{ benchmark_clients }}"
+        --rate-limit "{{ benchmark_rate_limit }}"
+        --software-rate-limit "{{ benchmark_software_rate_limit }}"
         --ustat-profiles "{{ benchmark_ustat_profiles }}"
-        --warp-binary {{ start_dss_benchmark_dest_dir }}/warp
-        --access-key {{ minio_access_key }}
-        --secret-key {{ minio_secret_key }}
-        --output-dir {{ start_dss_benchmark_log_dir }}
-        --duration {{ benchmark_duration }}
-        --concurrent {{ benchmark_concurrent }}
-        --cluster-config {{ start_dss_benchmark_dest_dir }}/cluster.json
-        --ustat-binary-path {{ start_dss_benchmark_dest_dir }}/ustat
+        --warp-binary "{{ start_dss_benchmark_dest_dir }}/warp"
+        --access-key "{{ minio_access_key }}"
+        --secret-key "{{ minio_secret_key }}"
+        --output-dir "{{ start_dss_benchmark_log_dir }}"
+        --duration "{{ benchmark_duration }}"
+        --concurrent "{{ benchmark_concurrent }}"
+        --cluster-config "{{ start_dss_benchmark_dest_dir }}/cluster.json"
+        --ustat-binary-path "{{ start_dss_benchmark_dest_dir }}/ustat"
       run_once: true
       when: inventory_hostname in groups['clients']
       become: true
@@ -59,9 +59,9 @@
     - name: Terminate failed benchmark
       command: >
         python3
-        {{ start_dss_benchmark_dest_dir }}/scripts/bench.py
+        "{{ start_dss_benchmark_dest_dir }}/scripts/bench.py"
         terminate
-        --cluster-config {{ start_dss_benchmark_dest_dir }}/cluster.json
+        --cluster-config "{{ start_dss_benchmark_dest_dir }}/cluster.json"
       run_once: true
       when: inventory_hostname in groups['clients']
       become: true
