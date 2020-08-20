@@ -1,0 +1,18 @@
+[servers]
+msl-ssg-mp[01:04].msl.lab num_vlans_per_port=2
+
+[clients]
+
+[onyx]
+msl-ssg-mlnx01.msl.lab
+
+[servers:vars]
+ansible_user=ansible
+
+[clients:vars]
+ansible_user=ansible
+last_octet_offset=100
+
+[onyx:vars]
+ansible_user=admin
+ansible_ssh_pass=msl-ssg
