@@ -28,3 +28,4 @@
     mode: 0751
   vars:
     numa_node: "{{ device_numa_node.stdout }}"
+  become: true
