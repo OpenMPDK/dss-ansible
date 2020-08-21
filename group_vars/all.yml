@@ -26,6 +26,7 @@ benchmark_software_rate_limit: 250MiB
 benchmark_ustat_profiles: ''
 benchmark_duration: 120s
 benchmark_concurrent: 1
+benchmark_cap: 0GiB
 
 rocev2_vlans:
   - id: 31
