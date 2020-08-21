@@ -18,6 +18,42 @@
   when: inventory_hostname in groups['clients']
   become: true
 
+- name: Prepare list of check_bucket commands
+  set_fact:
+    check_bucket_commands: >-
+      [
+      {%- set client_index = { 'value': 0 } -%}
+      {% for server in groups['servers'] -%}
+          {% set server_loop = loop -%}
+          {% for tcp_ip in hostvars[server].tcp_vlan_ip_list -%}
+              {% if groups['clients'][client_index.value] is defined %}
+      "{{ start_dss_benchmark_dest_dir }}/scripts/check_bucket.py
+      --server {{ tcp_ip }}:{{minio_port}}
+      --access-key {{ minio_access_key }}
+      --secret-key {{ minio_secret_key }}
+      --bucket {{ benchmark_bucket_prefix }}{{ client_index.value + 1 }}
+      --objs {{ benchmark_objects }}"
+                  {%- if ((not loop.last) and
+                      (not server_loop.last)) or
+                      (groups['clients'][client_index.value + 1] is defined) -%}
+                  ,
+                  {%- endif -%}
+              {% if client_index.update({ 'value': client_index.value + 1 }) %}{% endif -%}
+              {% endif -%}
+          {% endfor -%}
+      {% endfor %}]
+  run_once: true
+
+- name: Check if benchmark data needs to be re-generated
+  command: "{{ check_bucket_command }}"
+  changed_when: false
+  failed_when: false
+  loop: "{{ check_bucket_commands }}"
+  loop_control:
+    loop_var: check_bucket_command
+  register: check_bucket_results
+  run_once: true
+
 - name: Prepare and execute benchmark
   block:
     - name: Execute generate on master client
@@ -31,7 +67,11 @@
         --warp-binary "{{ start_dss_benchmark_dest_dir }}/warp"
         --output-dir "{{ start_dss_benchmark_log_dir }}"
       run_once: true
-      when: inventory_hostname in groups['clients']
+      vars:
+        check_buckets_rc_list: "{{ check_bucket_results.results | map(attribute='rc') | list | unique | join(',') }}"
+      when:
+        - check_buckets_rc_list != '0'
+        - inventory_hostname in groups['clients']
       become: true
 
     - name: Execute benchmark on master client
