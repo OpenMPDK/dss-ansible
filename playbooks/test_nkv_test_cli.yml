@@ -1,0 +1,7 @@
+---
+
+- name: Test nkv_test_cli
+  hosts: servers
+  roles:
+    - test_nkv_test_cli
+  

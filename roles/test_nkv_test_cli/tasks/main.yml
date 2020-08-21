@@ -1,0 +1,82 @@
+---
+
+- name: Get ip route
+  command: ip route show
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
+  changed_when: false
+  register: ip_route
+
+- name: Set rocev2_dev
+  set_fact:
+    rocev2_dev_list: "{{ rocev2_dev_list | default([]) +
+                      [{ 'ip_prefix': vlan.ip_prefix,
+                          'dev': device }] }}"
+  loop: "{{ rocev2_vlans }}"
+  loop_control:
+    loop_var: vlan
+    label: "{{ vlan.id }}"
+  vars:
+    dev_regex: >-
+      {{ vlan.ip_prefix }}\.0\/\d+ dev ([^. ]+)
+    device: "{{ ip_route.stdout | regex_search(dev_regex, '\\1') | first }}"
+  when:
+    - ip_route.stdout is regex(vlan.ip_prefix)
+
+- name: Get NUMA
+  command: "cat /sys/class/net/{{ item.dev }}//device/numa_node"
+  changed_when: false
+  loop: "{{ rocev2_dev_list }}"
+  loop_control:
+    label: "{{ item.dev }}"
+  register: numa_node
+
+- name: Set rocev2_numa_prefix_list
+  set_fact:
+    rocev2_numa_prefix_list: "{{ rocev2_numa_prefix_list | default([]) +
+                          [{ 'ip_prefix': vlan.item.ip_prefix,
+                              'numa': vlan.stdout | int }] }}"
+  loop: "{{ numa_node.results }}"
+  loop_control:
+    loop_var: vlan
+    label: "{{ vlan.item.dev }}"
+
+- name: Execute nkv_test_cli put
+  include_tasks: nkv_test_cli.yml
+  vars:
+    operation: "{{ test_nkv_test_cli_put }}"
+
+- name: Set put_bandwidth
+  set_fact:
+    put_bandwidth: "{{ combined_bandwidth }}"
+
+- name: Execute nkv_test_cli update
+  include_tasks: nkv_test_cli.yml
+  vars:
+    operation: "{{ test_nkv_test_cli_put }}"
+
+- name: Set update_bandwidth
+  set_fact:
+    update_bandwidth: "{{ combined_bandwidth }}"
+
+- name: Execute nkv_test_cli get
+  include_tasks: nkv_test_cli.yml
+  vars:
+    operation: "{{ test_nkv_test_cli_get }}"
+
+- name: Set get_bandwidth
+  set_fact:
+    get_bandwidth: "{{ combined_bandwidth }}"
+
+- name: Execute nkv_test_cli delete
+  include_tasks: nkv_test_cli.yml
+  vars:
+    operation: "{{ test_nkv_test_cli_delete }}"
+
+- name: Print bandwidth
+  debug:
+    msg: |
+      Put bandwidth:    {{ '%0.2f' | format(put_bandwidth | float) }} GB/s
+      Update bandwidth: {{ '%0.2f' | format(update_bandwidth | float) }} GB/s
+      Get bandwidth:    {{ '%0.2f' | format(get_bandwidth | float) }} GB/s
+  run_once: true
