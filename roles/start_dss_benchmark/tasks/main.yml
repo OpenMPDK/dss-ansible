@@ -71,3 +71,10 @@
       include_role:
         name: remove_packet_pacing
       when: inventory_hostname in groups['servers']
+    
+    - name: Fail
+      fail:
+        msg: |
+          NKV Benchmark failed.
+          Please review previous tasks for failures.
+        run_once: true
