@@ -49,6 +49,7 @@
         --output-dir "{{ start_dss_benchmark_log_dir }}"
         --duration "{{ benchmark_duration }}"
         --concurrent "{{ benchmark_concurrent }}"
+        --cap "{{ benchmark_cap }}"
         --cluster-config "{{ start_dss_benchmark_dest_dir }}/cluster.json"
         --ustat-binary-path "{{ start_dss_benchmark_dest_dir }}/ustat"
       run_once: true
