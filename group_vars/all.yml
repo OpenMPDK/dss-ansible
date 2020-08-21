@@ -16,6 +16,7 @@ minio_nkv_shared: 1
 minio_ec_block_size: 65536
 minio_enable_no_lock_read: 1
 minio_enable_no_lock_verify: 1
+benchmark_bucket_prefix: benchmark-bucket-
 minio_access_key: minio
 minio_secret_key: minio123
 

@@ -8,5 +8,6 @@ benchmark_ustat_profiles: ''
 benchmark_duration: 120s
 benchmark_concurrent: 1
 benchmark_cap: 0GiB
+benchmark_bucket_prefix: benchmark-bucket-
 minio_access_key: minio
 minio_secret_key: minio123
