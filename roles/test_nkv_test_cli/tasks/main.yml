@@ -50,15 +50,6 @@
   set_fact:
     put_bandwidth: "{{ combined_bandwidth }}"
 
-- name: Execute nkv_test_cli update
-  include_tasks: nkv_test_cli.yml
-  vars:
-    operation: "{{ test_nkv_test_cli_put }}"
-
-- name: Set update_bandwidth
-  set_fact:
-    update_bandwidth: "{{ combined_bandwidth }}"
-
 - name: Execute nkv_test_cli get
   include_tasks: nkv_test_cli.yml
   vars:
@@ -77,6 +68,5 @@
   debug:
     msg: |
       Put bandwidth:    {{ '%0.2f' | format(put_bandwidth | float) }} GB/s
-      Update bandwidth: {{ '%0.2f' | format(update_bandwidth | float) }} GB/s
       Get bandwidth:    {{ '%0.2f' | format(get_bandwidth | float) }} GB/s
   run_once: true
