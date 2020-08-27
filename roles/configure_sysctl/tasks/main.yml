@@ -1,0 +1,9 @@
+---
+
+- name: Configure sysctl.conf entries
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: "{{ item.state }}"
+  loop: "{{ sysctl_settings }}"
+  become: true
