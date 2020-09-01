@@ -68,3 +68,20 @@
     path: "{{ deploy_dss_benchmark_log_dir }}"
     state: directory
   become: true
+
+- name: Deploy SimpleHTTPServer service file on master
+  template:
+    src: simplehttp.service.j2
+    dest: /etc/systemd/system/simplehttp.service
+    mode: 0751
+  run_once: true
+  become: true
+
+- name: Start and enable SimpleHTTPServer service on master
+  systemd:
+    name: simplehttp
+    state: restarted
+    enabled: true
+    daemon_reload: true
+  run_once: true
+  become: yes
