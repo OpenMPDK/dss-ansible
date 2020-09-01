@@ -80,7 +80,7 @@
 - name: Start and enable SimpleHTTPServer service on master
   systemd:
     name: simplehttp
-    state: started
+    state: restarted
     enabled: true
     daemon_reload: true
   run_once: true
