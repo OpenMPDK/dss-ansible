@@ -18,7 +18,7 @@
   loop_control:
     label: "{{ item.DevicePath }}"
   when:
-    - item.ModelNumber == kvssd_model
+    - item.ModelNumber in kvssd_models
     - item.Firmware == target_fw_version
 
 - name: Format kvssd devices
