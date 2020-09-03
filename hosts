@@ -5,3 +5,8 @@
 [onyx]
 
 [onyx:vars]
+
+[vms]
+#lf-nkv02.sdmsl.dev rdma_interface=ens224 rdma_ip=11.11.200.216
+
+
