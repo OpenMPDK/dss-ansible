@@ -1,0 +1,30 @@
+---
+
+- name: Create softROCE service file
+  blockinfile:
+    path: "{{ install_softROCE_dir }}/softROCE.service"
+    create: yes
+    block: |
+      [Unit]
+      Description=Load softROCE
+      After=network.target
+
+      [Service]
+      Type=simple
+      ExecStart=/bin/rxe_cfg start
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Start softROCE
+  systemd:
+    name: softROCE.service
+    state: started
+
+- name: Attach second interface to softROCE
+  command: rxe_cfg add {{ rdma_interface }}
+
+- name: Enable softROCE service
+  systemd:
+    name: softROCE.service
+    enabled: yes
