@@ -1,11 +1,9 @@
 ---
 
 - name: Deploy softROCE on VMs
-  become: true
-  gather_facts: true
+  gather_facts: false
   hosts:
     - vms
   roles:
-    - install_softROCE_dependencies
     - install_softROCE
 

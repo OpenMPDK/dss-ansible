@@ -1,5 +1,16 @@
 ---
 
+- name: Install softROCE dependencies
+  package:
+      name: "{{ packages }}"
+      state: present
+  vars:
+      packages:
+      - rdma
+      - libibverbs-utils
+      - librdmacm-utils
+  become: true
+
 - name: Create softROCE service file
   blockinfile:
     path: "{{ install_softROCE_dir }}/softROCE.service"
@@ -15,16 +26,36 @@
 
       [Install]
       WantedBy=multi-user.target
+  become: true
 
-- name: Start softROCE
+- name: Start and Enable softROCE
   systemd:
     name: softROCE.service
     state: started
+    enabled: yes
+  become: true
+
+- name: Query SoftROCE Configuration
+  shell: "rxe_cfg status | grep {{ rdma_interface }} | awk '{ print $7 }'"
+  changed_when: false
+  register: softROCE_status
+  become: true
+
+- name: Test if configured
+  debug:
+    msg: "Interface {{ rdma_interface }} is configured"
+  when: softROCE_status.stdout is regex("^rxe[0-9]+")
+  become: true
+
+- name: Test if not configured
+  debug:
+    msg: "Interface {{ rdma_interface }} is not configured"
+  when: not softROCE_status.stdout is regex("^rxe[0-9]+")
+  become: true
 
 - name: Attach second interface to softROCE
-  command: rxe_cfg add {{ rdma_interface }}
+  shell: "rxe_cfg add {{ rdma_interface }}"
+  when: not softROCE_status.stdout is regex("^rxe[0-9]+")
+  become: true
 
-- name: Enable softROCE service
-  systemd:
-    name: softROCE.service
-    enabled: yes
+
