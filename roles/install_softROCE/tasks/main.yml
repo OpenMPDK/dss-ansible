@@ -57,5 +57,3 @@
   shell: "rxe_cfg add {{ rdma_interface }}"
   when: not softROCE_status.stdout is regex("^rxe[0-9]+")
   become: true
-
-
