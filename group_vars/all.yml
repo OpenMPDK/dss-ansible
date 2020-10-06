@@ -45,3 +45,12 @@ tcp_vlans:
   - id: 42
     ip_prefix: 204.0.0
     netmask: 255.0.0.0
+
+# UFM Settings
+ufm_etcd_client_port: 2379
+ufm_etcd_peer_port: 2380
+ufm_etcd_token: etcd-token
+ufm_etcd_service_file: /etc/systemd/system/ufm_etcd.service
+ufm_install_packages:
+  - ufm
+  - ufmbroker
