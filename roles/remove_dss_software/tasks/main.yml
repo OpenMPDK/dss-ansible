@@ -6,7 +6,6 @@
     state: absent
   loop:
     - "{{ remove_dss_dir }}"
-    - "{{ remove_dss_log_dir }}"
   loop_control:
     loop_var: dss_path
   become: true

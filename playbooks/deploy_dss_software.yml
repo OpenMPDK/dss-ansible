@@ -1,16 +1,24 @@
 ---
 
-- name: Deploy DSS software
+- name: Deploy DSS Target and Host
   hosts: servers
   roles:
     - deploy_dss_target
     - deploy_dss_host
+    - get_tcp_vlan_ip_list
+
+- name: Deploy DSS Minio
+  hosts:
+    - servers
+    - clients
+  roles:
     - deploy_dss_minio
 
 - name: Deploy DSS benchmark
   hosts: clients
   roles:
     - deploy_dss_benchmark
+    - configure_mc_alias
 
 - name: Start DSS Software
   import_playbook: start_dss_software.yml

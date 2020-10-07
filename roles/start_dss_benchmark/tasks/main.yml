@@ -7,6 +7,7 @@
     mode: 0644
   run_once: true
   when: inventory_hostname in groups['clients']
+  register: cluster_json
   become: true
 
 - name: Copy image.json to master client
@@ -16,6 +17,7 @@
     mode: 0644
   run_once: true
   when: inventory_hostname in groups['clients']
+  register: image_json
   become: true
 
 - name: Prepare list of check_bucket commands
@@ -67,11 +69,15 @@
         --warp-binary {{ start_dss_benchmark_dest_dir }}/warp
         --output-dir {{ start_dss_benchmark_log_dir }}
       run_once: true
+      register: bench_generate
+      no_log: true
       vars:
         check_buckets_rc_list: "{{ check_bucket_results.results | map(attribute='rc') | list | unique | join(',') }}"
       when:
-        - check_buckets_rc_list != '0'
         - inventory_hostname in groups['clients']
+        - check_buckets_rc_list != '0' or
+          cluster_json.changed or
+          image_json.changed
       become: true
 
     - name: Execute benchmark on master client
@@ -93,6 +99,8 @@
         --cluster-config {{ start_dss_benchmark_dest_dir }}/cluster.json
         --ustat-binary-path {{ start_dss_benchmark_dest_dir }}/ustat
       run_once: true
+      register: bench_benchmark
+      no_log: true
       when: inventory_hostname in groups['clients']
       become: true
 
@@ -111,6 +119,14 @@
       include_role:
         name: remove_packet_pacing
       when: inventory_hostname in groups['servers']
+    
+    - name: Print failed Generate lines
+      debug:
+        msg: "{{ bench_benchmark.stderr }}"
+      when: 
+       - inventory_hostname in groups['clients']
+      run_once: true
+      
     
     - name: Fail
       fail:

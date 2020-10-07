@@ -1,9 +1,14 @@
 ---
 
-- name: Gather facts on servers
+- name: Get TCP VLAN IP list
   hosts: servers
+  roles:
+    - get_tcp_vlan_ip_list
 
 - name: Deploy DSS benchmark
   hosts: clients
   roles:
     - deploy_dss_benchmark
+    - deploy_dss_minio
+    - configure_mc_alias
+  
