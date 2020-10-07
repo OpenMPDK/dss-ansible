@@ -1,5 +1,12 @@
 ---
 
+- name: Deploy Fabric Manager
+  hosts: ufm_hosts
+  any_errors_fatal: true
+  roles:
+    - deploy_ufm_etcd
+    - deploy_ufm
+~
 - name: Deploy DSS software
   hosts: servers
   roles:
