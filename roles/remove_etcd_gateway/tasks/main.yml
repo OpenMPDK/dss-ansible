@@ -1,0 +1,12 @@
+---
+
+- name: remove etcd-gateway systemd unit
+  become: yes
+  file:
+    path: /etc/systemd/system/etcd-gateway.service
+    state: absent
+
+- name: systemctl daemon-reload
+  become: yes
+  systemd:
+    daemon_reload: yes

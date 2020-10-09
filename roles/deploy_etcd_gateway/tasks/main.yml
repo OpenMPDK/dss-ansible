@@ -1,0 +1,58 @@
+---
+
+- name: create etcd group
+  become: yes
+  become_user: root
+  group:
+    name: '{{ etcd_group }}'
+    state: present
+
+- name: create etcd user
+  become: yes
+  become_user: root
+  user:
+    name: '{{ etcd_user }}'
+    group: '{{ etcd_group }}'
+    home: '{{ etcd_data_dir }}'
+    state: present
+
+- name: create dirs...
+  become: yes
+  become_user: root
+  file:
+    state: directory
+    path: '{{ item }}'
+    owner: '{{ etcd_user }}'
+    group: '{{ etcd_group }}'
+    mode: 0755
+  with_items:
+    - /etc/etcd
+    - "{{ etcd_data_dir }}"
+
+- name: install etcd-gateway.service systemd unit
+  become: yes
+  blockinfile:
+    path: /etc/systemd/system/etcd-gateway.service
+    create: yes
+    mode: 0644
+    block: |
+      [Unit]
+      Description=Local Etcd Gateway Server
+      After=network.service
+
+      [Service]
+      Type=notify
+      User={{etcd_user}}
+      WorkingDirectory={{etcd_data_dir}}/
+      ExecStart=/bin/bash -c "etcd gateway start --endpoints={{etcd_gateway_nodes}}"
+      Restart=on-failure
+      LimitNOFILE=65536
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: systemctl daemon-reload
+  become: yes
+  systemd:
+    daemon_reload: yes
+

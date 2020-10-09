@@ -1,0 +1,8 @@
+---
+
+- name: start etcd-gateway systemd unit
+  become: yes
+  systemd:
+    enabled: yes
+    state: started
+    name: etcd-gateway

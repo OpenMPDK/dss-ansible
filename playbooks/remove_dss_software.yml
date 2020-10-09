@@ -22,3 +22,11 @@
     - clients
   roles:
     - remove_dss_software
+
+- name: Remove DSS Agent software
+  hosts:
+    - servers
+  roles:
+    - remove_etcd_gateway
+
+
