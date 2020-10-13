@@ -5,6 +5,7 @@
   any_errors_fatal: true
   roles:
     - deploy_ufm_etcd
+    - start_ufm_etcd
     - deploy_ufm
 
 - name: Deploy DSS Target and Host
