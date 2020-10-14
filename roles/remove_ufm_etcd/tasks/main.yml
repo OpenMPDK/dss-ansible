@@ -1,0 +1,9 @@
+---
+
+- name: Remove FabricManager - CentOS
+  import_tasks: ufm_centos.yml
+  when: ansible_os_family == 'RedHat'
+
+- name: Remove FabricManager - Ubuntu
+  import_tasks: ufm_ubuntu.yml
+  when: ansible_distribution == 'Ubuntu'

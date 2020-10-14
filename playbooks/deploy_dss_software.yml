@@ -7,7 +7,7 @@
     - deploy_ufm_etcd
     - start_ufm_etcd
     - deploy_ufm
-~
+
 - name: Deploy DSS software
   hosts: servers
   roles:
