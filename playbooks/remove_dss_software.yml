@@ -6,6 +6,7 @@
 - name: Remove UFM Software
   hosts: ufm_hosts
   roles:
+    - remove_ufm_etcd
     - remove_ufm
 
 - name: Remove DSS software

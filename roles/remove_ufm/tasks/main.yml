@@ -1,14 +1,6 @@
 ---
 
-- name: Remove FabricManager - CentOS
-  import_tasks: ufm_centos.yml
-  when: ansible_os_family == 'RedHat'
-
-- name: Remove FabricManager - Ubuntu
-  import_tasks: ufm_ubuntu.yml
-  when: ansible_distribution == 'Ubuntu'
-
-- name: Stop and disable ufm_etcd
+- name: Stop and disable ufm_etcd service
   systemd:
     name: "{{ ufm_etcd_service_file | basename }}"
     state: stopped
