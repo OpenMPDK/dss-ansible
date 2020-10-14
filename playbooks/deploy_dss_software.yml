@@ -1,12 +1,14 @@
 ---
 
-- name: Deploy Fabric Manager ETCD
-  hosts: servers
+- name: Deploy UFM ETCD
+  hosts:
+    - servers
+    - ufm_hosts
   any_errors_fatal: true
   roles:
     - deploy_ufm_etcd
 
-- name: Deploy Fabric Manager
+- name: Deploy UFM
   hosts: ufm_hosts
   any_errors_fatal: true
   roles:
