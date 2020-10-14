@@ -1,0 +1,8 @@
+---
+
+- name: Terminate warp clients
+  command: pkill warp
+  register: pkill
+  failed_when: false
+  changed_when: pkill.rc == 0
+  become: true
