@@ -1,0 +1,8 @@
+---
+
+- name: stop dss agent kv_cli systemd unit
+  become: yes
+  systemd:
+    enabled: no
+    state: stopped
+    name: kv_cli

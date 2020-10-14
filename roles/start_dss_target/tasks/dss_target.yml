@@ -19,8 +19,8 @@
 
 - name: Configure target with dss_target.py
   command: >
-      ./dss_target.py configure -ip_addrs
-      {% for ip in vlan_ip_list %}{{ ip }}{% if not loop.last %} {% endif %}{% endfor %}
+      ./dss_target.py configure -c {{ dss_target_conf_file }}
+      -ip_addrs {% for ip in vlan_ip_list %}{{ ip }}{% if not loop.last %} {% endif %}{% endfor %}
       -kv_fw {{ target_fw_version }}
       -kv_ssc {{ num_subsystems }}
   args:

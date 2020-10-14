@@ -44,7 +44,7 @@
     path: "{{ stop_dss_target_bin_dir }}/{{ dss_file }}"
     state: absent
   loop:
-    - "{{ stop_dss_target_bin_dir }}/nvmf.in.conf"
+    - "{{ dss_target_conf_file }}"
     - "{{ stop_dss_target_bin_dir }}/dss_target.out"
   loop_control:
     loop_var: dss_file
