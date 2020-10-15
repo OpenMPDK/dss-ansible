@@ -1,0 +1,41 @@
+---
+
+- name: Gather service facts
+  service_facts:
+
+- name: CentOS specific tasks
+  block:
+    - name: Install dependencies - CentOS
+      import_tasks: deps_centos.yml
+
+    - name: Open Ports - CentOS
+      import_tasks: ports_centos.yml
+  when: ansible_os_family == 'RedHat'
+
+- name: Ubuntu specific tasks
+  block:
+    - name: Install dependencies - Ubuntu
+      import_tasks: deps_ubuntu.yml
+
+    - name: Open Ports - Ubuntu
+      import_tasks: ports_ubuntu.yml
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Update pip if package manager version is old
+  pip:
+    name: pip>=20.0.2
+    state: present
+  become: yes
+
+- name: Install etcd3 python module
+  pip:
+    name: etcd3
+    state: present
+  become: yes
+
+- name: Stop and disable default etcd service
+  systemd:
+    name: etcd
+    state: stopped
+    enabled: no
+  become: true
