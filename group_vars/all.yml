@@ -62,6 +62,7 @@ ufm_etcd_packages:
   - python-setuptools
   - python3-pip
   - etcd
+ufm_service_file: /etc/systemd/system/ufm.service
 ufm_etcd_service_file: /etc/systemd/system/ufm_etcd.service
 ufm_install_packages:
   - ufm
