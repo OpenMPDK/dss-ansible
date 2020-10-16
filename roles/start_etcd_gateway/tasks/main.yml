@@ -1,6 +1,6 @@
 ---
 
-- name: start etcd-gateway systemd unit
+- name: Start etcd-gateway systemd unit
   become: yes
   systemd:
     enabled: yes

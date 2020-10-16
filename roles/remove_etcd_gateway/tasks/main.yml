@@ -1,6 +1,6 @@
 ---
 
-- name: remove etcd-gateway systemd unit
+- name: Remove etcd-gateway systemd unit
   become: yes
   file:
     path: /etc/systemd/system/etcd-gateway.service

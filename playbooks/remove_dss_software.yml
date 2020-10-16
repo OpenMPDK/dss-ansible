@@ -3,6 +3,12 @@
 - name: Stop DSS Software
   import_playbook: stop_dss_software.yml
 
+- name: Remove DSS Agent software
+  hosts:
+    - servers
+  roles:
+    - remove_etcd_gateway
+
 - name: Remove UFM Software
   hosts: ufm_hosts
   roles:
@@ -23,10 +29,5 @@
   roles:
     - remove_dss_software
 
-- name: Remove DSS Agent software
-  hosts:
-    - servers
-  roles:
-    - remove_etcd_gateway
 
 
