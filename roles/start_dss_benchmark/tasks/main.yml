@@ -119,15 +119,14 @@
       include_role:
         name: remove_packet_pacing
       when: inventory_hostname in groups['servers']
-    
+
     - name: Print failed Generate lines
       debug:
         msg: "{{ bench_benchmark.stderr }}"
-      when: 
+      when:
        - inventory_hostname in groups['clients']
       run_once: true
-      
-    
+
     - name: Fail
       fail:
         msg: |

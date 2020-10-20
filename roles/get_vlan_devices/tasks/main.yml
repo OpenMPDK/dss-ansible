@@ -12,7 +12,7 @@
 - name: Append device to vlan_device_list
   set_fact:
     vlan_device_list: "{{ vlan_device_list | default([]) + [ device ] }}"
-  with_nested: 
+  with_nested:
     - "{{ vlan_list }}"
     - "{{ mellanox_ports }}"
   loop_control:
