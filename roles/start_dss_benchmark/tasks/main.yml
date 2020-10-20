@@ -124,7 +124,7 @@
       debug:
         msg: "{{ bench_benchmark.stderr }}"
       when:
-       - inventory_hostname in groups['clients']
+        - inventory_hostname in groups['clients']
       run_once: true
 
     - name: Fail
