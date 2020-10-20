@@ -41,3 +41,9 @@
     state: directory
     mode: 0755
   become: true
+
+- name: Create conf dir
+  file:
+    path: "{{ dss_target_conf_dir }}"
+    state: directory
+  become: true

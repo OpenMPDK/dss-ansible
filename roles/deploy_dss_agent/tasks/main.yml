@@ -10,7 +10,7 @@
 - name: Create agent configuration file
   become: yes
   blockinfile:
-    path: "{{ nkv_agent_config_file_dir }}/agent.conf"
+    path: "{{ dss_agent_config_file_dir }}/agent.conf"
     create: yes
     mode: 0755
     block: |

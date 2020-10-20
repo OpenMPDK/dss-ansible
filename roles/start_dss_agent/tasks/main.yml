@@ -32,16 +32,16 @@
     state: directory
     path: "{{ item }}"
     mode: 0755
-   loop:
+  loop:
     - "{{ start_dss_agent_temp_dir }}"
 
 - name: Copy DSS Agent RPM
+  become: yes
   copy:
     src: "{{ item.path }}"
     dest: "{{ start_dss_agent_temp_dir }}"
-  loop:
-    - "{{ dss_agent_rpm.files }}"
-  loop_contorl:
+  loop: "{{ dss_agent_rpm.files }}"
+  loop_control:
     label: "{{ item.path }}"
 
 - name: Install DSS Agent RPM
