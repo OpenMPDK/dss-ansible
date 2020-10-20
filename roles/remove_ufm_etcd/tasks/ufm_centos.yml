@@ -8,6 +8,6 @@
 
 - name: Remove UFM Packages (yum)
   yum:
-    name: "{{ ufm_install_packages + [ 'etcd'] }}"
+    name: "{{ ufm_install_packages + [ 'etcd' ] }}"
     state: absent
   become: yes
