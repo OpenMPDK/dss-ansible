@@ -9,7 +9,7 @@
           {% for tcp_ip in hostvars[server].tcp_vlan_ip_list -%}
               {% if groups['clients'][client_index.value] is defined -%}
                 {% if groups['clients'][client_index.value] == inventory_hostname -%}
-                  http://{{ tcp_ip }}:{{minio_port}}
+                  http://{{ tcp_ip }}:{{ minio_port }}
                 {%- endif -%}
               {% if client_index.update({ 'value': client_index.value + 1 }) %}{% endif -%}
               {% endif -%}

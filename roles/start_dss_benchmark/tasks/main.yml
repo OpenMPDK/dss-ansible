@@ -30,7 +30,7 @@
           {% for tcp_ip in hostvars[server].tcp_vlan_ip_list -%}
               {% if groups['clients'][client_index.value] is defined %}
       "{{ start_dss_benchmark_dest_dir }}/scripts/check_bucket.py
-      --server {{ tcp_ip }}:{{minio_port}}
+      --server {{ tcp_ip }}:{{ minio_port }}
       --access-key {{ minio_access_key }}
       --secret-key {{ minio_secret_key }}
       --bucket {{ benchmark_bucket_prefix }}{{ client_index.value + 1 }}

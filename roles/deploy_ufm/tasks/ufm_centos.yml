@@ -4,6 +4,7 @@
   copy:
     src: "{{ item }}"
     dest: "{{ ufm_devtest_staging_dir }}"
+    mode: 0644
   loop:
     - "{{ ufm_rpm.files[0].path }}"
     - "{{ ufmbroker_rpm.files[0].path }}"

@@ -42,4 +42,5 @@
   copy:
     content: "{{ dss_target_configure.stdout }}"
     dest: "{{ start_dss_target_dest_dir }}/bin/dss_target.out"
+    mode: 0644
   become: true

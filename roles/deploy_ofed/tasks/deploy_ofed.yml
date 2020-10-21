@@ -30,11 +30,13 @@
   file:
     path: "{{ deploy_ofed_staging_dir }}"
     state: directory
+    mode: 0754
 
 - name: Unarchive OFED tgz
   unarchive:
     src: "{{ ofed_url }}"
     dest: "{{ deploy_ofed_staging_dir }}"
+    mode: 0754
     remote_src: true
 
 - name: Install OFED
