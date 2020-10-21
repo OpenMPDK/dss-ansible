@@ -47,5 +47,6 @@
     extra_opts: [--strip-components=1]
     owner: root
     group: root
+    mode: 0555
   when: create_host_dir.changed
   become: true

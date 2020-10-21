@@ -9,11 +9,13 @@
   file:
     path: "{{ connectx6_staging_dir }}"
     state: directory
+    mode: 0644
 
 - name: Download ConnectX-6 firmware for adapter {{ mlx_ibdev }}
   unarchive:
     src: "{{ fw_url }}"
     dest: "{{ connectx6_staging_dir }}"
+    mode: 0644
     remote_src: true
 
 - name: Upgrade ConnectX-6 firmware for adapter {{ mlx_ibdev }}

@@ -11,4 +11,3 @@
     - deploy_dss_benchmark
     - deploy_dss_minio
     - configure_mc_alias
-  

@@ -38,6 +38,7 @@
     extra_opts: [--strip-components=2]
     owner: root
     group: root
+    mode: 0555
   when: create_benchmark_dir.changed
   become: true
 
@@ -51,6 +52,7 @@
       - '*/ustat'
     owner: root
     group: root
+    mode: 0555
   when: create_benchmark_dir.changed
   become: true
 
@@ -67,6 +69,7 @@
   file:
     path: "{{ deploy_dss_benchmark_log_dir }}"
     state: directory
+    mode: 0644
   become: true
 
 - name: Deploy SimpleHTTPServer service file on master

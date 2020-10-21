@@ -4,7 +4,7 @@
   command: >
       {{ test_nkv_test_cli_dir }}/dss_host.py
       verify_nkv_cli
-      -c n{{ ansible_loop.index}}
+      -c n{{ ansible_loop.index }}
       -a {{ vlan.ip_prefix }}
       -m {{ vlan.numa }}
       -o {{ operation }}

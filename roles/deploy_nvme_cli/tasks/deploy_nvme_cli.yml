@@ -18,11 +18,13 @@
   file:
     path: "{{ deploy_nvme_cli_staging_dir }}"
     state: directory
+    mode: 0754
 
 - name: Download nvme-cli source
   unarchive:
     src: "{{ deploy_nvme_cli_url }}"
     dest: "{{ deploy_nvme_cli_staging_dir }}"
+    mode: 0754
     remote_src: true
     extra_opts: [--strip-components=1]
 

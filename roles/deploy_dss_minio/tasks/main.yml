@@ -30,6 +30,7 @@
     dest: "{{ deploy_dss_minio_dest_dir }}"
     owner: root
     group: root
+    mode: 0555
   when: create_minio_dir.changed
   become: true
 
@@ -45,4 +46,5 @@
   file:
     path: "{{ deploy_dss_minio_log_dir }}"
     state: directory
+    mode: 0644
   become: true

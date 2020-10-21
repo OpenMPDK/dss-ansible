@@ -4,6 +4,7 @@
   template:
     src: ufm_etcd.service.j2
     dest: "{{ ufm_etcd_service_file }}"
+    mode: 0644
   register: service_file
   become: true
 

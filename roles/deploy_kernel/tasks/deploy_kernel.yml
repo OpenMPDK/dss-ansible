@@ -4,11 +4,13 @@
   file:
     path: "{{ deploy_kernel_staging_dir }}"
     state: directory
+    mode: 0644
 
 - name: Copy Kernel RPMs
   copy:
     src: "{{ item.path }}"
     dest: "{{ deploy_kernel_staging_dir }}"
+    mode: 0644
   loop: "{{ kernel_rpms.files }}"
   loop_control:
     label: "{{ item.path | basename }}"
