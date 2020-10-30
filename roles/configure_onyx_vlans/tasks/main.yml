@@ -1,25 +1,20 @@
 ---
 
-- name: Find a host that has a defined vlan_mac_list
+- name: Find a host that has a defined combined_interface_switch_vlan_map
   set_fact:
-    vlan_mac_list: "{{ hostvars[host]['vlan_mac_list'] }}"
+    combined_interface_switch_vlan_map: "{{ hostvars[host]['combined_interface_switch_vlan_map'] }}"
   loop: "{{ groups['clients'] + groups['servers'] }}"
   loop_control:
     loop_var: host
   when:
-    - hostvars[host]['vlan_mac_list'] is defined
-    - vlan_mac_list is not defined
+    - hostvars[host]['combined_interface_switch_vlan_map'] is defined
+    - combined_interface_switch_vlan_map is not defined
 
-- name: Assert vlan_mac_list is defined
+- name: Assert combined_interface_switch_vlan_map is defined
   assert:
-    that: vlan_mac_list is defined
+    that: combined_interface_switch_vlan_map is defined
     fail_msg: Unable to obtain a list of MAC addresses from hosts. Check for playbook failures.
     quiet: true
-
-- name: Query lldp remote
-  onyx_command:
-    commands: show lldp remote
-  register: lldp_list
 
 - name: Enable PFC
   onyx_config:
@@ -36,12 +31,52 @@
       - "dcb priority-flow-control priority {{ item }} enable"
   loop: "{{ pfc_prio_list | unique }}"
 
-- name: Configure VLANs
-  include_tasks: configure_vlan.yml
-  vars:
+- name: Configure TCP VLANs
+  onyx_vlan:
     vlan_id: "{{ item.id }}"
-    vlan_prefix: "{{ item.prefix }}"
-    mac_addresses: "{{ item.mac_list }}"
-  loop: "{{ vlan_mac_list }}"
+    name: "TCP_vlan{{ item.id }}"
+  loop: "{{ tcp_vlans }}"
   loop_control:
-    label: "{{ vlan_id }}"
+    label: "{{ item.id }}"
+
+- name: Configure RoCEv2 VLANs
+  onyx_vlan:
+    vlan_id: "{{ item.id }}"
+    name: "RoCE_vlan{{ item.id }}"
+  loop: "{{ rocev2_vlans }}"
+  loop_control:
+    label: "{{ item.id }}"
+
+- name: Configure interfaces
+  onyx_config:
+    lines:
+      - "interface ethernet {{ link.switch_port }} switchport mode hybrid"
+      - "interface ethernet {{ link.switch_port }} switchport hybrid allowed-vlan add {{ link.vlan_id }}"
+      - "interface ethernet {{ link.switch_port }} qos trust L2"
+      - "interface ethernet {{ link.switch_port }} traffic-class 3 congestion-control ecn minimum-absolute 150 maximum-absolute 1500"
+    save: true
+  loop: "{{ combined_interface_switch_vlan_map }}"
+  loop_control:
+    loop_var: link
+    label: "Eth{{ link.switch_port }}, VLAN ID {{ link.vlan_id }}"
+  when: link.switch_name == inventory_hostname
+
+- name: Enable PFC
+  onyx_pfc_interface:
+    name: "Eth{{ link.switch_port }}"
+    state: enabled
+  loop: "{{ combined_interface_switch_vlan_map }}"
+  loop_control:
+    loop_var: link
+    label: "Eth{{ link.switch_port }}, VLAN ID {{ link.vlan_id }}"
+  when: link.switch_name == inventory_hostname
+
+- name: Configure MTU
+  onyx_interface:
+    name: "Eth{{ link.switch_port }}"
+    mtu: "{{ mtu_size }}"
+  loop: "{{ combined_interface_switch_vlan_map }}"
+  loop_control:
+    loop_var: link
+    label: "Eth{{ link.switch_port }}, VLAN ID {{ link.vlan_id }}"
+  when: link.switch_name == inventory_hostname
