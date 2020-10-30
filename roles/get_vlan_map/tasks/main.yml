@@ -5,7 +5,7 @@
     interface_switch_map: >-
       {{ interface_switch_map | default([]) }}
       {%- for switch in groups['onyx'] -%}
-        {%- for onyx_interface in hostvars[switch]['lldp_interfaces'] -%}
+        {%- for onyx_interface in hostvars[switch]['lldp_interfaces'] | selectattr('system_name', 'search', inventory_hostname_short) | list -%}
           {%- for interface_name in ansible_interfaces | sort -%}
             {%- set host_interface = hostvars[inventory_hostname]['ansible_' + interface_name] -%}
             {%- if (host_interface.macaddress is defined) and (host_interface.pciid is defined) -%}
@@ -83,3 +83,7 @@
   loop_control:
     loop_var: host
   run_once: true
+
+- name: debug interface_switch_vlan_map
+  debug:
+    var: interface_switch_vlan_map
