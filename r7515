@@ -9,7 +9,7 @@ msl-dsma-dev07.msl.lab num_vlans_per_port=2 last_octet=25
 msl-dsma-dev08.msl.lab num_vlans_per_port=2 last_octet=26
 
 [onyx]
-leaf-r1109.msl.lab tcp_vlan_id_list=[41,42] rocev2_vlan_id_list=[31,32]
+leaf-r1109.msl.lab
 
 [servers:vars]
 ansible_user=ansible
@@ -25,3 +25,5 @@ rocev2_vlan_id_list=[]
 [onyx:vars]
 ansible_user=msl-ssg
 ansible_ssh_pass=msl-ssg
+tcp_vlan_id_list=[41,42]
+rocev2_vlan_id_list=[31,32]
