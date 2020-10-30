@@ -1,0 +1,25 @@
+[servers]
+msl-ssg-da[26:29].msl.lab
+
+[clients]
+msl-ssg-dl[01:16].msl.lab
+
+[onyx]
+msl-ssg-mlnx2g01.msl.lab tcp_vlan_id_list=[] rocev2_vlan_id_list=[31,32] ansible_host=10.1.51.74
+msl-ssg-mlnx2g02.msl.lab tcp_vlan_id_list=[41] rocev2_vlan_id_list=[] ansible_host=10.1.51.95
+msl-ssg-mlnx2g03.msl.lab tcp_vlan_id_list=[42] rocev2_vlan_id_list=[] ansible_host=10.1.51.154
+
+[servers:vars]
+tcp_vlan_id_list=[41,42]
+rocev2_vlan_id_list=[31,32]
+ansible_user=ansible
+
+[clients:vars]
+tcp_vlan_id_list=[41,42]
+rocev2_vlan_id_list=[]
+ansible_user=ansible
+last_octet_offset=200
+
+[onyx:vars]
+ansible_user=admin
+ansible_ssh_pass=msl-ssg
