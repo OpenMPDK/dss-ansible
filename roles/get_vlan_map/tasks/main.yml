@@ -1,0 +1,85 @@
+---
+
+- name: Set interface_switch_map var
+  set_fact:
+    interface_switch_map: >-
+      {{ interface_switch_map | default([]) }}
+      {%- for switch in groups['onyx'] -%}
+        {%- for onyx_interface in hostvars[switch]['lldp_interfaces'] -%}
+          {%- for interface_name in ansible_interfaces | sort -%}
+            {%- set host_interface = hostvars[inventory_hostname]['ansible_' + interface_name] -%}
+            {%- if (host_interface.macaddress is defined) and (host_interface.pciid is defined) -%}
+              {%- if host_interface.macaddress == onyx_interface.device_id -%}
+                + {{
+                  [{
+                    'local_interface': interface_name,
+                    'switch_name': switch,
+                    'switch_port': onyx_interface.local_interface,
+                    'pciid': host_interface.pciid
+                  }]
+                }}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endfor -%}
+      {%- endfor -%}
+
+- name: Assert number of links is greater than or equal to number of VLANs on switch
+  assert:
+    that: (num_links | int) * (num_vlans_per_port | int) >= num_vlans | int
+    fail_msg: "Number of links times vlans_per_port: {{ (num_links | int) * (num_vlans_per_port | int) }} must be greater than or equal to number of vlans: {{ num_vlans }}"
+    success_msg: "Number of links times vlans_per_port: {{ (num_links | int) * (num_vlans_per_port | int) }} is greater than or equal to number of vlans: {{ num_vlans }}"
+  loop: "{{ groups['onyx'] }}"
+  loop_control:
+    loop_var: switch
+  when: host_vlan_id_list | intersect(switch_vlan_id_list) | length > 0
+  vars:
+    host_vlan_id_list: "{{ (tcp_vlan_id_list | list) | union(rocev2_vlan_id_list | list) }}"
+    switch_vlan_id_list: "{{ hostvars[switch]['tcp_vlan_id_list'] | union(hostvars[switch]['rocev2_vlan_id_list']) }}"
+    num_vlans: "{{ host_vlan_id_list | intersect(switch_vlan_id_list) | count }}"
+    num_links: "{{ interface_switch_map | selectattr('switch_name', 'equalto', switch) | list | count }}"
+
+- name: Set interface_switch_vlan_map
+  set_fact:
+    interface_switch_vlan_map: |
+      {{ interface_switch_vlan_map | default([]) }}
+      {%- for switch in groups['onyx'] -%}
+        {%- set tcp_vlan_intersect_list = hostvars[switch]['tcp_vlan_id_list'] | intersect(tcp_vlan_id_list) -%}
+        {%- set rocev2_vlan_intersect_list = hostvars[switch]['rocev2_vlan_id_list'] | intersect(rocev2_vlan_id_list) -%}
+        {%- set num_tcp_vlans = tcp_vlan_intersect_list | length -%}
+        {%- set num_rocev2_vlans = rocev2_vlan_intersect_list | length -%}
+        {%- set max_vlan_index = [num_tcp_vlans, num_rocev2_vlans] | max -%}
+        {%- set interleaved_vlan_list = [] -%}
+        {%- for vlan_num in range(max_vlan_index) -%}
+          {%- if rocev2_vlan_intersect_list[vlan_num] is defined -%}
+            {%- if interleaved_vlan_list.append(rocev2_vlan_intersect_list[vlan_num]) %}{% endif -%}
+          {%- endif -%}
+          {%- if tcp_vlan_intersect_list[vlan_num] is defined -%}
+            {%- if interleaved_vlan_list.append(tcp_vlan_intersect_list[vlan_num]) %}{% endif -%}
+          {%- endif -%}
+        {%- endfor -%}
+        {%- set link_count = [] -%}
+        {%- for link in interface_switch_map | selectattr('switch_name', 'equalto', switch) | list | sort(attribute='pciid') -%}
+          {%- for sub_port in range(num_vlans_per_port) -%}
+            {%- if interleaved_vlan_list[link_count | length] is defined -%}
+              + {{
+                [{
+                  'local_interface': link.local_interface,
+                  'switch_name': switch,
+                  'switch_port': link.switch_port,
+                  'vlan_id': interleaved_vlan_list[link_count | length]
+                }]
+              }}
+              {%- set link_count = link_count.append(1) -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endfor -%}
+      {%- endfor -%}
+
+- name: Set combined_interface_switch_vlan_map
+  set_fact:
+    combined_interface_switch_vlan_map: "{{ combined_interface_switch_vlan_map | default([]) }} + {{ hostvars[host].interface_switch_vlan_map }}"
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    loop_var: host
+  run_once: true
