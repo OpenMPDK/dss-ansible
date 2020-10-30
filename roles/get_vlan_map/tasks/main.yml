@@ -83,7 +83,3 @@
   loop_control:
     loop_var: host
   run_once: true
-
-- name: debug interface_switch_vlan_map
-  debug:
-    var: interface_switch_vlan_map
