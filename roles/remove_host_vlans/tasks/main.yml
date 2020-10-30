@@ -1,37 +1,26 @@
 ---
 
-- name: Get list of Mellanox ports
+- name: Get VLAN map
   include_role:
-    name: get_mlnx_ports
-  when: mellanox_ports is not defined
+    name: get_vlan_map
+  when: interface_switch_vlan_map is not defined
 
-- name: Find existing vlan configuration for each adapter
-  find:
-    paths: /etc/sysconfig/network-scripts/
-    use_regex: true
-    patterns: "ifcfg-{{ item.netdev }}\\.[\\d]+"
-  register: configured_vlan_files
-  loop: "{{ mellanox_ports }}"
-  loop_control:
-    label: "{{ item.netdev }}"
-
-- name: Define configured_vlans variable
-  set_fact:
-    configured_vlans: "{{ configured_vlans | default([]) }} + {{ item.files | map(attribute='path') | list }}"
-  loop: "{{ configured_vlan_files.results  }}"
-  loop_control:
-    label: "{{ item.item.netdev }}"
-  when: item.files | length > 0
-
-- name: Remove existing configured VLANs
+- name: Remove existing VLAN configurations
   file:
-    path: "{{ item }}"
+    path: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}"
     state: absent
-  loop: "{{ configured_vlans }}"
+  loop: "{{ ansible_interfaces }}"
+  vars:
+    interface_re: '([^.]+)\.(.+)'
+    parent_interface: "{{ item | regex_search(interface_re, '\\1') | first }}"
+    found_vlan: "{{ item | regex_search(interface_re, '\\2') | first }}"
+    matching_interface_list: "{{ interface_switch_vlan_map | selectattr('local_interface', 'equalto', parent_interface) | list }}"
+  when:
+    - item is regex(interface_re)
+    - matching_interface_list | length > 0
   notify:
     - Restart network service
     - Reload facts
-  when: configured_vlans is defined
   become: true
 
 - meta: flush_handlers

@@ -1,12 +1,22 @@
 ---
 
+- name: Get Onyx LLDP tables
+  hosts: onyx
+  connection: network_cli
+  gather_facts: false
+  become: true
+  become_method: enable
+  vars:
+    ansible_network_os: onyx
+  roles:
+    - get_onyx_lldp
+
 - name: Remove ConnectX VLANs
   hosts:
     - servers
     - clients
   roles:
-    - remove_connectx_vlans
-    - get_connectx_mac_list
+    - remove_host_vlans
 
 - name: Remove Onyx allowed VLANs
   hosts: onyx
