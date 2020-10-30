@@ -2,18 +2,23 @@
 r6525-cluster-node[1:4].msl.lab
 
 [clients]
-msl-ssg-dl[09:14].msl.lab
-msl-ssg-da[24:25].msl.lab
+msl-ssg-dl[01:16].msl.lab
 
 [onyx]
-10.1.51.74
+msl-ssg-mlnx2g01.msl.lab tcp_vlan_id_list=[] rocev2_vlan_id_list=[31,32] ansible_host=10.1.51.74
+msl-ssg-mlnx2g02.msl.lab tcp_vlan_id_list=[41] rocev2_vlan_id_list=[] ansible_host=10.1.51.95
+msl-ssg-mlnx2g03.msl.lab tcp_vlan_id_list=[42] rocev2_vlan_id_list=[] ansible_host=10.1.51.154
 
 [servers:vars]
 ansible_user=ansible
+tcp_vlan_id_list=[41,42]
+rocev2_vlan_id_list=[31,32]
 
 [clients:vars]
 ansible_user=ansible
 last_octet_offset=200
+tcp_vlan_id_list=[41,42]
+rocev2_vlan_id_list=[]
 
 [onyx:vars]
 ansible_user=admin

@@ -3,17 +3,24 @@ msl-dpe-da1.msl.lab
 msl-dpe-da[8:10].msl.lab
 
 [clients]
-msl-ssg-dl[01:08].msl.lab
+msl-ssg-sk01.msl.lab num_vlans_per_port=1 last_octet=31
+msl-ssg-si03.msl.lab num_vlans_per_port=2
+msl-dsma-dev07.msl.lab num_vlans_per_port=2 last_octet=25
+msl-dsma-dev08.msl.lab num_vlans_per_port=2 last_octet=26
 
 [onyx]
-10.1.51.128
+leaf-r1109.msl.lab tcp_vlan_id_list=[41,42] rocev2_vlan_id_list=[31,32]
 
 [servers:vars]
 ansible_user=ansible
+tcp_vlan_id_list=[41,42]
+rocev2_vlan_id_list=[31,32]
 
 [clients:vars]
 ansible_user=ansible
-last_octet_offset=200
+#last_octet_offset=200
+tcp_vlan_id_list=[41,42]
+rocev2_vlan_id_list=[]
 
 [onyx:vars]
 ansible_user=msl-ssg
