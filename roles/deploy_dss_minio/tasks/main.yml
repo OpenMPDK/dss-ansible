@@ -20,7 +20,7 @@
   file:
     path: "{{ deploy_dss_minio_dest_dir }}"
     state: directory
-    mode: 0555
+    mode: 0755
   register: create_minio_dir
   become: true
 
@@ -46,5 +46,5 @@
   file:
     path: "{{ deploy_dss_minio_log_dir }}"
     state: directory
-    mode: 0644
+    mode: 0755
   become: true

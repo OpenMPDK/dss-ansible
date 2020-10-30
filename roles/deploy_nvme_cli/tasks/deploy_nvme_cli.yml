@@ -18,7 +18,7 @@
   file:
     path: "{{ deploy_nvme_cli_staging_dir }}"
     state: directory
-    mode: 0754
+    mode: 0755
 
 - name: Download nvme-cli source
   unarchive:
