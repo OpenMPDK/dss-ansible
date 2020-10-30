@@ -49,8 +49,9 @@
     - Reload facts
   become: true
 
-- name: Get IP address last octet for ConnectX Devices
-  include_tasks: get_last_octet.yml
+- name: Get last octet of IP addresses for high-speed interfaces
+  include_role:
+    name: get_last_octet.yml
 
 - name: Configure ConnectX adapters
   template:
