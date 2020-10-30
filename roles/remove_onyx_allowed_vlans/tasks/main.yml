@@ -1,41 +1,28 @@
 ---
 
-- name: Find a host that has a defined vlan_mac_list
+- name: Find a host that has a defined combined_interface_switch_vlan_map
   set_fact:
-    combined_connectx_mac_list: "{{ hostvars[host]['combined_connectx_mac_list'] }}"
+    combined_interface_switch_vlan_map: "{{ hostvars[host]['combined_interface_switch_vlan_map'] }}"
   loop: "{{ groups['clients'] + groups['servers'] }}"
   loop_control:
     loop_var: host
-  when: hostvars[host]['combined_connectx_mac_list'] is defined
+  when:
+    - hostvars[host]['combined_interface_switch_vlan_map'] is defined
+    - combined_interface_switch_vlan_map is not defined
 
-- name: Query lldp remote
-  onyx_command:
-    commands: show lldp remote
-  register: lldp_list
-
-- name: Assert MAC addresses found in switch lldp list
+- name: Assert combined_interface_switch_vlan_map is defined
   assert:
-    that: lldp_list.stdout.0 is search(mac_address)
-    fail_msg: "MAC address not found in switch lldp remote. Ensure lldpad is configured on all hosts"
-    success_msg: "Found MAC address"
-  loop: "{{ combined_connectx_mac_list }}"
-  loop_control:
-    loop_var: mac_address
-
-- name: Set interfaces
-  set_fact:
-    interfaces: "{{ interfaces | default([]) + [ lldp_list.stdout.0 | regex_search(lldp_regex, '\\1') | first ] }}"
-  loop: "{{ combined_connectx_mac_list }}"
-  loop_control:
-    loop_var: mac_address
-  vars:
-    lldp_regex: "Eth([^ ]+) +{{ mac_address }}"
+    that: combined_interface_switch_vlan_map is defined
+    fail_msg: Unable to obtain a list of MAC addresses from hosts. Check for playbook failures.
+    quiet: true
 
 - name: Set switchport mode access
   onyx_config:
     lines:
-      - "interface ethernet {{ interface }} switchport mode access"
+      - "interface ethernet {{ link.switch_port }} switchport mode access"
     save: true
-  loop: "{{ interfaces }}"
+  loop: "{{ combined_interface_switch_vlan_map }}"
   loop_control:
-    loop_var: interface
+    loop_var: link
+    label: "Eth{{ link.switch_port }}, VLAN ID {{ link.vlan_id }}"
+  when: link.switch_name == inventory_hostname

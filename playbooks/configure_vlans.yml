@@ -1,14 +1,24 @@
 ---
 
-- name: Configure ConnectX VLANs
+- name: Get Onyx LLDP tables
+  hosts: onyx
+  connection: network_cli
+  gather_facts: false
+  become: true
+  become_method: enable
+  vars:
+    ansible_network_os: onyx
+  roles:
+    - get_onyx_lldp
+
+- name: Configure host VLANs
   hosts:
     - servers
     - clients
   roles:
-    - configure_connectx_network
+    - configure_host_vlans
     - configure_dcqcn
     - remove_packet_pacing
-    - get_vlan_mac_list
 
 - name: Configure Onyx VLANs
   hosts: onyx

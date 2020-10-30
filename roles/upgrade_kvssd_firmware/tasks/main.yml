@@ -25,7 +25,7 @@
   file:
     path: "{{ upgrade_kvssd_firmware_staging_dir }}"
     state: directory
-    mode: 0644
+    mode: 0755
   when: kvssd_upgrade_list is defined
 
 - name: Copy KVSSD firmware

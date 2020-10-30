@@ -9,7 +9,7 @@
   file:
     path: "{{ connectx6_staging_dir }}"
     state: directory
-    mode: 0644
+    mode: 0755
 
 - name: Download ConnectX-6 firmware for adapter {{ mlx_ibdev }}
   unarchive:

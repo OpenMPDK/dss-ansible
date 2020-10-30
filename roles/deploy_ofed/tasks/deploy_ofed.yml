@@ -30,7 +30,7 @@
   file:
     path: "{{ deploy_ofed_staging_dir }}"
     state: directory
-    mode: 0754
+    mode: 0755
 
 - name: Unarchive OFED tgz
   unarchive:

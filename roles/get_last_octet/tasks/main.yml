@@ -12,7 +12,7 @@
     - short_hostname | regex_search(octet_regex,'\\1') | first | int >= 1
     - short_hostname | regex_search(octet_regex,'\\1') | first | int <= 255
 
-- name: Get list of last_octet amongst all hosts
+- name: Set last_octet_list
   set_fact:
     last_octet_list: "{{ last_octet_list | default([]) + [ hostvars[item].last_octet | int ] }}"
   loop: "{{ ansible_play_hosts }}"
@@ -32,7 +32,7 @@
   loop_control:
     extended: true
 
-- name: Get final list of last_octet amongst all hosts
+- name: Set final_last_octet_list
   set_fact:
     final_last_octet_list: "{{ final_last_octet_list | default([]) + [ hostvars[item].last_octet | int ] }}"
   loop: "{{ ansible_play_hosts }}"
@@ -46,6 +46,10 @@
       - last_octet | int >= 1
       - last_octet | int <= 255
       - final_last_octet_list | count == ansible_play_hosts | count
-      - final_last_octet_list | count == last_octet_list | unique | count
-    fail_msg: "Invalid last_octet: {{ last_octet }}"
+      - final_last_octet_list | count == final_last_octet_list | unique | count
+    fail_msg: |
+      Invalid last_octet: {{ last_octet }}
+      final_last_octet_list | count : {{ final_last_octet_list | count }}
+      ansible_play_hosts | count : {{ ansible_play_hosts | count }}
+      last_octet_list | unique | count : {{ final_last_octet_list | unique | count }}
     success_msg: "Valid last_octet: {{ last_octet }}"

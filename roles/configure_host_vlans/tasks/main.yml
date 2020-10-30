@@ -1,0 +1,94 @@
+---
+
+- name: Assert VLAN lists are defined
+  assert:
+    that:
+      - tcp_vlan_id_list is defined
+      - rocev2_vlan_id_list is defined
+      - (tcp_vlan_id_list + rocev2_vlan_id_list) | length > 0
+    fail_msg: "{{ inventory_hostname }} needs 'tcp_vlan_id_list' and 'rocev2_vlan_id_list' variables defined"
+
+- name: Get VLAN map
+  include_role:
+    name: get_vlan_map
+  when: interface_switch_vlan_map is not defined
+
+- name: Find ifcfg files
+  find:
+    paths: /etc/sysconfig/network-scripts/
+    patterns: "ifcfg-*"
+  register: ifcfg_files
+
+- name: Remove ifcfg files for adapters that do not exist
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ ifcfg_files.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+  vars:
+    ifcfg_re: 'ifcfg-(.+)'
+    interface: "{{ item.path | regex_search(ifcfg_re, '\\1') | first }}"
+  when: interface not in ansible_interfaces
+  notify:
+    - Restart network service
+    - Reload facts
+  become: true
+
+- name: Configure parent adapters
+  template:
+    src: parent_ifcfg.j2
+    dest: "/etc/sysconfig/network-scripts/ifcfg-{{ device.local_interface }}"
+    mode: 0644
+  loop: "{{ interface_switch_vlan_map }}"
+  loop_control:
+    label: "{{ device.local_interface }}"
+    loop_var: device
+  notify:
+    - Restart network service
+    - Reload facts
+  become: true
+
+- name: Get last octet of IP addresses for high-speed interfaces
+  include_role:
+    name: get_last_octet
+
+- name: Configure ConnectX adapters
+  template:
+    src: vlan_ifcfg.j2
+    dest: "/etc/sysconfig/network-scripts/ifcfg-{{ device }}.{{ vlan.id }}"
+    mode: 0644
+  loop: "{{ interface_switch_vlan_map }}"
+  loop_control:
+    label: "{{ device }}: {{ item.vlan_id }}"
+  vars:
+    device: "{{ item.local_interface }}"
+    vlan: "{{ (rocev2_vlans + tcp_vlans) | selectattr('id', 'equalto', item.vlan_id) | list | first }}"
+    priority: "{{ (vlan.id | string)[0] }}"
+    vlan_device: "ansible_{{ device }}"
+    mac_address: "{{ lookup('vars', vlan_device).macaddress }}"
+  notify:
+    - Restart network service
+    - Reload facts
+  become: true
+
+- name: Remove non-conforming VLAN configurations
+  file:
+    path: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}"
+    state: absent
+  loop: "{{ ansible_interfaces }}"
+  vars:
+    interface_re: '([^.]+)\.(.+)'
+    parent_interface: "{{ item | regex_search(interface_re, '\\1') | first }}"
+    found_vlan: "{{ item | regex_search(interface_re, '\\2') | first }}"
+    matching_interface_list: "{{ interface_switch_vlan_map | selectattr('local_interface', 'equalto', parent_interface) | list }}"
+  when:
+    - item is regex(interface_re)
+    - matching_interface_list | length > 0
+    - matching_interface_list | selectattr('vlan_id', 'equalto', found_vlan | int) | list | count == 0
+  notify:
+    - Restart network service
+    - Reload facts
+  become: true
+
+- meta: flush_handlers

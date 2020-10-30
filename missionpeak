@@ -8,6 +8,8 @@ msl-ssg-mlnx01.msl.lab
 
 [servers:vars]
 ansible_user=ansible
+tcp_vlan_id_list=[41,42]
+rocev2_vlan_id_list=[31,32]
 
 [clients:vars]
 ansible_user=ansible
@@ -16,3 +18,5 @@ last_octet_offset=100
 [onyx:vars]
 ansible_user=admin
 ansible_ssh_pass=msl-ssg
+tcp_vlan_id_list=[41,42]
+rocev2_vlan_id_list=[31,32]

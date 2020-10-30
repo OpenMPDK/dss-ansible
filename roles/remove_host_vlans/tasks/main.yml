@@ -1,0 +1,26 @@
+---
+
+- name: Get VLAN map
+  include_role:
+    name: get_vlan_map
+  when: interface_switch_vlan_map is not defined
+
+- name: Remove existing VLAN configurations
+  file:
+    path: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}"
+    state: absent
+  loop: "{{ ansible_interfaces }}"
+  vars:
+    interface_re: '([^.]+)\.(.+)'
+    parent_interface: "{{ item | regex_search(interface_re, '\\1') | first }}"
+    found_vlan: "{{ item | regex_search(interface_re, '\\2') | first }}"
+    matching_interface_list: "{{ interface_switch_vlan_map | selectattr('local_interface', 'equalto', parent_interface) | list }}"
+  when:
+    - item is regex(interface_re)
+    - matching_interface_list | length > 0
+  notify:
+    - Restart network service
+    - Reload facts
+  become: true
+
+- meta: flush_handlers
