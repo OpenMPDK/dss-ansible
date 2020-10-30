@@ -51,7 +51,7 @@
 
 - name: Get last octet of IP addresses for high-speed interfaces
   include_role:
-    name: get_last_octet.yml
+    name: get_last_octet
 
 - name: Configure ConnectX adapters
   template:
