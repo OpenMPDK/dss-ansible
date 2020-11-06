@@ -1,7 +1,6 @@
 ---
 
 - name: Install etcd-gateway.service systemd unit
-  become: yes
   blockinfile:
     path: /etc/systemd/system/etcd-gateway.service
     create: yes
@@ -21,8 +20,12 @@
 
       [Install]
       WantedBy=multi-user.target
+  when: groups[etcd_master_group_name] is defined
+  register: etcd_gateway_service
+  become: true
 
 - name: systemctl daemon-reload
-  become: yes
   systemd:
-    daemon_reload: yes
+    daemon_reload: true
+  when: etcd_gateway_service.changed
+  become: true
