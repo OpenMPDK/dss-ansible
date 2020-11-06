@@ -10,4 +10,4 @@
     state: stopped
     name: etcd-gateway
   when: "'etcd-gateway.service' in ansible_facts.services"
-  become: yes
+  become: true
