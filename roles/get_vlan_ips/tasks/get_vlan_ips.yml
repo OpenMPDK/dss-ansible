@@ -8,7 +8,7 @@
     loop_var: mellanox_device
     label: "{{ mellanox_device.netdev }}.{{ vlan.id }}"
   vars:
-    vlan_device: "ansible_{{ mellanox_device.netdev }}.{{ vlan.id }}"
+    vlan_device: "ansible_{{ mellanox_device.netdev | replace('-', '_') }}.{{ vlan.id }}"
   when:
     - mellanox_device.status == 'Up'
     - lookup('vars', vlan_device, default='') != ''

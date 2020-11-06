@@ -13,7 +13,7 @@
   set_fact:
     server_linkspeed: "{{ hostvars[server_hostname][server_ans_netdev]['speed'] }}"
   vars:
-    server_ans_netdev: "ansible_{{ client_netdev }}"
+    server_ans_netdev: "ansible_{{ client_netdev | replace('-', '_') }}"
 
 - name: Start ib_read_bw client for server {{ server_hostname }} VLAN_ID {{ server_vlan_id }}
   command: |
@@ -48,7 +48,7 @@
     bw_peak: "{{ ib_results.stdout | regex_search(result_regex, '\\3') | first }}"
     bw_avg: "{{ ib_results.stdout | regex_search(result_regex, '\\4') | first }}"
     msg_rate: "{{ ib_results.stdout | regex_search(result_regex, '\\5') | first }}"
-    client_ans_netdev: "ansible_{{ client_netdev }}"
+    client_ans_netdev: "ansible_{{ client_netdev | replace('-', '_') }}"
     client_linkspeed: "{{ lookup('vars', client_ans_netdev).speed }}"
   when:
     - inventory_hostname == client_hostname

@@ -65,7 +65,7 @@
     device: "{{ item.local_interface }}"
     vlan: "{{ (rocev2_vlans + tcp_vlans) | selectattr('id', 'equalto', item.vlan_id) | list | first }}"
     priority: "{{ (vlan.id | string)[0] }}"
-    vlan_device: "ansible_{{ device }}"
+    vlan_device: "ansible_{{ device | replace('-', '_') }}"
     mac_address: "{{ lookup('vars', vlan_device).macaddress }}"
   notify:
     - Restart network service
