@@ -1,4 +1,5 @@
 ---
+
 - name: Get service facts
   service_facts:
   when: ansible_facts.services is not defined
