@@ -16,22 +16,6 @@
   run_once: true
   register: ufmbroker_rpm
 
-- name: Get name of local Fabric Mananger DEB
-  find:
-    path: "{{ inventory_dir }}/artifacts/"
-    patterns: 'ufm_*.deb'
-  delegate_to: localhost
-  run_once: true
-  register: ufm_deb
-
-- name: Get name of local Fabric Mananger Broker DEB
-  find:
-    path: "{{ inventory_dir }}/artifacts/"
-    patterns: 'ufmbroker_*.deb'
-  delegate_to: localhost
-  run_once: true
-  register: ufmbroker_deb
-
 - name: Fail if packages are missing
   fail:
     msg: "Missing UFM packages. Check `{{ inventory_dir }}/artifacts` and execute build scripts if empty."
@@ -44,10 +28,6 @@
 - name: Install FabricManager - CentOS
   import_tasks: ufm_centos.yml
   when: ansible_os_family == 'RedHat'
-
-- name: Install FabricManager - Ubuntu
-  import_tasks: ufm_ubuntu.yml
-  when: ansible_distribution == 'Ubuntu'
 
 - name: Start Services
   systemd:
@@ -71,7 +51,7 @@
     - ufm_msg_broker.service
     - ufm_api
 
-- name: Delete RPM/DEB files from Fabric Mananger Hosts
+- name: Delete RPM files from Fabric Mananger Hosts
   file:
     path: "{{ ufm_devtest_staging_dir }}/{{ item | basename }}"
     state: absent
