@@ -2,7 +2,7 @@
 - name: Get service facts
   service_facts:
   when: ansible_facts.services is not defined
-
+  
 - name: Stop etcd-gateway systemd unit
   systemd:
     enabled: no
