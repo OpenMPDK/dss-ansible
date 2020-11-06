@@ -13,7 +13,7 @@
     loop_var: mellanox_device
     label: "{{ mellanox_device.netdev }}"
   vars:
-    vlan_device: "ansible_{{ mellanox_device.netdev }}"
+    vlan_device: "ansible_{{ mellanox_device.netdev | replace('-', '_') }}"
     mac_address: "{{ lookup('vars', vlan_device).macaddress }}"
   when:
     - mellanox_device.status == 'Up'

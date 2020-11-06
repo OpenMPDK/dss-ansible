@@ -10,7 +10,7 @@
     adapter_re: '^[\d]+: ([^@:]+)@([^:]+):'
     vlan_dev: "{{ adapter | regex_search(adapter_re, '\\1') | first }}"
     phys_dev: "{{ adapter | regex_search(adapter_re, '\\2') | first }}"
-    lookup_dev: "ansible_{{ vlan_dev }}"
+    lookup_dev: "ansible_{{ vlan_dev | replace('-', '_') }}"
   when:
     - adapter is regex(adapter_re)
     - lookup('vars', lookup_dev).ipv4.address is defined

@@ -20,7 +20,7 @@
   vars:
     vlan: "{{ item.0 }}"
     mellanox_device: "{{ item.1 }}"
-    vlan_device: "ansible_{{ mellanox_device.netdev }}.{{ vlan.id }}"
+    vlan_device: "ansible_{{ mellanox_device.netdev | replace('-', '_') }}.{{ vlan.id }}"
     device: >-
       {%- if device_type == 'netdev' -%}
         {{ mellanox_device.netdev }}
