@@ -4,5 +4,6 @@
   hosts: servers
   roles:
     - stop_dss_minio
+    - stop_etcd_gateway
     - stop_dss_host
     - stop_dss_target

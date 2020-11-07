@@ -19,6 +19,7 @@
   hosts: servers
   roles:
     - deploy_dss_target
+    - deploy_etcd_gateway
     - deploy_dss_host
     - get_tcp_vlan_ip_list
 

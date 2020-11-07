@@ -1,0 +1,12 @@
+---
+
+- name: Gather service facts
+  service_facts:
+
+- name: Start etcd-gateway systemd unit
+  become: yes
+  systemd:
+    enabled: yes
+    state: started
+    name: etcd-gateway
+  when: "'etcd-gateway' in ansible_facts.services"
