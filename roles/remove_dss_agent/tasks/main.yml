@@ -17,4 +17,4 @@
     - /var/log/nkv-agent
     - /etc/nkv-agent
     - /tmp/dss
-    - /tmp/subsystem_store.py
+    - /var/log/dss/subsystem_store.log

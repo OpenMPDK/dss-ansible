@@ -1,14 +1,13 @@
 ---
 
 - name: create dirs...
-  become: yes
   file:
     state: directory
     path: "{{ dss_agent_config_file_dir }}"
     mode: 0755
+  become: true
 
 - name: Create agent configuration file
-  become: yes
   blockinfile:
     path: "{{ dss_agent_config_file_dir }}/agent.conf"
     create: yes
@@ -44,5 +43,6 @@
       size_rotation=enabled
       file_size=2000000
       file_cnt=10
+  become: true
 
 

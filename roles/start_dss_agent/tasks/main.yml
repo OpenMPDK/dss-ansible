@@ -1,7 +1,6 @@
 ---
 
 - name: Install DSS Agent runtime dependencies
-  become: true
   package:
     name: "{{ item }}"
     state: present
@@ -9,6 +8,7 @@
     - python-pip
     - fping
   when: ansible_os_family == 'RedHat' and inventory_hostname in groups['servers']
+  become: true
 
 - name: Identify agent RPM
   find:
@@ -19,40 +19,40 @@
   register: dss_agent_rpm
 
 - name: Make sure to empty the destination location
-  become: yes
   file:
     name: "{{ item }}"
     state: absent
   loop:
     - "{{ start_dss_agent_temp_dir }}"
+  become: true
 
 - name: Create RPM staging directory
-  become: yes
   file:
     state: directory
     path: "{{ item }}"
     mode: 0755
   loop:
     - "{{ start_dss_agent_temp_dir }}"
+  become: true
 
 - name: Copy DSS Agent RPM
-  become: yes
   copy:
     src: "{{ item.path }}"
     dest: "{{ start_dss_agent_temp_dir }}"
   loop: "{{ dss_agent_rpm.files }}"
   loop_control:
     label: "{{ item.path }}"
+  become: true
 
 - name: Install DSS Agent RPM
   yum:
     name: "{{ start_dss_agent_temp_dir }}/{{ item.path | basename }}"
   register: agent_rpm_status
-  become: yes
   loop: "{{ dss_agent_rpm.files }}"
   loop_control:
     label: "{{ start_dss_agent_temp_dir }}/{{ item.path | basename }}"
   failed_when: "'scriptlet failure' in agent_rpm_status.msg"
+  become: true
 
 - name: Check that target services are running
   service:
@@ -77,6 +77,7 @@
   register: subsys_store
   failed_when: false
   no_log: True
+  become: true
 
 - name: Check status of subsystem configure script
   fail: msg="Error in configuring subsystem. Check subsystem_add.log"

@@ -2,4 +2,4 @@ deploy_dss_agent_path: "{{ inventory_dir }}/artifacts"
 start_dss_agent_temp_dir: /tmp/dss
 dss_agent_dir: /usr/share/nkvagent
 kv_cli_location: "{{ dss_agent_dir }}/kv-cli.py"
-dss_subsystem_script_temp_file: /tmp/subsystem_store.py
+dss_subsystem_script_temp_file: "{{ start_dss_agent_temp_dir }}/subsystem_store.py"

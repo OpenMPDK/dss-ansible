@@ -7,7 +7,7 @@ kv_cli_path = "{{ kv_cli_location }}"
 default_config_file = "{{ dss_target_conf_file }}"
 
 logging.basicConfig(format='%(asctime)s %(message)s',
-                    filename="/var/log/dss/vm_subsystem_add.log",
+                    filename="/var/log/dss/subsystem_store.log",
                     level=logging.DEBUG)
 
 
@@ -36,7 +36,7 @@ def exec_cmd(cmd):
 
 if __name__ == '__main__':
 
-    logging.info("==============Start vm_subsystem_add============")
+    logging.info("==============Start subsystem_store============")
 
     parser = argparse.ArgumentParser(description=
              "This program parses input nvmf.in.conf file, and adds subsystems to etcd3.",
@@ -65,5 +65,5 @@ if __name__ == '__main__':
         if out:
             logging.info("Output: %s", out)
 
-    logging.info("==============End vm_subsystem_add===============")
+    logging.info("==============End subsystem_store===============")
 
