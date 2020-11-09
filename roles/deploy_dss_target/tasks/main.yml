@@ -46,4 +46,5 @@
   file:
     path: "{{ dss_target_conf_dir }}"
     state: directory
+    mode: 0755
   become: true

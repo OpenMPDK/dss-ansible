@@ -39,6 +39,7 @@
   copy:
     src: "{{ item.path }}"
     dest: "{{ start_dss_agent_temp_dir }}"
+    mode: 0755
   loop: "{{ dss_agent_rpm.files }}"
   loop_control:
     label: "{{ item.path }}"
@@ -67,6 +68,7 @@
   template:
     src: subsystem_store.py
     dest: "{{ dss_subsystem_script_temp_file }}"
+    mode: 0755
 
 - name: Wait for agent to gather all data on Target
   # May need to tune this
