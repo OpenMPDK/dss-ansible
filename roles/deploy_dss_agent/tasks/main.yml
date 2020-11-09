@@ -44,5 +44,3 @@
       file_size=2000000
       file_cnt=10
   become: true
-
-

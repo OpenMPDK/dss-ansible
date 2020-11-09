@@ -1,3 +1,5 @@
+---
+
 deploy_dss_agent_path: "{{ inventory_dir }}/artifacts"
 start_dss_agent_temp_dir: /tmp/dss
 dss_agent_dir: /usr/share/nkvagent
