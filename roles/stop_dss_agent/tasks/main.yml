@@ -1,8 +1,12 @@
 ---
 
+- name: Gather service facts
+  service_facts:
+
 - name: stop dss agent kv_cli systemd unit
   systemd:
     enabled: no
     state: stopped
     name: kv_cli
+  when: "'kv_cli.service' in ansible_facts.services"
   become: true
