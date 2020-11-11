@@ -21,7 +21,7 @@
   run_once: true
 
 - name: Execute minio_cleanup.sh
-  command: "./minio_cleanup.sh {{ nvme_subsys_list | min }} {{ nvme_subsys_list | max }}"
+  command: "sh ./minio_cleanup.sh {{ nvme_subsys_list | min }} {{ nvme_subsys_list | max }}"
   args:
     chdir: "{{ cleanup_dss_minio_bin_dir }}"
   when: nvme_subsys_list is defined
