@@ -1,0 +1,35 @@
+---
+
+- name: Identify agent RPM
+  find:
+    path: "{{ deploy_dss_agent_path }}"
+    patterns: 'nkvagent-*.rpm'
+  delegate_to: localhost
+  run_once: true
+  register: dss_agent_rpm
+
+- name: Check if agent RPM is installed
+  shell: "rpm -qa | grep {{ item.path | basename | splitext | first }}"
+  args:
+    warn: false
+  register: agent_rpm_qa
+  loop: "{{ dss_agent_rpm.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+  changed_when: false
+  failed_when: false
+
+- name: Set agent_rpms_missing var
+  set_fact:
+    agent_rpms_missing: >-
+      {%- set count = [] -%}
+      {%- for file in agent_rpm_qa.results -%}
+        {%- if file.rc != 0 -%}
+          {%- if count.append(1) %}{% endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ count | length }}
+
+- name: Install agent
+  include_tasks: install_dss_agent.yml
+  when: agent_rpms_missing | int > 0

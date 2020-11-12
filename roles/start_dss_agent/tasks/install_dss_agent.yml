@@ -10,14 +10,6 @@
   when: ansible_os_family == 'RedHat' and inventory_hostname in groups['servers']
   become: true
 
-- name: Identify agent RPM
-  find:
-    path: "{{ deploy_dss_agent_path }}"
-    patterns: 'nkvagent-*.rpm'
-  delegate_to: localhost
-  run_once: true
-  register: dss_agent_rpm
-
 - name: Make sure to empty the destination location
   file:
     name: "{{ item }}"
@@ -33,7 +25,6 @@
     mode: 0755
   loop:
     - "{{ start_dss_agent_temp_dir }}"
-  become: true
 
 - name: Copy DSS Agent RPM
   copy:
@@ -43,7 +34,6 @@
   loop: "{{ dss_agent_rpm.files }}"
   loop_control:
     label: "{{ item.path }}"
-  become: true
 
 - name: Install DSS Agent RPM
   yum:
@@ -69,18 +59,24 @@
     src: subsystem_store.py
     dest: "{{ dss_subsystem_script_temp_file }}"
     mode: 0755
+  when: agent_rpm_status.changed
 
 - name: Wait for agent to gather all data on Target
   # May need to tune this
   wait_for: timeout=70
+  when: agent_rpm_status.changed
 
 - name: Creating subsystem based on CONFIG file.
   command: "python {{ dss_subsystem_script_temp_file }}"
   register: subsys_store
   failed_when: false
-  no_log: True
+  no_log: true
+  when: agent_rpm_status.changed
   become: true
 
 - name: Check status of subsystem configure script
-  fail: msg="Error in configuring subsystem. Check subsystem_add.log"
-  when: subsys_store.rc != 0
+  fail:
+    msg: "Error in configuring subsystem. Check {{ start_dss_agent_subsystem_log }}"
+  when: 
+    - subsys_store is not skipped
+    - subsys_store.rc != 0
