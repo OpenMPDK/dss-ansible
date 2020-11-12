@@ -77,6 +77,6 @@
 - name: Check status of subsystem configure script
   fail:
     msg: "Error in configuring subsystem. Check {{ start_dss_agent_subsystem_log }}"
-  when: 
+  when:
     - subsys_store is not skipped
     - subsys_store.rc != 0
