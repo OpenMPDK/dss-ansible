@@ -37,6 +37,16 @@ benchmark_duration: 120s
 benchmark_concurrent: 1
 benchmark_cap: 0GiB
 
+# Stats Server
+# Graphite server
+stats_proto: graphite
+stats_ip: 0.0.0.0
+stats_port: 2004
+
+# target
+dss_target_conf_dir: /etc/dss
+dss_target_conf_file: "{{ dss_target_conf_dir }}/nvmf.in.conf"
+
 rocev2_vlans:
   - id: 31
     ip_prefix: 201.0.0

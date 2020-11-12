@@ -12,8 +12,8 @@
 
 - name: Stat nvmf.in.conf
   stat:
-    path: "{{ start_dss_target_dest_dir }}/bin/nvmf.in.conf"
-  register: nvmf_ini_conf
+    path: "{{ dss_target_conf_dir }}/nvmf.in.conf"
+  register: nvmf_in_conf
 
 - name: Stat dss_target.out
   stat:
@@ -31,7 +31,7 @@
 - name: Run dss_target.py script
   include_tasks: dss_target.yml
   when: >
-    not nvmf_ini_conf.stat.exists or
+    not nvmf_in_conf.stat.exists or
     not dss_target_out.stat.exists or
     spdk_status.stdout is not search('uio_pci_generic')
 
@@ -49,7 +49,7 @@
 
 - name: Set hardcoded nvmf_tgt command if more than 128 cores
   set_fact:
-    nvmf_tgt_cmd: "./nvmf_tgt -c nvmf.in.conf -r /var/run/spdk.sock -m 0xffffffff0000000000000000ffffffff"
+    nvmf_tgt_cmd: "./nvmf_tgt -c {{ dss_target_conf_dir }}/nvmf.in.conf -r /var/run/spdk.sock -m 0xffffffff0000000000000000ffffffff"
   when: ansible_processor_vcpus > 128
 
 - name: Find running target process

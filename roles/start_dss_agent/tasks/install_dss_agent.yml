@@ -1,0 +1,82 @@
+---
+
+- name: Install DSS Agent runtime dependencies
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - python-pip
+    - fping
+  when: ansible_os_family == 'RedHat' and inventory_hostname in groups['servers']
+  become: true
+
+- name: Make sure to empty the destination location
+  file:
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ start_dss_agent_temp_dir }}"
+  become: true
+
+- name: Create RPM staging directory
+  file:
+    state: directory
+    path: "{{ item }}"
+    mode: 0755
+  loop:
+    - "{{ start_dss_agent_temp_dir }}"
+
+- name: Copy DSS Agent RPM
+  copy:
+    src: "{{ item.path }}"
+    dest: "{{ start_dss_agent_temp_dir }}"
+    mode: 0755
+  loop: "{{ dss_agent_rpm.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Install DSS Agent RPM
+  yum:
+    name: "{{ start_dss_agent_temp_dir }}/{{ item.path | basename }}"
+  register: agent_rpm_status
+  loop: "{{ dss_agent_rpm.files }}"
+  loop_control:
+    label: "{{ start_dss_agent_temp_dir }}/{{ item.path | basename }}"
+  failed_when: "'scriptlet failure' in agent_rpm_status.msg"
+  become: true
+
+- name: Check that target services are running
+  service:
+    name: "{{ item }}"
+  register: service_status
+  failed_when: service_status.status.ActiveState != "active"
+  loop:
+    - nvmf_tgt
+    - kv_cli
+
+- name: Copy python script to remote location
+  template:
+    src: subsystem_store.py
+    dest: "{{ dss_subsystem_script_temp_file }}"
+    mode: 0755
+  when: agent_rpm_status.changed
+
+- name: Wait for agent to gather all data on Target
+  # May need to tune this
+  wait_for: timeout=70
+  when: agent_rpm_status.changed
+
+- name: Creating subsystem based on CONFIG file.
+  command: "python {{ dss_subsystem_script_temp_file }}"
+  register: subsys_store
+  failed_when: false
+  no_log: true
+  when: agent_rpm_status.changed
+  become: true
+
+- name: Check status of subsystem configure script
+  fail:
+    msg: "Error in configuring subsystem. Check {{ start_dss_agent_subsystem_log }}"
+  when:
+    - subsys_store is not skipped
+    - subsys_store.rc != 0

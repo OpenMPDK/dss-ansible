@@ -1,5 +1,6 @@
 ---
 
+dss_target_conf_dir: /etc/dss
 num_subsystems: 1
 rocev2_vlans:
   - id: 31

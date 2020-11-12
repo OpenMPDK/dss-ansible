@@ -5,5 +5,6 @@
   roles:
     - start_dss_target
     - start_etcd_gateway
+    - start_dss_agent
     - start_dss_host
     - start_dss_minio

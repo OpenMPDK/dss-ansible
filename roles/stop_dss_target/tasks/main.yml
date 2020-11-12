@@ -25,6 +25,27 @@
   changed_when: false
   failed_when: false
 
+- name: Kill -9 stuck target processes
+  command: "kill -9 {{ pid }}"
+  register: kill9_nvmf
+  changed_when: kill_nvmf9.stdout is not search('No such process')
+  failed_when: true
+  loop: "{{ nvmf_ps.stdout_lines }}"
+  loop_control:
+    loop_var: pid
+  when: postnvmf_ps.failed
+  become: true
+
+- name: Wait for nvmf_tgt process to stop after kill -9
+  command: "pgrep reactor_"
+  register: postnvmf_ps9
+  until: postnvmf_ps9.rc != 0
+  retries: 120
+  delay: 5
+  changed_when: false
+  failed_when: false
+  when: postnvmf_ps.failed
+
 - name: Stat DSS Target path
   stat:
     path: "{{ stop_dss_target_bin_dir }}"
@@ -44,7 +65,7 @@
     path: "{{ stop_dss_target_bin_dir }}/{{ dss_file }}"
     state: absent
   loop:
-    - "{{ stop_dss_target_bin_dir }}/nvmf.in.conf"
+    - "{{ dss_target_conf_file }}"
     - "{{ stop_dss_target_bin_dir }}/dss_target.out"
   loop_control:
     loop_var: dss_file

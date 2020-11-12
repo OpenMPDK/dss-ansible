@@ -1,0 +1,5 @@
+---
+
+- name: Start DSS Agent if ufm_hosts group exists
+  include_tasks: check_dss_agent.yml
+  when: groups['ufm_hosts'] is defined

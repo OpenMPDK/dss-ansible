@@ -1,0 +1,20 @@
+---
+
+- name: Remove agent related packages
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - nkvagent
+
+- name: Delete log files and config directories
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /var/log/nkv-agent
+    - /etc/nkv-agent
+    - /tmp/dss
+    - /var/log/dss/subsystem_store.log
