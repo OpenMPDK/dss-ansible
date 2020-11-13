@@ -3,7 +3,7 @@
 - name: Test Ping RoCEv2
   hosts: servers
   vars:
-    vlan_list: "{{ rocev2_vlans }}"
+    test_vlans: rocev2
   roles:
     - test_network_ping
 
@@ -12,7 +12,7 @@
     - clients
     - servers
   vars:
-    vlan_list: "{{ tcp_vlans }}"
+    test_vlans: tcp
   roles:
     - test_network_ping
 

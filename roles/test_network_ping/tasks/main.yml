@@ -1,8 +1,43 @@
 ---
 
+- name: Assert test_vlans defined
+  assert:
+    that:
+      - test_vlans is defined
+      - (test_vlans == "tcp") or (test_vlans == "rocev2")
+
+- name: Set selected_vlans var for rocev2
+  set_fact:
+    selected_vlans: "{{ rocev2_vlans }}"
+  when: test_vlans == "rocev2"
+
+- name: Set selected_vlans var for tcp
+  set_fact:
+    selected_vlans: "{{ tcp_vlans }}"
+  when: test_vlans == "tcp"
+
 - name: Get IP Addresses
   include_role:
     name: get_vlan_ips
+  vars:
+    vlan_list: "{{ selected_vlans }}"
+  when:
+    - tcp_ip_list is not defined
+    - rocev2_ip_list is not defined
+
+- name: Set vlan_ip_list for rocev2 if user-defined
+  set_fact:
+    vlan_ip_list: "{{ rocev2_ip_list }}"
+  when:
+    - rocev2_ip_list is defined
+    - test_vlans == "rocev2"
+
+- name: Set vlan_ip_list for tcp if user-defined
+  set_fact:
+    vlan_ip_list: "{{ tcp_ip_list }}"
+  when:
+    - tcp_ip_list is defined
+    - test_vlans == "tcp"
 
 - name: Initialized combined_vlan_ip_list
   set_fact:
