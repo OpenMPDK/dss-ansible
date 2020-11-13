@@ -1,0 +1,64 @@
+---
+
+- name: Get RoCEv2 IP Address
+  include_role:
+    name: get_vlan_ips
+  vars:
+    vlan_list: "{{ rocev2_vlans }}"
+
+- name: Query show_gids
+  command: show_gids
+  changed_when: false
+  register: gids_list
+  become: true
+
+- name: Set ib_devices var
+  set_fact:
+    ib_devices: "{{ ib_devices | default([]) +
+                [{ 'ibdev': ibdev,
+                  'gid_index': gid_index,
+                  'ip_address': ip_address,
+                  'netdev': netdev,
+                  'vlan_id': vlan_id,
+                  'hostname': inventory_hostname }] }}"
+  loop: "{{ vlan_ip_list }}"
+  loop_control:
+    loop_var: ip_address
+  vars:
+    gid_regex: '(mlx\d_\d)\t+\d+\t+([\d]+)\t+[^ ]+\t+{{ ip_address }} +\t+v2\t+([^.]+\.([\d]+))'
+    ibdev: "{{ gids_list.stdout | regex_search(gid_regex, '\\1') | first }}"
+    gid_index: "{{ gids_list.stdout | regex_search(gid_regex, '\\2') | first }}"
+    netdev: "{{ gids_list.stdout | regex_search(gid_regex, '\\3') | first }}"
+    vlan_id: "{{ gids_list.stdout | regex_search(gid_regex, '\\4') | first }}"
+
+- name: Set combined_ib_devices var
+  set_fact:
+    combined_ib_devices: "{{ combined_ib_devices | default([]) }} + {{ hostvars[host].ib_devices }}"
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    loop_var: host
+  run_once: true
+
+- name: Iterate ib_read_bw servers
+  include_tasks: ib_read_bw_server.yml
+  vars:
+    server_vlan_id: "{{ server_ib_device.vlan_id }}"
+    server_ibdev: "{{ server_ib_device.ibdev }}"
+    server_netdev: "{{ server_ib_device.netdev }}"
+    server_hostname: "{{ server_ib_device.hostname }}"
+    server_ip_address: "{{ server_ib_device.ip_address }}"
+    server_gid_index: "{{ server_ib_device.gid_index }}"
+  loop: "{{ combined_ib_devices }}"
+  loop_control:
+    loop_var: server_ib_device
+
+- name: Assert ib_read_bw bw_avg is > 90% of link speed
+  assert:
+    that: ib_result.bw_avg | float >= min_linkspeed | float
+    fail_msg: "Expected bw: {{ min_linkspeed }}. Actual bw: {{ ib_result.bw_avg }}"
+    quiet: true
+  vars:
+    min_linkspeed: "{{ [ib_result.server_linkspeed, ib_result.client_linkspeed] | min | float * 0.0009 }}"
+  loop: "{{ combined_ib_results }}"
+  loop_control:
+    loop_var: ib_result
