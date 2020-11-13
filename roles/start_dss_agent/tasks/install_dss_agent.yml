@@ -10,7 +10,7 @@
   when: ansible_os_family == 'RedHat' and inventory_hostname in groups['servers']
   become: true
 
-- name: Make sure to empty the destination location
+- name: Remove existing staging directory
   file:
     name: "{{ item }}"
     state: absent
@@ -28,20 +28,14 @@
 
 - name: Copy DSS Agent RPM
   copy:
-    src: "{{ item.path }}"
+    src: "{{ agent_rpm_file }}"
     dest: "{{ start_dss_agent_temp_dir }}"
     mode: 0755
-  loop: "{{ dss_agent_rpm.files }}"
-  loop_control:
-    label: "{{ item.path }}"
 
 - name: Install DSS Agent RPM
   yum:
-    name: "{{ start_dss_agent_temp_dir }}/{{ item.path | basename }}"
+    name: "{{ start_dss_agent_temp_dir }}/{{ agent_rpm_file | basename }}"
   register: agent_rpm_status
-  loop: "{{ dss_agent_rpm.files }}"
-  loop_control:
-    label: "{{ start_dss_agent_temp_dir }}/{{ item.path | basename }}"
   failed_when: "'scriptlet failure' in agent_rpm_status.msg"
   become: true
 
