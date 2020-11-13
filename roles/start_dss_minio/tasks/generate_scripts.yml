@@ -6,8 +6,8 @@
                   [{'tcp_ip': tcp_ip,
                     'rocev2_ip': rocev2_ip }] }}"
   with_together:
-    - "{{ tcp_vlan_ip_list }}"
-    - "{{ rocev2_vlan_ip_list }}"
+    - "{{ tcp_ip_list }}"
+    - "{{ rocev2_ip_list }}"
   vars:
     tcp_ip: "{{ item.0 }}"
     rocev2_ip: "{{ item.1 }}"
@@ -90,9 +90,9 @@
 
 - name: Set numactl string and generate minio scripts
   include_tasks: set_numa_gen_script.yml
-  loop: "{{ range(0, tcp_vlan_ip_list | length) | list }}"
+  loop: "{{ range(0, tcp_ip_list | length) | list }}"
   loop_control:
     loop_var: vlan_pair
     extended: true
   vars:
-    tcp_ip: "{{ tcp_vlan_ip_list[ansible_loop.index0] }}"
+    tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"

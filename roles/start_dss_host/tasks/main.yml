@@ -37,35 +37,41 @@
   when: missing_drivers is defined
   become: true
 
-- name: Get RoCEv2 IP Addresses of first VLAN in list
+- name: Get RoCEv2 IP Addresses
   include_role:
     name: get_vlan_ips
   vars:
-    vlan_list: "[{{ rocev2_vlans | first }}]"
+    vlan_list: "{{ rocev2_vlans }}"
+  when: rocev2_ip_list is not defined
+
+- name: Set rocev2_ip_list and first_rocev2_ip_list var if IP's auto-discovered
+  set_fact:
+    rocev2_ip_list: "{{ vlan_ip_list }}"
+    first_rocev2_ip_list: "{{ vlan_ip_list | first }}"
+  when: rocev2_ip_list is not defined
+
+- name: Set first_rocev2_ip_list var if IP's user-defined
+  set_fact:
+    first_rocev2_ip_list: "{{ rocev2_ip_list | first }}"
+  when: rocev2_ip_list is defined
 
 - name: Assert that at least one RoCEv2 IP is present
   assert:
-    that: vlan_ip_list is defined
+    that: first_rocev2_ip_list is defined
     fail_msg: "No RoCEv2 IPs configured on any Mellanox adapter. Please configure at least one IP to deploy target."
     success_msg: "RoCEv2 IP(s) detected."
 
-- name: Set combined RoCEv2 IP List
+- name: Set first_vlan_ip_list var
   set_fact:
-    first_vlan_ip_list: "{{ first_vlan_ip_list | default([]) + hostvars[host].vlan_ip_list }}"
+    first_vlan_ip_list: "{{ first_vlan_ip_list | default([]) + [hostvars[host].first_rocev2_ip_list] }}"
   loop: "{{ ansible_play_hosts }}"
   loop_control:
     loop_var: host
   run_once: true
 
-- name: Get all RoCEv2 IP Addresses
-  include_role:
-    name: get_vlan_ips
-  vars:
-    vlan_list: "{{ rocev2_vlans }}"
-
-- name: Set combined RoCEv2 IP List
+- name: Set combined_vlan_ip_list var
   set_fact:
-    combined_vlan_ip_list: "{{ combined_vlan_ip_list | default([]) + hostvars[host].vlan_ip_list }}"
+    combined_vlan_ip_list: "{{ combined_vlan_ip_list | default([]) + hostvars[host].rocev2_ip_list }}"
   loop: "{{ ansible_play_hosts }}"
   loop_control:
     loop_var: host
