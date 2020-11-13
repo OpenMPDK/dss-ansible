@@ -6,8 +6,8 @@
     dest: "{{ ufm_devtest_staging_dir }}"
     mode: 0644
   loop:
-    - "{{ ufm_rpm.files[0].path }}"
-    - "{{ ufmbroker_rpm.files[0].path }}"
+    - "{{ ufm_rpm_file }}"
+    - "{{ ufmbroker_rpm_file }}"
   loop_control:
     label: "{{ item }}"
 
@@ -17,8 +17,8 @@
   register: ufm_rpm_status
   become: yes
   loop:
-    - "{{ ufm_rpm.files[0].path }}"
-    - "{{ ufmbroker_rpm.files[0].path }}"
+    - "{{ ufm_rpm_file }}"
+    - "{{ ufmbroker_rpm_file }}"
   loop_control:
     label: "{{ ufm_devtest_staging_dir }}/{{ item | basename }}"
   failed_when: "'scriptlet failure' in ufm_rpm_status.msg"

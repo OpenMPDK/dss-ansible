@@ -25,9 +25,39 @@
     ufm_rpm.files[0].path is undefined or
     ufmbroker_rpm.files[0].path is undefined
 
+- name: Identify newest version of RPMs found
+  set_fact:
+    ufm_rpm_file: "{{ (ufm_rpm.files | sort(attribute='ctime', reverse=true) | first).path }}"
+    ufmbroker_rpm_file: "{{ (ufmbroker_rpm.files | sort(attribute='ctime', reverse=true) | first).path }}"
+  run_once: true
+
+- name: Check if UFM RPMs are installed
+  shell: "rpm -qa | grep {{ item | basename | splitext | first }}"
+  args:
+    warn: false
+  register: ufm_rpm_qa
+  loop:
+    - "{{ ufm_rpm_file }}"
+    - "{{ ufmbroker_rpm_file }}"
+  changed_when: false
+  failed_when: false
+
+- name: Set ufm_rpms_missing var
+  set_fact:
+    ufm_rpms_missing: >-
+      {%- set count = [] -%}
+      {%- for file in ufm_rpm_qa.results -%}
+        {%- if file.rc != 0 -%}
+          {%- if count.append(1) %}{% endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ count | length }}
+
 - name: Install FabricManager - CentOS
   import_tasks: ufm_centos.yml
-  when: ansible_os_family == 'RedHat'
+  when:
+    - ansible_os_family == 'RedHat'
+    - ufm_rpms_missing | int > 0
 
 - name: Start Services
   systemd:
@@ -56,7 +86,7 @@
     path: "{{ ufm_devtest_staging_dir }}/{{ item | basename }}"
     state: absent
   loop:
-    - "{{ ufm_rpm.files[0].path }}"
-    - "{{ ufmbroker_rpm.files[0].path }}"
+    - "{{ ufm_rpm_file }}"
+    - "{{ ufmbroker_rpm_file }}"
   loop_control:
     label: "{{ ufm_devtest_staging_dir }}/{{ item | basename }}"
