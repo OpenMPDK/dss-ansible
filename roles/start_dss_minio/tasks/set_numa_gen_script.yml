@@ -2,12 +2,12 @@
 
 - name: Get matching_device
   set_fact:
-    matching_device: "{{ phys_dev }}"
+    matching_device: "{% if phys_dev != '' %}{{ phys_dev }}{% else %}{{ vlan_dev }}{% endif %}"
   loop: "{{ up_adapters.stdout_lines }}"
   loop_control:
     loop_var: adapter
   vars:
-    adapter_re: '^[\d]+: ([^@:]+)@([^:]+):'
+    adapter_re: '^[\d]+: ([^@:]+)(@([^:]+))?:'
     vlan_dev: "{{ adapter | regex_search(adapter_re, '\\1') | first }}"
     phys_dev: "{{ adapter | regex_search(adapter_re, '\\2') | first }}"
     lookup_dev: "ansible_{{ vlan_dev | replace('-', '_') }}"
@@ -21,11 +21,22 @@
   changed_when: false
   register: device_numa_node
 
-- name: Create minio scripts
+- name: Create distributed minio scripts
   template:
     src: minio_startup.sh.j2
     dest: "{{ start_dss_minio_host_bin_dir }}/minio_startup_{{ tcp_ip }}.sh"
     mode: 0751
   vars:
     numa_node: "{{ device_numa_node.stdout }}"
+  when: combined_vlan_ip_map | length > 1
+  become: true
+
+- name: Create non-distributed minio scripts
+  template:
+    src: single_minio_startup.sh.j2
+    dest: "{{ start_dss_minio_host_bin_dir }}/minio_startup_{{ tcp_ip }}.sh"
+    mode: 0751
+  vars:
+    numa_node: "{{ device_numa_node.stdout }}"
+  when: combined_vlan_ip_map | length == 1
   become: true
