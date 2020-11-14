@@ -33,7 +33,7 @@
   when: >
     not nvmf_in_conf.stat.exists or
     not dss_target_out.stat.exists or
-    spdk_status.stdout is not search('uio_pci_generic')
+    (spdk_status.stdout is not search('uio_pci_generic')) and (spdk_status.stdout is not search('vfio-pci'))
 
 - name: Read dss_target.out
   command: "cat {{ start_dss_target_dest_dir }}/bin/dss_target.out"
@@ -75,7 +75,7 @@
 - name: Assert subsystems initialized
   command: "cat {{ start_dss_target_log_dir }}/nkv-target-dmesg.log"
   changed_when: false
-  failed_when: false
+  #failed_when: false
   register: subsystem_initialized
   vars:
     search_string: Initialized subsystem
