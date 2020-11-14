@@ -63,6 +63,9 @@ tcp_vlans:
     netmask: 255.0.0.0
 
 # UFM Settings
+ufm_redfish_port: 5000
+ufm_haproxy_health_port: 5001
+ufm_zmq_subscriber_port: 6001
 ufm_etcd_client_port: 2379
 ufm_etcd_peer_port: 2380
 ufm_etcd_token: etcd-token
