@@ -17,7 +17,7 @@
 
 - name: Assert benchmark tarball found
   assert:
-    that: target_tgz.files | length > 0
+    that: benchmark_tgz.files | length > 0
     fail_msg: "No benchmark tarball found. Please download tarball to {{ deploy_dss_benchmark_path }}"
 
 - name: Identify target tarball

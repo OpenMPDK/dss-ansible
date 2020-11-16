@@ -18,7 +18,7 @@
 
 - name: Assert minio tarball found
   assert:
-    that: target_tgz.files | length > 0
+    that: minio_tgz.files | length > 0
     fail_msg: "No minio tarball found. Please download tarball to {{ deploy_dss_minio_path }}"
 
 - name: Create minio destination path
