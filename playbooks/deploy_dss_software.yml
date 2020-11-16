@@ -22,7 +22,7 @@
     - deploy_etcd_gateway
     - deploy_dss_agent
     - deploy_dss_host
-    - get_tcp_vlan_ip_list
+    #- get_tcp_vlan_ip_list
 
 - name: Deploy DSS Minio
   hosts:
