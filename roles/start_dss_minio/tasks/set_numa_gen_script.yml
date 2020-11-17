@@ -9,7 +9,7 @@
   vars:
     adapter_re: '^[\d]+: ([^@:]+)(@([^:]+))?:'
     vlan_dev: "{{ adapter | regex_search(adapter_re, '\\1') | first }}"
-    phys_dev: "{{ adapter | regex_search(adapter_re, '\\2') | first }}"
+    phys_dev: "{{ adapter | regex_search(adapter_re, '\\3') | first }}"
     lookup_dev: "ansible_{{ vlan_dev | replace('-', '_') }}"
   when:
     - adapter is regex(adapter_re)
@@ -21,6 +21,14 @@
   changed_when: false
   register: device_numa_node
 
+- name: Set num_tcp_ips var
+  set_fact:
+    num_tcp_ips: "{{ (num_tcp_ips | default(0) | int) + (count_map.tcp | length | int) }}"
+  loop: "{{ combined_vlan_ip_map }}"
+  loop_control:
+    loop_var: count_map
+  run_once: true
+
 - name: Create distributed minio scripts
   template:
     src: minio_startup.sh.j2
@@ -28,7 +36,7 @@
     mode: 0751
   vars:
     numa_node: "{{ device_numa_node.stdout }}"
-  when: combined_vlan_ip_map | length > 1
+  when: num_tcp_ips | int > 1
   become: true
 
 - name: Create non-distributed minio scripts
@@ -38,5 +46,5 @@
     mode: 0751
   vars:
     numa_node: "{{ device_numa_node.stdout }}"
-  when: combined_vlan_ip_map | length == 1
+  when: num_tcp_ips | int == 1
   become: true
