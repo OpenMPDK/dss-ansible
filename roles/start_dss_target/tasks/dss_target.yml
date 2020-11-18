@@ -10,17 +10,23 @@
     name: get_vlan_ips
   vars:
     vlan_list: "{{ rocev2_vlans }}"
+  when: rocev2_ip_list is not defined
+
+- name: Set rocev2_ip_list var if auto-discovered
+  set_fact:
+    rocev2_ip_list: "{{ vlan_ip_list }}"
+  when: rocev2_ip_list is not defined
 
 - name: Assert that at least one RoCEv2 IP is present
   assert:
-    that: vlan_ip_list is defined
+    that: rocev2_ip_list is defined
     fail_msg: "No RoCEv2 IPs configured on any Mellanox adapter. Please configure at least one IP to deploy target."
     success_msg: "RoCEv2 IP(s) detected."
 
 - name: Configure target with dss_target.py
   command: >
       ./dss_target.py configure -c {{ dss_target_conf_file }}
-      -ip_addrs {% for ip in vlan_ip_list %}{{ ip }}{% if not loop.last %} {% endif %}{% endfor %}
+      -ip_addrs {% for ip in rocev2_ip_list %}{{ ip }}{% if not loop.last %} {% endif %}{% endfor %}
       -kv_fw {{ target_fw_version }}
       -kv_ssc {{ num_subsystems }}
   args:

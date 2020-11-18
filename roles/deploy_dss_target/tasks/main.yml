@@ -16,6 +16,11 @@
   run_once: true
   register: target_tgz
 
+- name: Assert target tarball found
+  assert:
+    that: target_tgz.files | length > 0
+    fail_msg: "No target tarball found. Please download tarball to {{ deploy_dss_target_path }}"
+
 - name: Create target destination path
   file:
     path: "{{ deploy_dss_target_dest_dir }}"

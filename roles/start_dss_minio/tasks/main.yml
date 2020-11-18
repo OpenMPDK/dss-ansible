@@ -25,25 +25,29 @@
     name: get_vlan_ips
   vars:
     vlan_list: "{{ rocev2_vlans }}"
+  when: rocev2_ip_list is not defined
 
-- name: Set rocev2_vlan_ip_list var
+- name: Set rocev2_ip_list and tcp_ip_list vars if IP's auto-discovered
   set_fact:
-    rocev2_vlan_ip_list: "{{ vlan_ip_list }}"
+    rocev2_ip_list: "{{ vlan_ip_list }}"
+  when: rocev2_ip_list is not defined
 
 - name: Get all TCP IP Addresses
   include_role:
     name: get_vlan_ips
   vars:
     vlan_list: "{{ tcp_vlans }}"
+  when: tcp_ip_list is not defined
 
-- name: Set tcp_vlan_ip_list var
+- name: Set tcp_ip_list var
   set_fact:
-    tcp_vlan_ip_list: "{{ vlan_ip_list }}"
+    tcp_ip_list: "{{ vlan_ip_list }}"
+  when: tcp_ip_list is not defined
 
 - name: Stat minio startup scripts
   stat:
     path: "{{ start_dss_minio_host_bin_dir }}/minio_startup_{{ ip_address }}.sh"
-  loop: "{{ tcp_vlan_ip_list }}"
+  loop: "{{ tcp_ip_list }}"
   loop_control:
     loop_var: ip_address
   register: minio_script_stat
@@ -61,7 +65,6 @@
 
 - name: Generate minio startup scripts
   include_tasks: generate_scripts.yml
-  when: missing_script is defined
 
 - name: Check for running minio instances
   command: "pgrep -ax minio"
@@ -75,12 +78,16 @@
     {{ start_dss_minio_log_dir }}/nkv-minio_{{ ip_address }}.log 2>&1 &
   args:
     chdir: "{{ start_dss_minio_host_bin_dir }}"
-  loop: "{{ tcp_vlan_ip_list }}"
+  loop: "{{ tcp_ip_list }}"
   loop_control:
     loop_var: ip_address
   vars:
-    server_string: "server --address {{ ip_address }}:{{ minio_port }}"
-  when: server_string not in minio_ps.stdout
+    distributed_string: "server --address {{ ip_address }}:{{ minio_port }}"
+  when: >
+    (combined_vlan_ip_map | length > 1 and
+    distributed_string not in minio_ps.stdout) or
+    (combined_vlan_ip_map | length == 1 and
+    'server' not in minio_ps.stdout)
   become: true
 
 - name: Check for running minio instances post-start
@@ -89,20 +96,21 @@
   changed_when: false
   failed_when: false
 
-- name: Assert minio instances running
+- name: Assert distributed minio instances running
   assert:
     that: server_string in post_minio_ps.stdout
     fail_msg: Minio instance not running
     quiet: true
-  loop: "{{ tcp_vlan_ip_list }}"
+  loop: "{{ tcp_ip_list }}"
   loop_control:
     loop_var: ip_address
   vars:
     server_string: "server --address {{ ip_address }}:{{ minio_port }}"
+  when: combined_vlan_ip_map | length > 1
 
 - name: Assert minio instances online
   command: "cat {{ start_dss_minio_log_dir }}/nkv-minio_{{ ip_address }}.log"
-  loop: "{{ tcp_vlan_ip_list }}"
+  loop: "{{ tcp_ip_list }}"
   changed_when: false
   loop_control:
     loop_var: ip_address

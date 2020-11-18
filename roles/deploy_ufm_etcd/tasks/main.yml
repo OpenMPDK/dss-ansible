@@ -12,15 +12,6 @@
       import_tasks: ports_centos.yml
   when: ansible_os_family == 'RedHat'
 
-- name: Ubuntu specific tasks
-  block:
-    - name: Install dependencies - Ubuntu
-      import_tasks: deps_ubuntu.yml
-
-    - name: Open Ports - Ubuntu
-      import_tasks: ports_ubuntu.yml
-  when: ansible_distribution == 'Ubuntu'
-
 - name: Update pip if package manager version is old
   pip:
     name: pip>=20.0.2
