@@ -1,9 +1,0 @@
----
-
-- name: Deploy softROCE on VMs
-  gather_facts: false
-  hosts:
-    - vms
-  roles:
-    - install_softROCE
-
