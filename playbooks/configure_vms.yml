@@ -1,0 +1,16 @@
+---
+
+- name: Configure VMs
+  hosts:
+    - clients
+    - servers
+  roles:
+    - validate_centos
+    - deploy_kernel
+    - configure_sysctl
+    - configure_firewalld
+    - configure_tuned
+    - deploy_utils
+    - deploy_nvme_cli
+    # Lu's code
+    # - deploy_soft_roce

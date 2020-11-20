@@ -1,0 +1,7 @@
+---
+
+- name: Configure VMs
+  import_playbook: configure_vms.yml
+
+- name: Deploy DSS Software
+  import_playbook: deploy_dss_software.yml
