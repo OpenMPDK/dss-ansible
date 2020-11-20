@@ -12,5 +12,4 @@
     - configure_tuned
     - deploy_utils
     - deploy_nvme_cli
-    # Lu's code
-    # - deploy_soft_roce
+    - deploy_softroce
