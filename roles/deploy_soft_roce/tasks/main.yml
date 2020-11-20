@@ -1,6 +1,6 @@
 ---
 
-- name: Install softROCE dependencies
+- name: Install Soft-RoCE dependencies
   package:
       name: "{{ packages }}"
       state: present
@@ -11,13 +11,13 @@
       - librdmacm-utils
   become: true
 
-- name: Create softROCE service file
+- name: Create Soft-RoCE service file
   blockinfile:
-    path: "{{ install_softROCE_dir }}/softROCE.service"
+    path: /etc/systemd/system/softroce.service
     create: yes
     block: |
       [Unit]
-      Description=Load softROCE
+      Description=Load Soft-RoCE
       After=network.target
 
       [Service]
@@ -28,32 +28,32 @@
       WantedBy=multi-user.target
   become: true
 
-- name: Start and Enable softROCE
+- name: Start and Enable Soft-RoCE
   systemd:
-    name: softROCE.service
+    name: softroce.service
     state: started
     enabled: yes
   become: true
 
-- name: Query SoftROCE Configuration
+- name: Query Soft-RoCE Configuration
   shell: "rxe_cfg status | grep {{ rdma_interface }} | awk '{ print $7 }'"
   changed_when: false
-  register: softROCE_status
+  register: softroce_status
   become: true
 
 - name: Test if configured
   debug:
     msg: "Interface {{ rdma_interface }} is configured"
-  when: softROCE_status.stdout is regex("^rxe[0-9]+")
+  when: softroce_status.stdout is regex("^rxe[0-9]+")
   become: true
 
 - name: Test if not configured
   debug:
     msg: "Interface {{ rdma_interface }} is not configured"
-  when: not softROCE_status.stdout is regex("^rxe[0-9]+")
+  when: not softroce_status.stdout is regex("^rxe[0-9]+")
   become: true
 
-- name: Attach second interface to softROCE
+- name: Attach second interface to Soft-RoCE
   shell: "rxe_cfg add {{ rdma_interface }}"
-  when: not softROCE_status.stdout is regex("^rxe[0-9]+")
+  when: not softroce_status.stdout is regex("^rxe[0-9]+")
   become: true
