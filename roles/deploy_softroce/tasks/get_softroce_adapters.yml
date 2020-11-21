@@ -20,15 +20,20 @@
 
 - name: Get softroce_adapters
   set_fact:
-    softroce_adapters: "{{ softroce_adapters | default([]) + [{% if phys_dev != '' %}{{ phys_dev }}{% else %}{{ vlan_dev }}{% endif %}]"
+    softroce_adapters: "{{ softroce_adapters | default([]) }} +
+      [{% if phys_dev != '' -%}
+        '{{ phys_dev }}'
+      {%- else -%}
+        '{{ vlan_dev }}'
+      {%- endif %}]"
   with_nested:
     - "{{ up_adapters.stdout_lines }}"
     - "{{ softroce_ip_list }}"
   loop_control:
     label: "{{ adapter }}: {{ softroce_ip }}"
   vars:
-    adapter: "{{ index.0 }}"
-    softroce_ip: "{{ index.1 }}"
+    adapter: "{{ item.0 }}"
+    softroce_ip: "{{ item.1 }}"
     adapter_re: '^[\d]+: ([^@:]+)(@([^:]+))?:'
     vlan_dev: "{{ adapter | regex_search(adapter_re, '\\1') | first }}"
     phys_dev: "{{ adapter | regex_search(adapter_re, '\\3') | first }}"
