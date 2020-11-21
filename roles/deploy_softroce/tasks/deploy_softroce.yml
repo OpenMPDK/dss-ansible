@@ -1,11 +1,13 @@
 ---
 
-- name: Assert tcp_ip_list and rocev2_ip_list are defined
-  assert:
-    that:
-      - tcp_ip_list is defined
-      - rocev2_ip_list is defined
-    fail_msg: "Must have `tcp_ip_list` and `rocev2_ip_list` defined for each host"
+- name: Get Soft-RoCE Adapters
+  include_tasks: get_softroce_adapters.yml
+
+- name: debug softroce_adapters
+  debug:
+    var: softroce_adapters
+
+- meta: end_play
 
 - name: Install Soft-RoCE dependencies
   package:

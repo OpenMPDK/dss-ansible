@@ -1,0 +1,39 @@
+---
+
+- name: Assert tcp_ip_list and rocev2_ip_list are defined
+  assert:
+    that:
+      - tcp_ip_list is defined
+      - rocev2_ip_list is defined
+    fail_msg: "Must have `tcp_ip_list` and `rocev2_ip_list` defined for each host"
+
+- name: Set softroce_ip_list
+  set_fact:
+    softroce_ip_list: "{{ (tcp_ip_list + rocev2_ip_list) | unique }}"
+
+- name: Query up adapters
+  shell: "ip address show | grep 'state UP'"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
+  changed_when: false
+  register: up_adapters
+
+- name: Get softroce_adapters
+  set_fact:
+    softroce_adapters: "{{ softroce_adapters | default([]) + [{% if phys_dev != '' %}{{ phys_dev }}{% else %}{{ vlan_dev }}{% endif %}]"
+  with_nested:
+    - "{{ up_adapters.stdout_lines }}"
+    - "{{ softroce_ip_list }}"
+  loop_control:
+    label: "{{ adapter }}: {{ softroce_ip }}"
+  vars:
+    adapter: "{{ index.0 }}"
+    softroce_ip: "{{ index.1 }}"
+    adapter_re: '^[\d]+: ([^@:]+)(@([^:]+))?:'
+    vlan_dev: "{{ adapter | regex_search(adapter_re, '\\1') | first }}"
+    phys_dev: "{{ adapter | regex_search(adapter_re, '\\3') | first }}"
+    lookup_dev: "ansible_{{ vlan_dev | replace('-', '_') }}"
+  when:
+    - adapter is regex(adapter_re)
+    - lookup('vars', lookup_dev).ipv4.address is defined
+    - lookup('vars', lookup_dev).ipv4.address == softroce_ip
