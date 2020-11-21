@@ -53,25 +53,7 @@
     loop_var: softroce_adapter
   become: true
 
-- name: Test if configured
-  debug:
-    msg: "Interface {{ item.softroce_adapter }} is configured"
-  when: item.stdout is regex("^rxe[0-9]+")
-  loop: "{{ softroce_status.results }}"
-  loop_control:
-    label: "{{ item.softroce_adapter }}"
-  become: true
-
-- name: Test if not configured
-  debug:
-    msg: "Interface {{ item.softroce_adapter }} is not configured"
-  when: item.stdout is not regex("^rxe[0-9]+")
-  loop: "{{ softroce_status.results }}"
-  loop_control:
-    label: "{{ item.softroce_adapter }}"
-  become: true
-
-- name: Attach interface to Soft-RoCE
+- name: Attach interfaces to Soft-RoCE
   command: "rxe_cfg add {{ item.softroce_adapter }}"
   when: item.stdout is not regex("^rxe[0-9]+")
   loop: "{{ softroce_status.results }}"
