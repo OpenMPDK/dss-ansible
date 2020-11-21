@@ -8,7 +8,7 @@
       name: "{{ packages }}"
       state: present
   vars:
-      packages:
+    packages:
       - rdma
       - libibverbs-utils
       - librdmacm-utils
