@@ -1,7 +1,6 @@
 ---
 
 - name: Deploy Soft-RoCE on VMs
-  gather_facts: false
   hosts:
     - servers
     - clients
