@@ -1,0 +1,8 @@
+---
+
+- name: Deploy Soft-RoCE on VMs
+  hosts:
+    - servers
+    - clients
+  roles:
+    - deploy_softroce

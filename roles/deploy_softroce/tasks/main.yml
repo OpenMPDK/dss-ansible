@@ -1,0 +1,62 @@
+---
+
+- name: Get Soft-RoCE Adapters
+  include_tasks: get_softroce_adapters.yml
+
+- name: Install Soft-RoCE dependencies
+  package:
+      name: "{{ packages }}"
+      state: present
+  vars:
+    packages:
+      - rdma
+      - libibverbs-utils
+      - librdmacm-utils
+  become: true
+
+- name: Create Soft-RoCE service file
+  blockinfile:
+    path: /etc/systemd/system/softroce.service
+    create: yes
+    block: |
+      [Unit]
+      Description=Load Soft-RoCE
+      After=network.target
+
+      [Service]
+      Type=simple
+      ExecStart=/bin/rxe_cfg start
+
+      [Install]
+      WantedBy=multi-user.target
+  become: true
+
+- name: Check rxe_cfg configuration status
+  command: rxe_cfg
+  register: rxe_cfg_status
+  changed_when: false
+
+- name: Start and Enable Soft-RoCE
+  systemd:
+    name: softroce.service
+    state: started
+    enabled: yes
+  when: "'rdma_rxe module not loaded' in rxe_cfg_status.stdout"
+  become: true
+
+- name: Query Soft-RoCE Configuration
+  shell: "rxe_cfg status | grep {{ softroce_adapter }} | awk '{ print $7 }'"
+  changed_when: false
+  register: softroce_status
+  loop: "{{ softroce_adapters | unique }}"
+  loop_control:
+    loop_var: softroce_adapter
+  become: true
+
+- name: Attach interfaces to Soft-RoCE
+  command: "rxe_cfg add {{ item.softroce_adapter }}"
+  when: item.stdout is not regex("^rxe[0-9]+")
+  loop: "{{ softroce_status.results }}"
+  loop_control:
+    label: "{{ item.softroce_adapter }}"
+  become: true
