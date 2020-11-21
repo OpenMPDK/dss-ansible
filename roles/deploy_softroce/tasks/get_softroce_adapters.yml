@@ -42,3 +42,13 @@
     - adapter is regex(adapter_re)
     - lookup('vars', lookup_dev).ipv4.address is defined
     - lookup('vars', lookup_dev).ipv4.address == softroce_ip
+
+- name: Assert all IPs are configured
+  assert:
+    that: softroce_ip_list | unique | count == softroce_adapters | unique | count
+    fail_msg: |
+      Could not find configured adapters for all IPs. Configure all interfaces with IP addresses.
+      Expected IP addresses:
+      {{ softroce_ip_list | unique }}
+      Found adapters:
+      {{ up_adapters.stdout_lines }}
