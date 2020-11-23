@@ -5,8 +5,8 @@
 
 - name: Install Soft-RoCE dependencies
   package:
-      name: "{{ packages }}"
-      state: present
+    name: "{{ packages }}"
+    state: present
   vars:
     packages:
       - rdma
