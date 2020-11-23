@@ -6,6 +6,7 @@
   loop:
     - tbb-devel
     - libaio-devel
+    - python3
   become: true
 
 - name: Identify target tarball
