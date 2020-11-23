@@ -5,8 +5,8 @@
 
 - name: Install Soft-RoCE dependencies
   package:
-      name: "{{ packages }}"
-      state: present
+    name: "{{ packages }}"
+    state: present
   vars:
     packages:
       - rdma
@@ -29,6 +29,7 @@
 
       [Install]
       WantedBy=multi-user.target
+    mode: 0751
   become: true
 
 - name: Check rxe_cfg configuration status
