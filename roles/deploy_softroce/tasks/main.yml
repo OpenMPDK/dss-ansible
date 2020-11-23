@@ -29,6 +29,7 @@
 
       [Install]
       WantedBy=multi-user.target
+    mode: 0751
   become: true
 
 - name: Check rxe_cfg configuration status
