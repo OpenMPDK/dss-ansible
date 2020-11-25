@@ -36,6 +36,7 @@ benchmark_ustat_profiles: ''
 benchmark_duration: 120s
 benchmark_concurrent: 1
 benchmark_cap: 0GiB
+benchmark_client_start_port: 7000
 
 # Stats Server
 # Graphite server
