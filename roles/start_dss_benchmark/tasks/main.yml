@@ -67,7 +67,10 @@
         --obj-dist-file {{ start_dss_benchmark_dest_dir }}/image.json
         --objects {{ benchmark_objects }}
         --warp-binary {{ start_dss_benchmark_dest_dir }}/warp
+        --access-key {{ minio_access_key }}
+        --secret-key "{{ minio_secret_key }}"
         --output-dir {{ start_dss_benchmark_log_dir }}
+        --client-start-port {{ benchmark_client_start_port }}
       run_once: true
       register: bench_generate
       no_log: true
@@ -98,6 +101,7 @@
         --cap {{ benchmark_cap }}
         --cluster-config {{ start_dss_benchmark_dest_dir }}/cluster.json
         --ustat-binary-path {{ start_dss_benchmark_dest_dir }}/ustat
+        --client-start-port {{ benchmark_client_start_port }}
       run_once: true
       register: bench_benchmark
       no_log: true
