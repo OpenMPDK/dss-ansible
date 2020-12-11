@@ -126,8 +126,29 @@
 
     - name: Print failed Generate lines
       debug:
-        msg: "{{ bench_benchmark.stderr }}"
+        msg: |
+          -- bench.py generate command --
+          {{ bench_generate.cmd | join(' ') }}
+          -- STDERR --
+          {{ bench_generate.stderr }}
       when:
+        - bench_generate is defined
+        - bench_generate.stderr is defined
+        - bench_generate.stderr != ''
+        - inventory_hostname in groups['clients']
+      run_once: true
+
+    - name: Print failed Benchmark lines
+      debug:
+        msg: |
+          -- bench.py benchmark command --
+          {{ bench_benchmark.cmd | join(' ') }}
+          -- STDERR --
+          {{ bench_benchmark.stderr }}
+      when:
+        - bench_benchmark is defined
+        - bench_benchmark.stderr is defined
+        - bench_benchmark.stderr != ''
         - inventory_hostname in groups['clients']
       run_once: true
 
