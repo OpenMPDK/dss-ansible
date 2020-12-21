@@ -25,12 +25,13 @@
 
 - name: Configure target with dss_target.py
   command: >
-      ./dss_target.py configure -c {{ dss_target_conf_file }}
-      -ip_addrs {% for ip in rocev2_ip_list %}{{ ip }}{% if not loop.last %} {% endif %}{% endfor %}
-      -kv_fw {{ target_fw_version }}
-      -kv_ssc {{ num_subsystems }}
-      -2m_pgs {{ num_2mb_hugepages }}
-      -1g_pgs {{ num_1gb_hugepages }}
+      ./dss_target.py configure
+      --config_file {{ dss_target_conf_file }}
+      --ip_addresses {% for ip in rocev2_ip_list %}{{ ip }}{% if not loop.last %} {% endif %}{% endfor %}
+      --kv_firmware {{ target_fw_version }}
+      --kv_ssc {{ num_subsystems }}
+      {{ hugepages_string }}
+      --mode {{ dss_target_mode }}
   args:
     chdir: "{{ start_dss_target_dest_dir }}/bin"
   register: dss_target_configure
