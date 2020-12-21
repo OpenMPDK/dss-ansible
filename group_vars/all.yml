@@ -45,6 +45,10 @@ stats_ip: 0.0.0.0
 stats_port: 2004
 
 # target
+# dss_target_mode: kv
+# dss_target_mode: kv_block_vm
+dss_target_mode: kv_block_perf
+# dss_target_mode: block
 dss_target_conf_dir: /etc/dss
 dss_target_conf_file: "{{ dss_target_conf_dir }}/nvmf.in.conf"
 
