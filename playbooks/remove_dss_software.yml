@@ -29,3 +29,8 @@
     - clients
   roles:
     - remove_dss_software
+
+- name: Remove GCC
+  hosts: servers
+  roles:
+    - remove_gcc
