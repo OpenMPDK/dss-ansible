@@ -34,7 +34,7 @@
 
 - name: Assert host tarball found
   assert:
-    that: target_tgz.files | length > 0
+    that: host_tgz.files | length > 0
     fail_msg: "No host tarball found. Please download tarball to {{ deploy_host_path }}"
 
 - name: Create host destination path
