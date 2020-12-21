@@ -36,7 +36,9 @@
   yum:
     name: "{{ start_dss_agent_temp_dir }}/{{ agent_rpm_file | basename }}"
   register: agent_rpm_status
-  failed_when: "'scriptlet failure' in agent_rpm_status.msg"
+  failed_when: >
+    'scriptlet failure' in agent_rpm_status.msg or
+    'the control process exited with error code' in agent_rpm_status.msg
   become: true
 
 - name: Check that target services are running
