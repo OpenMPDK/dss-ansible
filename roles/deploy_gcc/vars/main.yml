@@ -1,0 +1,4 @@
+---
+
+deploy_gcc_path: "{{ inventory_dir }}/artifacts"
+deploy_gcc_staging_dir: /tmp
