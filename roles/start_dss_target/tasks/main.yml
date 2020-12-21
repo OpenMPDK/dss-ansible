@@ -57,7 +57,7 @@
 
 - name: Assert that disk serial numbers are found
   assert:
-    that: disk_serial_numbers.stdout_lines | length >= 0
+    that: disk_serial_numbers.stdout_lines | length >= 1
     msg: |
       Disk serial numbers not found in blobfs.mkfs.in.conf for firmware {{ target_fw_version }}
       Please verify that KV / block SSDs are present on system.
