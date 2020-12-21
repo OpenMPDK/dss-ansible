@@ -9,6 +9,7 @@
   loop_control:
     loop_var: host
   run_once: true
+  become: true
 
 - name: Generate RSA key on master client
   command: "ssh-keygen -q -t rsa -f {{ rsa_key }} -N ''"
