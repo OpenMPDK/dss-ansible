@@ -1,0 +1,27 @@
+---
+
+- name: Gather service facts
+  service_facts:
+
+- name: Stop diamond service
+  systemd:
+    name: diamond
+    state: stopped
+    enabled: no
+  when: "'diamond.service' in ansible_facts.services"
+  become: true
+
+- name: Remove diamond configuration file and service script
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/diamond/diamond.conf
+    - /etc/systemd/system/diamond.service
+  become: yes
+
+- name: Update systemd configuration
+  systemd:
+    daemon-reload: yes
+  become: true
+
