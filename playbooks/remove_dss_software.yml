@@ -7,6 +7,7 @@
   hosts:
     - servers
   roles:
+    - remove_dss_diamond
     - remove_dss_agent
     - remove_etcd_gateway
 

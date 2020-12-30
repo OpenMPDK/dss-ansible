@@ -22,6 +22,7 @@
     - deploy_etcd_gateway
     - deploy_dss_agent
     - deploy_dss_host
+    - deploy_dss_diamond
     - get_tcp_vlan_ip_list
 
 - name: Deploy DSS Minio
