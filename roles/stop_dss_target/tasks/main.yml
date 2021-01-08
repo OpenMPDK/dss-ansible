@@ -28,7 +28,7 @@
 - name: Kill -9 stuck target processes
   command: "kill -9 {{ pid }}"
   register: kill9_nvmf
-  changed_when: kill_nvmf9.stdout is not search('No such process')
+  changed_when: kill9_nvmf.stdout is not search('No such process')
   failed_when: true
   loop: "{{ nvmf_ps.stdout_lines }}"
   loop_control:
