@@ -28,7 +28,7 @@
   register: spdk_status
   become: true
 
-- name: Run dss_target.py script
+- name: Set hugepages
   include_tasks: set_num_hugepages.yml
 
 - name: Run dss_target.py script
@@ -46,6 +46,7 @@
   args:
     creates: "{{ dss_target_conf_dir }}/blobfs.mkfs.in.conf"
     warn: false
+  register: create_blobfs_conf
   become: true
 
 - name: Read disk serial numbers from blobfs.mkfs.in.conf
@@ -54,6 +55,13 @@
   changed_when: false
   failed_when: false
   register: disk_serial_numbers
+
+- name: Remove blobfs.mkfs.in.conf if empty
+  file:
+    path: "{{ dss_target_conf_dir }}/blobfs.mkfs.in.conf"
+    state: absent
+  become: true
+  when: disk_serial_numbers.stdout_lines | length <= 2
 
 - name: Assert that disk serial numbers are found
   assert:
@@ -69,13 +77,17 @@
     dest: "{{ start_dss_target_dest_dir }}/bin/format_disks.sh"
     mode: 0751
   register: create_format_disks_template
+  when: dss_target_mode is search 'kv_block'
   become: true
 
 - name: Execute format_disks.sh script
   command: ./format_disks.sh
   args:
     chdir: "{{ start_dss_target_dest_dir }}/bin"
-  when: create_format_disks_template.changed
+  when: >
+    dss_target_mode is search 'kv_block' and
+    (create_format_disks_template.changed or
+    create_blobfs_conf.changed)
   become: true
 
 - name: Read dss_target.out
@@ -109,7 +121,7 @@
   become: true
 
 - name: Start DSS target process
-  shell: source {{ start_dss_target_gcc_setenv }} && nohup {{ nvmf_tgt_cmd }} -L dfly_numa > {{ start_dss_target_log_dir }}/nkv-target.log 2>&1 &
+  shell: source {{ start_dss_target_gcc_setenv }} && nohup {{ nvmf_tgt_cmd }} > {{ start_dss_target_log_dir }}/nkv-target.log 2>&1 &
   args:
     chdir: "{{ start_dss_target_dest_dir }}/bin"
   when: nvmf_ps.rc != 0
