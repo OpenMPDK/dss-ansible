@@ -18,6 +18,7 @@
 - name: Deploy DSS Target and Host
   hosts: servers
   roles:
+    - deploy_gcc
     - deploy_dss_target
     - deploy_etcd_gateway
     - deploy_dss_agent
