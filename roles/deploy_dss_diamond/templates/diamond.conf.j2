@@ -185,7 +185,7 @@ path_prefix = nkv_test
 # instance_prefix = instances
 
 # Default Poll Interval (seconds)
-# interval = 300
+interval = 10
 
 ################################################################################
 # Default enabled collectors
@@ -193,21 +193,28 @@ path_prefix = nkv_test
 
 [[CPUCollector]]
 enabled = True
+percore=False
+#simple=True
+#normalize=True
 
 [[DiskSpaceCollector]]
-enabled = True
+enabled = False
 
 [[DiskUsageCollector]]
-enabled = True
+enabled = False
 
 [[LoadAverageCollector]]
 enabled = True
 
+# Metrics of Memory Collector
+# Active, Inactive, SwapTotal, SwapFree, Dirty, Shmem, Committed_AS, VmallocTotal, VmallocUsed
+# VmallocChunk, MemTotal, MemAvailable, MemFree, Buffers, Cached, SwapCached
 [[MemoryCollector]]
 enabled = True
+metrics_whitelist = (?:^MemFree$|^Cached$)
 
 [[VMStatCollector]]
-enabled = True
+enabled = False
 
 ################################################################################
 ### Options for logging
