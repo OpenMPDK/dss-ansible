@@ -23,6 +23,9 @@
 
 - name: Format kvssd devices
   command: "nvme format {{ kvssd_device_path }} -s0 -n1"
+  register: kvssd_format
+  async: 300
+  poll: 0
   vars:
     kvssd_device_path: "{{ item | regex_replace('n\\d+$', '') }}"
     kvssd_fw_bin: "{{ upgrade_kvssd_firmware_staging_dir }}/{{ firmware_bin.files[0].path | basename }}"
@@ -30,3 +33,9 @@
   loop_control:
     label: "{{ kvssd_device_path }}"
   become: true
+
+- name: Check async nvme reset
+  include_tasks: check_async.yml
+  vars:
+    async_name: "format kvssd"
+    async_tasks: "{{ kvssd_format.results }}"

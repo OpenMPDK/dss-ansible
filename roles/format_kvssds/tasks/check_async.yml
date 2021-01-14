@@ -1,0 +1,23 @@
+---
+
+- name: Check async {{ async_name }}
+  async_status:
+    jid: "{{ async_task.ansible_job_id }}"
+  register: async_results
+  until: async_results.finished
+  retries: 60
+  delay: 5
+  loop: "{{ async_tasks }}"
+  loop_control:
+    loop_var: async_task
+    label: "{{ async_task.item }}"
+  become: true
+
+- name: Assert async {{ async_name }} completion
+  assert:
+    that: async_result.finished != 0
+    fail_msg: "{{ async_name }} did not complete in time"
+    quiet: true
+  loop: "{{ async_results.results }}"
+  loop_control:
+    loop_var: async_result
