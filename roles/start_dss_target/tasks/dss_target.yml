@@ -32,6 +32,8 @@
       --kv_ssc {{ num_subsystems }}
       {{ hugepages_string }}
       --mode {{ dss_target_mode }}
+      --tcp {{ dss_target_enable_tcp }}
+      --rdma {{ dss_target_enable_rdma }}
   args:
     chdir: "{{ start_dss_target_dest_dir }}/bin"
   register: dss_target_configure

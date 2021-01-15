@@ -49,6 +49,8 @@ stats_port: 2004
 # dss_target_mode: kv_block_vm
 dss_target_mode: kv_block_perf
 # dss_target_mode: block
+dss_target_enable_tcp: 0
+dss_target_enable_rdma: 1
 dss_target_conf_dir: /etc/dss
 dss_target_conf_file: "{{ dss_target_conf_dir }}/nvmf.in.conf"
 

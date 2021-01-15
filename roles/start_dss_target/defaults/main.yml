@@ -4,6 +4,8 @@
 # dss_target_mode: kv_block_vm
 dss_target_mode: kv_block_perf
 # dss_target_mode: block
+dss_target_enable_tcp: 0
+dss_target_enable_rdma: 1
 
 dss_target_conf_dir: /etc/dss
 num_subsystems: 1
