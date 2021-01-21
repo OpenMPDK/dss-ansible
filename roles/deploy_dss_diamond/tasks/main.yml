@@ -1,4 +1,5 @@
 ---
+
 - name: Create target destination path for diamond collector
   file:
     path: "{{ item }}"
@@ -29,4 +30,3 @@
     daemon_reload: yes
     enabled: yes
   become: true
-
