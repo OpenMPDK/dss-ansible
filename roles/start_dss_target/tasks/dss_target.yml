@@ -30,7 +30,8 @@
       --ip_addresses {% for ip in rocev2_ip_list %}{{ ip }}{% if not loop.last %} {% endif %}{% endfor %}
       --kv_firmware {{ target_fw_version }}
       --kv_ssc {{ num_subsystems }}
-      {{ hugepages_string }}
+      --two_mb_hugepages {{ num_2mb_hugepages }}
+      --one_gb_hugepages {{ num_1gb_hugepages }}
       --mode {{ dss_target_mode }}
       --tcp {{ dss_target_enable_tcp }}
       --rdma {{ dss_target_enable_rdma }}
