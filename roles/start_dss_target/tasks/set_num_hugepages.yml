@@ -1,9 +1,13 @@
 ---
 
-- name: Set Hugepages string var
+- name: Set Hugepages vars for VMs
   set_fact:
-    hugepages_string: |
-      --two_mb_hugepages 12288
-      {%- if ansible_virtualization_role == 'host' -%}
-         {{ ' ' }}--one_gb_hugepages 120
-      {%- endif -%}
+    num_2mb_hugepages: 12288
+    num_1gb_hugepages: 0
+  when: ansible_virtualization_role == "guest"
+
+- name: Set Hugepages vars for physical hosts
+  set_fact:
+    num_2mb_hugepages: 12288
+    num_1gb_hugepages: 120
+  when: ansible_virtualization_role == "host"
