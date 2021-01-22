@@ -81,7 +81,7 @@
   become: true
 
 - name: Execute format_disks.sh script
-  command: ./format_disks.sh
+  shell: ./format_disks.sh > format_disks.out 2>&1
   args:
     chdir: "{{ start_dss_target_dest_dir }}/bin"
   when: >
@@ -89,6 +89,25 @@
     (create_format_disks_template.changed or
     create_blobfs_conf.changed)
   become: true
+
+- name: Read output of format_disks.sh
+  command: "cat {{ start_dss_target_dest_dir }}/bin/format_disks.out"
+  changed_when: false
+  register: format_disks
+
+- name: Remove blobfs.mkfs.in.conf if format failed
+  file:
+    path: "{{ dss_target_conf_dir }}/blobfs.mkfs.in.conf"
+    state: absent
+  become: true
+  when: format_disks.stdout is search('Failed to initialize filesystem')
+
+- name: Assert filesystem initialized successfully
+  assert:
+    that: format_disks.stdout is not search('Failed to initialize filesystem')
+    fail_msg: |
+      Failed to initialize filesystem.
+      Check {{ start_dss_target_dest_dir }}/bin/format_disks.out for details.
 
 - name: Read dss_target.out
   command: "cat {{ start_dss_target_dest_dir }}/bin/dss_target.out"
@@ -113,13 +132,6 @@
   changed_when: false
   failed_when: false
 
-- name: Tail /var/log/messages
-  shell: "tail -f /var/log/messages > {{ start_dss_target_log_dir }}/nkv-target-dmesg.log"
-  async: 300
-  poll: 0
-  when: nvmf_ps.rc != 0
-  become: true
-
 - name: Start DSS target process
   shell: source {{ start_dss_target_gcc_setenv }} && nohup {{ nvmf_tgt_cmd }} > {{ start_dss_target_log_dir }}/nkv-target.log 2>&1 &
   args:
@@ -127,10 +139,10 @@
   when: nvmf_ps.rc != 0
   become: true
 
-- name: Assert subsystems initialized
-  command: "cat {{ start_dss_target_log_dir }}/nkv-target-dmesg.log"
+- name: Wait for subsystems to initialize
+  command: "cat {{ start_dss_target_log_dir }}/nkv-target.log"
   changed_when: false
-  #failed_when: false
+  failed_when: false
   register: subsystem_initialized
   vars:
     search_string: Initialized subsystem
@@ -141,3 +153,13 @@
   retries: 60
   when: nvmf_ps.rc != 0
   delay: 5
+
+- name: Assert subsystems initialized
+  assert:
+    that: not subsystem_initialized.failed
+    fail_msg: |
+      One or more subsystems failed to initialize.
+      
+      ***
+      {{ start_dss_target_log_dir }}/nkv-target.log:
+      {{ subsystem_initialized.stdout }}
