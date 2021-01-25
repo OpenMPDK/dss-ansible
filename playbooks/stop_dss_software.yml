@@ -2,6 +2,7 @@
 
 - name: Stop DSS software
   hosts: servers
+  any_errors_fatal: true
   roles:
     - stop_dss_minio
     - stop_dss_host
