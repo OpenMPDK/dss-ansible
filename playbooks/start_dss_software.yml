@@ -2,6 +2,7 @@
 
 - name: Start DSS software
   hosts: servers
+  any_errors_fatal: true
   roles:
     - start_dss_target
     - start_etcd_gateway

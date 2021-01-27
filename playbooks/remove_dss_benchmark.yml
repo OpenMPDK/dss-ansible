@@ -3,5 +3,6 @@
 - name: Remove DSS benchmark
   hosts:
     - clients
+  any_errors_fatal: true
   roles:
     - remove_dss_software

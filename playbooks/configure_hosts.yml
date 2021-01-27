@@ -1,9 +1,10 @@
 ---
-
+  
 - name: Configure Hosts
   hosts:
     - clients
     - servers
+  any_errors_fatal: true
   roles:
     - validate_centos
     - deploy_kernel

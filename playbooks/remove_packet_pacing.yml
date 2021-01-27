@@ -2,5 +2,6 @@
 
 - name: Remove Packet Pacing
   hosts: servers
+  any_errors_fatal: true
   roles:
     - remove_packet_pacing

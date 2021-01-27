@@ -1,6 +1,13 @@
 ---
 
-- name: Remove DSS Software
+- name: Set any_errors_fatal for all groups
+  hosts:
+    - servers
+    - clients
+    - ufm_hosts
+  any_errors_fatal: true
+  
+  - name: Remove DSS Software
   import_playbook: remove_dss_software.yml
 
 - name: Format KVSSD devices

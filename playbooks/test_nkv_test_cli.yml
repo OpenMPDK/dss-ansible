@@ -2,5 +2,6 @@
 
 - name: Test nkv_test_cli
   hosts: servers
+  any_errors_fatal: true
   roles:
     - test_nkv_test_cli

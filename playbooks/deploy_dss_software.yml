@@ -1,16 +1,21 @@
 ---
 
+- name: Set any_errors_fatal for all groups
+  hosts:
+    - servers
+    - clients
+    - ufm_hosts
+  any_errors_fatal: true
+
 - name: Deploy UFM ETCD
   hosts:
     - servers
     - ufm_hosts
-  any_errors_fatal: true
   roles:
     - deploy_ufm_etcd
 
 - name: Deploy UFM
   hosts: ufm_hosts
-  any_errors_fatal: true
   roles:
     - start_ufm_etcd
     - deploy_ufm
