@@ -71,43 +71,9 @@
       Please verify that KV / block SSDs are present on system.
       Please verify that 'target_fw_version' var matches desired firmware.
 
-- name: Create format_disks.sh script
-  template:
-    src: format_disks.sh.j2
-    dest: "{{ start_dss_target_dest_dir }}/bin/format_disks.sh"
-    mode: 0751
-  register: create_format_disks_template
+- name: Create BlobFS filesystem for KV-Block
+  include_tasks: format_blobfs.yml
   when: dss_target_mode is search('kv_block')
-  become: true
-
-- name: Execute format_disks.sh script
-  shell: ./format_disks.sh > format_disks.out 2>&1
-  args:
-    chdir: "{{ start_dss_target_dest_dir }}/bin"
-  when: >
-    dss_target_mode is search('kv_block') and
-    (create_format_disks_template.changed or
-    create_blobfs_conf.changed)
-  become: true
-
-- name: Read output of format_disks.sh
-  command: "cat {{ start_dss_target_dest_dir }}/bin/format_disks.out"
-  changed_when: false
-  register: format_disks
-
-- name: Remove blobfs.mkfs.in.conf if format failed
-  file:
-    path: "{{ dss_target_conf_dir }}/blobfs.mkfs.in.conf"
-    state: absent
-  become: true
-  when: format_disks.stdout is search('Failed to initialize filesystem')
-
-- name: Assert filesystem initialized successfully
-  assert:
-    that: format_disks.stdout is not search('Failed to initialize filesystem')
-    fail_msg: |
-      Failed to initialize filesystem.
-      Check {{ start_dss_target_dest_dir }}/bin/format_disks.out for details.
 
 - name: Read dss_target.out
   command: "cat {{ start_dss_target_dest_dir }}/bin/dss_target.out"
@@ -158,7 +124,7 @@
     that: not subsystem_initialized.failed
     fail_msg: |
       One or more subsystems failed to initialize.
-      
+
       ***
       {{ start_dss_target_log_dir }}/nkv-target.log:
       {{ subsystem_initialized.stdout }}
