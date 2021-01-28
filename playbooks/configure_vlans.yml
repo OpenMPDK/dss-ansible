@@ -6,7 +6,7 @@
     - clients
     - onyx
   any_errors_fatal: true
-  
+
 - name: Get Onyx LLDP tables
   hosts: onyx
   connection: network_cli
