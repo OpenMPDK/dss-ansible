@@ -28,9 +28,6 @@
   register: spdk_status
   become: true
 
-- name: Set hugepages
-  include_tasks: set_num_hugepages.yml
-
 - name: Run dss_target.py script
   include_tasks: dss_target.yml
   when: >
