@@ -22,6 +22,23 @@
   changed_when: false
   register: current_1gb_hugepages
 
+- name: Assert host has sufficient memory to allocate hugepages
+  assert:
+    that: free_memory_plus_current_hugepages | int > (num_2mb_hugepages | int * 2) + (num_1gb_hugepages | int * 1024)
+    fail_msg: |
+      Currently allocated hugepages: {{ current_total_hugepages_mb }} MB
+      Memory needed for hugepages allocation: {{ (num_2mb_hugepages | int * 2) + (num_1gb_hugepages | int * 1024) }} MB
+      Free memory available: {{ ansible_memfree_mb }} MB
+    success_msg: |
+      Currently allocated hugepages: {{ current_total_hugepages_mb }} MB
+      Memory needed for hugepages allocation: {{ (num_2mb_hugepages | int * 2) + (num_1gb_hugepages | int * 1024) }} MB
+      Free memory available: {{ ansible_memfree_mb }} MB
+  vars:
+    current_1gb_hugepages_mb: "{{ current_1gb_hugepages.stdout | int * 1024 }}"
+    current_2mb_hugepages_mb: "{{ current_2mb_hugepages.stdout | int * 2 }}"
+    current_total_hugepages_mb: "{{ current_1gb_hugepages_mb | int + current_2mb_hugepages_mb | int }}"
+    free_memory_plus_current_hugepages: "{{ ansible_memfree_mb | int + current_total_hugepages_mb | int }}"
+
 - name: Zero 2MB hugepages
   shell: echo 0 >  /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
   when:
@@ -35,10 +52,3 @@
     - current_1gb_hugepages.stdout | int != num_1gb_hugepages
     - current_1gb_hugepages.stdout | int != 0
   become: true
-
-- name: Assert host has sufficient memory to allocate hugepages
-  assert:
-    that: ((num_2mb_hugepages | int * 2) + (num_1gb_hugepages | int * 1024)) < ansible_memfree_mb
-    msg: |
-      Memory needed for hugepages allocation: {{ (num_2mb_hugepages | int * 2) + (num_1gb_hugepages | int * 1024) }} MB
-      Free memory available: {{ ansible_memfree_mb }} MB
