@@ -1,5 +1,8 @@
 ---
 
+- name: Set hugepages
+  include_tasks: set_num_hugepages.yml
+
 - name: Identify kvssd firmware
   include_role:
     name: identify_kvssd_firmware
