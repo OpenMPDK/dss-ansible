@@ -1,6 +1,7 @@
 ---
 
 - name: Set any_errors_fatal for all groups
+  gather_facts: false
   hosts:
     - servers
     - clients
