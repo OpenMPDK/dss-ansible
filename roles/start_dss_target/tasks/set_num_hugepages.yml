@@ -24,16 +24,21 @@
 
 - name: Zero 2MB hugepages
   shell: echo 0 >  /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
-  when: current_2mb_hugepages.stdout != num_2m_hugepages
+  when:
+    - current_2mb_hugepages.stdout != num_2mb_hugepages
+    - current_2mb_hugepages.stdout != '0'
+  become: true
 
 - name: Zero 1GB hugepages
   shell: echo 0 >  /sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages
-  when: current_1gb_hugepages.stdout != num_1gb_hugepages
+  when:
+    - current_1gb_hugepages.stdout != num_1gb_hugepages
+    - current_1gb_hugepages.stdout != '0'
+  become: true
 
-- name: Assert host has sufficient memory
+- name: Assert host has sufficient memory to allocate hugepages
   assert:
-    that: ((num_2mb_hugepages | int * 2) + (num_1gb_hugepages | int * 1024)) < ansible_memtotal_mb
-    fail_msg: |
-      {{ (num_2mb_hugepages | int * 2) + (num_1gb_hugepages | int * 1024) }} MB memory needed for hugepages allocation.
-      System only has {{ ansible_memtotal_mb }} MB memory.
-    success_msg: Adequate memory available.
+    that: ((num_2mb_hugepages | int * 2) + (num_1gb_hugepages | int * 1024)) < ansible_memfree_mb
+    msg: |
+      Memory needed for hugepages allocation: {{ (num_2mb_hugepages | int * 2) + (num_1gb_hugepages | int * 1024) }} MB
+      Free memory available: {{ ansible_memfree_mb }} MB
