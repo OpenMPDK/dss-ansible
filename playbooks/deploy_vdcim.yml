@@ -5,7 +5,7 @@
     - servers
     - clients
   any_errors_fatal: true
-  
+
 - name: Configure VMs
   import_playbook: configure_vms.yml
 

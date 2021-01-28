@@ -5,7 +5,7 @@
     - servers
     - clients
   any_errors_fatal: true
-  
+
 - name: Deploy Soft-RoCE on VMs
   hosts:
     - servers
