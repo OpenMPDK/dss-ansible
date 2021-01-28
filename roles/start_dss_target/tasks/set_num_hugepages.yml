@@ -25,15 +25,15 @@
 - name: Zero 2MB hugepages
   shell: echo 0 >  /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
   when:
-    - current_2mb_hugepages.stdout != num_2mb_hugepages
-    - current_2mb_hugepages.stdout != '0'
+    - current_2mb_hugepages.stdout | int != num_2mb_hugepages
+    - current_2mb_hugepages.stdout | int != 0
   become: true
 
 - name: Zero 1GB hugepages
   shell: echo 0 >  /sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages
   when:
-    - current_1gb_hugepages.stdout != num_1gb_hugepages
-    - current_1gb_hugepages.stdout != '0'
+    - current_1gb_hugepages.stdout | int != num_1gb_hugepages
+    - current_1gb_hugepages.stdout | int != 0
   become: true
 
 - name: Assert host has sufficient memory to allocate hugepages
