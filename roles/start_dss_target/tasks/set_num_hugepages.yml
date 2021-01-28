@@ -26,9 +26,11 @@
   assert:
     that: free_memory_plus_current_hugepages | int > (num_2mb_hugepages | int * 2) + (num_1gb_hugepages | int * 1024)
     fail_msg: |
+      Currently allocated hugepages: {{ current_total_hugepages_mb }} MB
       Memory needed for hugepages allocation: {{ (num_2mb_hugepages | int * 2) + (num_1gb_hugepages | int * 1024) }} MB
       Free memory available: {{ ansible_memfree_mb }} MB
     success_msg: |
+      Currently allocated hugepages: {{ current_total_hugepages_mb }} MB
       Memory needed for hugepages allocation: {{ (num_2mb_hugepages | int * 2) + (num_1gb_hugepages | int * 1024) }} MB
       Free memory available: {{ ansible_memfree_mb }} MB
   vars:
@@ -52,4 +54,3 @@
     - current_1gb_hugepages.stdout | int != num_1gb_hugepages
     - current_1gb_hugepages.stdout | int != 0
   become: true
-
