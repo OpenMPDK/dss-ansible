@@ -39,8 +39,6 @@
     current_total_hugepages_mb: "{{ current_1gb_hugepages_mb | int + current_2mb_hugepages_mb | int }}"
     free_memory_plus_current_hugepages: "{{ ansible_memfree_mb | int + current_total_hugepages_mb | int }}"
 
-- meta: end_play
-
 - name: Zero 2MB hugepages
   shell: echo 0 >  /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
   when:
