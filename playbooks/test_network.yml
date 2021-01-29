@@ -1,11 +1,5 @@
 ---
 
-- name: Set any_errors_fatal for all groups
-  hosts:
-    - servers
-    - clients
-  any_errors_fatal: true
-
 - name: Test Ping RoCEv2
   hosts: servers
   vars:
