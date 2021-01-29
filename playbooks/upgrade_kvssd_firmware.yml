@@ -2,6 +2,5 @@
 
 - name: Upgrade KVSSD firmware
   hosts: servers
-  any_errors_fatal: true
   roles:
     - upgrade_kvssd_firmware
