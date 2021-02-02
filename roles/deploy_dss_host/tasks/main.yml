@@ -10,6 +10,7 @@
       - jemalloc-devel
       - python-pip
       - lshw
+      - gcc
   become: true
 
 - name: Upgrade pip
