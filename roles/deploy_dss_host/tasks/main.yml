@@ -14,7 +14,7 @@
 
 - name: Upgrade pip
   pip:
-    name: "pip>={{ deploy_host_pip_version }}"
+    name: "pip=={{ pip2_version }}"
   become: true
 
 - name: Install python dependencies

@@ -2,4 +2,3 @@
 
 deploy_host_path: "{{ inventory_dir }}/artifacts"
 deploy_host_dest_dir: /usr/dss/nkv-sdk
-deploy_host_pip_version: 20.1.1
