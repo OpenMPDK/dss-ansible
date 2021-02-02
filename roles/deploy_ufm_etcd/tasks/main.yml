@@ -14,7 +14,7 @@
 
 - name: Update pip if package manager version is old
   pip:
-    name: pip>=20.0.2
+    name: "pip=={{ pip2_version }}
     state: present
   become: yes
 

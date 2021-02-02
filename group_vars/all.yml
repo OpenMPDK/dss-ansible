@@ -8,7 +8,6 @@ kvssd_models:
   - MZ4LB3T8HALS-00003-001
   - SAMSUNG MZ4LB3T8HALS-00003
   - MZQLB3T8HALS-000AZ-001
-  - SAMSUNG MZ4LB3T8HMLA-00003
 num_subsystems: 1
 mtu_size: 9000
 
@@ -89,3 +88,6 @@ ufm_install_packages:
   - ufmbroker
 ufm_reset_dirs:
   - /var/lib/etcd
+
+# pip settings
+pip2_version: 20.3.4
