@@ -57,7 +57,9 @@
 
 - name: Assert that at least one RoCEv2 IP is present
   assert:
-    that: first_rocev2_ip_list is defined
+    that:
+      - first_rocev2_ip_list is defined
+      - first_rocev2_ip_list | length > 0
     fail_msg: "No RoCEv2 IPs configured on any Mellanox adapter. Please configure at least one IP to deploy target."
     success_msg: "RoCEv2 IP(s) detected."
 
