@@ -1,5 +1,8 @@
 ---
 
+- name: Remove DSS Software
+  import_playbook: remove_dss_software.yml
+
 - name: Get Onyx LLDP tables
   hosts: onyx
   connection: network_cli
