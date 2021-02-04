@@ -39,6 +39,13 @@
     - tcp_ip_list is defined
     - test_vlans == "tcp"
 
+- name: Assert that IP's are defined
+  assert:
+    that: vlan_ip_list | length > 0
+    fail_msg: |
+      No IPs configured on any Mellanox adapter.
+      Please configure at least one IP to test ping.
+
 - name: Initialized combined_vlan_ip_list
   set_fact:
     combined_vlan_ip_list: []

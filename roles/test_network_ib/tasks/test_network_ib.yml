@@ -6,6 +6,13 @@
   vars:
     vlan_list: "{{ rocev2_vlans }}"
 
+- name: Assert that IP's are defined
+  assert:
+    that: vlan_ip_list | length > 0
+    fail_msg: |
+      No IPs configured on any Mellanox adapter.
+      Please configure at least one IP to test ping.
+
 - name: Query show_gids
   command: show_gids
   changed_when: false
