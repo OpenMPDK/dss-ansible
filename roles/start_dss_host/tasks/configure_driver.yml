@@ -7,7 +7,7 @@
       set_fact:
         subsystems_found: []
         post_subsystems_found: []
-    
+
     - name: "NVMe list subsystems - pre config_driver #{{ config_num }}"
       command: nvme list-subsys
       changed_when: false
@@ -42,7 +42,7 @@
       loop_control:
         loop_var: ip_addr
       when: post_nvme_subsys.stdout is search(ip_addr)
-    
+
     - name: "Check all subsystems are mounted #{{ config_num }}"
       set_fact:
         all_subsystems_mounted: true

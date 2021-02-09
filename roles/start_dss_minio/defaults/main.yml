@@ -15,5 +15,5 @@ benchmark_bucket_prefix: benchmark-bucket-
 minio_access_key: minio
 minio_secret_key: minio123
 minio_no_lock_write: 1
-minio_opt_write : 1
+minio_opt_write: 1
 minio_non_transactional_write: 1
