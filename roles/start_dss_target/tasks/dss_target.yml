@@ -59,7 +59,14 @@
       - "'hugepage setup is done' in dss_target_configure.stdout"
       - "'drive setup to userspace is done' in dss_target_configure.stdout"
     success_msg: "dss_target.py successfully configured target"
-    fail_msg: "dss_target.py failed to configure target"
+    fail_msg: |
+      dss_target.py failed to configure target.
+      ---
+      stdout:
+      {{ dss_target_configure.stdout }}
+      ---
+      stderr:
+      {{ dss_target_configure.stderr }}
   when: dss_target_configure.changed
 
 - name: Save output of dss_target.py
