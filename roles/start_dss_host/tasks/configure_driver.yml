@@ -1,0 +1,50 @@
+---
+
+- name: Run block if subsystems not mounted
+  block:
+
+    - name: "Initialize subsystems_found var #{{ config_num }}"
+      set_fact:
+        subsystems_found: []
+        post_subsystems_found: []
+    
+    - name: "NVMe list subsystems - pre config_driver #{{ config_num }}"
+      command: nvme list-subsys
+      changed_when: false
+      register: nvme_subsys
+      become: true
+
+    - name: "Check subsystems are mounted #{{ config_num }}"
+      set_fact:
+        subsystems_found: "{{ subsystems_found | default([]) + [true] }}"
+      loop: "{{ combined_vlan_ip_list }}"
+      loop_control:
+        loop_var: ip_addr
+      when: nvme_subsys.stdout is search(ip_addr)
+
+    - name: "Configure Driver #{{ config_num }}"
+      command: sh ./dss_host_config_host.sh
+      args:
+        chdir: "{{ start_dss_host_dir }}/bin"
+      when: subsystems_found | length != combined_vlan_ip_list | length
+      become: true
+
+    - name: "NVMe list subsystems - post config_driver #{{ config_num }}"
+      command: nvme list-subsys
+      changed_when: false
+      register: post_nvme_subsys
+      become: true
+
+    - name: "Post-Check subsystems are mounted #{{ config_num }}"
+      set_fact:
+        post_subsystems_found: "{{ post_subsystems_found | default([]) + [true] }}"
+      loop: "{{ combined_vlan_ip_list }}"
+      loop_control:
+        loop_var: ip_addr
+      when: post_nvme_subsys.stdout is search(ip_addr)
+    
+    - name: "Check all subsystems are mounted #{{ config_num }}"
+      set_fact:
+        all_subsystems_mounted: true
+      when: post_subsystems_found | length == combined_vlan_ip_list | length
+  when: all_subsystems_mounted is not defined
