@@ -74,6 +74,7 @@
 
 - name: Start minio instances
   shell: >
+    sleep 1 &&
     nohup ./minio_startup_{{ ip_address }}.sh >
     {{ start_dss_minio_log_dir }}/nkv-minio_{{ ip_address }}.log 2>&1 &
   args:
@@ -88,6 +89,7 @@
     distributed_string not in minio_ps.stdout) or
     (combined_vlan_ip_map | length == 1 and
     'server' not in minio_ps.stdout)
+  throttle: 1
   become: true
 
 - name: Check for running minio instances post-start

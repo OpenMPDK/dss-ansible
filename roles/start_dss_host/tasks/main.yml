@@ -79,20 +79,6 @@
     loop_var: host
   run_once: true
 
-- name: NVMe list subsystems
-  command: nvme list-subsys
-  changed_when: false
-  register: nvme_subsys
-  become: true
-
-- name: Check subsystems are mounted
-  set_fact:
-    subsystems_found: true
-  loop: "{{ combined_vlan_ip_list }}"
-  loop_control:
-    loop_var: ip_addr
-  when: nvme_subsys.stdout is search(ip_addr)
-
 - name: Create dss_host_config_host.sh script
   copy:
     content: >
@@ -103,6 +89,19 @@
     mode: 0755
     dest: "{{ start_dss_host_dir }}/bin/dss_host_config_host.sh"
   become: true
+
+- name: Configure Driver
+  include_tasks: configure_driver.yml
+  loop: "{{ range(1,4) | list }}"
+  loop_control:
+    loop_var: config_num
+
+- name: Assert all subsystems are mounted
+  assert:
+    that:
+      - all_subsystems_mounted is defined
+      - all_subsystems_mounted == true
+    fail_msg: Failed to mount all subsystems.
 
 - name: Execute dss_host_config_host.sh script
   command: sh ./dss_host_config_host.sh
