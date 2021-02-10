@@ -1,5 +1,22 @@
 ---
 
+- name: Install target runtime dependencies
+  yum:
+    name: "{{ item }}"
+  loop:
+    - python-pip
+  become: true
+
+- name: Upgrade pip
+  pip:
+    name: "pip=={{ pip2_version }}"
+  become: true
+
+- name: Install netifaces python dependency
+  pip:
+    name: netifaces
+  become: true
+
 - name: Find running target process
   command: "pgrep reactor_"
   register: nvmf_ps
