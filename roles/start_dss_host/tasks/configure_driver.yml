@@ -14,19 +14,17 @@
       register: nvme_subsys
       become: true
 
-    - name: "Check subsystems are mounted #{{ config_num }}"
+    - name: "Check number of mounted subsystems #{{ config_num }}"
       set_fact:
-        subsystems_found: "{{ subsystems_found | default([]) + [true] }}"
-      loop: "{{ combined_vlan_ip_list }}"
-      loop_control:
-        loop_var: ip_addr
-      when: nvme_subsys.stdout is search(ip_addr)
+        subsystems_found: "{{ nvme_subsys.stdout | regex_findall(nvme_re) | length }}"
+      vars:
+        nvme_re: 'traddr=[^\s]+\strsvcid=[^\s]+\slive'
 
     - name: "Configure Driver #{{ config_num }}"
       command: sh ./dss_host_config_host.sh
       args:
         chdir: "{{ start_dss_host_dir }}/bin"
-      when: subsystems_found | length != combined_vlan_ip_list | length
+      when: subsystems_found != combined_expected_num_subsystems
       become: true
 
     - name: "NVMe list subsystems - post config_driver #{{ config_num }}"
@@ -37,14 +35,12 @@
 
     - name: "Post-Check subsystems are mounted #{{ config_num }}"
       set_fact:
-        post_subsystems_found: "{{ post_subsystems_found | default([]) + [true] }}"
-      loop: "{{ combined_vlan_ip_list }}"
-      loop_control:
-        loop_var: ip_addr
-      when: post_nvme_subsys.stdout is search(ip_addr)
+        post_subsystems_found: "{{ post_nvme_subsys.stdout | regex_findall(nvme_re) | length }}"
+      vars:
+        nvme_re: 'traddr=[^\s]+\strsvcid=[^\s]+\slive'
 
     - name: "Check all subsystems are mounted #{{ config_num }}"
       set_fact:
         all_subsystems_mounted: true
-      when: post_subsystems_found | length == combined_vlan_ip_list | length
+      when: post_subsystems_found == combined_expected_num_subsystems
   when: all_subsystems_mounted is not defined
