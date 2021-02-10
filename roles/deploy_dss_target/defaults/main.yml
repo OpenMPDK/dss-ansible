@@ -1,3 +1,4 @@
 ---
 
 dss_target_conf_dir: /etc/dss
+pip2_version: 20.3.4

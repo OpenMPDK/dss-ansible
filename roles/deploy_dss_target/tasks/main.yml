@@ -6,8 +6,19 @@
   loop:
     - tbb-devel
     - libaio-devel
+    - python-pip
     - python3
     - sysstat
+  become: true
+
+- name: Upgrade pip
+  pip:
+    name: "pip=={{ pip2_version }}"
+  become: true
+
+- name: Install netifaces python dependency
+  pip:
+    name: netifaces
   become: true
 
 - name: Identify target tarball
