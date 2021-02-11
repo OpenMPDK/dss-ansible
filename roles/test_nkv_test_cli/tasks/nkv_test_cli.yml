@@ -1,5 +1,20 @@
 ---
 
+- name: Print nkv_test_cli commands
+  debug:
+    msg: >
+      {{ test_nkv_test_cli_dir }}/dss_host.py
+      verify_nkv_cli
+      -c n{{ ansible_loop.index }}
+      -a {{ vlan.ip_prefix }}
+      -m {{ vlan.numa }}
+      -o {{ operation }}
+  loop: "{{ rocev2_numa_prefix_list }}"
+  loop_control:
+    loop_var: vlan
+    label: "{{ vlan.ip_prefix }}"
+    extended: true
+
 - name: Execute nkv_test_cli command
   command: >
       {{ test_nkv_test_cli_dir }}/dss_host.py
