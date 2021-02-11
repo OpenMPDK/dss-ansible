@@ -9,6 +9,7 @@
   loop_control:
     loop_var: host
   run_once: true
+  when: hostvars[host].inventory_hostname_short != "localhost"
   become: true
 
 - name: Generate RSA key on master client
