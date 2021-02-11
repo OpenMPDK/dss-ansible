@@ -1,25 +1,29 @@
 ---
 
-- name: Get list of devices
+- name: Get all RoCEv2 IP Addresses
   include_role:
-    name: get_vlan_devices
+    name: get_vlan_ips
   vars:
-    device_type: netdev_child
+    vlan_list: "{{ rocev2_vlans }}"
+  when: rocev2_ip_list is not defined
 
-- name: Get packet pacing status
-  command: "tc qdisc show dev {{ device }}"
+- name: Set rocev2_ip_list var
+  set_fact:
+    rocev2_ip_list: "{{ vlan_ip_list }}"
+  when: rocev2_ip_list is not defined
+
+- name: Query adapters
+  shell: "ip address show"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   changed_when: false
-  loop: "{{ vlan_device_list }}"
-  loop_control:
-    loop_var: device
-  register: packet_pacing_status
-  become: true
+  register: up_adapters
 
-- name: Delete packet pacing rules
-  command: "tc qdisc del dev {{ pacing_status.device }} root"
-  when: pacing_status.stdout is not search('noqueue')
-  loop: "{{ packet_pacing_status.results }}"
+- name: Remove Packet Pacing
+  include_tasks: remove_packet_pacing.yml
+  loop: "{{ range(0, rocev2_ip_list | length) | list }}"
   loop_control:
-    loop_var: pacing_status
-    label: "{{ pacing_status.device }}"
-  become: true
+    loop_var: vlan_pair
+    extended: true
+  vars:
+    rocev2_ip: "{{ rocev2_ip_list[ansible_loop.index0] }}"
