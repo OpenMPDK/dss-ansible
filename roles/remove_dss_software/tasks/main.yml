@@ -4,9 +4,7 @@
   file:
     path: "{{ dss_path }}"
     state: absent
-  loop:
-    - "{{ remove_dss_dir }}"
-    - "{{ dss_target_conf_dir }}"
+  loop: "{{ remove_dss_software_dir_list }}"
   loop_control:
     loop_var: dss_path
   become: true

@@ -1,3 +1,8 @@
 ---
 
 dss_target_conf_dir: /etc/dss
+remove_dss_dir: /usr/dss
+remove_dss_log_dir: /var/log/dss
+remove_dss_software_dir_list:
+  - "{{ remove_dss_dir }}"
+  - "{{ dss_target_conf_dir }}"
