@@ -82,7 +82,7 @@
     numa_re: 'available: ([\d]+) nodes'
 
 - name: Query up adapters
-  shell: "ip address show | grep 'state UP'"
+  shell: "ip address show"
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   changed_when: false
