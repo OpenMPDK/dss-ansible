@@ -90,6 +90,7 @@
       {% for ip in first_vlan_ip_list %}{{ ip }}{% if not loop.last %} {% endif %}{% endfor %}
       -p {{ start_dss_host_port }}
       -i {{ start_dss_host_qpairs }} -m {{ start_dss_host_mem_align }}
+      {% if dss_host_kvpair is not none %}-x {{ dss_host_kvpair }}{% endif %}
     mode: 0755
     dest: "{{ start_dss_host_dir }}/bin/dss_host_config_host.sh"
   become: true
