@@ -1,5 +1,9 @@
 ---
 
+- name: Check minio connection
+  command: "{{ start_dss_benchmark_minio_dir }}/mc ls {{ minio_mc_alias }}"
+  changed_when: false
+
 - name: Generate cluster.json template to master client
   template:
     src: cluster.json.j2
