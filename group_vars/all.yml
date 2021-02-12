@@ -56,6 +56,9 @@ dss_target_enable_rdma: 1
 dss_target_conf_dir: /etc/dss
 dss_target_conf_file: "{{ dss_target_conf_dir }}/nvmf.in.conf"
 
+# host
+dss_host_kvpair:
+
 rocev2_vlans:
   - id: 31
     ip_prefix: 201.0.0
