@@ -28,6 +28,7 @@ minio_secret_key: minio123
 minio_no_lock_write: 1
 minio_opt_write: 1
 minio_non_transactional_write: 1
+minio_mc_alias: autominio
 
 benchmark_objects: 1000
 benchmark_clients: 20

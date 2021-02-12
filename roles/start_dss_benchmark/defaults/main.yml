@@ -12,3 +12,4 @@ benchmark_client_start_port: 7000
 benchmark_bucket_prefix: benchmark-bucket-
 minio_access_key: minio
 minio_secret_key: minio123
+minio_mc_alias: autominio
