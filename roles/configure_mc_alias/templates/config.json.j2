@@ -1,12 +1,12 @@
 {
-        "version": "10",
-        "aliases": {
+        "version": "9",
+        "hosts": {
                 "{{ minio_mc_alias }}": {
                         "url": "{{ minio_endpoint }}",
                         "accessKey": "{{ minio_access_key }}",
                         "secretKey": "{{ minio_secret_key}}",
                         "api": "s3v4",
-                        "path": "auto"
+                        "lookup": "auto"
                 }
         }
 }
