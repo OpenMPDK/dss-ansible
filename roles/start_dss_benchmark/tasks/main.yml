@@ -2,6 +2,7 @@
 
 - name: Check minio connection
   command: "{{ start_dss_benchmark_minio_dir }}/mc ls {{ minio_mc_alias }}"
+  when: inventory_hostname in groups['clients']
   changed_when: false
 
 - name: Generate cluster.json template to master client
