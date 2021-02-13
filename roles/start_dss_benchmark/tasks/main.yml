@@ -63,7 +63,8 @@
 - name: Prepare and execute benchmark
   block:
     - name: Execute generate on master client
-      command: >
+      shell: >
+        set -o pipefail &&
         python3
         {{ start_dss_benchmark_dest_dir }}/scripts/bench.py
         generate
@@ -75,6 +76,7 @@
         --secret-key "{{ minio_secret_key }}"
         --output-dir {{ start_dss_benchmark_log_dir }}
         --client-start-port {{ benchmark_client_start_port }}
+        | tee -a {{ start_dss_benchmark_log_dir }}/nkv-benchmark.log
       run_once: true
       register: bench_generate
       no_log: true
@@ -87,8 +89,17 @@
           image_json.changed
       become: true
 
+    - name: Enable ustat
+      lineinfile:
+        path: "{{ start_dss_benchmark_conf_file }}"
+        regexp: '^    "nkv_need_path_stat":'
+        line: '    "nkv_need_path_stat": 1,'
+      when: inventory_hostname in groups['servers']
+      become: true
+
     - name: Execute benchmark on master client
-      command: >
+      shell: >
+        set -o pipefail &&
         python3
         {{ start_dss_benchmark_dest_dir }}/scripts/bench.py
         benchmark
@@ -106,6 +117,7 @@
         --cluster-config {{ start_dss_benchmark_dest_dir }}/cluster.json
         --ustat-binary-path {{ start_dss_benchmark_dest_dir }}/ustat
         --client-start-port {{ benchmark_client_start_port }}
+        | tee -a {{ start_dss_benchmark_log_dir }}/nkv-benchmark.log
       run_once: true
       register: bench_benchmark
       no_log: true
@@ -128,37 +140,35 @@
         name: remove_packet_pacing
       when: inventory_hostname in groups['servers']
 
-    - name: Print failed Generate lines
-      debug:
-        msg: |
-          -- bench.py generate command --
-          {{ bench_generate.cmd | join(' ') }}
-          -- STDERR --
-          {{ bench_generate.stderr }}
-      when:
-        - bench_generate is defined
-        - bench_generate.stderr is defined
-        - bench_generate.stderr != ''
-        - inventory_hostname in groups['clients']
-      run_once: true
-
-    - name: Print failed Benchmark lines
-      debug:
-        msg: |
-          -- bench.py benchmark command --
-          {{ bench_benchmark.cmd | join(' ') }}
-          -- STDERR --
-          {{ bench_benchmark.stderr }}
-      when:
-        - bench_benchmark is defined
-        - bench_benchmark.stderr is defined
-        - bench_benchmark.stderr != ''
-        - inventory_hostname in groups['clients']
-      run_once: true
-
-    - name: Fail
+    - name: Benchmark Generate Failed
       fail:
         msg: |
-          NKV Benchmark failed.
-          Please review previous tasks for failures.
+          -- bench.py generate command --
+          {{ bench_generate.cmd }}
+          -- generate log --
+          {{ bench_generate.stderr }}
+      when:
+        - bench_generate.failed is defined
+        - inventory_hostname in groups['clients']
       run_once: true
+
+    - name: Benchmark Failed
+      fail:
+        msg: |
+          -- bench.py benchmark command --
+          {{ bench_benchmark.cmd }}
+          -- benchmark log --
+          {{ bench_benchmark.stderr }}
+      when:
+        - bench_benchmark.failed is defined
+        - inventory_hostname in groups['clients']
+      run_once: true
+
+  always:
+    - name: Disable ustat
+      lineinfile:
+        path: "{{ start_dss_benchmark_conf_file }}"
+        regexp: '^    "nkv_need_path_stat":'
+        line: '    "nkv_need_path_stat": 0,'
+      when: inventory_hostname in groups['servers']
+      become: true

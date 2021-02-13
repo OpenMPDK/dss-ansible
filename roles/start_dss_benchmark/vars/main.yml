@@ -1,5 +1,6 @@
 ---
 
 start_dss_benchmark_dest_dir: /usr/dss/nkv-benchmark
+start_dss_benchmark_conf_file: /usr/dss/nkv-sdk/conf/nkv_config.json
 start_dss_benchmark_log_dir: /var/log/dss
 start_dss_benchmark_minio_dir: /usr/dss/nkv-minio
