@@ -149,6 +149,7 @@
           {{ bench_generate.stderr }}
       when:
         - bench_generate.failed is defined
+        - bench_generate.failed
         - inventory_hostname in groups['clients']
       run_once: true
 
@@ -161,6 +162,7 @@
           {{ bench_benchmark.stderr }}
       when:
         - bench_benchmark.failed is defined
+        - bench_benchmark.failed
         - inventory_hostname in groups['clients']
       run_once: true
 
