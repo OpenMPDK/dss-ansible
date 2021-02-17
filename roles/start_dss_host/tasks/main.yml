@@ -83,6 +83,11 @@
     loop_var: host
   run_once: true
 
+- name: Set dss_host_kvpair cache settings if physical host
+  set_fact:
+    dss_host_kvpair: "{{ dss_host_kvpair | default('') }} nkv_use_read_cache=1 nkv_use_data_cache=1"
+  when: ansible_virtualization_role == "host"
+
 - name: Create dss_host_config_host.sh script
   copy:
     content: >
