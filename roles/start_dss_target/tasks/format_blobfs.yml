@@ -24,11 +24,20 @@
   when: execute_format_disks is not skipped
   register: format_disks
 
+- name: Find blobfs conf files
+  find:
+    paths: "{{ dss_target_conf_dir }}"
+    patterns: blobfs.mkfs.in.*.conf
+  register: blobfs_confs
+
 - name: Remove blobfs.mkfs.in.conf if format failed
   file:
-    path: "{{ dss_target_conf_dir }}/blobfs.mkfs.in.conf"
+    path: "{{ item.path }}"
     state: absent
   become: true
+  loop: "{{ blobfs_confs.files }}"
+  loop_control:
+    label: "{{ item.path }}"
   when:
     - format_disks is not skipped
     - format_disks.stdout is search('Failed to initialize filesystem')

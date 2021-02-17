@@ -2,7 +2,9 @@
 set -e
 
 source {{ start_dss_target_gcc_setenv }}
-{% for serial_number in disk_serial_numbers.stdout_lines -%}
-    ./mkfs_blobfs {{ dss_target_conf_dir }}/blobfs.mkfs.in.conf "{{ serial_number }}n1"
+{% for pcie_addr in pcie_addrs.stdout_lines -%}
+    {% set sn_regex = '^.+traddr:[^"]+" "([^"]+)"$' -%}
+    ./mkfs_blobfs {{ dss_target_conf_dir }}/blobfs.mkfs.in.{{ loop.index0 }}.conf "{{ pcie_addr | regex_replace(sn_regex, '\\1') }}n1" &
 {% endfor %}
+wait
 source {{ start_dss_target_gcc_restore_setenv }}
