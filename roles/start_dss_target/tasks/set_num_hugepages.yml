@@ -9,7 +9,7 @@
 - name: Set Hugepages vars for physical hosts
   set_fact:
     num_2mb_hugepages: 12288
-    num_1gb_hugepages: 120
+    num_1gb_hugepages: 200
   when: ansible_virtualization_role == "host"
 
 - name: Check 2MB hugepages
