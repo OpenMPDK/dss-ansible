@@ -23,7 +23,7 @@
   changed_when: false
   failed_when: false
 
-- name: Kill target processes
+- name: Kill -2 target processes
   command: "kill -2 {{ pid }}"
   register: kill_nvmf
   changed_when: kill_nvmf.stdout is not search('No such process')
@@ -47,7 +47,7 @@
   register: kill9_nvmf
   changed_when: kill9_nvmf.stdout is not search('No such process')
   failed_when: true
-  loop: "{{ nvmf_ps.stdout_lines }}"
+  loop: "{{ postnvmf_ps.stdout_lines }}"
   loop_control:
     loop_var: pid
   when: postnvmf_ps.failed
