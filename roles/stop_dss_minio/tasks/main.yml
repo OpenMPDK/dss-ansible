@@ -6,8 +6,8 @@
   changed_when: false
   failed_when: false
 
-- name: Kill minio processes
-  command: "kill -9 {{ pid }}"
+- name: Kill -2 minio processes
+  command: "kill -2 {{ pid }}"
   register: kill_minio
   changed_when: kill_minio.stdout is not search('No such process')
   failed_when: false
@@ -20,7 +20,28 @@
   command: "pgrep -x minio"
   register: postminio_ps
   until: postminio_ps.rc != 0
-  retries: 120
+  retries: 12
   delay: 5
   changed_when: false
   failed_when: false
+
+- name: Kill -9 stuck minio processes
+  command: "kill -9 {{ pid }}"
+  register: kill9_minio
+  changed_when: kill9_minio.stdout is not search('No such process')
+  failed_when: true
+  loop: "{{ postminio_ps.stdout_lines }}"
+  loop_control:
+    loop_var: pid
+  when: postminio_ps.failed
+  become: true
+
+- name: Wait for minio process to stop after kill -9
+  command: "pgrep -x minio"
+  register: postminio_ps9
+  until: postminio_ps9.rc != 0
+  retries: 12
+  delay: 5
+  changed_when: false
+  failed_when: false
+  when: postminio_ps.failed
