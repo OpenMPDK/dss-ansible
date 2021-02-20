@@ -62,28 +62,3 @@
   changed_when: false
   failed_when: false
   when: postnvmf_ps.failed
-
-- name: Stat DSS Target path
-  stat:
-    path: "{{ stop_dss_target_bin_dir }}"
-  register: dss_target_path
-
-- name: Move disks back to kernel mode (spdk reset)
-  command: ./dss_target.py reset
-  args:
-    chdir: "{{ stop_dss_target_bin_dir }}"
-  register: target_reset
-  changed_when: target_reset.stdout is search('uio_pci_generic -> nvme')
-  when: dss_target_path.stat.exists
-  become: true
-
-- name: Remove target config files
-  file:
-    path: "{{ stop_dss_target_bin_dir }}/{{ dss_file }}"
-    state: absent
-  loop:
-    - "{{ dss_target_conf_file }}"
-    - "{{ stop_dss_target_bin_dir }}/dss_target.out"
-  loop_control:
-    loop_var: dss_file
-  become: true
