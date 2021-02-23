@@ -1,0 +1,6 @@
+---
+
+- name: Start Compaction
+  hosts: servers
+  roles:
+    - start_compaction

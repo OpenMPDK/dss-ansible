@@ -1,0 +1,28 @@
+---
+
+- name: Get NVMe Subsystems
+  shell: nvme list-subsys | grep -oP 'NQN=\K.+{{ ansible_hostname.split('.')[0] }}.+'
+  register: nvme_list_subsys
+  become: true
+  changed_when: false
+
+- name: Start compaction
+  command: "/usr/dss/nkv-target/scripts/dss_rpc.py -s /var/run/spdk.sock rdb_compact -n {{ item }}"
+  loop: "{{ nvme_list_subsys.stdout_lines }}"
+  become: true
+
+- name: Check compaction status
+  command: "/usr/dss/nkv-target/scripts/dss_rpc.py -s /var/run/spdk.sock rdb_compact --get_status -n {{ item }}"
+  register: compaction_status
+  loop: "{{ nvme_list_subsys.stdout_lines }}"
+  until: >
+    compaction_status.rc !=0 or
+    compaction_status.stdout is search('IDLE')
+  changed_when: false
+  failed_when: >
+    compaction_status.rc !=0 or
+    (compaction_status.stdout is not search('IDLE') and
+    compaction_status.stdout is not search('IN PROGRESS'))
+  retries: 800
+  delay: 15
+  become: true

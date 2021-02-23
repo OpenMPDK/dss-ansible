@@ -29,7 +29,7 @@
   command: "kill -9 {{ pid }}"
   register: kill9_minio
   changed_when: kill9_minio.stdout is not search('No such process')
-  failed_when: true
+  failed_when: false
   loop: "{{ postminio_ps.stdout_lines }}"
   loop_control:
     loop_var: pid
