@@ -39,6 +39,7 @@
   command: "flint -d {{ mlx_ibdev }} query"
   changed_when: false
   register: post_upgrade_flint
+  become: true
 
 - name: Assert firmware upgrade success for adapter {{ mlx_ibdev }}
   assert:

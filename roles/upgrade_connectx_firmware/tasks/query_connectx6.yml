@@ -4,6 +4,7 @@
   command: "flint -d {{ mlx_ibdev }} query"
   changed_when: false
   register: flint_query
+  become: true
 
 - name: Assert ConnectX-6 adapter is supported {{ mlx_ibdev }}
   assert:
