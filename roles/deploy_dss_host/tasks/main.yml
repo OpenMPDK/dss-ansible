@@ -1,5 +1,12 @@
 ---
 
+- name: Enable epel-release extras repo (yum)
+  yum:
+    name: epel-release
+    enablerepo: extras
+    state: present
+  become: yes
+
 - name: Install DSS host dependencies
   yum:
     name:
