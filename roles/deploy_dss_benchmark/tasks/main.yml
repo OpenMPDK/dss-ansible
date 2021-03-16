@@ -9,7 +9,14 @@
   yum:
     name:
       - python3
+      - python3-pip
       - zstd
+  become: true
+
+- name: Upgrade pip
+  pip:
+    name: "pip=={{ pip3_version }}"
+    executable: pip3
   become: true
 
 - name: Identify benchmark tarball
@@ -67,9 +74,10 @@
   become: true
 
 - name: Install python dependencies from requirements.txt
-  command: "python3 -m pip install -r {{ deploy_dss_benchmark_dest_dir }}/scripts/requirements.txt"
+  pip:
+    requirements: "{{ deploy_dss_benchmark_dest_dir }}/scripts/requirements.txt"
+    executable: pip3
   register: benchmark_requirements
-  changed_when: "'Successfully installed' in benchmark_requirements.stdout"
   become: true
 
 - name: Copy Master SSH keys to all clients and servers
