@@ -97,3 +97,4 @@ ufm_reset_dirs:
 
 # pip settings
 pip2_version: 20.3.4
+pip3_version: 21.0.1
