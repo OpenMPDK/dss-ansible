@@ -7,6 +7,11 @@
   become: true
   run_once: true
 
+- name: Assert subsystems mounted
+  assert:
+    that: nvme_subsys.stdout_lines | length > 0
+    msg: NVMeOF subsystems not mounted. Please verify DSS software is running (start_dss_software)
+
 - name: Set nvme_subsys_list
   set_fact:
     nvme_subsys_list: "{{ nvme_subsys_list | default([]) + [ nvme_num ] }}"

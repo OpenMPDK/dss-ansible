@@ -33,6 +33,11 @@
   register: nvme_subsys
   become: true
 
+- name: Assert subsystems mounted
+  assert:
+    that: nvme_subsys.stdout_lines | length > 0
+    msg: NVMeOF subsystems not mounted. Please verify DSS software is running (start_dss_software)
+
 - name: Parse nvme list subsys
   set_fact:
     rocev2_devmap: "{{ rocev2_devmap | default([]) +
