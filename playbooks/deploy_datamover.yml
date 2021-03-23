@@ -1,0 +1,6 @@
+---
+
+- name: Deploy Data Mover
+  hosts: clients
+  roles:
+    - deploy_client_library
