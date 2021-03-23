@@ -48,6 +48,13 @@
   run_once: true
   register: client_tgz
 
+- name: Assert client tarball found
+  assert:
+    that: client_tgz.files | length > 0
+    fail_msg: "No client tarball found. Please download tarball to {{ deploy_datamover_path }}"
+    success_msg: "Found client tarball"
+  run_once: true
+
 - name: Create client library destination path
   file:
     path: "{{ deploy_client_library_dest_dir }}"
@@ -60,7 +67,6 @@
   unarchive:
     src: "{{ (client_tgz.files | sort(attribute='ctime', reverse=true) | first).path }}"
     dest: "{{ deploy_client_library_dest_dir }}"
-    # extra_opts: [--strip-components=1]
     owner: root
     group: root
     mode: 0555
