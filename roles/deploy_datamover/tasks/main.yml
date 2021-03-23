@@ -1,0 +1,40 @@
+---
+
+- name: Identify datamover tarball
+  find:
+    path: "{{ deploy_datamover_path }}"
+    patterns: 'nkv-datamover*.tgz'
+  delegate_to: localhost
+  run_once: true
+  register: datamover_tgz
+
+- name: Assert datamove tarball found
+  assert:
+    that: datamover_tgz.files | length > 0
+    fail_msg: "No datamove tarball found. Please download tarball to {{ deploy_datamover_path }}"
+    success_msg: "Found datamover tarball"
+  run_once: true
+
+- name: Create datamover destination path
+  file:
+    path: "{{ deploy_datamover_dest_dir }}"
+    state: directory
+    mode: 0755
+  become: true
+
+- name: Deploy datamover from tarball
+  unarchive:
+    src: "{{ (datamover_tgz.files | sort(attribute='ctime', reverse=true) | first).path }}"
+    dest: "{{ deploy_datamover_dest_dir }}"
+    owner: root
+    group: root
+    mode: 0555
+  become: true
+
+- name: Identify pip3 executable
+  command: "which {{ item }}"
+  loop:
+    - pip3
+    - pip-3
+  changed_when: false
+  failed_when: false
