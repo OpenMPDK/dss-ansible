@@ -4,3 +4,4 @@
   hosts: clients
   roles:
     - deploy_client_library
+    - deploy_datamover
