@@ -1,5 +1,15 @@
 ---
 
+- name: Install epel-release
+  yum:
+    name: epel-release
+  become: true
+
+- name: Install pip3
+  yum:
+    name: python3-pip
+  become: true
+
 - name: Identify datamover tarball
   find:
     path: "{{ deploy_datamover_path }}"
@@ -32,9 +42,25 @@
   become: true
 
 - name: Identify pip3 executable
-  command: "which {{ item }}"
-  loop:
-    - pip3
-    - pip-3
+  shell: which pip3 pip-3 | grep 'bin/pip' | head -n 1
+  register: pip3_path
   changed_when: false
   failed_when: false
+
+- name: Assert pip_path is found
+  assert:
+    that: pip3_path.stdout != ''
+    msg: "pip3 is not installed"
+
+- name: Upgrade pip
+  pip:
+    name: "pip=={{ pip3_version }}"
+    executable: "{{ pip3_path.stdout}}"
+  become: true
+
+- name: Install python dependencies from requirements.txt
+  pip:
+    requirements: "{{ deploy_datamover_dest_dir }}/requirements.txt"
+    executable: "{{ pip3_path.stdout}}"
+  register: benchmark_requirements
+  become: true
