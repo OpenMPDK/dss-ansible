@@ -5,11 +5,13 @@
   register: nvme_list_subsys
   become: true
   changed_when: false
+  when: dss_target_mode is search('kv_block')
 
 - name: Start compaction
   command: "/usr/dss/nkv-target/scripts/dss_rpc.py -s /var/run/spdk.sock rdb_compact -n {{ item }}"
   loop: "{{ nvme_list_subsys.stdout_lines }}"
   become: true
+  when: dss_target_mode is search('kv_block')
 
 - name: Check compaction status
   command: "/usr/dss/nkv-target/scripts/dss_rpc.py -s /var/run/spdk.sock rdb_compact --get_status -n {{ item }}"
@@ -26,3 +28,4 @@
   retries: 800
   delay: 15
   become: true
+  when: dss_target_mode is search('kv_block')
