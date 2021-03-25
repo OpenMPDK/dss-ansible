@@ -1,0 +1,14 @@
+---
+
+- name: Install Infiniband
+  yum:
+    name: '@Infiniband Support'
+    state: present
+  become: true
+
+- name: Start and enable RDMA service
+  service:
+    name: rdma
+    enabled: yes
+    state: started
+  become: true
