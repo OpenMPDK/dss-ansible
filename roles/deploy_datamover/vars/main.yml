@@ -1,0 +1,4 @@
+---
+
+deploy_datamover_path: "{{ inventory_dir }}/artifacts"
+deploy_datamover_dest_dir: /usr/dss/nkv-datamover
