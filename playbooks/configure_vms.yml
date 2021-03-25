@@ -12,4 +12,5 @@
     - configure_tuned
     - deploy_utils
     - deploy_nvme_cli
-    - deploy_softroce
+    - configure_pvrdma
+    
