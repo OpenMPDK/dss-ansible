@@ -1,0 +1,35 @@
+---
+
+# Assert disks in SPDK
+
+# Assert nvmf.in.conf found
+
+- name: Find NVMe PCIe addresses in nvmf.in.conf
+  command: >
+    grep 'TransportID "trtype:PCIe traddr' {{ dss_target_conf_dir }}/nvmf.in.conf
+  register: pcie_addrs
+  changed_when: false
+  failed_when: false
+
+- name: Assert PCIe addresses found
+  assert:
+    that: pcie_addrs.stdout_lines | length > 0
+    msg: |
+      Disk serial numbers not found in blobfs.mkfs.in.conf for firmware {{ target_fw_version }}
+      Please verify that KV / block SSDs are present on system.
+      Please verify that 'target_fw_version' var matches desired firmware.
+
+- name: Create blobfs scripts for each device
+  template:
+    src: blobfs.mkfs.in.conf.j2
+    dest: "{{ dss_target_conf_dir }}/blobfs.mkfs.in.{{ ansible_loop.index0 }}.conf"
+    mode: 0644
+  loop: "{{ pcie_addrs.stdout_lines }}"
+  loop_control:
+    extended: true
+  register: create_blobfs_conf
+  become: true
+
+- name: Create BlobFS filesystem for KV-Block
+  include_tasks: format_blobfs.yml
+  when: dss_target_mode is search('kv_block')

@@ -1,0 +1,51 @@
+---
+
+- name: Create format_disks.sh script
+  template:
+    src: format_disks.sh.j2
+    dest: "{{ start_dss_target_dest_dir }}/bin/format_disks.sh"
+    mode: 0751
+  register: create_format_disks_template
+  become: true
+
+- name: Execute format_disks.sh script
+  shell: ./format_disks.sh > format_disks.out 2>&1
+  register: execute_format_disks
+  args:
+    chdir: "{{ start_dss_target_dest_dir }}/bin"
+  when: >
+    (create_format_disks_template.changed or
+    create_blobfs_conf.changed)
+  become: true
+
+- name: Read output of format_disks.sh
+  command: "cat {{ start_dss_target_dest_dir }}/bin/format_disks.out"
+  changed_when: false
+  when: execute_format_disks is not skipped
+  register: format_disks
+
+- name: Find blobfs conf files
+  find:
+    paths: "{{ dss_target_conf_dir }}"
+    patterns: blobfs.mkfs.in.*.conf
+  register: blobfs_confs
+
+# - name: Remove blobfs.mkfs.in.conf if format failed
+#   file:
+#     path: "{{ item.path }}"
+#     state: absent
+#   become: true
+#   loop: "{{ blobfs_confs.files }}"
+#   loop_control:
+#     label: "{{ item.path }}"
+#   when:
+#     - format_disks is not skipped
+#     - format_disks.stdout is search('Failed to initialize filesystem')
+
+- name: Assert filesystem initialized successfully
+  assert:
+    that: format_disks.stdout is not search('Failed to initialize filesystem')
+    fail_msg: |
+      Failed to initialize filesystem.
+      Check {{ start_dss_target_dest_dir }}/bin/format_disks.out for details.
+  when: format_disks is not skipped

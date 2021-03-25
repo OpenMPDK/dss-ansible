@@ -1,0 +1,7 @@
+[Nvme]
+{{ item }}
+
+{% if ansible_virtualization_role == "guest" %}
+[Blobfs]
+  TrimEnabled No
+{% endif %}
