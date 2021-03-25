@@ -129,7 +129,9 @@
     - name: Start Compaction
       include_role:
         name: start_compaction
-      when: inventory_hostname in groups['servers']
+      when:
+        - inventory_hostname in groups['servers']
+        - dss_target_mode is search('kv_block')
 
     - name: Enable ustat
       lineinfile:
