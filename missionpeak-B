@@ -1,5 +1,5 @@
 [servers]
-msl-ssg-mp[01:04].msl.lab num_vlans_per_port=2 target_fw_version=ETA41KBW
+msl-ssg-mp[03:04].msl.lab num_vlans_per_port=2 target_fw_version=EDA8100Q num_subsystems=2
 
 [clients]
 
