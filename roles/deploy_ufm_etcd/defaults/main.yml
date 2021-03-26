@@ -1,3 +1,21 @@
 ---
 
 pip2_version: 20.3.4
+ufm_redfish_port: 5000
+ufm_haproxy_health_port: 5001
+ufm_zmq_subscriber_port: 6001
+ufm_etcd_client_port: 2379
+ufm_etcd_peer_port: 2380
+ufm_etcd_token: etcd-token
+ufm_etcd_packages:
+  - fping
+  - python-pip
+  - python-setuptools
+  - python3-pip
+  - etcd
+ufm_service_file: /etc/systemd/system/ufm.service
+ufm_install_packages:
+  - ufm
+  - ufmbroker
+ufm_reset_dirs:
+  - /var/lib/etcd

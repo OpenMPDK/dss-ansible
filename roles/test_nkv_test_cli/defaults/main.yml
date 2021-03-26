@@ -1,7 +1,5 @@
 ---
 
-reboot_timeout: 3600
-
 ### VLAN Settings
 rocev2_vlans:
   - id: 31

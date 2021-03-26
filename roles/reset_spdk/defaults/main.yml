@@ -1,0 +1,4 @@
+---
+
+dss_target_conf_dir: /etc/dss
+dss_target_conf_file: "{{ dss_target_conf_dir }}/nvmf.in.conf"
