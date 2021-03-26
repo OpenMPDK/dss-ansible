@@ -95,5 +95,5 @@
 #   - /var/lib/etcd
 
 ### pip Settings
-pip2_version: 20.3.4
-pip3_version: 21.0.1
+# pip2_version: 20.3.4
+# pip3_version: 21.0.1
