@@ -1,17 +1,19 @@
 [servers]
-msl-ssg-vm11.msl.lab target_fw_version=1.0 tcp_ip_list="['10.1.51.35']" rocev2_ip_list="['192.168.199.11']" dss_target_mode=kv_block_vm
-msl-ssg-vm12.msl.lab target_fw_version=1.0 tcp_ip_list="['10.1.51.38']" rocev2_ip_list="['192.168.199.12']" dss_target_mode=kv_block_vm
-msl-ssg-vm13.msl.lab target_fw_version=1.0 tcp_ip_list="['10.1.51.58']" rocev2_ip_list="['192.168.199.13']" dss_target_mode=kv_block_vm
-msl-ssg-vm14.msl.lab target_fw_version=1.0 tcp_ip_list="['10.1.51.24']" rocev2_ip_list="['192.168.199.14']" dss_target_mode=kv_block_vm
-msl-ssg-vm15.msl.lab target_fw_version=1.0 tcp_ip_list="['10.1.50.230']" rocev2_ip_list="['192.168.199.15']" dss_target_mode=kv_block_vm
-msl-ssg-vm16.msl.lab target_fw_version=1.0 tcp_ip_list="['10.1.50.235']" rocev2_ip_list="['192.168.199.16']" dss_target_mode=kv_block_vm
-msl-ssg-vm17.msl.lab target_fw_version=1.0 tcp_ip_list="['10.1.50.226']" rocev2_ip_list="['192.168.199.17']" dss_target_mode=kv_block_vm
-msl-ssg-vm18.msl.lab target_fw_version=1.0 tcp_ip_list="['10.1.50.227']" rocev2_ip_list="['192.168.199.18']" dss_target_mode=kv_block_vm
-msl-ssg-vm19.msl.lab target_fw_version=1.0 tcp_ip_list="['10.1.50.234']" rocev2_ip_list="['192.168.199.19']" dss_target_mode=kv_block_vm
-msl-ssg-vm20.msl.lab target_fw_version=1.0 tcp_ip_list="['10.1.50.232']" rocev2_ip_list="['192.168.199.20']" dss_target_mode=kv_block_vm
+msl-ssg-vm11.msl.lab tcp_ip_list="['10.1.51.35']" rocev2_ip_list="['192.168.199.11']"
+msl-ssg-vm12.msl.lab tcp_ip_list="['10.1.51.38']" rocev2_ip_list="['192.168.199.12']"
+msl-ssg-vm13.msl.lab tcp_ip_list="['10.1.51.58']" rocev2_ip_list="['192.168.199.13']"
+msl-ssg-vm14.msl.lab tcp_ip_list="['10.1.51.24']" rocev2_ip_list="['192.168.199.14']"
+msl-ssg-vm15.msl.lab tcp_ip_list="['10.1.50.230']" rocev2_ip_list="['192.168.199.15']"
+msl-ssg-vm16.msl.lab tcp_ip_list="['10.1.50.235']" rocev2_ip_list="['192.168.199.16']"
+msl-ssg-vm17.msl.lab tcp_ip_list="['10.1.50.226']" rocev2_ip_list="['192.168.199.17']"
+msl-ssg-vm18.msl.lab tcp_ip_list="['10.1.50.227']" rocev2_ip_list="['192.168.199.18']"
+msl-ssg-vm19.msl.lab tcp_ip_list="['10.1.50.234']" rocev2_ip_list="['192.168.199.19']"
+msl-ssg-vm20.msl.lab tcp_ip_list="['10.1.50.232']" rocev2_ip_list="['192.168.199.20']"
 
 [servers:vars]
 ansible_user=ssgroot
+target_fw_version=1.0
+dss_target_mode=kv_block_vm
 
 [clients]
 msl-ssg-vm11.msl.lab
