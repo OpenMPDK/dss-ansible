@@ -1,7 +1,0 @@
----
-
-- name: Remove GCC
-  yum:
-    name: kewb-gcc510
-    state: absent
-  become: true
