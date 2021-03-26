@@ -9,7 +9,7 @@
 #   - SAMSUNG MZ4LB3T8HALS-00003
 #   - MZQLB3T8HALS-000AZ-001
 # num_subsystems: 1
-mtu_size: 9000
+# mtu_size: 9000
 
 minio_port: 9000
 minio_ec: 2
@@ -22,7 +22,6 @@ minio_nkv_shared: 1
 minio_ec_block_size: 1048576
 minio_enable_no_lock_read: 1
 minio_enable_no_lock_verify: 1
-benchmark_bucket_prefix: benchmark-bucket-
 minio_access_key: minio
 minio_secret_key: minio123
 minio_no_lock_write: 1
@@ -39,6 +38,8 @@ benchmark_duration: 120s
 benchmark_concurrent: 1
 benchmark_cap: 0GiB
 benchmark_client_start_port: 7000
+benchmark_bucket_prefix: benchmark-bucket-
+
 
 # Stats Server
 # Graphite server
