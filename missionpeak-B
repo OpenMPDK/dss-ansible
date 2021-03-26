@@ -1,5 +1,5 @@
 [servers]
-msl-ssg-mp[03:04].msl.lab num_vlans_per_port=2 target_fw_version=EDA8100Q num_subsystems=2
+msl-ssg-mp[03:04].msl.lab num_vlans_per_port=2 target_fw_version=EDA8100Q
 
 [clients]
 
@@ -10,6 +10,7 @@ msl-ssg-mlnx01.msl.lab
 ansible_user=ansible
 tcp_vlan_id_list=[41,42]
 rocev2_vlan_id_list=[31,32]
+num_subsystems=2
 
 [clients:vars]
 ansible_user=ansible

@@ -8,7 +8,7 @@
 #   - MZ4LB3T8HALS-00003-001
 #   - SAMSUNG MZ4LB3T8HALS-00003
 #   - MZQLB3T8HALS-000AZ-001
-num_subsystems: 1
+# num_subsystems: 1
 mtu_size: 9000
 
 minio_port: 9000
