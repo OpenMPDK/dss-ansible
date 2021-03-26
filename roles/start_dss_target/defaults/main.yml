@@ -1,9 +1,7 @@
 ---
 
-# dss_target_mode: kv
-# dss_target_mode: kv_block_vm
+# dss_target_mode valid values: [kv, kv_block_vm, kv_block_perf, block]
 dss_target_mode: kv_block_perf
-# dss_target_mode: block
 dss_target_enable_tcp: 0
 dss_target_enable_rdma: 1
 
