@@ -13,13 +13,14 @@
 
 - name: Set kvssd_format_list variable
   set_fact:
-    kvssd_format_list: "{{ kvssd_format_list | default([]) + [ item.DevicePath ] }}"
+    kvssd_format_list: "{{ kvssd_format_list | default([]) + [ kvssd.DevicePath ] }}"
   loop: "{{ (nvme_list.stdout | from_json).Devices }}"
   loop_control:
-    label: "{{ item.DevicePath }}"
+    label: "{{ kvssd.DevicePath }}"
+    loop_var: kvssd
   when:
-    - item.ModelNumber in kvssd_models
-    - item.Firmware == target_fw_version
+    - kvssd.ModelNumber in kvssd_models
+    - kvssd.Firmware == target_fw_version
 
 - name: Format kvssd devices
   command: "nvme format {{ kvssd_device_path }} -s0 -n1"
@@ -27,11 +28,12 @@
   async: 300
   poll: 0
   vars:
-    kvssd_device_path: "{{ item | regex_replace('n\\d+$', '') }}"
+    kvssd_device_path: "{{ format_kvssd | regex_replace('n\\d+$', '') }}"
     kvssd_fw_bin: "{{ upgrade_kvssd_firmware_staging_dir }}/{{ firmware_bin.files[0].path | basename }}"
   loop: "{{ kvssd_format_list }}"
   loop_control:
     label: "{{ kvssd_device_path }}"
+    loop_var: format_kvssd
   become: true
 
 - name: Check async nvme reset
