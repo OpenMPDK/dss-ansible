@@ -1,0 +1,12 @@
+---
+
+- name: Remove DSS Software
+  import_playbook: remove_dss_software.yml
+
+- name: Format Disks
+  hosts: servers
+  roles:
+    - format_disks
+
+- name: Deploy DSS Software
+  import_playbook: deploy_dss_software.yml
