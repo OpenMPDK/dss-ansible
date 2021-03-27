@@ -1,8 +1,29 @@
 ---
 
-# Assert disks in SPDK
+- name: Get spdk status
+  command: ./setup.sh status
+  changed_when: false
+  args:
+    chdir: "{{ start_dss_target_dest_dir }}/scripts"
+  register: spdk_status
+  become: true
 
-# Assert nvmf.in.conf found
+- name: Assert disks in SPDK mode
+  assert:
+    that: >
+     spdk_status.stdout is search('uio_pci_generic') or
+     spdk_status.stdout is search('vfio-pci')
+    msg: Cannot format BlobFS. Disks are not in SPDK mode. Start DSS software first.
+
+- name: Stat nvmf.in.conf
+  stat:
+    path: "{{ dss_target_conf_dir }}/nvmf.in.conf"
+  register: nvmf_in_conf
+
+- name: Assert nvmf.in.conf found
+  assert:
+    that: nvmf_in_conf.stat.exists
+    msg: nvmf.in.conf not found. Start DSS software first.
 
 - name: Find NVMe PCIe addresses in nvmf.in.conf
   command: >
@@ -15,9 +36,10 @@
   assert:
     that: pcie_addrs.stdout_lines | length > 0
     msg: |
-      Disk serial numbers not found in blobfs.mkfs.in.conf for firmware {{ target_fw_version }}
-      Please verify that KV / block SSDs are present on system.
+      Disk serial numbers not found in blobfs.mkfs.in.conf for firmware {{ target_fw_version }}.
       Please verify that 'target_fw_version' var matches desired firmware.
+      Execute 'stop_reset_dss_software' playbook to put disks back into kernel mode.
+      Then verify desired SSD firmware version.
 
 - name: Create blobfs scripts for each device
   template:
