@@ -12,6 +12,3 @@ ufm_etcd_packages:
   - python-setuptools
   - python3-pip
   - etcd
-ufm_install_packages:
-  - ufm
-  - ufmbroker
