@@ -15,4 +15,4 @@ minio_secret_key: minio123
 minio_mc_alias: autominio
 minio_port: 9000
 
-dss_target_mode=kv_block_vm
+dss_target_mode: kv_block_vm
