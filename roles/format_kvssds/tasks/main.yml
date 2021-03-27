@@ -34,6 +34,7 @@
   loop_control:
     label: "{{ kvssd_device_path }}"
     loop_var: format_kvssd
+  when: kvssd_format_list is defined
   become: true
 
 - name: Check async nvme reset
@@ -41,3 +42,4 @@
   vars:
     async_name: "format kvssd"
     async_tasks: "{{ kvssd_format.results }}"
+  when: kvssd_format_list is defined
