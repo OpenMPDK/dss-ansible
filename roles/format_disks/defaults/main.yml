@@ -1,7 +1,4 @@
 ---
 
-dss_target_conf_dir: /etc/dss
-start_dss_target_dest_dir: /usr/dss/nkv-target
-
 ### dss_target_mode valid values: [kv, kv_block_vm, kv_block_perf, block]
 dss_target_mode: kv_block_perf
