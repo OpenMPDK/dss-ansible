@@ -46,23 +46,12 @@
   assert:
     that: pcie_addrs.stdout_lines | length > 0
     msg: |
-      Disk serial numbers not found in blobfs.mkfs.in.conf for firmware {{ target_fw_version }}
-      Please verify that KV / block SSDs are present on system.
+      Disk serial numbers not found in nvmf.in.conf for firmware {{ target_fw_version }}
       Please verify that 'target_fw_version' var matches desired firmware.
 
-- name: Create blobfs scripts for each device
-  template:
-    src: blobfs.mkfs.in.conf.j2
-    dest: "{{ dss_target_conf_dir }}/blobfs.mkfs.in.{{ ansible_loop.index0 }}.conf"
-    mode: 0644
-  loop: "{{ pcie_addrs.stdout_lines }}"
-  loop_control:
-    extended: true
-  register: create_blobfs_conf
-  become: true
-
-- name: Create BlobFS filesystem for KV-Block
-  include_tasks: format_blobfs.yml
+- name: Format BlobFS
+  include_role:
+    name: format_blobfs
   when: dss_target_mode is search('kv_block')
 
 - name: Read dss_target.out
