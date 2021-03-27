@@ -1,5 +1,6 @@
 ---
 
+num_subsystems: 1
 dss_host_kvpair:
 
 ### VLAN Settings
