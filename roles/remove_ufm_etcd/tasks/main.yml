@@ -1,9 +1,13 @@
 ---
 
-- name: Remove FabricManager - CentOS
-  import_tasks: ufm_centos.yml
-  when: ansible_os_family == 'RedHat'
+- name: Remove UFM yum Repository
+  yum_repository:
+    name: ufm
+    state: absent
+  become: yes
 
-- name: Remove FabricManager - Ubuntu
-  import_tasks: ufm_ubuntu.yml
-  when: ansible_distribution == 'Ubuntu'
+- name: Remove UFM Packages (yum)
+  yum:
+    name: "{{ ufm_install_packages }}"
+    state: absent
+  become: yes
