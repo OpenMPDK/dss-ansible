@@ -46,7 +46,6 @@
     path: "{{ deploy_dss_target_dest_dir }}"
     state: directory
     mode: 0555
-  register: create_target_dir
   become: true
 
 - name: Deploy target from tarball
@@ -57,7 +56,6 @@
     owner: root
     group: root
     mode: 0555
-  when: create_target_dir.changed
   become: true
 
 - name: Create log dir

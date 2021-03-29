@@ -50,7 +50,6 @@
     path: "{{ deploy_host_dest_dir }}"
     state: directory
     mode: 0555
-  register: create_host_dir
   become: true
 
 - name: Deploy host from tarball
@@ -61,5 +60,4 @@
     owner: root
     group: root
     mode: 0555
-  when: create_host_dir.changed
   become: true

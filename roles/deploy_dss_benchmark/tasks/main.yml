@@ -45,7 +45,6 @@
     path: "{{ deploy_dss_benchmark_dest_dir }}"
     state: directory
     mode: 0755
-  register: create_benchmark_dir
   become: true
 
 - name: Deploy benchmark from tarball
@@ -56,7 +55,6 @@
     owner: root
     group: root
     mode: 0555
-  when: create_benchmark_dir.changed
   become: true
 
 - name: Deploy ustat from target tarball
@@ -70,7 +68,6 @@
     owner: root
     group: root
     mode: 0555
-  when: create_benchmark_dir.changed
   become: true
 
 - name: Install python dependencies from requirements.txt
