@@ -76,7 +76,7 @@
   shell: >
     sleep 1 &&
     nohup ./minio_startup_{{ ip_address }}.sh >
-    {{ start_dss_minio_log_dir }}/nkv-minio_{{ ip_address }}.log 2>&1 &
+    {{ dss_log_dir }}/nkv-minio_{{ ip_address }}.log 2>&1 &
   args:
     chdir: "{{ start_dss_minio_host_bin_dir }}"
   loop: "{{ tcp_ip_list }}"
@@ -111,7 +111,7 @@
   when: combined_vlan_ip_map | length > 1
 
 - name: Assert minio instances online
-  command: "cat {{ start_dss_minio_log_dir }}/nkv-minio_{{ ip_address }}.log"
+  command: "cat {{ dss_log_dir }}/nkv-minio_{{ ip_address }}.log"
   loop: "{{ tcp_ip_list }}"
   changed_when: false
   loop_control:

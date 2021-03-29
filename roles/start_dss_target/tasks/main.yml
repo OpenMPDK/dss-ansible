@@ -82,14 +82,14 @@
   failed_when: false
 
 - name: Start DSS target process
-  shell: source {{ start_dss_target_gcc_setenv }} && nohup {{ nvmf_tgt_cmd }} > {{ start_dss_target_log_dir }}/nkv-target.log 2>&1 &
+  shell: source {{ start_dss_target_gcc_setenv }} && nohup {{ nvmf_tgt_cmd }} > {{ dss_log_dir }}/nkv-target.log 2>&1 &
   args:
     chdir: "{{ start_dss_target_dest_dir }}/bin"
   when: nvmf_ps.rc != 0
   become: true
 
 - name: Wait for subsystems to initialize
-  command: "cat {{ start_dss_target_log_dir }}/nkv-target.log"
+  command: "cat {{ dss_log_dir }}/nkv-target.log"
   changed_when: false
   failed_when: false
   register: subsystem_initialized
@@ -109,5 +109,5 @@
       One or more subsystems failed to initialize.
 
       ***
-      {{ start_dss_target_log_dir }}/nkv-target.log:
+      {{ dss_log_dir }}/nkv-target.log:
       {{ subsystem_initialized.stdout }}

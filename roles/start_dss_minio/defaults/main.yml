@@ -17,6 +17,8 @@ minio_no_lock_write: 1
 minio_opt_write: 1
 minio_non_transactional_write: 1
 
+dss_log_dir: /var/log/dss
+
 ### VLAN Settings
 rocev2_vlans:
   - id: 31

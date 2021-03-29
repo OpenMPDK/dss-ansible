@@ -49,7 +49,7 @@
 
 - name: Create log dir
   file:
-    path: "{{ deploy_dss_minio_log_dir }}"
+    path: "{{ dss_log_dir }}"
     state: directory
     mode: 0755
   become: true

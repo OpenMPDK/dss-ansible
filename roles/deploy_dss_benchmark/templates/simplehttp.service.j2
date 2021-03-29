@@ -4,7 +4,7 @@ Documentation=man:SimpleHTTPServer(1)
 
 [Service]
 Type=simple
-WorkingDirectory={{ deploy_dss_benchmark_log_dir }}
+WorkingDirectory={{ dss_log_dir }}
 ExecStart=/usr/bin/python -m SimpleHTTPServer {{ deploy_dss_benchmark_httpd_port }}
 
 [Install]
