@@ -1,0 +1,6 @@
+---
+
+exclude_errors_list:
+  - 'Failed to initialize'
+  - 'INI configuration'
+  - 'spdk_trace_register_description'
