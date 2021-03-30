@@ -1,0 +1,10 @@
+---
+
+- name: Debug DSS Software
+  hosts:
+    - servers
+  roles:
+    - check_minio_up
+    - check_target_up
+    - check_minio_errors
+    - check_target_errors
