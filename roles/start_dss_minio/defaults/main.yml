@@ -11,9 +11,26 @@ minio_nkv_shared: 1
 minio_ec_block_size: 1048576
 minio_enable_no_lock_read: 1
 minio_enable_no_lock_verify: 1
-benchmark_bucket_prefix: benchmark-bucket-
 minio_access_key: minio
 minio_secret_key: minio123
 minio_no_lock_write: 1
 minio_opt_write: 1
 minio_non_transactional_write: 1
+
+dss_log_dir: /var/log/dss
+
+### VLAN Settings
+rocev2_vlans:
+  - id: 31
+    ip_prefix: 201.0.0
+    netmask: 255.0.0.0
+  - id: 32
+    ip_prefix: 203.0.0
+    netmask: 255.0.0.0
+tcp_vlans:
+  - id: 41
+    ip_prefix: 202.0.0
+    netmask: 255.0.0.0
+  - id: 42
+    ip_prefix: 204.0.0
+    netmask: 255.0.0.0

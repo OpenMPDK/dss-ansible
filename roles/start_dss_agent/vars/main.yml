@@ -5,4 +5,4 @@ start_dss_agent_temp_dir: /tmp/dss
 dss_agent_dir: /usr/share/nkvagent
 kv_cli_location: "{{ dss_agent_dir }}/kv-cli.py"
 dss_subsystem_script_temp_file: "{{ start_dss_agent_temp_dir }}/subsystem_store.py"
-start_dss_agent_subsystem_log: /var/log/dss/subsystem_store.log
+start_dss_agent_subsystem_log: "{{ dss_log_dir }}/subsystem_store.log"

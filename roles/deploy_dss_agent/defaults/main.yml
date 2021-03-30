@@ -1,0 +1,7 @@
+---
+
+stats_proto: graphite
+stats_ip: 0.0.0.0
+stats_port: 2004
+dss_target_conf_dir: /etc/dss
+dss_target_conf_file: "{{ dss_target_conf_dir }}/nvmf.in.conf"

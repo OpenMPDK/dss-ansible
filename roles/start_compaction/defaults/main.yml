@@ -1,0 +1,4 @@
+---
+
+# dss_target_mode valid values: [kv, kv_block_vm, kv_block_perf, block]
+dss_target_mode: kv_block_perf

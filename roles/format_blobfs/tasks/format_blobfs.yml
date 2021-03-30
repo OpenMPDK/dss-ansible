@@ -30,18 +30,6 @@
     patterns: blobfs.mkfs.in.*.conf
   register: blobfs_confs
 
-- name: Remove blobfs.mkfs.in.conf if format failed
-  file:
-    path: "{{ item.path }}"
-    state: absent
-  become: true
-  loop: "{{ blobfs_confs.files }}"
-  loop_control:
-    label: "{{ item.path }}"
-  when:
-    - format_disks is not skipped
-    - format_disks.stdout is search('Failed to initialize filesystem')
-
 - name: Assert filesystem initialized successfully
   assert:
     that: format_disks.stdout is not search('Failed to initialize filesystem')

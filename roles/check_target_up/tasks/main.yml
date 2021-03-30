@@ -1,0 +1,11 @@
+---
+
+- name: pgrep target instances
+  command: pgrep reactor_
+  changed_when: false
+  failed_when: false
+  register: target_instances
+
+- name: Print number of target instances running
+  debug:
+    msg: "Target instances running: {{ target_instances.stdout_lines | length }}"

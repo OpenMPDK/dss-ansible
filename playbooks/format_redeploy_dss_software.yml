@@ -3,10 +3,10 @@
 - name: Remove DSS Software
   import_playbook: remove_dss_software.yml
 
-- name: Format KVSSD devices
+- name: Format Disks
   hosts: servers
   roles:
-    - format_kvssds
+    - format_disks
 
 - name: Deploy DSS Software
   import_playbook: deploy_dss_software.yml

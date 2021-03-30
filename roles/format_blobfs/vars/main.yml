@@ -1,0 +1,5 @@
+---
+
+format_blobfs_target_dir: /usr/dss/nkv-target
+start_dss_target_gcc_setenv: /usr/local/bin/setenv-for-gcc510.sh
+start_dss_target_gcc_restore_setenv: /usr/local/bin/restore-default-paths-gcc510.sh

@@ -17,4 +17,4 @@
     - /var/log/nkv-agent
     - /etc/nkv-agent
     - /tmp/dss
-    - /var/log/dss/subsystem_store.log
+    - "{{ dss_log_dir }}/subsystem_store.log"

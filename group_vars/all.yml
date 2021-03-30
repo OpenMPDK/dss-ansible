@@ -1,100 +1,100 @@
 ---
 
-target_fw_version: ETA51KCB
-kvssd_models:
-  - SAMSUNG MZQLB3T8HALS-000AZ
-  - SAMSUNG MZQLB3T8HALS-00007
-  - MZ4LB3T8HALS-00003
-  - MZ4LB3T8HALS-00003-001
-  - SAMSUNG MZ4LB3T8HALS-00003
-  - MZQLB3T8HALS-000AZ-001
-num_subsystems: 1
-mtu_size: 9000
+### Target Settings
+# target_fw_version: ETA51KCB
+# kvssd_models:
+#   - SAMSUNG MZQLB3T8HALS-000AZ
+#   - SAMSUNG MZQLB3T8HALS-00007
+#   - MZ4LB3T8HALS-00003
+#   - MZ4LB3T8HALS-00003-001
+#   - SAMSUNG MZ4LB3T8HALS-00003
+#   - MZQLB3T8HALS-000AZ-001
+# num_subsystems: 1
+# mtu_size: 9000
+### dss_target_mode valid values: [kv, kv_block_vm, kv_block_perf, block]
+# dss_target_mode: kv_block_perf
+# dss_target_enable_tcp: 0
+# dss_target_enable_rdma: 1
+# dss_target_conf_dir: /etc/dss
+# dss_target_conf_file: "{{ dss_target_conf_dir }}/nvmf.in.conf"
+# dss_log_dir: /var/log/dss
 
-minio_port: 9000
-minio_ec: 2
-minio_nkv_timeout: 20
-minio_nkv_sync: 1
-minio_on_kv: 1
-minio_nkv_use_custom_reader: 1
-minio_nkv_shared_sync_interval: 2
-minio_nkv_shared: 1
-minio_ec_block_size: 1048576
-minio_enable_no_lock_read: 1
-minio_enable_no_lock_verify: 1
-benchmark_bucket_prefix: benchmark-bucket-
-minio_access_key: minio
-minio_secret_key: minio123
-minio_no_lock_write: 1
-minio_opt_write: 1
-minio_non_transactional_write: 1
-minio_mc_alias: autominio
+### Minio Settings
+# minio_port: 9000
+# minio_ec: 2
+# minio_nkv_timeout: 20
+# minio_nkv_sync: 1
+# minio_on_kv: 1
+# minio_nkv_use_custom_reader: 1
+# minio_nkv_shared_sync_interval: 2
+# minio_nkv_shared: 1
+# minio_ec_block_size: 1048576
+# minio_enable_no_lock_read: 1
+# minio_enable_no_lock_verify: 1
+# minio_access_key: minio
+# minio_secret_key: minio123
+# minio_no_lock_write: 1
+# minio_opt_write: 1
+# minio_non_transactional_write: 1
+# minio_mc_alias: autominio
 
-benchmark_objects: 1000
-benchmark_clients: 20
-benchmark_rate_limit: 0
-benchmark_software_rate_limit: 250MiB
-benchmark_ustat_profiles: ''
-benchmark_duration: 120s
-benchmark_concurrent: 1
-benchmark_cap: 0GiB
-benchmark_client_start_port: 7000
+### AI Benchmark Settings
+# benchmark_objects: 1000
+# benchmark_clients: 20
+# benchmark_rate_limit: 0
+# benchmark_software_rate_limit: 250MiB
+# benchmark_ustat_profiles: ''
+# benchmark_duration: 120s
+# benchmark_concurrent: 1
+# benchmark_cap: 0GiB
+# benchmark_client_start_port: 7000
+# benchmark_bucket_prefix: benchmark-bucket-
 
-# Stats Server
-# Graphite server
-stats_proto: graphite
-stats_ip: 0.0.0.0
-stats_port: 2004
+### Stats / Graphite Server Settings
+# stats_proto: graphite
+# stats_ip: 0.0.0.0
+# stats_port: 2004
 
-# target
-# dss_target_mode: kv
-# dss_target_mode: kv_block_vm
-dss_target_mode: kv_block_perf
-# dss_target_mode: block
-dss_target_enable_tcp: 0
-dss_target_enable_rdma: 1
-dss_target_conf_dir: /etc/dss
-dss_target_conf_file: "{{ dss_target_conf_dir }}/nvmf.in.conf"
+### NKV-SDK Host Settings
+# dss_host_kvpair:
 
-# host
-dss_host_kvpair:
+### VLAN Settings
+# rocev2_vlans:
+#   - id: 31
+#     ip_prefix: 201.0.0
+#     netmask: 255.0.0.0
+#   - id: 32
+#     ip_prefix: 203.0.0
+#     netmask: 255.0.0.0
+# tcp_vlans:
+#   - id: 41
+#     ip_prefix: 202.0.0
+#     netmask: 255.0.0.0
+#   - id: 42
+#     ip_prefix: 204.0.0
+#     netmask: 255.0.0.0
 
-rocev2_vlans:
-  - id: 31
-    ip_prefix: 201.0.0
-    netmask: 255.0.0.0
-  - id: 32
-    ip_prefix: 203.0.0
-    netmask: 255.0.0.0
-tcp_vlans:
-  - id: 41
-    ip_prefix: 202.0.0
-    netmask: 255.0.0.0
-  - id: 42
-    ip_prefix: 204.0.0
-    netmask: 255.0.0.0
+### UFM Settings
+# ufm_redfish_port: 5000
+# ufm_haproxy_health_port: 5001
+# ufm_zmq_subscriber_port: 6001
+# ufm_etcd_client_port: 2379
+# ufm_etcd_peer_port: 2380
+# ufm_etcd_token: etcd-token
+# ufm_etcd_packages:
+#   - fping
+#   - python-pip
+#   - python-setuptools
+#   - python3-pip
+#   - etcd
+# ufm_service_file: /etc/systemd/system/ufm.service
+# ufm_etcd_service_file: /etc/systemd/system/ufm_etcd.service
+# ufm_install_packages:
+#   - ufm
+#   - ufmbroker
+# ufm_reset_dirs:
+#   - /var/lib/etcd
 
-# UFM Settings
-ufm_redfish_port: 5000
-ufm_haproxy_health_port: 5001
-ufm_zmq_subscriber_port: 6001
-ufm_etcd_client_port: 2379
-ufm_etcd_peer_port: 2380
-ufm_etcd_token: etcd-token
-ufm_etcd_packages:
-  - fping
-  - python-pip
-  - python-setuptools
-  - python3-pip
-  - etcd
-ufm_service_file: /etc/systemd/system/ufm.service
-ufm_etcd_service_file: /etc/systemd/system/ufm_etcd.service
-ufm_install_packages:
-  - ufm
-  - ufmbroker
-ufm_reset_dirs:
-  - /var/lib/etcd
-
-# pip settings
-pip2_version: 20.3.4
-pip3_version: 21.0.1
+### pip Settings
+# pip2_version: 20.3.4
+# pip3_version: 21.0.1

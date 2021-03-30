@@ -1,13 +1,12 @@
 ---
 
-# dss_target_mode: kv
-# dss_target_mode: kv_block_vm
+### dss_target_mode valid values: [kv, kv_block_vm, kv_block_perf, block]
 dss_target_mode: kv_block_perf
-# dss_target_mode: block
+dss_log_dir: /var/log/dss
 dss_target_enable_tcp: 0
 dss_target_enable_rdma: 1
-
 dss_target_conf_dir: /etc/dss
+dss_target_conf_file: "{{ dss_target_conf_dir }}/nvmf.in.conf"
 num_subsystems: 1
 rocev2_vlans:
   - id: 31

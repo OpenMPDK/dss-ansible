@@ -1,0 +1,5 @@
+---
+
+ufm_etcd_service_file: /etc/systemd/system/ufm_etcd.service
+ufm_reset_dirs:
+  - /var/lib/etcd

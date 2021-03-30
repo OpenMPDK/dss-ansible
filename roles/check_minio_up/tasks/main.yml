@@ -1,0 +1,11 @@
+---
+
+- name: pgrep minio instances
+  command: pgrep -x minio
+  changed_when: false
+  failed_when: false
+  register: minio_instances
+
+- name: Print number of minio instances running
+  debug:
+    msg: "Minio instances running: {{ minio_instances.stdout_lines | length }}"

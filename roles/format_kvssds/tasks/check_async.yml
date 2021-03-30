@@ -10,7 +10,7 @@
   loop: "{{ async_tasks }}"
   loop_control:
     loop_var: async_task
-    label: "{{ async_task.item }}"
+    label: "{{ async_task.format_kvssd }}"
   become: true
 
 - name: Assert async {{ async_name }} completion
@@ -21,3 +21,4 @@
   loop: "{{ async_results.results }}"
   loop_control:
     loop_var: async_result
+    label: "{{ async_result.invocation.module_args._raw_params }}"

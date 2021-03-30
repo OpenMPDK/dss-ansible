@@ -1,0 +1,14 @@
+---
+
+- name: Remove BlobFS Files
+  include_role:
+    name: remove_blobfs_files
+  when: dss_target_mode is search('kv_block')
+
+- name: Format KVSSD
+  include_role:
+    name: "{{ item }}"
+  loop:
+    - reset_spdk
+    - format_kvssds
+  when: dss_target_mode is not search('kv_block')

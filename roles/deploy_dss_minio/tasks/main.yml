@@ -26,7 +26,6 @@
     path: "{{ deploy_dss_minio_dest_dir }}"
     state: directory
     mode: 0755
-  register: create_minio_dir
   become: true
 
 - name: Deploy minio from tarball
@@ -36,7 +35,6 @@
     owner: root
     group: root
     mode: 0555
-  when: create_minio_dir.changed
   become: true
 
 - name: Create minio symlink to host bin dir
@@ -44,12 +42,14 @@
     src: "{{ deploy_dss_minio_dest_dir }}/minio"
     dest: "{{ deploy_dss_minio_host_bin_dir }}/minio"
     state: link
-  when: inventory_hostname in groups['servers']
+  when:
+    - inventory_hostname in groups['servers']
+    - is_benchmark is not defined
   become: true
 
 - name: Create log dir
   file:
-    path: "{{ deploy_dss_minio_log_dir }}"
+    path: "{{ dss_log_dir }}"
     state: directory
     mode: 0755
   become: true

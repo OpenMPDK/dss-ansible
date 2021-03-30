@@ -63,7 +63,7 @@
       --warp-binary {{ start_dss_benchmark_dest_dir }}/warp
       --access-key {{ minio_access_key }}
       --secret-key "{{ minio_secret_key }}"
-      --output-dir {{ start_dss_benchmark_log_dir }}
+      --output-dir {{ dss_log_dir }}
       --client-start-port {{ benchmark_client_start_port }}
     dest: "{{ start_dss_benchmark_dest_dir }}/scripts/dss_benchmark_generate.sh"
     mode: 0755
@@ -84,7 +84,7 @@
       --warp-binary {{ start_dss_benchmark_dest_dir }}/warp
       --access-key {{ minio_access_key }}
       --secret-key "{{ minio_secret_key }}"
-      --output-dir {{ start_dss_benchmark_log_dir }}
+      --output-dir {{ dss_log_dir }}
       --duration {{ benchmark_duration }}
       --concurrent {{ benchmark_concurrent }}
       --cap {{ benchmark_cap }}
@@ -113,7 +113,7 @@
       shell: >
         set -o pipefail &&
         {{ start_dss_benchmark_dest_dir }}/scripts/dss_benchmark_generate.sh
-        | tee -a {{ start_dss_benchmark_log_dir }}/nkv-benchmark-generate.log
+        | tee -a {{ dss_log_dir }}/nkv-benchmark-generate.log
       run_once: true
       register: bench_generate
       no_log: true
@@ -129,7 +129,9 @@
     - name: Start Compaction
       include_role:
         name: start_compaction
-      when: inventory_hostname in groups['servers']
+      when:
+        - inventory_hostname in groups['servers']
+        - dss_target_mode is search('kv_block')
 
     - name: Enable ustat
       lineinfile:
@@ -143,7 +145,7 @@
       shell: >
         set -o pipefail &&
         {{ start_dss_benchmark_dest_dir }}/scripts/dss_benchmark.sh
-        | tee -a {{ start_dss_benchmark_log_dir }}/nkv-benchmark.log
+        | tee -a {{ dss_log_dir }}/nkv-benchmark.log
       run_once: true
       register: bench_benchmark
       no_log: true
