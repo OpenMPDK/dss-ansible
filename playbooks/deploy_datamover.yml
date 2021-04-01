@@ -30,6 +30,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Get VLAN information of Minio servers
+  hosts: servers
+  roles:
+    - get_tcp_vlan_ip_list
+
 - name: Deploy Data Mover
   hosts: clients
   roles:
