@@ -74,3 +74,11 @@
       file_size=2000000
       file_cnt=10
   become: true
+
+- name: Copy sflowtool binary
+  copy:
+    src: sflowtool
+    dest: /usr/bin/sflowtool
+    mode: 0755
+  become: true
+
