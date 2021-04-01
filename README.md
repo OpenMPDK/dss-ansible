@@ -2,26 +2,29 @@
 
 ## Overview
 
-Our deployment uses Ansible automation to configure systems and orchestrate deployment of our software.
+Ansible automation for configuring systems and orchestrating deployment of TESS software.
 
 ## Pre-deployment
 
 ### VM Setup and Configuration
 
- We install VSphere (ESXi, VCSA), which automatically gets an unlimited evaluation license. The ESXi version is 7.0.0 with Enterprise Plus license and VCenter Server Appliance has Standard license.
+* ESXi 7.0.0 with Enterprise Plus or Evaluation license
+* vCenter Server Appliance with Standard or Evaluation license
 
-The specification of our server is as below:
+
+Suggested ESXi specifications:
 
         CPU: Intel(R) Xeon(R) CPU E5-2696 v4 @ 2.20GHz
         Cores: 22 cores per socket,
         CPU sockets: 2
         HyperThreading: Enabled
         Memory: 512G (DDR4)
-        NIC: 2x Mellanox ConnectX-4 100g
 
-*To run a cluster of 10 VM on ESXi server, we would recommend the server has 512 GB Memory and at least 1TB of SSD datastore.*
+Suggested ESXi storage:
 
-Each of our VM has the following configuration:
+        Minimum 1TB SSD for local datastore
+
+Guest VM Specification:
 
         VM Hardware version: 17
         OS guest: CentOS 7.9
@@ -36,10 +39,11 @@ Each of our VM has the following configuration:
 
 In guest OS:
 
-* set RDMA NIC to MTU 9000
-* kernel 5.1 must have PVRDMA driver compiled (included in the bundle, automatically installed by ansible)
+* Configure IPs for management network (TCP) and back-end traffic (RDMA)
+* Set MTU for PVRDMA interface to 9000
+* Kernel 5.1 must have PVRDMA driver compiled (included in the bundle, automatically installed by Ansible)
 
-For the detailed implementation of PVRDMA, please refer to documentation from VMware and Mellenox.
+For complete documentation for PVRDMA vSphere and guest VM configuration, please refer to VMware and Mellenox documentation.
 
 <https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.networking.doc/GUID-4A5EBD44-FB1E-4A83-BB47-BBC65181E1C2.html>
 
@@ -49,20 +53,14 @@ For the detailed implementation of PVRDMA, please refer to documentation from VM
 
 #### *Linux Packages*
 
-On your Ansible host, it is required to install python3 and pip.
+On a linux host, install Ansible version 2.9.12 using python3. Do not use a package-manager version of Ansible.
 
      yum install -y python3
      curl <https://bootstrap.pypa.io/get-pip.py> -o get-pip.py
      python3 get-pip.py
+     python3 -m pip install ansible==2.9.12
 
-#### *Install Ansible*
-
-Install Ansible version 2.9.12 via python3's pip.
-Do not use the package manager version of Ansible.
-
-```python3 -m pip install ansible==2.9.12```
-
-### Download Deployment Files
+### Download Deployment Bundle
 
 Download the deployment bundle to the Ansible host.
 
@@ -77,9 +75,9 @@ Make sure that Ansible can access all the VMs to start the deployment.
 
 #### *Add Ansible user*
 
-All hosts in the cluster should dedicate a user for Ansible automation with the sudoer permission. Preferable to have an account allowing "NOPASSWD" sudo access, by modifying the /etc/sudoers setting for ansible account.
-
-Note: if you do not want to provision Ansible accounts on all the host servers, Ansible can use the root account instead to configure the cluster.
+A user should be provisioned on all hosts in the cluster with "NOPASSWD" sudo access.
+Ansible will use this account for all automated confifuration
+Alternatively, the root user can be used instead.
 
 #### *Generate SSH key*
 
@@ -109,7 +107,7 @@ Generate SSH key on Ansible host, unless already generated.
 
 #### *Copy key for ansible login*
 
-copy ssh key to each of the hosts using the shh-copy-id command.
+Copy ssh key to each of the hosts using the shh-copy-id command.
 
         ssh-copy-id ansible@testhost01.domain.com
 
@@ -123,8 +121,8 @@ To confirm the ssh key copy, test if you can login to the hosts using ssh withou
 
 ### Prepare Inventory File
 
-The inventory file contains the storage servers and clients' information, which helps us to run our software
-on the cluster easier. Below is an example of inventory file with 10 VM storage servers and 1 client:
+Configure an Ansible inventory file for the cluster.
+Below is an example inventory file defining a cluster of 10 TESS servers, with one also used as a client.
 
         [servers]
         msl-ssg-vm11.msl.lab tcp_ip_list="['10.1.51.35']" rocev2_ip_list="['192.168.199.11']"
@@ -145,56 +143,58 @@ on the cluster easier. Below is an example of inventory file with 10 VM storage 
         dss_target_mode=kv_block_vm
         minio_ec_block_size=524288
 
-## Install  and Start DSS Software Stack
+## Install and Start DSS Software Stack
 
 ### First time Deployment
 
 * Configure VMs
 
     ```ansible-playbook -i your_inventory playbooks/configure_vms.yml```
-* Deployment of deloy_dss_software playbook will install and start our software
+
+* Deploy TESS:  Deploy and start TESS software stack
 
     ```ansible-playbook -i your_inventory playbooks/deploy_dss_software.yml```
 
-### Reconfigure the Cluster
-
-```ansible-playbook -i your_inventory playbooks/redeploy_dss_software.yml```
 
 ### Other Useful Playbooks
 
-* Stop the software stack
+* Stop the TESS software stack
 
     ```ansible-playbook -i your_inventory playbooks/stop_dss_software.yml```
-* Start the software stack
+
+* Start the TESS software stack
 
     ```ansible-playbook -i your_inventory playbooks/start_dss_software.yml```
-* Uninstall the software stack
+
+* Uninstall the TESS software stack
 
     ```ansible-playbook -i your_inventory playbooks/remove_dss_software.yml```
-* Restart the software
-Stop and start the software again.
+
+* Restart the TESS software stack
 
     ```ansible-playbook -i your_inventory playbooks/restart_dss_software.yml```
 
 * Clean and Stop the MinIO instances
-This playbook kills the MinIO instances in case they are in a bad state.
+Clear MinIO metadata, and restart MinIO instances (results in data loss).
 
     ```ansible-playbook -i your_inventory playbooks/cleanup_dss_minio.yml```
 
 * Debug DSS software
-The playbook checks if all MinIO instances and target software are running, also scans the logs for any errors.
+Check for running target and MinIO instances, and search for errors in logs
 
     ```ansible-playbook -i your_inventory playbooks/debug_dss_software.yml```
+
 * format and redeploy DSS Software
-This playbook removes the software and formats the disks, and installs the software again.
+Remove TESS software, formats data disks, and re-install TESS software.
 
     ```ansible-playbook -i your_inventory playbooks/format_redeploy_dss_software.yml```
 
 * format and restart the software
-This playbook stop the software and format the disk then start the software again.
+Formats data disks, and restart TESS software.
     ```ansible-playbook -i your_inventory playbooks/format_restart_dss_software.yml```
+
 * upgrade_dss_software
-upgrade to the latest version of our software
+Upgrade TESS software, leaving data in-tact.
 
     ```ansible-playbook -i your_inventory playbooks/upgrade_dss_software.yml```
 
@@ -209,7 +209,7 @@ upgrade to the latest version of our software
 
 #### *View Benchmark Results*
 
-From a web browser, navigate to <http://localhost> (from the host itself), or from another host, navigate to the management IP address of the test host.
+From a web browser, navigate to the TCP IP of the first host in the `clients` group.
 Benchmark results can be found under the dated directory corresponding with the benchmark run, under "graphs":
 
 ![image](image_AIBenchResult.png)
