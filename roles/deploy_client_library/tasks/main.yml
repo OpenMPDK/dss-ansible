@@ -133,12 +133,13 @@
             http://{{ tcp_ip }}:{{ minio_port }}{% if (not loop.last) or (not server_loop_last) %},{% endif -%}
         {% endfor -%}
       {% endfor %}
-  when: inventory_hostname == groups['clients'][0]
+  run_once: true
 
 - name: Debug message for finding endpoints
   debug:
     msg: "Minio Endpoints are {{ endpoints }}"
   when: endpoints is defined
+  run_once: true
 
 - name: Copy the DSS client initialization script to master client
   copy:
@@ -146,11 +147,12 @@
     dest: /tmp/dss_client_init.py
     mode: 0644
   run_once: true
-  when: endpoints is defined and inventory_hostname == groups['clients'][0]
+  when: endpoints is defined
   become: true
 
 - name: Run dss_client initialization script
   command: python3 /tmp/dss_client_init.py -e {{ endpoints }} -a {{ minio_access_key }} -s {{ minio_secret_key }} -p {{ start_dss_benchmark_minio_dir }}/mc
   register: result
   when: endpoints is defined
+  run_once: true
   failed_when: result.rc != 0 or "Error" in result.stdout
