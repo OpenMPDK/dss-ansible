@@ -66,17 +66,16 @@ Download the deployment bundle to the Ansible host.
 
 ## VM Cluster Setup
 
-We have tested our VM cluster using 10 and 4 VM nodes.
-Here are the steps to setup the cluster
+Clusters with 4 and 10 VM nodes are supported, and have been tested.
 
 ### Enable Ansible SSH to Cluster
 
-Make sure that Ansible can access all the VMs to start the deployment.
+Ensure Ansible can access all VMs in the cluster.
 
 #### *Add Ansible user*
 
 A user should be provisioned on all hosts in the cluster with "NOPASSWD" sudo access.
-Ansible will use this account for all automated configuration
+Ansible will use this account for all automated configuration.
 Alternatively, the root user can be used instead.
 
 #### *Generate SSH key*
@@ -340,12 +339,12 @@ The MinIO mc client is installed under "/usr/dss/nkv-minio/mc", and the DSS clus
 
 ### Client Components
 
-In the bundle, we provide the client library and data mover to enable the client to access our storage server.
+The client library and data mover are provided to load data into the cluster from an NFS share.
 
 * Client Library: please refer to its README file and the run example under dss_client directory.
 
-* Data Mover:Running the data mover is possible by executing the following playbook using Ansible.
+* Data Mover:Installing the data mover is possible by executing the following playbook using Ansible.
 
 ```ansible-playbook -i your_inventory playbooks/deploy_datamover.yml```
 
-We also have the complete documentation under nkv-datamover directory.
+Complete documentation is available under the /usr/dss/nkv-datamover directory.
