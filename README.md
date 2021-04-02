@@ -76,7 +76,7 @@ Make sure that Ansible can access all the VMs to start the deployment.
 #### *Add Ansible user*
 
 A user should be provisioned on all hosts in the cluster with "NOPASSWD" sudo access.
-Ansible will use this account for all automated confifuration
+Ansible will use this account for all automated configuration
 Alternatively, the root user can be used instead.
 
 #### *Generate SSH key*
@@ -190,7 +190,7 @@ Remove TESS software, formats data disks, and re-install TESS software.
     ```ansible-playbook -i your_inventory playbooks/format_redeploy_dss_software.yml```
 
 * format and restart the software
-Formats data disks, and restart TESS software.
+Format data disks, and restart TESS software.
     ```ansible-playbook -i your_inventory playbooks/format_restart_dss_software.yml```
 
 * upgrade_dss_software
@@ -216,14 +216,14 @@ Benchmark results can be found under the dated directory corresponding with the 
 
 ### S3-benchmark
 
-s3-benchmark is a performance testing tool that can check the performing S3 operations (PUT, GET, and DELETE) for objects.
-s3-benchmark is automatically installed by Ansible to "/usr/dss/nkv-minio/s3-benchmark".
+s3-benchmark is a performance testing tool that can check the performing S3 operations (PUT, GET, and DELETE) for object storage.
+s3-benchmark is automatically installed by Ansible to "/usr/dss/nkv-minio/s3-benchmark" on each VM node.
 
 #### *Command Line Arguments*
 
 Below is the command line arguments to use S3-Benchmark displayed using help:
 
-        ./s3-benchmark -h
+        /usr/dss/nkv-minio/s3-benchmark -h
         Wasabi benchmark program v2.0
         Usage of myflag:
         -a string
@@ -255,13 +255,13 @@ Below is the command line arguments to use S3-Benchmark displayed using help:
 
 #### *Example S3-Benchmark*
 
-Here is an example run of the benchmark for 100 threads with the default 1MB object size.  The benchmark reports each operation's PUT, GET and DELETE results in terms of data speed and operations per second. The program writes all results to the log file benchmark.log.
+Here is an example run of the benchmark for 100 threads with the default 1MB object size. The benchmark reports each operation's PUT, GET and DELETE results in terms of data speed and operations per second. The program writes all results to the log file benchmark.log.
 
-Note: After writing data in the storage and before reading it, it is necessary to run compaction command. Compaction allows obtaining the software's accurate and optimal performance.  
+Note: After writing data in the storage and before reading the data, it is necessary to run compaction command. Compaction allows obtaining the software's accurate and optimal performance.  
 
 * Put Data
 
-        ./s3-benchmark -a minio -b testbucket -s minio123 -u <http://10.1.51.21:9000> -t 100 -z 1M -n 100 -o 1
+        /usr/dss/nkv-minio/s3-benchmark -a minio -b testbucket -s minio123 -u <http://10.1.51.21:9000> -t 100 -z 1M -n 100 -o 1
         Wasabi benchmark program v2.0Parameters: url=<http://10.1.51.21:9000>, bucket=testbucket, region=us-east-1, duration=60, threads=100, num_ios=100, op_type=1, loops=1, size=1M
         2021/01/05 18:22:52 WARNING: createBucket testbucket error, ignoring BucketAlreadyOwnedByYou: Your previous request to create the named bucket succeeded and you already own it.
         status code: 409, request id: 1657835058733E40, host id:
@@ -274,7 +274,7 @@ Note: After writing data in the storage and before reading it, it is necessary t
 
 * Get Data
   
-        ./s3-benchmark -a minio -b testbucket -s minio123 -u http://10.1.51.21:9000 –t 100 -z 1M -n 100 -o 2
+        /usr/dss/nkv-minio/s3-benchmark -a minio -b testbucket -s minio123 -u http://10.1.51.21:9000 –t 100 -z 1M -n 100 -o 2
         Wasabi benchmark program v2.0Parameters: url=http://10.1.51.21:9000, bucket=testbucket, region=us-east-1, duration=60, threads=100, num_ios=100, op_type=2, loops=1, size=1M
         2021/01/05 18:23:39 WARNING: createBucket testbucket error, ignoring BucketAlreadyOwnedByYou: Your previous request to create the named bucket succeeded and you already own it.
         status code: 409, request id: 1657835B38D61A94, host id:
@@ -282,7 +282,7 @@ Note: After writing data in the storage and before reading it, it is necessary t
 
 * Delete Data
 
-        ./s3-benchmark -a minio -b testbucket -s minio123 -u <http://10.1.51.21:9000> –t 100 -z 1M -n 100 -o 3
+        /usr/dss/nkv-minio/s3-benchmark -a minio -b testbucket -s minio123 -u <http://10.1.51.21:9000> –t 100 -z 1M -n 100 -o 3
         Wasabi benchmark program v2.0Parameters: url=<http://10.1.51.21:9000>, bucket=testbucket, region=us-east-1, duration=60, threads=100, num_ios=100, op_type=3, loops=1, size=1M
         2021/01/05 18:24:04 WARNING: createBucket testbucket error, ignoring BucketAlreadyOwnedByYou: Your previous request to create the named bucket succeeded and you already own it.
         status code: 409, request id: 16578360FD53602A, host id:
@@ -294,7 +294,7 @@ The MinIO mc client is installed under "/usr/dss/nkv-minio/mc", and the DSS clus
 
 * Set of available command on mc tool
 
-        ./mc -h
+        /usr/dss/nkv-minio/mc -h
 
         COMMANDS:
         ls       list buckets and objects
