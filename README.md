@@ -184,16 +184,17 @@ Check for running target and MinIO instances, and search for errors in logs
 
     ```ansible-playbook -i your_inventory playbooks/debug_dss_software.yml```
 
-* format and redeploy DSS Software
+* Format and redeploy DSS Software
 Remove TESS software, formats data disks, and re-install TESS software.
 
     ```ansible-playbook -i your_inventory playbooks/format_redeploy_dss_software.yml```
 
-* format and restart the software
+* Format and restart the software
 Format data disks, and restart TESS software.
+
     ```ansible-playbook -i your_inventory playbooks/format_restart_dss_software.yml```
 
-* upgrade_dss_software
+* Upgrade Software
 Upgrade TESS software, leaving data in-tact.
 
     ```ansible-playbook -i your_inventory playbooks/upgrade_dss_software.yml```
