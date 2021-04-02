@@ -1,238 +1,350 @@
-# deploy
-
-Ansible automated deployment for DSS software
-
-## Requirements
-
-To deploy the cluster using Ansible, the host system must use Ansible version 2.9 or later.
-
-To check the currently-installed version of Ansible:
-```
-ansible --version
-```
-
-To install the latest version of Ansible:
-* Install pip:
-```
-curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-python3 get-pip.py
-```
-* Install ansible:
-```
-python3 -m pip install ansible
-```
-
-## Configure inventory
-
-Add hosts to the inventory file `hosts` according to their group:
-* servers
-  * Hosts to deploy the co-located NKV target, host, and minio software package
-* clients
-  * Hosts to execute the NKV benchmark software against the server cluster
-* onyx
-  * Mellanox Onyx switch
-
-Please consult the Ansible documentation, [How to build your inventory](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html).
-
-Ensure that SSH key authentication is configured for all hosts in your cluster. Please consult the Ansible documentation, [Connection details](https://docs.ansible.com/ansible/latest/user_guide/connection_details.html).
-
-Note that Mellanox Onyx does not support key-based authentication. Therefore it is required to specify both `ansible_user` and `ansible_ssh_pass` for your Onyx switch.
-It is recommended to use [Ansible vault](https://docs.ansible.com/ansible/latest/user_guide/playbooks_best_practices.html#best-practices-for-variables-and-vaults) to store your credentials.
-
-### Inventory requirements
-
-#### Server requirements
-
-* Pre-deployed with CentOS version `7.4 1708`
-  * Alternate versions of CentOS are supported but have not been 100% tested by the DSS team:
-    - 7.5 1804
-    - 7.6 1810
-    - 7.7 1908
-    - 7.8 2003
-* Manangement NIC configured and accessible by the Ansible deployment host
-* Manangement NIC has internet access
-* Mellanox ConnectX-6 adapter(s) installed
-  - ConnectX-4 and 5 also supported
-* It is recommended for hostnames to be defined and contain a unique number between 1-255 at the end of the name
-  - Example: `testhost01` (zero-padding not required)
-  - This number will be used to configure the last octet of the IP addresses of all high-speed ConnectX adapters
-  - If a unique number between 1-255 cannot be derived from the hostname, Ansible will automatically assign a unique inventory ID to be used instead
-  - Alternatively, the last octet can be explicitly defined for each host using the `last_octet` host_var. Example `hosts` inventory:
-```
-[servers]
-hostname1.domain.com last_octet=12
-hostname2.domain.com last_octet=13
-```
-  - The first three octets of each IP address of each VLAN, can be specified in `group_vars/all.yml`:
-```
-rocev2_vlans:
-  - id: 31
-    ip_prefix: 201.0.0
-    netmask: 255.0.0.0
-  - id: 32
-    ip_prefix: 203.0.0
-    netmask: 255.0.0.0
-tcp_vlans:
-  - id: 41
-    ip_prefix: 202.0.0
-    netmask: 255.0.0.0
-  - id: 42
-    ip_prefix: 204.0.0
-    netmask: 255.0.0.0
-```
-
-* All ConnectX adapters intended to be used in the cluster must be connected to Onyx Switch (Status: `Up`):
-```
-# ibdev2netdev -v
-0000:01:00.0 mlx5_0 (MT4123 - MCX653105A-HDAT) ConnectX-6 VPI adapter card, HDR IB (200Gb/s) and 200GbE, single-port QSFP56 fw 20.28.1002 port 1 (ACTIVE) ==> p5p1 (Up)
-0000:41:00.0 mlx5_1 (MT4123 - MCX653105A-HDAT) ConnectX-6 VPI adapter card, HDR IB (200Gb/s) and 200GbE, single-port QSFP56 fw 20.28.1002 port 1 (ACTIVE) ==> p4p1 (Up)
-0000:8f:00.0 mlx5_2 (MT4123 - MCX653105A-HDAT) ConnectX-6 VPI adapter card, HDR IB (200Gb/s) and 200GbE, single-port QSFP56 fw 20.28.1002 port 1 (ACTIVE) ==> p2p1 (Up)
-0000:c4:00.0 mlx5_3 (MT4123 - MCX653105A-HDAT) ConnectX-6 VPI adapter card, HDR IB (200Gb/s) and 200GbE, single-port QSFP56 fw 20.28.1002 port 1 (ACTIVE) ==> p3p1 (Up)
-```
-* There is a direct relationship of the number of ConnectX ports to the number of VLANs defined in `group_vars/all.yml`
-  * By default, `num_vlans_per_port` is `1`, as defined in `group_vars/servers.yml` and `group_vars/clients.yml`
-    * This would mean that there must be an equal number of `Up` ConnectX ports to VLANs defined in `group_vars/all.yml`
-  * If `num_vlans_per_port` is set to `2` for example, then 2 ConnectX ports can be mapped to 4 total VLANs (`tcp_vlans` + `rocev2_vlans`)
-  * Alternatively, the number of VLANs listed under `tcp_vlans` and `rocev2_vlans` can be reduced or increased to match the number of ConnectX ports for each group.
-  * Number of VLANS listed under `rocev2_vlans` must match the number of VLANS listed under `tcp_vlans`, defined in `group_vars/all.yml`
-  * Number of `Up` ConnectX adapters, times `num_vlans_per_port` must match combined number of `rocev2_vlans` and `tcp_vlans` defined in `group_vars/all.yml`
-* Samsung PM983 SSD's installed (Model: `SAMSUNG MZ4LB3T8HALS-00003`)
-  - KVSSD model can be user-defined in `group_vars/all.yml`
+# TESS on VM Tutorial
 
-#### Client requirements
+## Overview
 
-* The client requirements are identical to server requirements, with the exception that only TCP VLANs are configured on clients, and KV SSD's are not required.
-  * Note that it is required to leave the `combined_vlans: "{{ tcp_vlans }}"` setting as-is in `group_vars/clients.yml`
+Ansible automation for configuring systems and orchestrating deployment of TESS software.
 
-#### Onyx Switch requirements
+## Pre-deployment
 
-* Onyx version must be 3.6.8130 or later
-* Administrator credentials for switch are required
-  - Note: Since ssh keys cannot be copied to Onyx switch, passkey will need to be used
-  - Either provide `ansible_ssh_pass` var for `onyx` group in `hosts` (insecure) or use [Ansible Vault](https://docs.ansible.com/ansible/latest/user_guide/vault.html)
+### VM Setup and Configuration
 
-## Configure hosts
+* ESXi 7.0.0 with Enterprise Plus or Evaluation license
+* vCenter Server Appliance with Standard or Evaluation license
 
-`ansible-playbook playbooks/configure_hosts.yml`
 
-This playbook will automatically configure all hosts (clients + servers) and execute a number of roles including:
-* validate_centos
-* deploy_kernel
-* configure_firewalld
-* configure_tuned
-* deploy_utils
-* deploy_nvme_cli
-* deploy_ofed
-* load_mlnx_drivers
-* configure_lldpad
-* configure_dcqcn
-* configure_irq
-* upgrade_connectx_firmware
+Suggested ESXi specifications:
 
-## Configure VLANs
+        CPU: Intel(R) Xeon(R) CPU E5-2696 v4 @ 2.20GHz
+        Cores: 22 cores per socket,
+        CPU sockets: 2
+        HyperThreading: Enabled
+        Memory: 512G (DDR4)
 
-`ansible-playbook playbooks/configure_vlans.yml`
+Suggested ESXi storage:
 
-This playbook will automatically configure the high-speed ConnectX adapters, as well as the Mellanox Onyx switch.
-It will automatically assign IP addresses, VLANs, as well as perform a number of other performance configurations.
+        Minimum 1TB SSD for local datastore
 
-Note: Onyx ansible modules are not idempotent, and will report `changed` even if no changes are made.
+Guest VM Specification:
 
-## Remove VLANS
+        VM Hardware version: 17
+        OS guest: CentOS 7.9
+        CPU: 6 cores
+        mem: 32 GB
+        boot / OS disk: default
+        boot disk controller: paravirtual
+        management NIC (TCP): VMXnet3
+        RDMA back-end NIC: PVRDMA
+        data disk: 50GB+ thick provisioned
+        data disk controller: Virtual NVMe
 
-`ansible-playbook playbooks/configure_vlans.yml`
+In guest OS:
 
-This playbook will remove all VLAN configuration from the high-speed ConnectX adapters on all hosts (clients + servers) as well as the switch.
-This is useful if you wish to change the VLAN configuration (change number of VLANs, change VLAN ID's, add or remove ConnectX ports, etc)
+* Configure IPs for management network (TCP) and back-end traffic (RDMA)
+* Set MTU for PVRDMA interface to 9000
+* Kernel 5.1 must have PVRDMA driver compiled (included in the bundle, automatically installed by Ansible)
 
-## Validate network
+For complete documentation for PVRDMA vSphere and guest VM configuration, please refer to VMware and Mellenox documentation.
 
-`ansible-playbook playbooks/test_network.yml`
+<https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.networking.doc/GUID-4A5EBD44-FB1E-4A83-BB47-BBC65181E1C2.html>
 
-This playbook will automatically validate the network configuration by performing the following tests:
-* Ping all RoCEv2 endpoints between all servers
-* Ping all TCP endpoitns between all servers and clients
-* Perform ib_read_bw test between all servers and validate bandwidth is >= 90% of link speed
+<https://docs.mellanox.com/pages/releaseview.action?pageId=15055422>
 
-## Deploy DSS Software
+### Ansible Host Setup
 
-`ansible-playbook playbooks/deploy_dss_software.yml`
+#### *Linux Packages*
 
-This playbook will deploy the DSS target, host, and minio stack on all servers, as well as DSS benchmark software to all clients.
-Upon successful deployment, the target, host, and minio services will be started and ready to test.
+On a linux host, install Ansible version 2.9.12 using python3. Do not use a package-manager version of Ansible.
 
-## Deploy all
+     yum install -y python3
+     curl <https://bootstrap.pypa.io/get-pip.py> -o get-pip.py
+     python3 get-pip.py
+     python3 -m pip install ansible==2.9.12
 
-`ansible-playbook playbooks/deploy_all.yml`
+### Download Deployment Bundle
 
-This playbook is a "one-click" automated deployment that will perform all of the following playbooks:
-* `configure_hosts`
-* `configure_vlans`
-* `test_network`
-* `deploy_dss_software`
+Download the deployment bundle to the Ansible host.
 
-It is recommended, however, to execute each playbook one-at-a-time instead in case troubleshooting is required.
+## VM Cluster Setup
 
-## Remove DSS Software
+Clusters with 4 and 10 VM nodes are supported, and have been tested.
 
-This playbook will stop and remove all DSS software from all hosts.
+### Enable Ansible SSH to Cluster
 
-## Re-deploy DSS Software
+Ensure Ansible can access all VMs in the cluster.
 
-`ansible-playbook playbooks/redeploy_dss_software.yml`
+#### *Add Ansible user*
 
-This playbook will stop and remove all DSS software from all hosts. Then DSS software will be deployed and started again.
-This is useful to upgrade DSS software in place, or if you would like to re-deploy the software with new configuration settings.
+A user should be provisioned on all hosts in the cluster with "NOPASSWD" sudo access.
+Ansible will use this account for all automated configuration.
+Alternatively, the root user can be used instead.
 
-## Restart DSS Software
+#### *Generate SSH key*
 
-`ansible-playbook playbooks/restart_dss_software.yml`
+Generate SSH key on Ansible host, unless already generated.
 
-This playbook will stop all running DSS software in the target/host/minio stack, and restart all services, without making configuration changes.
+        #ssh-keygen
+        Generating public/private rsa key pair.
+        Enter file in which to save the key (/home/ylo/.ssh/id_rsa):
+        Enter passphrase (empty for no passphrase):
+        Enter same passphrase again:
+        Your identification has been saved in id_rsa.
+        Your public key has been saved in id_rsa.pub.
+        The key fingerprint is:
+        SHA256:GKW7yzA1J1qkr1Cr9MhUwAbHbF2NrIPEgZXeOUOz3Us user@host
+        The key's randomart image is:
+        +---[RSA 2048]----+
+        |.*++ o.o.        |
+        |.+B + oo.        |
+        | +++ *+.         |
+        | .o.Oo.+E        |
+        |    ++B.S.       |
+        |   o * =.        |
+        |  + = o          |
+        | + = = .         |
+        |  + o o          |
+        +----[SHA256]-----+
 
-## Reset DSS Software
+#### *Copy key for ansible login*
 
-`ansible-playbook playbooks/redeploy_dss_software.yml`
+Copy ssh key to each of the hosts using the shh-copy-id command.
 
-This playbook is the same as the above `redeploy_dss_software` playbook, with the exception that all KV SSD's on all servers will also be formated prior to re-deploying DSS software.
-This is useful if the cluster storage subsystems are in a bad state, or you wish to re-deploy the cluster from a clean state.
+        ssh-copy-id ansible@testhost01.domain.com
 
-## Cleanup DSS Minio
+To copy keys to 10 hosts automatically:
 
-`ansible-playbook playbooks/redeploy_dss_minio.yml`
+        for i in {01..10}; do sshpass -p "ansible" ssh-copy-id -o StrictHostKeyChecking=no ansible@testhost${i}.domain.com; done
 
-While the DSS software is up-and-running, this playbook will remove all objects from all Minio instances without the need to re-deploy or format the KVSSDs.
+#### *Test cluster nodes for ansible login*
 
-## Remove DSS Benchmark
+To confirm the ssh key copy, test if you can login to the hosts using ssh without the password.
 
-`ansible-playbook playbooks/remove_dss_benchmark.yml`
+### Prepare Inventory File
 
-Uninstall DSS Software from client hosts
+Configure an Ansible inventory file for the cluster.
+Below is an example inventory file defining a cluster of 10 TESS servers, with one also used as a client.
 
-## Deploy DSS Benchmark
+        [servers]
+        msl-ssg-vm11.msl.lab tcp_ip_list="['10.1.51.35']" rocev2_ip_list="['192.168.199.11']"
+        msl-ssg-vm12.msl.lab tcp_ip_list="['10.1.51.38']" rocev2_ip_list="['192.168.199.12']"
+        msl-ssg-vm13.msl.lab tcp_ip_list="['10.1.51.58']" rocev2_ip_list="['192.168.199.13']"
+        msl-ssg-vm14.msl.lab tcp_ip_list="['10.1.51.24']" rocev2_ip_list="['192.168.199.14']"
+        msl-ssg-vm15.msl.lab tcp_ip_list="['10.1.50.230']" rocev2_ip_list="['192.168.199.15']"
+        msl-ssg-vm16.msl.lab tcp_ip_list="['10.1.50.235']" rocev2_ip_list="['192.168.199.16']"
+        msl-ssg-vm17.msl.lab tcp_ip_list="['10.1.50.226']" rocev2_ip_list="['192.168.199.17']"
+        msl-ssg-vm18.msl.lab tcp_ip_list="['10.1.50.227']" rocev2_ip_list="['192.168.199.18']"
+        msl-ssg-vm19.msl.lab tcp_ip_list="['10.1.50.234']" rocev2_ip_list="['192.168.199.19']"
+        msl-ssg-vm20.msl.lab tcp_ip_list="['10.1.50.232']" rocev2_ip_list="['192.168.199.20']"
+        [clients]
+        msl-ssg-vm11.msl.lab
+        [all:vars]
+        ansible_user=ansible
+        target_fw_version=1.0
+        dss_target_mode=kv_block_vm
+        minio_ec_block_size=524288
 
-`ansible-playbook playbooks/deploy_dss_benchmark.yml`
+## Install and Start DSS Software Stack
 
-Install DSS Software to client hosts
+### First time Deployment
 
-## Re-deploy DSS Benchmark
+* Configure VMs
 
-`ansible-playbook playbooks/redeploy_dss_benchmark.yml`
+    ```ansible-playbook -i your_inventory playbooks/configure_vms.yml```
 
-Remove, then install DSS Software to client hosts. Useful to upgrade to a newer version, while leaving DSS Servers running.
+* Deploy TESS:  Deploy and start TESS software stack
 
-## Start DSS Benchmark
+    ```ansible-playbook -i your_inventory playbooks/deploy_dss_software.yml```
 
-`ansible-playbook playbooks/start_dss_benchmark.yml`
 
-This playbook will execute the DSS Benchmark from all clients against all servers in the cluster.
+### Other Useful Playbooks
 
-Benchmark results can be found on the client "master node" in `/var/logs/dss`
+* Stop the TESS software stack
 
-The client "master node" is the first client in the `hosts` inventory file
+    ```ansible-playbook -i your_inventory playbooks/stop_dss_software.yml```
 
-## Remove Packet Pacing
+* Start the TESS software stack
 
-`ansible-playbook playbooks/remove_packet_pacing.yml`
+    ```ansible-playbook -i your_inventory playbooks/start_dss_software.yml```
 
-This playbook removes kernel-based packet pacing from all servers. The `remove_packet_pacing` role is automatically executed during `configure_vlans` playbook, as well as as rescue block if the DSS Benchmark fails.
+* Uninstall the TESS software stack
+
+    ```ansible-playbook -i your_inventory playbooks/remove_dss_software.yml```
+
+* Restart the TESS software stack
+
+    ```ansible-playbook -i your_inventory playbooks/restart_dss_software.yml```
+
+* Clean and Stop the MinIO instances
+Clear MinIO metadata, and restart MinIO instances (results in data loss).
+
+    ```ansible-playbook -i your_inventory playbooks/cleanup_dss_minio.yml```
+
+* Debug DSS software
+Check for running target and MinIO instances, and search for errors in logs
+
+    ```ansible-playbook -i your_inventory playbooks/debug_dss_software.yml```
+
+* Format and redeploy DSS Software
+Remove TESS software, formats data disks, and re-install TESS software.
+
+    ```ansible-playbook -i your_inventory playbooks/format_redeploy_dss_software.yml```
+
+* Format and restart the software
+Format data disks, and restart TESS software.
+
+    ```ansible-playbook -i your_inventory playbooks/format_restart_dss_software.yml```
+
+* Upgrade TESS software, leaving data in-tact.
+
+    ```ansible-playbook -i your_inventory playbooks/upgrade_dss_software.yml```
+
+## Testing DSS Software Stack
+
+### AI benchmark
+
+#### *Execute AI Benchmark*
+
+    cd ~/deploy
+    ansible-playbook -i your_inventory playbooks/start_dss_benchamrk.yml
+
+#### *View Benchmark Results*
+
+From a web browser, navigate to the TCP IP of the first host in the `clients` group.
+Benchmark results can be found under the dated directory corresponding with the benchmark run, under "graphs":
+
+![image](image_AIBenchResult.png)
+
+### S3-benchmark
+
+s3-benchmark is a performance testing tool that can check the performing S3 operations (PUT, GET, and DELETE) for object storage.
+s3-benchmark is automatically installed by Ansible to "/usr/dss/nkv-minio/s3-benchmark" on each VM node.
+
+#### *Command Line Arguments*
+
+Below is the command line arguments to use S3-Benchmark displayed using help:
+
+        /usr/dss/nkv-minio/s3-benchmark -h
+        Wasabi benchmark program v2.0
+        Usage of myflag:
+        -a string
+            Access key
+        -b string
+            Bucket for testing (default "wasabi-benchmark-bucket")
+        -c int
+            Number of object per thread written earlier
+        -d int
+            Duration of each test in seconds (default 60)
+        -l int
+            Number of times to repeat test (default 1)
+        -n int
+            Number of IOS per thread to run
+        -o int
+            Type of op, 1 = put, 2 = get, 3 = del
+        -p string
+            Key prefix to be added during key generation (default "s3-bench-minio")
+        -r string
+            Region for testing (default "us-east-1")
+        -s string
+            Secret key
+        -t int
+            Number of threads to run (default 1)
+        -u string
+            URL for host with method prefix (default "http://s3.wasabisys.com")
+        -z string
+        Size of objects in bytes with postfix K, M, and G (default "1M")
+
+#### *Example S3-Benchmark*
+
+Here is an example run of the benchmark for 100 threads with the default 1MB object size. The benchmark reports each operation's PUT, GET and DELETE results in terms of data speed and operations per second. The program writes all results to the log file benchmark.log.
+
+Note: After writing data in the storage and before reading the data, it is necessary to run compaction command. Compaction allows obtaining the software's accurate and optimal performance.  
+
+* Put Data
+
+        /usr/dss/nkv-minio/s3-benchmark -a minio -b testbucket -s minio123 -u <http://10.1.51.21:9000> -t 100 -z 1M -n 100 -o 1
+        Wasabi benchmark program v2.0Parameters: url=<http://10.1.51.21:9000>, bucket=testbucket, region=us-east-1, duration=60, threads=100, num_ios=100, op_type=1, loops=1, size=1M
+        2021/01/05 18:22:52 WARNING: createBucket testbucket error, ignoring BucketAlreadyOwnedByYou: Your previous request to create the named bucket succeeded and you already own it.
+        status code: 409, request id: 1657835058733E40, host id:
+        Loop 1: PUT time 38.9 secs, objects = 10000, speed = 2.5GB/sec, 257.1 operations/sec. Slowdowns = 0
+
+* Run Compaction
+
+        cd /root/deploy
+        ansible-playbook playbooks/start_compaction.yml
+
+* Get Data
+  
+        /usr/dss/nkv-minio/s3-benchmark -a minio -b testbucket -s minio123 -u http://10.1.51.21:9000 –t 100 -z 1M -n 100 -o 2
+        Wasabi benchmark program v2.0Parameters: url=http://10.1.51.21:9000, bucket=testbucket, region=us-east-1, duration=60, threads=100, num_ios=100, op_type=2, loops=1, size=1M
+        2021/01/05 18:23:39 WARNING: createBucket testbucket error, ignoring BucketAlreadyOwnedByYou: Your previous request to create the named bucket succeeded and you already own it.
+        status code: 409, request id: 1657835B38D61A94, host id:
+        Loop 1: GET time 14.9 secs, objects = 10000, speed = 6.6GB/sec, 672.1 operations/sec. Slowdowns = 0
+
+* Delete Data
+
+        /usr/dss/nkv-minio/s3-benchmark -a minio -b testbucket -s minio123 -u <http://10.1.51.21:9000> –t 100 -z 1M -n 100 -o 3
+        Wasabi benchmark program v2.0Parameters: url=<http://10.1.51.21:9000>, bucket=testbucket, region=us-east-1, duration=60, threads=100, num_ios=100, op_type=3, loops=1, size=1M
+        2021/01/05 18:24:04 WARNING: createBucket testbucket error, ignoring BucketAlreadyOwnedByYou: Your previous request to create the named bucket succeeded and you already own it.
+        status code: 409, request id: 16578360FD53602A, host id:
+        Loop 1: DELETE time 4.3 secs, 2342.4 deletes/sec. Slowdowns = 0
+
+### MinIO mc tool
+
+The MinIO mc client is installed under "/usr/dss/nkv-minio/mc", and the DSS cluster is automatically registered with alias "autominio"
+
+* Set of available command on mc tool
+
+        /usr/dss/nkv-minio/mc -h
+
+        COMMANDS:
+        ls       list buckets and objects
+        mb       make a bucket
+        rb       remove a bucket
+        cp       copy objects
+        mirror   synchronize object(s) to a remote site
+        cat      display object contents
+        head     display first 'n' lines of an object
+        pipe     stream STDIN to an object
+        share    generate URL for temporary access to an object
+        find     search for objects
+        sql      run sql queries on objects
+        stat     show object metadata
+        tree     list buckets and objects in a tree format
+        du       summarize disk usage folder prefixes recursively
+        diff     list differences in object name, size, and date between two buckets
+        rm       remove objects
+        event    configure object notifications
+        watch    listen for object notification events
+        policy   manage anonymous access to buckets and objects
+        admin    manage MinIO servers
+        session  resume interrupted operations
+        config   configure MinIO client
+        update   update mc to latest release
+        version  show version info
+        
+        GLOBAL FLAGS:
+        --autocompletion              install auto-completion for your shell
+        --config-dir value, -C value  path to configuration folder (default: "/opt/ansible/.mc")
+        --quiet, -q                   disable progress bar display
+        --no-color                    disable color theme
+        --json                        enable JSON formatted output
+        --debug                       enable debug output
+        --insecure                    disable SSL certificate verification
+        --help, -h                    show help
+        --version, -v                 print the version
+
+* To list objects on DSS cluster using mc:
+
+        /usr/dss/nkv-minio/mc ls autominio
+        [2021-02-05 12:19:18 PST] 0B benchmark-bucket-1/
+
+### Client Components
+
+The client library and data mover are provided to load data into the cluster from an NFS share.
+
+* Client Library: please refer to its README file and the run example under dss_client directory.
+
+* Data Mover:Installing the data mover is possible by executing the following playbook using Ansible.
+
+```ansible-playbook -i your_inventory playbooks/deploy_datamover.yml```
+
+Complete documentation is available under the /usr/dss/nkv-datamover directory.
