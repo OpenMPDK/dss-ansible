@@ -94,3 +94,17 @@
     executable: "{{ pip3_path.stdout}}"
   register: benchmark_requirements
   become: true
+
+- name: Install datamover yum dependencies
+  yum:
+    name:
+      - nfs-utils
+      - libnfsidmap
+  become: true
+
+- name: Set datamover conf template
+  template:
+    src: config.json.j2
+    dest: "{{ deploy_datamover_dest_dir }}/config/config.json"
+    mode: 0555
+  become: true
