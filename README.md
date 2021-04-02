@@ -194,8 +194,7 @@ Format data disks, and restart TESS software.
 
     ```ansible-playbook -i your_inventory playbooks/format_restart_dss_software.yml```
 
-* Upgrade Software
-Upgrade TESS software, leaving data in-tact.
+* Upgrade TESS software, leaving data in-tact.
 
     ```ansible-playbook -i your_inventory playbooks/upgrade_dss_software.yml```
 
