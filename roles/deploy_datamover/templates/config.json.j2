@@ -32,5 +32,10 @@
     "client_lib": "{{ datamover_client_lib }}"
   },
   "operations": ["PUT","GET","DEL","LIST"],
-  "logging_path": "{{ datamover_logging_path }}"
+  "logging_path": "{{ datamover_logging_path }}",
+  "dss_targets": [
+    {%- for server in groups['servers'] -%}
+          "{{ hostvars[server].ansible_default_ipv4.address }}"{% if not loop.last %},{% endif -%}
+    {% endfor -%}
+  ]
 }
