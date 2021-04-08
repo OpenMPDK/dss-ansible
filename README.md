@@ -255,6 +255,7 @@ Below is the command line arguments to use S3-Benchmark displayed using help:
 #### *Example S3-Benchmark*
 
 Here is an example run of the benchmark for 100 threads with the default 1MB object size. The benchmark reports each operation's PUT, GET and DELETE results in terms of data speed and operations per second. The program writes all results to the log file benchmark.log.
+We want to highlight that data volume written by s3_bench should not exceed 50% of the subsystem in VM environment. For example, 1000 object with 1MB size thread number is limited to 256.
 
 Note: After writing data in the storage and before reading the data, it is necessary to run compaction command. Compaction allows obtaining the software's accurate and optimal performance.  
 
