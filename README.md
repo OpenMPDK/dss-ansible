@@ -255,7 +255,8 @@ Below is the command line arguments to use S3-Benchmark displayed using help:
 #### *Example S3-Benchmark*
 
 Here is an example run of the benchmark for 100 threads with the default 1MB object size. The benchmark reports each operation's PUT, GET and DELETE results in terms of data speed and operations per second. The program writes all results to the log file benchmark.log.
-We want to highlight that data volume written should not exceed 50% of the subsystem in VM environment. For example, 1000 object with 1MB size thread number is limited to 256.
+Note: Do not exceed 50% of the total subsystem capacity. 
+Note: Do not exceed 256 threads in VM Environment.
 
 Note: After writing data in the storage and before reading the data, it is necessary to run compaction command. Compaction allows obtaining the software's accurate and optimal performance.  
 
@@ -350,9 +351,8 @@ The client library and data mover are provided to load data into the cluster fro
 
 Complete documentation is available under the /usr/dss/nkv-datamover directory.
 
-## Known Issues
- Data volume written in VM environment
- * should not exceed 50% of subsystem capacity 
- * should not exceed 256 concurrent threads
+## Known Issues / Limitations
+ * Do not exceed 50% of total subsystem capacity
+ * Do not exceed 256 concurrent threads in VMware environment
  
 
