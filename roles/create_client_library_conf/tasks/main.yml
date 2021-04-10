@@ -30,4 +30,29 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-aws_sdk_cpp_url: https://codeload.github.com/aws/aws-sdk-cpp/tar.gz/1.8.99
+- name: Set endpoints var
+  set_fact:
+    endpoints: >-
+      {% for server in groups['servers'] -%}
+        {% set server_loop_last = loop.last -%}
+        {% for tcp_ip in hostvars[server].tcp_vlan_ip_list -%}
+            http://{{ tcp_ip }}:{{ minio_port }}{% if (not loop.last) or (not server_loop_last) %},{% endif -%}
+        {% endfor -%}
+      {% endfor %}
+  run_once: true
+
+- name: Create DSS client initialization script
+  copy:
+    src: dss_client_init.py
+    dest: /tmp/dss_client_init.py
+    mode: 0644
+  run_once: true
+  when: endpoints is defined
+  become: true
+
+- name: Run dss_client initialization script and create client library conf.json
+  command: python3 /tmp/dss_client_init.py -e {{ endpoints }} -a {{ minio_access_key }} -s {{ minio_secret_key }} -p {{ start_dss_benchmark_minio_dir }}/mc
+  register: result
+  when: endpoints is defined
+  run_once: true
+  failed_when: result.rc != 0 or "Error" in result.stdout

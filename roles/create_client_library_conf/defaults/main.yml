@@ -30,4 +30,6 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-aws_sdk_cpp_url: https://codeload.github.com/aws/aws-sdk-cpp/tar.gz/1.8.99
+minio_port: 9000
+minio_access_key: minio
+minio_secret_key: minio123

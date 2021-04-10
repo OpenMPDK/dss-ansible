@@ -30,4 +30,4 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-aws_sdk_cpp_url: https://codeload.github.com/aws/aws-sdk-cpp/tar.gz/1.8.99
+start_dss_benchmark_minio_dir: /usr/dss/nkv-minio
