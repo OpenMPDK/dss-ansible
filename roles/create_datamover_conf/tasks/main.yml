@@ -30,4 +30,9 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-pip3_version: 21.0.1
+- name: Set datamover conf template
+  template:
+    src: config.json.j2
+    dest: "{{ deploy_datamover_dest_dir }}/config/config.json"
+    mode: 0555
+  become: true

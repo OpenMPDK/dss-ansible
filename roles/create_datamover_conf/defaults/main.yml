@@ -30,4 +30,22 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-pip3_version: 21.0.1
+minio_port: 9000
+minio_access_key: minio
+minio_secret_key: minio123
+
+datamover_master_workers: 10
+datamover_master_max_index_size: 100
+datamover_master_size: 1GB
+datamover_client_workers: 25
+datamover_client_max_index_size: 100
+datamover_client_user_id: ansible
+datamover_client_password: ansible
+datamover_message_port_index: 4000
+datamover_message_port_status: 4001
+datamover_nfs_ip: 192.168.200.199
+datamover_nfs_dirs:
+  - /mnt/nfs_share/5gb
+datamover_bucket: bucket
+datamover_client_lib: dss_client
+datamover_logging_path: /var/log/dss

@@ -102,9 +102,6 @@
       - libnfsidmap
   become: true
 
-- name: Set datamover conf template
-  template:
-    src: config.json.j2
-    dest: "{{ deploy_datamover_dest_dir }}/config/config.json"
-    mode: 0555
-  become: true
+- name: Create datamover config file
+  include_role:
+    name: create_datamover_conf

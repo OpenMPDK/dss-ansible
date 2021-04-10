@@ -30,4 +30,4 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-pip3_version: 21.0.1
+deploy_datamover_dest_dir: /usr/dss/nkv-datamover
