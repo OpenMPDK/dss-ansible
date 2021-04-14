@@ -67,11 +67,11 @@
     - deploy_dss_benchmark
     - configure_mc_alias
 
+- name: Start DSS Software
+  import_playbook: start_dss_software.yml
+
 - name: Deploy Data Mover
   hosts: clients
   roles:
     - deploy_client_library
     - deploy_datamover
-
-- name: Start DSS Software
-  import_playbook: start_dss_software.yml
