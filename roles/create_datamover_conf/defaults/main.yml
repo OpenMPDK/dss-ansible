@@ -30,10 +30,30 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-ofed_versions:
-  - https://www.mellanox.com/downloads/ofed/MLNX_OFED-5.0-2.1.8.0/MLNX_OFED_LINUX-5.0-2.1.8.0-rhel7.4-x86_64.tgz
-  - https://www.mellanox.com/downloads/ofed/MLNX_OFED-5.0-2.1.8.0/MLNX_OFED_LINUX-5.0-2.1.8.0-rhel7.5-x86_64.tgz
-  - https://www.mellanox.com/downloads/ofed/MLNX_OFED-5.0-2.1.8.0/MLNX_OFED_LINUX-5.0-2.1.8.0-rhel7.6-x86_64.tgz
-  - https://www.mellanox.com/downloads/ofed/MLNX_OFED-5.0-2.1.8.0/MLNX_OFED_LINUX-5.0-2.1.8.0-rhel7.7-x86_64.tgz
-  - https://www.mellanox.com/downloads/ofed/MLNX_OFED-5.0-2.1.8.0/MLNX_OFED_LINUX-5.0-2.1.8.0-rhel7.8-x86_64.tgz
-  - https://www.mellanox.com/downloads/ofed/MLNX_OFED-5.3-1.0.0.1/MLNX_OFED_LINUX-5.3-1.0.0.1-rhel7.9-x86_64.tgz
+minio_port: 9000
+minio_access_key: minio
+minio_secret_key: minio123
+
+datamover_master_workers: 1
+datamover_master_max_index_size: 100
+datamover_master_size: 1GB
+datamover_client_workers: 25
+datamover_client_max_index_size: 100
+datamover_client_user_id: ansible
+datamover_client_password: ansible
+datamover_message_port_index: 4000
+datamover_message_port_status: 4001
+datamover_nfs_shares:
+  - ip: 192.168.200.199
+    shares:
+      - /mnt/nfs_share/5gb
+      - /mnt/nfs_share/10gb
+      - /mnt/nfs_share/15gb
+  - ip: 192.168.200.200
+    shares: 
+      - /mnt/nfs_share/5gb-B
+      - /mnt/nfs_share/10gb-B
+      - /mnt/nfs_share/15gb-B
+datamover_bucket: bucket
+datamover_client_lib: dss_client
+datamover_logging_path: /var/log/dss

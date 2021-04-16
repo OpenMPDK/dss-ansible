@@ -69,3 +69,9 @@
 
 - name: Start DSS Software
   import_playbook: start_dss_software.yml
+
+- name: Deploy Data Mover
+  hosts: clients
+  roles:
+    - deploy_client_library
+    - deploy_datamover

@@ -30,78 +30,17 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Install epel-release
-  yum:
-    name: epel-release
-  become: true
-
-- name: Install pip3
-  yum:
-    name: python3-pip
-  become: true
-
-- name: Identify datamover tarball
-  find:
-    path: "{{ deploy_datamover_path }}"
-    patterns: 'nkv-datamover*.tgz'
-  delegate_to: localhost
-  run_once: true
-  register: datamover_tgz
-
-- name: Assert datamove tarball found
-  assert:
-    that: datamover_tgz.files | length > 0
-    fail_msg: "No datamove tarball found. Please download tarball to {{ deploy_datamover_path }}"
-    success_msg: "Found datamover tarball"
-  run_once: true
-
-- name: Create datamover destination path
-  file:
-    path: "{{ deploy_datamover_dest_dir }}"
-    state: directory
-    mode: 0755
-  become: true
-
-- name: Deploy datamover from tarball
-  unarchive:
-    src: "{{ (datamover_tgz.files | sort(attribute='ctime', reverse=true) | first).path }}"
-    dest: "{{ deploy_datamover_dest_dir }}"
-    owner: root
-    group: root
-    mode: 0555
-  become: true
-
-- name: Identify pip3 executable
-  shell: which pip3 pip-3 | grep 'bin/pip' | head -n 1
-  register: pip3_path
-  changed_when: false
-  failed_when: false
-
-- name: Assert pip_path is found
-  assert:
-    that: pip3_path.stdout != ''
-    msg: "pip3 is not installed"
-
-- name: Upgrade pip
-  pip:
-    name: "pip=={{ pip3_version }}"
-    executable: "{{ pip3_path.stdout}}"
-  become: true
-
-- name: Install python dependencies from requirements.txt
-  pip:
-    requirements: "{{ deploy_datamover_dest_dir }}/requirements.txt"
-    executable: "{{ pip3_path.stdout}}"
-  register: benchmark_requirements
-  become: true
-
-- name: Install datamover yum dependencies
-  yum:
-    name:
-      - nfs-utils
-      - libnfsidmap
-  become: true
+- name: Create client library config file
+  include_role:
+    name: create_client_library_conf
 
 - name: Create datamover config file
   include_role:
     name: create_datamover_conf
+
+- name: Upload NFS data with datamover
+  command: "python3 master_application.py PUT -c {{ datamover_cluster_name }} --compaction"
+  args:
+    chdir: "{{ deploy_datamover_dest_dir }}"
+  run_once: true
+  become: true
