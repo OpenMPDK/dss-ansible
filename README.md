@@ -11,7 +11,6 @@ Ansible automation for configuring systems and orchestrating deployment of TESS 
 * ESXi 7.0.0 with Enterprise Plus or Evaluation license
 * vCenter Server Appliance with Standard or Evaluation license
 
-
 Suggested ESXi specifications:
 
         CPU: Intel(R) Xeon(R) CPU E5-2696 v4 @ 2.20GHz
@@ -345,14 +344,48 @@ The client library and data mover are provided to load data into the cluster fro
 
 * Client Library: please refer to its README file and the run example under dss_client directory.
 
-* Data Mover:Installing the data mover is possible by executing the following playbook using Ansible.
+* Data Mover: Installing the data mover is possible by executing the following playbook using Ansible.
 
 ```ansible-playbook -i your_inventory playbooks/deploy_datamover.yml```
 
-Complete documentation is available under the /usr/dss/nkv-datamover directory.
+* Data Mover configuration: Review `Datamover Settings` in `group_vars/all.yml`.
+* Uncomment relevent changes as they apply to your specific environment, most imporantly `datamover_nfs_shares`:
+
+        ```yaml
+        ### Datamover Settings
+        # datamover_master_workers: 1
+        # datamover_master_max_index_size: 100
+        # datamover_master_size: 1GB
+        # datamover_client_workers: 25
+        # datamover_client_max_index_size: 100
+        # datamover_client_user_id: ansible
+        # datamover_client_password: ansible
+        # datamover_message_port_index: 4000
+        # datamover_message_port_status: 4001
+        # datamover_nfs_shares:
+        #   - ip: 192.168.200.199
+        #     shares:
+        #       - /mnt/nfs_share/5gb
+        #       - /mnt/nfs_share/10gb
+        #       - /mnt/nfs_share/15gb
+        #   - ip: 192.168.200.200
+        #     shares: 
+        #       - /mnt/nfs_share/5gb-B
+        #       - /mnt/nfs_share/10gb-B
+        #       - /mnt/nfs_share/15gb-B
+        # datamover_bucket: bucket
+        # datamover_client_lib: dss_client
+        # datamover_logging_path: /var/log/dss
+        # datamover_cluster_name: test_cluster
+        ```
+
+* Start datamover:
+
+```ansible-playbook -i your_inventory playbooks/start_datamover.yml```
+
+Complete documentation is available under the /usr/dss/nkv-datamover directory (deployed to each client in your cluster).
 
 ## Known Issues / Limitations
- * Do not exceed 50% of total subsystem capacity
- * Do not exceed 256 concurrent threads in VMware environment
- 
 
+* Do not exceed 50% of total subsystem capacity
+* Do not exceed 256 concurrent threads in VMware environment
