@@ -130,7 +130,7 @@
 # pip3_version: 21.0.1
 
 ### Datamover Settings
-# datamover_master_workers: 10
+# datamover_master_workers: 1
 # datamover_master_max_index_size: 100
 # datamover_master_size: 1GB
 # datamover_client_workers: 25
