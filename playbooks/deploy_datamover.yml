@@ -31,7 +31,9 @@
 ---
 
 - name: Get VLAN information of Minio servers
-  hosts: servers
+  hosts:
+    - clients
+    - servers
   roles:
     - get_tcp_vlan_ip_list
 
