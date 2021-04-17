@@ -52,13 +52,13 @@
     - deploy_dss_agent
     - deploy_dss_host
     - deploy_dss_diamond
-    - get_tcp_vlan_ip_list
 
 - name: Deploy DSS Minio
   hosts:
     - servers
     - clients
   roles:
+    - get_tcp_vlan_ip_list
     - deploy_dss_minio
 
 - name: Deploy DSS benchmark
