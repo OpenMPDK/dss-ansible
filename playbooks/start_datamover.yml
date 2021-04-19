@@ -30,8 +30,10 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Get VLAN information of Minio servers
-  hosts: servers
+- name: Get TCP VLAN information
+  hosts:
+    - clients
+    - servers
   roles:
     - get_tcp_vlan_ip_list
 
