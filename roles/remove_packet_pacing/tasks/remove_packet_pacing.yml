@@ -46,6 +46,11 @@
     - lookup('vars', lookup_dev).ipv4.address is defined
     - lookup('vars', lookup_dev).ipv4.address == rocev2_ip
 
+- name: Assert matching_device defined
+  assert:
+    that: matching_device is defined
+    msg: Adapters with matching TCP IP addresses not found. Check `tcp_ip_list` var in inventory file.
+
 - name: Get packet pacing status
   command: "tc qdisc show dev {{ matching_device }}"
   changed_when: false

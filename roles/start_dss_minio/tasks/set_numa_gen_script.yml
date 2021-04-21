@@ -46,6 +46,11 @@
     - lookup('vars', lookup_dev).ipv4.address is defined
     - lookup('vars', lookup_dev).ipv4.address == tcp_ip
 
+- name: Assert matching_device defined
+  assert:
+    that: matching_device is defined
+    msg: Adapters with matching TCP IP addresses not found. Check `tcp_ip_list` var in inventory file.
+
 - name: Get NUMA node
   command: "cat /sys/class/net/{{ matching_device }}/device/numa_node"
   changed_when: false
