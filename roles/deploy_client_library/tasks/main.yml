@@ -30,17 +30,14 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Install yum repos
+- name: Install epel-release repo
   yum:
-    name:
-      - centos-release-scl
-      - epel-release
+    name: epel-release
   become: true
 
 - name: Install yum dependencies
   yum:
     name:
-      - devtoolset-9
       - git
       - zlib-devel
       - openssl-devel
@@ -101,6 +98,11 @@
     mode: 0555
   become: true
 
+- name: Get python3 platform lib dir
+  command: python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(True))"
+  register: python3_platform_lib_dir
+  changed_when: false
+
 - name: Get python3 lib dir
   command: python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"
   register: python3_lib_dir
@@ -109,9 +111,15 @@
 - name: Set symlink for dss.cpython-36m-x86_64-linux-gnu.so
   file:
     src: "{{ deploy_client_library_dest_dir }}/dss.cpython-36m-x86_64-linux-gnu.so"
-    dest: "{{ python3_lib_dir.stdout }}/dss.cpython-36m-x86_64-linux-gnu.so"
+    dest: "{{ python3_platform_lib_dir.stdout }}/dss.cpython-36m-x86_64-linux-gnu.so"
     state: link
     force: true
+  become: true
+
+- name: Remove dss.cpython-36m-x86_64-linux-gnu.so from platform dir
+  file:
+    dest: "{{ python3_lib_dir.stdout }}/dss.cpython-36m-x86_64-linux-gnu.so"
+    state: absent
   become: true
 
 - name: Set symlink for libdss.so
