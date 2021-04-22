@@ -71,8 +71,4 @@
   import_playbook: start_dss_software.yml
 
 - name: Deploy Data Mover
-  hosts: clients
-  roles:
-    - deploy_gcc
-    - deploy_client_library
-    - deploy_datamover
+  import_playbook: deploy_datamover.yml
