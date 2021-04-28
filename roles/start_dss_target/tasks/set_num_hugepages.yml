@@ -82,3 +82,25 @@
     - current_1gb_hugepages.stdout | int != num_1gb_hugepages
     - current_1gb_hugepages.stdout | int != 0
   become: true
+
+- name: Set GRUB_CMDLINE_LINUX hugepages options
+  lineinfile:
+    path: /etc/default/grub
+    state: present
+    backrefs: true
+    regexp: '^(GRUB_CMDLINE_LINUX=(?:(?![" ]hugepagesz={{ grub.match }} hugepages=).)*)(?:[" ]hugepagesz={{ grub.match }} hugepages=\S+)?(.*")$'
+    line: '\1 {{ grub.set }}\2'
+  loop:
+    - match: 1G
+      set: "hugepagesz=1G hugepages={{ num_1gb_hugepages }}"
+    - match: 2M
+      set: "hugepagesz=2M hugepages={{ num_2mb_hugepages }}"
+  loop_control:
+    loop_var: grub
+    label: "{{ grub.match }}"
+  notify:
+    - Identify UEFI boot for hugepages
+    - Execute grub2-mkconfig for hugepages
+  become: true
+
+- meta: flush_handlers
