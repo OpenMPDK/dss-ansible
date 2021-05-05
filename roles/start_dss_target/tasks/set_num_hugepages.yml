@@ -34,13 +34,19 @@
   set_fact:
     num_2mb_hugepages: 12288
     num_1gb_hugepages: 0
-  when: ansible_virtualization_role == "guest"
+  when:
+    - ansible_virtualization_role == "guest"
+    - num_2mb_hugepages is not defined
+    - num_1gb_hugepages is not defined
 
 - name: Set Hugepages vars for physical hosts
   set_fact:
     num_2mb_hugepages: 12288
     num_1gb_hugepages: 200
-  when: ansible_virtualization_role == "host"
+  when:
+    - ansible_virtualization_role == "host"
+    - num_2mb_hugepages is not defined
+    - num_1gb_hugepages is not defined
 
 - name: Check 2MB hugepages
   command: cat /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages

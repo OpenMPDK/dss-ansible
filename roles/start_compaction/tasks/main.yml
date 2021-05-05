@@ -31,7 +31,7 @@
 ---
 
 - name: Get NVMe Subsystems
-  shell: nvme list-subsys | grep -oP 'NQN=\K.+{{ ansible_hostname.split('.')[0] }}.+'
+  shell: nvme list-subsys | grep -oP 'NQN=\K.+{{ ansible_hostname.split('.')[0] }}-.+'
   register: nvme_list_subsys
   become: true
   changed_when: false

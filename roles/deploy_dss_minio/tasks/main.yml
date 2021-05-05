@@ -82,4 +82,6 @@
     path: "{{ dss_log_dir }}"
     state: directory
     mode: 0755
+    owner: "{{ ansible_effective_user_id }}"
+    group: "{{ ansible_effective_group_id }}"
   become: true
