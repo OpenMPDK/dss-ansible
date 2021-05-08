@@ -34,20 +34,27 @@ export LD_LIBRARY_PATH="{{ start_dss_minio_host_dir }}/lib"
 export MINIO_NKV_CONFIG="{{ start_dss_minio_host_dir }}/conf/nkv_config.json"
 export MINIO_ACCESS_KEY={{ minio_access_key }}
 export MINIO_SECRET_KEY={{ minio_secret_key }}
+
 export MINIO_STORAGE_CLASS_STANDARD=EC:{{ minio_ec }}
 export MINIO_NKV_MAX_VALUE_SIZE={{ ((minio_ec_block_size | int) / (minio_ec | int)) | int }}
 export MINIO_NKV_TIMEOUT={{ minio_nkv_timeout }}
 export MINIO_NKV_SYNC={{ minio_nkv_sync }}
-export MINIO_ON_KV={{ minio_on_kv }}
-export MINIO_NKV_USE_CUSTOM_READER={{ minio_nkv_use_custom_reader }}
 export MINIO_NKV_SHARED_SYNC_INTERVAL={{ minio_nkv_shared_sync_interval }}
+export MINIO_ENABLE_ZERO_COPY_READER={{ minio_enable_zero_copy_reader }}
 export MINIO_EC_BLOCK_SIZE={{ minio_ec_block_size }}
 export MINIO_ENABLE_NO_LOCK_READ={{ minio_enable_no_lock_read }}
-export MINIO_ENABLE_NO_READ_VERIFY={{ minio_enable_no_lock_verify }}
+#export MINIO_ENABLE_NO_READ_VERIFY={{ minio_enable_no_read_verify }}
+export MINIO_NKV_USE_CUSTOM_READER={{ minio_nkv_use_custom_reader }}
 export MINIO_ENABLE_NO_LOCK_WRITE={{ minio_no_lock_write }}
 export MINIO_ENABLE_OPT_WRITE={{ minio_opt_write }}
 export MINIO_ENABLE_NON_TRANSACTIONAL_WRITE={{ minio_non_transactional_write }}
-#export MINIO_NKV_CHECKSUM=1
+export MINIO_DISABLE_META_STAT={{ minio_disable_meta_stat }}
+export MINIO_ON_KV={{ minio_on_kv }}
+export MINIO_DISABLE_EC={{ minio_disable_ec }}
+export MINIO_KV_MAX_SIZE={{ minio_kv_max_size }}
+export MINIO_NKV_SHARED={{ minio_nkv_shared }}
+#export MINIO_NKV_CHECKSUM={{ minio_nkv_checksum }}
+
 ulimit -n 65535
 ulimit -c unlimited
 
