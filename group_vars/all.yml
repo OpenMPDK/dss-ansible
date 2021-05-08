@@ -50,23 +50,27 @@
 # dss_log_dir: /var/log/dss
 
 ### Minio Settings
+# minio_access_key: minio
+# minio_secret_key: minio123
 # minio_port: 9000
 # minio_ec: 2
 # minio_nkv_timeout: 20
 # minio_nkv_sync: 1
-# minio_on_kv: 1
-# minio_nkv_use_custom_reader: 1
 # minio_nkv_shared_sync_interval: 2
-# minio_nkv_shared: 1
-# minio_ec_block_size: 1048576
+# minio_enable_zero_copy_reader: 1
+# minio_ec_block_size: 2097152
 # minio_enable_no_lock_read: 1
-# minio_enable_no_lock_verify: 1
-# minio_access_key: minio
-# minio_secret_key: minio123
+# minio_enable_no_read_verify: 1
+# minio_nkv_use_custom_reader: 1
 # minio_no_lock_write: 1
 # minio_opt_write: 1
 # minio_non_transactional_write: 1
-# minio_mc_alias: autominio
+# minio_disable_meta_stat: 1
+# minio_on_kv: 1
+# minio_disable_ec: 1
+# minio_kv_max_size: 1048576
+# minio_nkv_shared: 1
+# minio_nkv_checksum: 1
 
 ### AI Benchmark Settings
 # benchmark_objects: 1000
@@ -130,11 +134,11 @@
 # pip3_version: 21.0.1
 
 ### Datamover Settings
-# datamover_master_workers: 1
-# datamover_master_max_index_size: 100
+# datamover_master_workers: 5
+# datamover_master_max_index_size: 500
 # datamover_master_size: 1GB
-# datamover_client_workers: 25
-# datamover_client_max_index_size: 100
+# datamover_client_workers: 5
+# datamover_client_max_index_size: 500
 # datamover_client_user_id: ansible
 # datamover_client_password: ansible
 # datamover_message_port_index: 4000
