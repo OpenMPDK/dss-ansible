@@ -37,7 +37,7 @@ export MINIO_ACCESS_KEY={{ minio_access_key }}
 export MINIO_SECRET_KEY={{ minio_secret_key }}
 
 export MINIO_STORAGE_CLASS_STANDARD=EC:{{ minio_ec }}
-export MINIO_NKV_MAX_VALUE_SIZE={{ ((minio_ec_block_size | int) / (minio_ec | int)) | int }}
+export MINIO_NKV_MAX_VALUE_SIZE={{ ((minio_ec_block_size | int) / ((groups['servers'] | length) - minio_ec | int)) | int }}
 export MINIO_NKV_TIMEOUT={{ minio_nkv_timeout }}
 export MINIO_NKV_SYNC={{ minio_nkv_sync }}
 export MINIO_NKV_SHARED_SYNC_INTERVAL={{ minio_nkv_shared_sync_interval }}
