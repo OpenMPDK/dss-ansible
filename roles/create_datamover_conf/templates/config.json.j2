@@ -45,5 +45,15 @@
     {%- for server in groups['servers'] -%}
         "{{ hostvars[server].ansible_default_ipv4.address }}"{% if not loop.last %},{% endif -%}
     {% endfor -%}
-  ]
+  ],
+  "environment": {
+    "gcc" : {
+      "version": "5.1",
+      "source" : "/usr/local/bin/setenv-for-gcc510.sh",
+      "required": true
+    }
+  },
+  "aws": {
+   "awslib_log_debug": 2
+  }
 }
