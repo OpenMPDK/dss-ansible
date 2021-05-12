@@ -98,12 +98,12 @@
 
 - name: Set hardcoded nvmf_tgt command if more than 128 cores
   set_fact:
-    nvmf_tgt_cmd: >
+    nvmf_tgt_cmd: >-
       {{ start_dss_target_dest_dir }}/bin/nvmf_tgt
       -c {{ dss_target_conf_dir }}/nvmf.in.conf
       -r /var/run/spdk.sock
-      -m 0xffffffff0000000000000000ffffffff
-  when: ansible_processor_vcpus > 128
+      -m {{ custom_coremask }}
+  when: custom_coremask is defined
 
 - name: Find running target process
   command: "pgrep reactor_"
