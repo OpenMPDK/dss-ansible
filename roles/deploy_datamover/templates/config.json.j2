@@ -32,10 +32,17 @@
     "client_lib": "{{ datamover_client_lib }}"
   },
   "operations": ["PUT","GET","DEL","LIST"],
-  "logging_path": "{{ datamover_logging_path }}",
+  "logging": {"path": "{{ datamover_logging_path }}", "level": "{{ datamover_logging_level }}" },
   "dss_targets": [
     {%- for server in groups['servers'] -%}
         "{{ hostvars[server].ansible_default_ipv4.address }}"{% if not loop.last %},{% endif -%}
     {% endfor -%}
-  ]
+  ],
+  "environment": {
+    "gcc" : {
+      "version": "{{ datamover_gcc_version }}",
+      "source" : "{{ datamover_gcc_source }}",
+      "required": true
+    }
+  }
 }
