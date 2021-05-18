@@ -46,6 +46,7 @@
     - python-pip
     - python3
     - sysstat
+    - Judy
   become: true
 
 - name: Upgrade pip
