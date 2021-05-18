@@ -71,7 +71,7 @@
     mode: 0751
   vars:
     numa_node: "{{ device_numa_node.stdout }}"
-  when: num_tcp_ips | int > 1
+  when: groups['servers'] | length > 1
   become: true
 
 - name: Create non-distributed minio scripts
@@ -81,5 +81,5 @@
     mode: 0751
   vars:
     numa_node: "{{ device_numa_node.stdout }}"
-  when: num_tcp_ips | int == 1
+  when: groups['servers'] | length == 1
   become: true
