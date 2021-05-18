@@ -101,9 +101,14 @@
     loop_var: host
   run_once: true
 
+- name: Check number of listeners in nvmf.in.conf
+  shell: |
+    grep '^  Listen RDMA' {{ start_dss_host_nvmf_in_conf }} | wc -l
+  register: num_listeners
+
 - name: Set expected_num_subsystems var
   set_fact:
-    expected_num_subsystems: "{{ expected_num_subsystems | default(0) + ((rocev2_ip_list | length) * num_subsystems) }}"
+    expected_num_subsystems: "{{ num_listeners.stdout }}"
 
 - name: Set combined_expected_num_subsystems var
   set_fact:

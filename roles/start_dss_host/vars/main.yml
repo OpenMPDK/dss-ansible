@@ -34,3 +34,4 @@ start_dss_host_dir: /usr/dss/nkv-sdk
 start_dss_host_port: 1024
 start_dss_host_qpairs: 32
 start_dss_host_mem_align: 4
+start_dss_host_nvmf_in_conf: /etc/dss/nvmf.in.conf
