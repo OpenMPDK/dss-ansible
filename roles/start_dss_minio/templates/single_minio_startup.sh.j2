@@ -36,7 +36,7 @@ export MINIO_ACCESS_KEY={{ minio_access_key }}
 export MINIO_SECRET_KEY={{ minio_secret_key }}
 
 export MINIO_STORAGE_CLASS_STANDARD=EC:{{ minio_ec }}
-export MINIO_NKV_MAX_VALUE_SIZE={{ ((minio_ec_block_size | int) / ((groups['servers'] | length) - minio_ec | int)) | int }}
+export MINIO_NKV_MAX_VALUE_SIZE={{ (((minio_ec_block_size | int) / ((rocev2_devmap | length) - minio_ec | int) / 32) | round(0, 'ceil') * 32) | int }}
 export MINIO_NKV_TIMEOUT={{ minio_nkv_timeout }}
 export MINIO_NKV_SYNC={{ minio_nkv_sync }}
 export MINIO_NKV_SHARED_SYNC_INTERVAL={{ minio_nkv_shared_sync_interval }}
@@ -52,7 +52,7 @@ export MINIO_DISABLE_META_STAT={{ minio_disable_meta_stat }}
 export MINIO_ON_KV={{ minio_on_kv }}
 export MINIO_DISABLE_EC={{ minio_disable_ec }}
 export MINIO_KV_MAX_SIZE={{ minio_kv_max_size }}
-export MINIO_NKV_SHARED={{ minio_nkv_shared }}
+#export MINIO_NKV_SHARED={{ minio_nkv_shared }}
 #export MINIO_NKV_CHECKSUM={{ minio_nkv_checksum }}
 
 ulimit -n 65535

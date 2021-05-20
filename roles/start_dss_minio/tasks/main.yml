@@ -102,7 +102,23 @@
   changed_when: false
   failed_when: false
 
-- name: Start minio instances
+- name: Start non-distributed minio instance
+  shell: >
+    nohup ./minio_startup_{{ tcp_ip_list[0] }}.sh >
+    {{ dss_log_dir }}/nkv-minio_{{ tcp_ip_list[0] }}.log 2>&1 &
+  args:
+    chdir: "{{ start_dss_minio_host_bin_dir }}"
+  vars:
+    distributed_string: "server --address {{ tcp_ip_list[0] }}:{{ minio_port }}"
+  when: >
+    groups['servers'] | length == 1 and
+    ((combined_vlan_ip_map | length > 1 and
+    distributed_string not in minio_ps.stdout) or
+    (combined_vlan_ip_map | length == 1 and
+    'server' not in minio_ps.stdout))
+  become: true
+
+- name: Start distributed minio instances
   shell: >
     sleep 1 &&
     nohup ./minio_startup_{{ ip_address }}.sh >
@@ -115,10 +131,11 @@
   vars:
     distributed_string: "server --address {{ ip_address }}:{{ minio_port }}"
   when: >
-    (combined_vlan_ip_map | length > 1 and
+    groups['servers'] | length > 1 and
+    ((combined_vlan_ip_map | length > 1 and
     distributed_string not in minio_ps.stdout) or
     (combined_vlan_ip_map | length == 1 and
-    'server' not in minio_ps.stdout)
+    'server' not in minio_ps.stdout))
   throttle: 1
   become: true
 
@@ -138,9 +155,19 @@
     loop_var: ip_address
   vars:
     server_string: "server --address {{ ip_address }}:{{ minio_port }}"
-  when: combined_vlan_ip_map | length > 1
+  when: groups['servers'] | length > 1
 
-- name: Assert minio instances online
+- name: Assert non-distributed minio instances online
+  command: "cat {{ dss_log_dir }}/nkv-minio_{{ tcp_ip_list[0] }}.log"
+  changed_when: false
+  register: minio_logs
+  until: minio_logs.stdout is search('0 Offline')
+  retries: 12
+  delay: 5
+  when: groups['servers'] | length == 1
+  become: true
+
+- name: Assert distributed minio instances online
   command: "cat {{ dss_log_dir }}/nkv-minio_{{ ip_address }}.log"
   loop: "{{ tcp_ip_list }}"
   changed_when: false
@@ -150,4 +177,5 @@
   until: minio_logs.stdout is search('0 Offline')
   retries: 12
   delay: 5
+  when: groups['servers'] | length > 1
   become: true
