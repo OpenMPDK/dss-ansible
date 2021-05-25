@@ -34,6 +34,7 @@
   command: ibdev2netdev -v
   changed_when: false
   register: mlx_list
+  become: true
 
 - name: Assert ConnectX devices are present
   assert:
