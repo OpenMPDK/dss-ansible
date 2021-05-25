@@ -58,38 +58,42 @@
   run_once: true
 
 - name: NVMe list subsystems
-  command: nvme list-subsys
+  command: nvme list-subsys -o json
   changed_when: false
   register: nvme_subsys
   become: true
 
+- name: Set nvme_mountpoints
+  set_fact:
+    nvme_mountpoints: |
+      [
+      {% for subsystem in (nvme_subsys.stdout | from_json).Subsystems | batch(2) %}
+        {% set subsystem_loop_last = loop.last %}
+        {% for path in subsystem[1].Paths %}
+          {
+            "name": "{{ subsystem[0].Name }}",
+            "nqn": "{{ subsystem[0].NQN }}",
+            "dev": "{{ path.Name | regex_search('nvme(.+)', '\1') | first }}",
+            "transport": "{{ path.Transport }}",
+            "ip": "{{ path.Address | regex_search('traddr=([^ ]+)', '\1') | first }}",
+            "port": "{{ path.Address | regex_search('trsvcid=(.+)', '\1') | first }}",
+            "state": "{{ path.State }}"
+          }{% if (not loop.last) or (not subsystem_loop_last) %},
+          {% endif %}
+        {%- endfor %}
+      {% endfor %}
+      ]
+
 - name: Assert subsystems mounted
   assert:
-    that: nvme_subsys.stdout_lines | length > 0
+    that: nvme_mountpoints | length > 0
     msg: NVMeOF subsystems not mounted. Please verify DSS software is running (start_dss_software)
-
-- name: Parse nvme list subsys
-  set_fact:
-    rocev2_devmap: "{{ rocev2_devmap | default([]) +
-                    [{'dev': nvme_num,
-                      'ip': rocev2_ip }] }}"
-    msg: "{{ nvme_num }} - {{ rocev2_ip }}"
-  loop: "{{ nvme_subsys.stdout_lines }}"
-  loop_control:
-    loop_var: nvme_line
-  vars:
-    nvme_regex: >-
-      nvme(\d+) rdma traddr=([^ ]+)
-    nvme_num: "{{ nvme_line | regex_search(nvme_regex, '\\1') | first }}"
-    rocev2_ip: "{{ nvme_line | regex_search(nvme_regex, '\\2') | first }}"
-  when: nvme_line is search('traddr')
-  run_once: true
 
 - name: Find min/max devmap
   set_fact:
     subsys_range: >-
       {% set dev_range = { 'min': 999, 'max': 0 } -%}
-      {%- for subsys in rocev2_devmap -%}
+      {%- for subsys in nvme_mountpoints -%}
         {%- if subsys.ip in vlan_pair.rocev2 -%}
           {%- if subsys.dev | int < dev_range.min | int %}{% if dev_range.update({ 'min': subsys.dev, 'max': dev_range.max }) %}{% endif %}{% endif -%}
           {%- if subsys.dev | int > dev_range.max | int %}{% if dev_range.update({ 'min': dev_range.min, 'max': subsys.dev }) %}{% endif %}{% endif -%}
@@ -104,6 +108,19 @@
     extended: true
     label: "{{ ansible_loop.index0 }}"
   run_once: true
+
+- name: debug subsys_range
+  debug:
+    var: subsys_range
+
+- name: Set min_subsystem_list
+  set_fact:
+    min_subsystem_list: |
+      [
+        {% for vlan in subsys_range %}
+          "{{ (nvme_mountpoints | selectattr('dev', 'equalto', vlan.min) | list)[0].nqn }}"{%- if not loop.last %}, {% endif %}
+        {% endfor %}
+      ]
 
 - name: Get numactl hardware information
   command: numactl --hardware
@@ -123,11 +140,49 @@
   changed_when: false
   register: up_adapters
 
-- name: Set numactl string and generate minio scripts
-  include_tasks: set_numa_gen_script.yml
+- name: Query NUMA for numactl string
+  include_tasks: set_numa.yml
   loop: "{{ range(0, tcp_ip_list | length) | list }}"
   loop_control:
     loop_var: vlan_pair
     extended: true
   vars:
     tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
+
+- name: Set adjacent_numa_list var
+  set_fact:
+    adjacent_numa_list: "{{ adjacent_numa_list | default([]) }} +
+      {% if numa - 1 not in numa_list and numa - 1 >= 0 and (adjacent_numa_list is not defined or numa - 1 not in adjacent_numa_list) %}
+        {{ [ numa - 1 ] }}
+      {% elif numa + 1 not in numa_list and numa + 1 <= (num_numa_nodes | int) and (adjacent_numa_list is not defined or numa + 1 not in adjacent_numa_list) %}
+        {{ [ numa + 1 ] }}
+      {% else %}
+        [ 'error' ]
+      {% endif %}"
+  loop: "{{ numa_list }}"
+  loop_control:
+    loop_var: numa
+
+- name: Assert valid adjacent NUMA found
+  assert:
+    that: "'error' not in adjacent_numa_list"
+    msg: |
+      Network adapters are not in a valid NUMA configuration.
+      Current NUMA configuration:
+      {{ numa_list }}
+
+- name: Create distributed minio scripts
+  template:
+    src: minio_startup.sh.j2
+    dest: "{{ start_dss_minio_host_bin_dir }}/minio_startup_{{ tcp_ip }}.sh"
+    mode: 0751
+  become: true
+  loop: "{{ range(0, tcp_ip_list | length) | list }}"
+  loop_control:
+    loop_var: vlan_pair
+    extended: true
+  vars:
+    numa_node: "{{ numa_list[ansible_loop.index0] }}"
+    adjacent_numa: "{{ adjacent_numa_list[ansible_loop.index0] }}"
+    tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
+    min_subsystem: "{{ min_subsystem_list[ansible_loop.index0] }}"

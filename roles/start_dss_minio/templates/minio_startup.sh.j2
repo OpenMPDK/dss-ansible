@@ -29,15 +29,24 @@
 #  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+{% set num_mountpoints = { 'value': 0 } -%}
+{%- for vlan in combined_vlan_ip_map -%}
+    {%- set vlan_index = loop.index0 -%}
+    {%- for ip in vlan.tcp -%}
+        {%- if groups['servers'] | length == 1 or min_subsystem_list[vlan_index] == min_subsystem -%}
+            {%- if num_mountpoints.update({ 'value': num_mountpoints.value + (subsys_range[vlan_index].max | int - subsys_range[vlan_index].min | int + 1) }) %}{% endif -%}
+        {%- endif -%}
+    {%- endfor -%}
+{% endfor %}
 
 export LD_LIBRARY_PATH="{{ start_dss_minio_host_dir }}/lib"
 export MINIO_NKV_CONFIG="{{ start_dss_minio_host_dir }}/conf/nkv_config.json"
-export MINIO_INSTANCE_HOST_PORT={{ tcp_ip }}:{{ minio_port }}
+{% if groups['servers'] | length == 1 %}#{% endif %}export MINIO_INSTANCE_HOST_PORT={{ tcp_ip }}:{{ minio_port }}
 export MINIO_ACCESS_KEY={{ minio_access_key }}
 export MINIO_SECRET_KEY={{ minio_secret_key }}
 
 export MINIO_STORAGE_CLASS_STANDARD=EC:{{ minio_ec }}
-export MINIO_NKV_MAX_VALUE_SIZE={{ ((minio_ec_block_size | int) / ((groups['servers'] | length) - minio_ec | int)) | int }}
+export MINIO_NKV_MAX_VALUE_SIZE={{ (((minio_ec_block_size | int) / ((num_mountpoints.value) - minio_ec | int) / 32) | round(0, 'ceil') * 32) | int }}
 export MINIO_NKV_TIMEOUT={{ minio_nkv_timeout }}
 export MINIO_NKV_SYNC={{ minio_nkv_sync }}
 export MINIO_NKV_SHARED_SYNC_INTERVAL={{ minio_nkv_shared_sync_interval }}
@@ -53,20 +62,22 @@ export MINIO_DISABLE_META_STAT={{ minio_disable_meta_stat }}
 export MINIO_ON_KV={{ minio_on_kv }}
 export MINIO_DISABLE_EC={{ minio_disable_ec }}
 export MINIO_KV_MAX_SIZE={{ minio_kv_max_size }}
-export MINIO_NKV_SHARED={{ minio_nkv_shared }}
+{% if groups['servers'] | length == 1 %}#{% endif %}export MINIO_NKV_SHARED={{ minio_nkv_shared }}
 #export MINIO_NKV_CHECKSUM={{ minio_nkv_checksum }}
 
 ulimit -n 65535
 ulimit -c unlimited
 
 {% if num_numa_nodes | int > 1 -%}
-    numactl -N {{ numa_node }} -i {{ numa_node }},{{ (numa_node | int - 1) | abs }}{{ ' '}}
+    numactl -N {{ numa_node }} -i {{ numa_node }},{{ adjacent_numa }}{{ ' '}}
 {%- endif -%}
-{{ start_dss_minio_dir }}/minio server --address {{ tcp_ip }}:{{ minio_port }}
+{{ start_dss_minio_dir }}/minio server{% if groups['servers'] | length > 1 %} --address {{ tcp_ip }}:{{ minio_port }}{% endif %}
 {%- for vlan in combined_vlan_ip_map -%}
     {%- set vlan_index = loop.index0 -%}
     {%- for ip in vlan.tcp -%}
-        {{ ' ' }}http://{{ ip }}:{{ minio_port }}/dev/nvme{{ '{' }}{{ subsys_range[vlan_index].min }}...{{ subsys_range[vlan_index].max }}{{ '}' }}n1
+        {%- if groups['servers'] | length == 1 or min_subsystem_list[vlan_index] == min_subsystem -%}
+        {{ ' ' }}{% if groups['servers'] | length > 1 %}http://{{ ip }}:{{ minio_port }}{% endif %}/dev/nvme{{ '{' }}{{ subsys_range[vlan_index].min }}...{{ subsys_range[vlan_index].max }}{{ '}' }}n1
+        {%- endif -%}
     {%- endfor -%}
 {%- endfor -%}
 {{ ' ' }}| grep -v 'Pool count' --line-buffered

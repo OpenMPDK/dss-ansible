@@ -30,63 +30,32 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Stat DSS Minio path
-  stat:
-    path: "{{ start_dss_minio_dir }}"
-  register: dss_minio_path
-
-- name: Assert DSS Minio path exists
-  assert:
-    that: dss_minio_path.stat.exists
-    fail_msg: DSS Minio is not installed. Execute 'deploy_dss_software.yml' playbook first.
-
-- name: Stat DSS Host path
-  stat:
-    path: "{{ start_dss_minio_host_bin_dir }}"
-  register: dss_host_path
-
-- name: Assert DSS Host path exists
-  assert:
-    that: dss_host_path.stat.exists
-    fail_msg: DSS Host is not installed. Execute 'deploy_dss_software.yml' playbook first.
-
-- name: Get all RoCEv2 IP Addresses
-  include_role:
-    name: get_vlan_ips
-  vars:
-    vlan_list: "{{ rocev2_vlans }}"
-  when: rocev2_ip_list is not defined
-
-- name: Set rocev2_ip_list and tcp_ip_list vars if IP's auto-discovered
+- name: Get matching_device
   set_fact:
-    rocev2_ip_list: "{{ vlan_ip_list }}"
-  when: rocev2_ip_list is not defined
-
-- name: Get all TCP IP Addresses
-  include_role:
-    name: get_vlan_ips
+    matching_device: "{% if phys_dev != '' %}{{ phys_dev }}{% else %}{{ vlan_dev }}{% endif %}"
+  loop: "{{ up_adapters.stdout_lines }}"
+  loop_control:
+    loop_var: adapter
   vars:
-    vlan_list: "{{ tcp_vlans }}"
-  when: tcp_ip_list is not defined
+    adapter_re: '^[\d]+: ([^@:]+)(@([^:]+))?:'
+    vlan_dev: "{{ adapter | regex_search(adapter_re, '\\1') | first }}"
+    phys_dev: "{{ adapter | regex_search(adapter_re, '\\3') | first }}"
+    lookup_dev: "ansible_{{ vlan_dev | replace('-', '_') }}"
+  when:
+    - adapter is regex(adapter_re)
+    - lookup('vars', lookup_dev).ipv4.address is defined
+    - lookup('vars', lookup_dev).ipv4.address == tcp_ip
 
-- name: Set tcp_ip_list var
-  set_fact:
-    tcp_ip_list: "{{ vlan_ip_list }}"
-  when: tcp_ip_list is not defined
+- name: Assert matching_device defined
+  assert:
+    that: matching_device is defined
+    msg: Adapters with matching TCP IP addresses not found. Check `tcp_ip_list` var in inventory file.
 
-- name: Generate minio startup scripts
-  include_tasks: generate_scripts.yml
-
-- name: Check for running minio instances
-  command: "pgrep -ax minio"
-  register: minio_ps
+- name: Get NUMA node
+  command: "cat /sys/class/net/{{ matching_device }}/device/numa_node"
   changed_when: false
-  failed_when: false
+  register: device_numa_node
 
-- name: Start non-distributed minio
-  include_tasks: start_minio_single.yml
-  when: groups['servers'] | length == 1
-
-- name: Start distributed minio
-  include_tasks: start_minio_distributed.yml
-  when: groups['servers'] | length > 1
+- name: Set numa_list var
+  set_fact:
+    numa_list: "{{ numa_list | default([]) + [ device_numa_node.stdout | int ] }}"

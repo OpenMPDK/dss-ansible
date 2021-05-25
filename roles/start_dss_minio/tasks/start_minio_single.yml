@@ -30,63 +30,46 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Stat DSS Minio path
-  stat:
-    path: "{{ start_dss_minio_dir }}"
-  register: dss_minio_path
+# Not used?
+# - name: Stat minio startup script
+#   stat:
+#     path: "{{ start_dss_minio_host_bin_dir }}/minio_startup_{{ tcp_ip_list[0] }}.sh"
+#   register: minio_script_stat
 
-- name: Assert DSS Minio path exists
-  assert:
-    that: dss_minio_path.stat.exists
-    fail_msg: DSS Minio is not installed. Execute 'deploy_dss_software.yml' playbook first.
+# - name: Check for missing startup scripts
+#   set_fact:
+#     missing_script: true
+#   when: minio_script_stat.stat.exists == false
+#   run_once: true
 
-- name: Stat DSS Host path
-  stat:
-    path: "{{ start_dss_minio_host_bin_dir }}"
-  register: dss_host_path
+- name: Start non-distributed minio instance
+  shell: >
+    nohup ./minio_startup_{{ tcp_ip_list[0] }}.sh >
+    {{ dss_log_dir }}/nkv-minio_{{ tcp_ip_list[0] }}.log 2>&1 &
+  args:
+    chdir: "{{ start_dss_minio_host_bin_dir }}"
+  when: "'server' not in minio_ps.stdout"
+  become: true
 
-- name: Assert DSS Host path exists
-  assert:
-    that: dss_host_path.stat.exists
-    fail_msg: DSS Host is not installed. Execute 'deploy_dss_software.yml' playbook first.
-
-- name: Get all RoCEv2 IP Addresses
-  include_role:
-    name: get_vlan_ips
-  vars:
-    vlan_list: "{{ rocev2_vlans }}"
-  when: rocev2_ip_list is not defined
-
-- name: Set rocev2_ip_list and tcp_ip_list vars if IP's auto-discovered
-  set_fact:
-    rocev2_ip_list: "{{ vlan_ip_list }}"
-  when: rocev2_ip_list is not defined
-
-- name: Get all TCP IP Addresses
-  include_role:
-    name: get_vlan_ips
-  vars:
-    vlan_list: "{{ tcp_vlans }}"
-  when: tcp_ip_list is not defined
-
-- name: Set tcp_ip_list var
-  set_fact:
-    tcp_ip_list: "{{ vlan_ip_list }}"
-  when: tcp_ip_list is not defined
-
-- name: Generate minio startup scripts
-  include_tasks: generate_scripts.yml
-
-- name: Check for running minio instances
+- name: Check for running minio instance post-start
   command: "pgrep -ax minio"
-  register: minio_ps
+  register: post_minio_ps
   changed_when: false
   failed_when: false
 
-- name: Start non-distributed minio
-  include_tasks: start_minio_single.yml
-  when: groups['servers'] | length == 1
+- name: Assert non-distributed minio instances running
+  assert:
+    that: server_string in post_minio_ps.stdout
+    fail_msg: Minio instance not running
+    quiet: true
+  vars:
+    server_string: "server"
 
-- name: Start distributed minio
-  include_tasks: start_minio_distributed.yml
-  when: groups['servers'] | length > 1
+- name: Assert non-distributed minio instance online
+  command: "cat {{ dss_log_dir }}/nkv-minio_{{ tcp_ip_list[0] }}.log"
+  changed_when: false
+  register: minio_logs
+  until: minio_logs.stdout is search('0 Offline')
+  retries: 12
+  delay: 5
+  become: true
