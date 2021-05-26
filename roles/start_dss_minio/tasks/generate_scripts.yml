@@ -109,9 +109,11 @@
     label: "{{ ansible_loop.index0 }}"
   run_once: true
 
-- name: debug subsys_range
-  debug:
-    var: subsys_range
+- name: Assert mountpoints found for each VLAN
+  assert:
+    that: item.min != 999
+    msg: "NVMe mountpoints not found for all VLANs. Check rocev2_vlans or rocev2_ip_list vars."
+  loop: "{{ subsys_range }}"
 
 - name: Set min_subsystem_list
   set_fact:
@@ -204,3 +206,4 @@
     adjacent_numa: "{{ adjacent_numa_list[ansible_loop.index0] }}"
     tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
     min_subsystem: "{{ min_subsystem_list[ansible_loop.index0] }}"
+    my_range: "{{ subsys_range[ansible_loop.index0] }}"
