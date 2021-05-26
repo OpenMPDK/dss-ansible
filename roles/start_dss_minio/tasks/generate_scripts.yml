@@ -171,7 +171,25 @@
       Current NUMA configuration:
       {{ numa_list }}
 
-- name: Create distributed minio scripts
+- name: Set standalone_minio var
+  set_fact:
+    standalone_minio: true
+  when:
+    - groups['servers'] | length == 1
+    - (tcp_ip_list | length == 1 or
+      (nvme_mountpoints | length /  tcp_ip_list | length) < 4)
+
+- name: Assert distributed minio minimum mountpoints
+  assert:
+    that: (nvme_mountpoints | length /  tcp_ip_list | length) >= 4
+  when: standalone_minio is not defined
+
+- name: Assert standalone minio minimum mountpoints
+  assert:
+    that: nvme_mountpoints | length >= 4
+  when: standalone_minio is defined
+
+- name: Create minio scripts
   template:
     src: minio_startup.sh.j2
     dest: "{{ start_dss_minio_host_bin_dir }}/minio_startup_{{ tcp_ip }}.sh"

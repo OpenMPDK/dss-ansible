@@ -83,10 +83,10 @@
   changed_when: false
   failed_when: false
 
-- name: Start non-distributed minio
+- name: Start standalone minio
   include_tasks: start_minio_single.yml
-  when: groups['servers'] | length == 1
+  when: standalone_minio is defined
 
 - name: Start distributed minio
   include_tasks: start_minio_distributed.yml
-  when: groups['servers'] | length > 1
+  when: standalone_minio is not defined
