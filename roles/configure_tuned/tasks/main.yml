@@ -45,6 +45,7 @@
 - name: Check tuned active profile
   command: tuned-adm active
   changed_when: false
+  failed_when: false
   register: tuned_active
   become: true
 
