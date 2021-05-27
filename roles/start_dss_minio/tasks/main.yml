@@ -84,7 +84,7 @@
   failed_when: false
 
 - name: Start standalone minio
-  include_tasks: start_minio_single.yml
+  include_tasks: start_minio_standalone.yml
   when: standalone_minio is defined
 
 - name: Start distributed minio

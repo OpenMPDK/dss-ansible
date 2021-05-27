@@ -42,7 +42,7 @@
 #   when: minio_script_stat.stat.exists == false
 #   run_once: true
 
-- name: Start non-distributed minio instance
+- name: Start standalone minio instance
   shell: >
     nohup ./minio_startup_{{ tcp_ip_list[0] }}.sh >
     {{ dss_log_dir }}/nkv-minio_{{ tcp_ip_list[0] }}.log 2>&1 &
@@ -57,7 +57,7 @@
   changed_when: false
   failed_when: false
 
-- name: Assert non-distributed minio instances running
+- name: Assert standalone minio instances running
   assert:
     that: server_string in post_minio_ps.stdout
     fail_msg: Minio instance not running
@@ -65,7 +65,7 @@
   vars:
     server_string: "server"
 
-- name: Assert non-distributed minio instance online
+- name: Assert standalone minio instance online
   command: "cat {{ dss_log_dir }}/nkv-minio_{{ tcp_ip_list[0] }}.log"
   changed_when: false
   register: minio_logs
