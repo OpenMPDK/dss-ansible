@@ -56,30 +56,6 @@
   changed_when: false
   register: device_numa_node
 
-- name: Set num_tcp_ips var
+- name: Set numa_list var
   set_fact:
-    num_tcp_ips: "{{ (num_tcp_ips | default(0) | int) + (count_map.tcp | length | int) }}"
-  loop: "{{ combined_vlan_ip_map }}"
-  loop_control:
-    loop_var: count_map
-  run_once: true
-
-- name: Create distributed minio scripts
-  template:
-    src: minio_startup.sh.j2
-    dest: "{{ start_dss_minio_host_bin_dir }}/minio_startup_{{ tcp_ip }}.sh"
-    mode: 0751
-  vars:
-    numa_node: "{{ device_numa_node.stdout }}"
-  when: num_tcp_ips | int > 1
-  become: true
-
-- name: Create non-distributed minio scripts
-  template:
-    src: single_minio_startup.sh.j2
-    dest: "{{ start_dss_minio_host_bin_dir }}/minio_startup_{{ tcp_ip }}.sh"
-    mode: 0751
-  vars:
-    numa_node: "{{ device_numa_node.stdout }}"
-  when: num_tcp_ips | int == 1
-  become: true
+    numa_list: "{{ numa_list | default([]) + [ device_numa_node.stdout | int ] }}"

@@ -1,0 +1,100 @@
+#  BSD LICENSE
+#
+#  Copyright (c) 2021 Samsung Electronics Co., Ltd.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in
+#      the documentation and/or other materials provided with the
+#      distribution.
+#    * Neither the name of Samsung Electronics Co., Ltd. nor the names of
+#      its contributors may be used to endorse or promote products derived
+#      from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---
+
+# Not used?
+# - name: Stat minio startup scripts
+#   stat:
+#     path: "{{ start_dss_minio_host_bin_dir }}/minio_startup_{{ ip_address }}.sh"
+#   loop: "{{ tcp_ip_list }}"
+#   loop_control:
+#     loop_var: ip_address
+#   register: minio_script_stat
+
+# - name: Check for missing startup scripts
+#   set_fact:
+#     missing_script: true
+#   loop: "{{ ansible_play_hosts }}"
+#   loop_control:
+#     loop_var: host
+  # vars:
+  #   script_exists: "{{ hostvars[host].minio_script_stat.results | map(attribute='stat.exists') | list }}"
+  # when: false in script_exists
+  # run_once: true
+
+- name: Start distributed minio instances
+  shell: >
+    sleep 1 &&
+    nohup ./minio_startup_{{ ip_address }}.sh >
+    {{ dss_log_dir }}/nkv-minio_{{ ip_address }}.log 2>&1 &
+  args:
+    chdir: "{{ start_dss_minio_host_bin_dir }}"
+  loop: "{{ tcp_ip_list }}"
+  loop_control:
+    loop_var: ip_address
+  vars:
+    distributed_string: "server --address {{ ip_address }}:{{ minio_port }}"
+  when: >
+    ((combined_vlan_ip_map | length > 1 and
+    distributed_string not in minio_ps.stdout) or
+    (combined_vlan_ip_map | length == 1 and
+    'server' not in minio_ps.stdout))
+  throttle: 1
+  become: true
+
+- name: Check for running minio instances post-start
+  command: "pgrep -ax minio"
+  register: post_minio_ps
+  changed_when: false
+  failed_when: false
+
+- name: Assert distributed minio instances running
+  assert:
+    that: server_string in post_minio_ps.stdout
+    fail_msg: Minio instance not running
+    quiet: true
+  loop: "{{ tcp_ip_list }}"
+  loop_control:
+    loop_var: ip_address
+  vars:
+    server_string: "server --address {{ ip_address }}:{{ minio_port }}"
+
+- name: Assert distributed minio instances online
+  command: "cat {{ dss_log_dir }}/nkv-minio_{{ ip_address }}.log"
+  loop: "{{ tcp_ip_list }}"
+  changed_when: false
+  loop_control:
+    loop_var: ip_address
+  register: minio_logs
+  until: minio_logs.stdout is search('0 Offline')
+  retries: 12
+  delay: 5
+  become: true

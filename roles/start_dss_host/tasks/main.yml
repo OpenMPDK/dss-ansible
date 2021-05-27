@@ -104,6 +104,7 @@
 - name: Check number of listeners in nvmf.in.conf
   shell: |
     grep '^  Listen RDMA' {{ start_dss_host_nvmf_in_conf }} | wc -l
+  changed_when: false
   register: num_listeners
 
 - name: Set expected_num_subsystems var
