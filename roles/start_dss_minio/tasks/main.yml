@@ -50,30 +50,6 @@
     that: dss_host_path.stat.exists
     fail_msg: DSS Host is not installed. Execute 'deploy_dss_software.yml' playbook first.
 
-- name: Get all RoCEv2 IP Addresses
-  include_role:
-    name: get_vlan_ips
-  vars:
-    vlan_list: "{{ rocev2_vlans }}"
-  when: rocev2_ip_list is not defined
-
-- name: Set rocev2_ip_list and tcp_ip_list vars if IP's auto-discovered
-  set_fact:
-    rocev2_ip_list: "{{ vlan_ip_list }}"
-  when: rocev2_ip_list is not defined
-
-- name: Get all TCP IP Addresses
-  include_role:
-    name: get_vlan_ips
-  vars:
-    vlan_list: "{{ tcp_vlans }}"
-  when: tcp_ip_list is not defined
-
-- name: Set tcp_ip_list var
-  set_fact:
-    tcp_ip_list: "{{ vlan_ip_list }}"
-  when: tcp_ip_list is not defined
-
 - name: Generate minio startup scripts
   include_tasks: generate_scripts.yml
 
