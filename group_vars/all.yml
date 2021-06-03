@@ -50,6 +50,7 @@
 # dss_log_dir: /var/log/dss
 
 ### Minio Settings
+# minio_mc_alias: autominio
 # minio_access_key: minio
 # minio_secret_key: minio123
 # minio_port: 9000
