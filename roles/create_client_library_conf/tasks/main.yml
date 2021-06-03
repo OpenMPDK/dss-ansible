@@ -40,6 +40,10 @@
     that: dss_minio_path.stat.exists
     fail_msg: DSS Minio is not installed. Execute 'deploy_dss_software.yml' playbook first.
 
+- name: Check minio connection
+  command: "{{ start_dss_minio_dir }}/mc ls {{ minio_mc_alias }}"
+  changed_when: false
+
 - name: Check DSS bucket
   command: "{{ start_dss_minio_dir }}/mc ls {{ minio_mc_alias }}/{{ dss_bucket_name }}"
   changed_when: false
