@@ -1,0 +1,41 @@
+{
+    "version": 0.1,
+    "clusters": [
+{% if hostvars[groups['servers'][0]].standalone_minio is not defined %}
+{% for unique_subsystem in hostvars[groups['servers'][0]].min_subsystem_list | unique %}
+        {
+            "id": {{ loop.index0 }},
+            "endpoints": [
+    {%- for vlan in range(0, hostvars[groups['servers'][0]].vlan_ip_map | length) %}
+        {%- set vlan_loop_last = loop.last %}
+        {%- for host in groups['servers'] %}
+            {%- if hostvars[host].min_subsystem_list[vlan] == unique_subsystem %}
+
+                {
+                    "ipv4": "{{ hostvars[host].vlan_ip_map[vlan].tcp_ip }}",
+                    "port": {{ minio_port }}
+                }{% if (not loop.last or not vlan_loop_last)  -%}
+                    {% if (loop.last) and 
+                    (hostvars[host].min_subsystem_list[vlan + 1] is defined) and
+                    (hostvars[host].min_subsystem_list[vlan + 1] != unique_subsystem) %}{% else %},{% endif %}{% endif -%}
+            {%- endif -%}
+        {%- endfor -%}
+    {%- endfor %}
+
+            ]
+        }{% if not loop.last %},{% endif %}
+
+{% endfor %}
+{% else %}
+        {
+            "id": 0,
+            "endpoints": [
+                {
+                    "ipv4": "{{ hostvars[groups['servers'][0]].vlan_ip_map[0].tcp_ip }}",
+                    "port": {{ minio_port }}
+                }
+            ]
+        }
+{% endif %}
+    ]
+}
