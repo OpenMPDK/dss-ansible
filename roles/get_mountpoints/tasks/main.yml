@@ -65,6 +65,7 @@
   vars:
     tcp_ip: "{{ item.0 }}"
     rocev2_ip: "{{ item.1 }}"
+  when: vlan_ip_map is not defined
 
 - name: Set combined_vlan_ip_map
   set_fact:
@@ -80,6 +81,7 @@
     label: "{{ ansible_loop.index0 }}"
     extended: true
   run_once: true
+  when: combined_vlan_ip_map is not defined
 
 - name: NVMe list subsystems
   command: nvme list-subsys -o json
