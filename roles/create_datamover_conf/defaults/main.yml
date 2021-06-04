@@ -34,6 +34,7 @@ minio_port: 9000
 minio_access_key: minio
 minio_secret_key: minio123
 
+datamover_conf_dir: /etc/dss/datamover
 datamover_master_workers: 5
 datamover_master_max_index_size: 500
 datamover_master_size: 1GB

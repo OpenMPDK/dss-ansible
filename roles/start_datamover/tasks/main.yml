@@ -30,14 +30,14 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Create client library config file
+- name: Create datamover config file
   include_role:
-    name: create_client_library_conf
+    name: create_datamover_conf
 
 - name: Upload NFS data with datamover
   shell: >
     source /usr/local/bin/setenv-for-gcc510.sh &&
-    python3 master_application.py PUT -c {{ datamover_cluster_name }} --compaction
+    python3 master_application.py PUT -c {{ datamover_cluster_name }} --config {{ datamover_conf_dir }}/config.json --compaction
   args:
     chdir: "{{ deploy_datamover_dest_dir }}"
   run_once: true
