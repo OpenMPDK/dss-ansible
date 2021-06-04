@@ -30,9 +30,16 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Create datamover conf dir
+  file:
+    path: "{{ datamover_conf_dir }}"
+    state: directory
+    mode: 0755
+  become: true
+
 - name: Set datamover conf template
   template:
     src: config.json.j2
-    dest: "{{ deploy_datamover_dest_dir }}/config/config.json"
+    dest: "{{ datamover_conf_dir }}/config.json"
     mode: 0555
   become: true
