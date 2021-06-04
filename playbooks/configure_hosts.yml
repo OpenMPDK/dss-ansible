@@ -30,13 +30,18 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Configure Kernel
+  hosts: servers
+  roles:
+    - validate_centos
+    - deploy_kernel
+
 - name: Configure Hosts
   hosts:
     - clients
     - servers
   roles:
     - validate_centos
-    - deploy_kernel
     - configure_sysctl
     - configure_firewalld
     - configure_tuned
