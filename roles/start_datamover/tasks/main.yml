@@ -34,10 +34,6 @@
   include_role:
     name: create_client_library_conf
 
-- name: Create datamover config file
-  include_role:
-    name: create_datamover_conf
-
 - name: Upload NFS data with datamover
   shell: >
     source /usr/local/bin/setenv-for-gcc510.sh &&

@@ -105,7 +105,3 @@
     state: link
     force: true
   become: true
-
-- name: Create client library config file
-  include_role:
-    name: create_client_library_conf
