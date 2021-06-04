@@ -41,18 +41,15 @@
     fail_msg: DSS Minio is not installed. Execute 'deploy_dss_software.yml' playbook first.
 
 - name: Check minio connection
-  command: "{{ start_dss_minio_dir }}/mc ls {{ minio_mc_alias }}"
+  command: "{{ start_dss_minio_dir }}/mc ls {{ local_mc_alias }}"
+  loop: "{{ range(0, tcp_ip_list | length) | list }}"
+  loop_control:
+    label: "{{ tcp_ip }}"
+    extended: true
+  vars:
+    tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
+    local_mc_alias: "local_{{ tcp_ip | replace('.', '_') }}"
   changed_when: false
-
-- name: Check DSS bucket
-  command: "{{ start_dss_minio_dir }}/mc ls {{ minio_mc_alias }}/{{ dss_bucket_name }}"
-  changed_when: false
-  failed_when: false
-  register: check_dss_bucket
-
-- name: Create DSS bucket
-  command: "{{ start_dss_minio_dir }}/mc mb {{ minio_mc_alias }}/{{ dss_bucket_name }}"
-  when: "'does not exist' in check_dss_bucket.stderr"
 
 - name: Create client library conf.json
   template:
@@ -63,7 +60,14 @@
   become: true
 
 - name: Read DSS conf
-  command: "{{ start_dss_minio_dir }}/mc cat {{ minio_mc_alias }}/{{ dss_bucket_name }}/conf.json"
+  command: "{{ start_dss_minio_dir }}/mc cat {{ local_mc_alias }}/{{ dss_bucket_name }}/conf.json"
+  loop: "{{ range(0, tcp_ip_list | length) | list }}"
+  loop_control:
+    label: "{{ tcp_ip }}"
+    extended: true
+  vars:
+    tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
+    local_mc_alias: "local_{{ tcp_ip | replace('.', '_') }}"
   changed_when: false
   failed_when: false
   register: read_dss_conf
@@ -73,6 +77,49 @@
   register: local_dss_conf
   changed_when: false
 
+- name: Set subsystem_endpoints var
+  set_fact:
+    subsystem_endpoints: "{{ subsystem_endpoints | default([]) + [ item.endpoints[0].ipv4 ] }}"
+  loop: "{{ (local_dss_conf.stdout | from_json).clusters }}"
+  loop_control:
+    label: "Cluster ID: {{ item.id }}"
+  run_once: true
+
+- name: Check DSS bucket
+  command: "{{ start_dss_minio_dir }}/mc ls {{ local_mc_alias }}/{{ dss_bucket_name }}"
+  loop: "{{ range(0, tcp_ip_list | length) | list }}"
+  loop_control:
+    label: "{{ tcp_ip }}"
+    extended: true
+  vars:
+    tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
+    local_mc_alias: "local_{{ tcp_ip | replace('.', '_') }}"
+  changed_when: false
+  failed_when: false
+  register: check_dss_bucket
+
+- name: Create DSS bucket
+  command: "{{ start_dss_minio_dir }}/mc mb {{ local_mc_alias }}/{{ dss_bucket_name }}"
+  loop: "{{ range(0, check_dss_bucket.results | length) | list }}"
+  loop_control:
+    label: "{{ tcp_ip }}"
+    extended: true
+  vars:
+    tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
+    local_mc_alias: "local_{{ tcp_ip | replace('.', '_') }}"
+  when:
+    - "'does not exist' in check_dss_bucket.results[item].stderr"
+    - tcp_ip in subsystem_endpoints
+
 - name: Write remote DSS conf
-  command: "{{ start_dss_minio_dir }}/mc cp {{ dss_target_conf_dir }}/client_library_conf.json {{ minio_mc_alias }}/{{ dss_bucket_name }}/conf.json"
-  when: read_dss_conf.stdout != local_dss_conf.stdout
+  command: "{{ start_dss_minio_dir }}/mc cp {{ dss_target_conf_dir }}/client_library_conf.json {{ local_mc_alias }}/{{ dss_bucket_name }}/conf.json"
+  loop: "{{ range(0, read_dss_conf.results | length) | list }}"
+  loop_control:
+    label: "{{ tcp_ip }}"
+    extended: true
+  vars:
+    tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
+    local_mc_alias: "local_{{ tcp_ip | replace('.', '_') }}"
+  when:
+    - read_dss_conf.results[item].stdout != local_dss_conf.stdout
+    - tcp_ip in subsystem_endpoints
