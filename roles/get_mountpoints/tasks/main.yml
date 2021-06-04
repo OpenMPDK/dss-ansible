@@ -1,0 +1,167 @@
+#  BSD LICENSE
+#
+#  Copyright (c) 2021 Samsung Electronics Co., Ltd.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in
+#      the documentation and/or other materials provided with the
+#      distribution.
+#    * Neither the name of Samsung Electronics Co., Ltd. nor the names of
+#      its contributors may be used to endorse or promote products derived
+#      from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---
+
+- name: Init vars
+  set_fact:
+    vlan_ip_map: []
+    combined_vlan_ip_map: []
+
+- name: Get all RoCEv2 IP Addresses
+  include_role:
+    name: get_vlan_ips
+  vars:
+    vlan_list: "{{ rocev2_vlans }}"
+  when: rocev2_ip_list is not defined
+
+- name: Set rocev2_ip_list and tcp_ip_list vars if IP's auto-discovered
+  set_fact:
+    rocev2_ip_list: "{{ vlan_ip_list }}"
+  when: rocev2_ip_list is not defined
+
+- name: Get all TCP IP Addresses
+  include_role:
+    name: get_vlan_ips
+  vars:
+    vlan_list: "{{ tcp_vlans }}"
+  when: tcp_ip_list is not defined
+
+- name: Set tcp_ip_list var
+  set_fact:
+    tcp_ip_list: "{{ vlan_ip_list }}"
+  when: tcp_ip_list is not defined
+
+- name: Set TCP - RoCEv2 IP map
+  set_fact:
+    vlan_ip_map: "{{ vlan_ip_map | default([]) +
+                  [{'tcp_ip': tcp_ip,
+                    'rocev2_ip': rocev2_ip }] }}"
+  with_together:
+    - "{{ tcp_ip_list }}"
+    - "{{ rocev2_ip_list }}"
+  vars:
+    tcp_ip: "{{ item.0 }}"
+    rocev2_ip: "{{ item.1 }}"
+
+- name: Set combined_vlan_ip_map
+  set_fact:
+    combined_vlan_ip_map: "{{ combined_vlan_ip_map | default([]) }} +
+      [{ 'rocev2': [{% for host in ansible_play_hosts -%}
+      '{{ hostvars[host].vlan_ip_map[ansible_loop.index0].rocev2_ip }}'
+      {%- if not loop.last %}, {% endif %}{% endfor %}],
+          'tcp': [{% for host in ansible_play_hosts -%}
+      '{{ hostvars[host].vlan_ip_map[ansible_loop.index0].tcp_ip }}'
+      {%- if not loop.last %}, {% endif %}{% endfor %}] }]"
+  loop: "{{ range(0, vlan_ip_map | length) | list }}"
+  loop_control:
+    label: "{{ ansible_loop.index0 }}"
+    extended: true
+  run_once: true
+
+- name: NVMe list subsystems
+  command: nvme list-subsys -o json
+  changed_when: false
+  register: nvme_subsys
+  become: true
+
+- name: Assert Subsystems mounted
+  assert:
+    that: (nvme_subsys.stdout | from_json).Subsystems is defined
+    msg: Subsystems are not mounted. Run `start_dss_software` playbook first.
+
+- name: Set nvme_mountpoints
+  set_fact:
+    nvme_mountpoints: |
+      [
+      {% for subsystem in (nvme_subsys.stdout | from_json).Subsystems | batch(2) %}
+        {% set subsystem_loop_last = loop.last %}
+        {% for path in subsystem[1].Paths %}
+          {
+            "name": "{{ subsystem[0].Name }}",
+            "nqn": "{{ subsystem[0].NQN }}",
+            "dev": "{{ path.Name | regex_search('nvme(.+)', '\1') | first }}",
+            "transport": "{{ path.Transport }}",
+            "ip": "{{ path.Address | regex_search('traddr=([^ ]+)', '\1') | first }}",
+            "port": "{{ path.Address | regex_search('trsvcid=(.+)', '\1') | first }}",
+            "state": "{{ path.State }}"
+          }{% if (not loop.last) or (not subsystem_loop_last) %},
+          {% endif %}
+        {%- endfor %}
+      {% endfor %}
+      ]
+
+- name: Assert subsystems mounted
+  assert:
+    that: nvme_mountpoints | length > 0
+    msg: NVMeOF subsystems not mounted. Please verify DSS software is running (start_dss_software)
+
+- name: Find min/max devmap
+  set_fact:
+    subsys_range: >-
+      {% set dev_range = { 'min': 999, 'max': 0 } -%}
+      {%- for subsys in nvme_mountpoints -%}
+        {%- if subsys.ip in vlan_pair.rocev2 -%}
+          {%- if subsys.dev | int < dev_range.min | int %}{% if dev_range.update({ 'min': subsys.dev, 'max': dev_range.max }) %}{% endif %}{% endif -%}
+          {%- if subsys.dev | int > dev_range.max | int %}{% if dev_range.update({ 'min': dev_range.min, 'max': subsys.dev }) %}{% endif %}{% endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ subsys_range | default([]) +
+        [{'min': dev_range.min,
+          'max': dev_range.max}] }}
+  loop: "{{ combined_vlan_ip_map }}"
+  loop_control:
+    loop_var: vlan_pair
+    extended: true
+    label: "{{ ansible_loop.index0 }}"
+  run_once: true
+
+- name: Assert mountpoints found for each VLAN
+  assert:
+    that: item.min != 999
+    msg: "NVMe mountpoints not found for all VLANs. Check rocev2_vlans or rocev2_ip_list vars."
+  loop: "{{ subsys_range }}"
+
+- name: Set min_subsystem_list
+  set_fact:
+    min_subsystem_list: |
+      [
+        {% for vlan in subsys_range %}
+          "{{ (nvme_mountpoints | selectattr('dev', 'equalto', vlan.min) | list)[0].nqn }}"{%- if not loop.last %}, {% endif %}
+        {% endfor %}
+      ]
+
+- name: Set standalone_minio var
+  set_fact:
+    standalone_minio: true
+  when:
+    - groups['servers'] | length == 1
+    - (tcp_ip_list | length == 1 or
+      (nvme_mountpoints | length /  tcp_ip_list | length) < 4)

@@ -30,4 +30,5 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-start_dss_benchmark_minio_dir: /usr/dss/nkv-minio
+start_dss_minio_dir: /usr/dss/nkv-minio
+dss_bucket_name: dss

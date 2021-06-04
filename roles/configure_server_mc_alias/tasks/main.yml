@@ -30,15 +30,27 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Create client library config file
-  include_role:
-    name: create_client_library_conf
+- name: List local hosts with mc
+  command: "{{ configure_mc_alias_dir }}/mc config host list {{ local_mc_alias }}"
+  loop: "{{ range(0, tcp_ip_list | length) | list }}"
+  loop_control:
+    label: "{{ tcp_ip }}"
+    extended: true
+  vars:
+    tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
+    local_mc_alias: "local_{{ tcp_ip | replace('.', '_') }}"
+  register: mc_list_local_hosts
+  failed_when: false
+  changed_when: false
 
-- name: Upload NFS data with datamover
-  shell: >
-    source /usr/local/bin/setenv-for-gcc510.sh &&
-    python3 master_application.py PUT -c {{ datamover_cluster_name }} --compaction
-  args:
-    chdir: "{{ deploy_datamover_dest_dir }}"
-  run_once: true
-  become: true
+- name: Set local hosts with mc
+  command: "{{ configure_mc_alias_dir }}/mc config host add {{ local_mc_alias }} http://{{ tcp_ip }}:{{ minio_port }} {{ minio_access_key }} {{ minio_secret_key }}"
+  loop: "{{ range(0, mc_list_local_hosts.results | length) | list }}"
+  loop_control:
+    label: "{{ tcp_ip }}"
+    extended: true
+  vars:
+    tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
+    local_mc_alias: "local_{{ tcp_ip | replace('.', '_') }}"
+    alias_status: "{{ mc_list_local_hosts.results[item].stderr }}"
+  when: "'No such alias' in alias_status"

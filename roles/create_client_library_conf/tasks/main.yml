@@ -30,29 +30,96 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Set endpoints var
-  set_fact:
-    endpoints: >-
-      {% for server in groups['servers'] -%}
-        {% set server_loop_last = loop.last -%}
-        {% for tcp_ip in hostvars[server].tcp_vlan_ip_list -%}
-            http://{{ tcp_ip }}:{{ minio_port }}{% if (not loop.last) or (not server_loop_last) %},{% endif -%}
-        {% endfor -%}
-      {% endfor %}
-  run_once: true
+- name: Stat DSS Minio path
+  stat:
+    path: "{{ start_dss_minio_dir }}"
+  register: dss_minio_path
 
-- name: Create DSS client initialization script
-  copy:
-    src: dss_client_init.py
-    dest: /tmp/dss_client_init.py
+- name: Assert DSS Minio path exists
+  assert:
+    that: dss_minio_path.stat.exists
+    fail_msg: DSS Minio is not installed. Execute 'deploy_dss_software.yml' playbook first.
+
+- name: Check minio connection
+  command: "{{ start_dss_minio_dir }}/mc ls {{ local_mc_alias }}"
+  loop: "{{ range(0, tcp_ip_list | length) | list }}"
+  loop_control:
+    label: "{{ tcp_ip }}"
+    extended: true
+  vars:
+    tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
+    local_mc_alias: "local_{{ tcp_ip | replace('.', '_') }}"
+  changed_when: false
+
+- name: Create client library conf.json
+  template:
+    src: conf.json.j2
+    dest: "{{ dss_target_conf_dir }}/client_library_conf.json"
     mode: 0644
-  run_once: true
-  when: endpoints is defined
+  register: create_conf_template
   become: true
 
-- name: Run dss_client initialization script and create client library conf.json
-  command: python3 /tmp/dss_client_init.py -e {{ endpoints }} -a {{ minio_access_key }} -s {{ minio_secret_key }} -p {{ start_dss_benchmark_minio_dir }}/mc
-  register: result
-  when: endpoints is defined
+- name: Read DSS conf
+  command: "{{ start_dss_minio_dir }}/mc cat {{ local_mc_alias }}/{{ dss_bucket_name }}/conf.json"
+  loop: "{{ range(0, tcp_ip_list | length) | list }}"
+  loop_control:
+    label: "{{ tcp_ip }}"
+    extended: true
+  vars:
+    tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
+    local_mc_alias: "local_{{ tcp_ip | replace('.', '_') }}"
+  changed_when: false
+  failed_when: false
+  register: read_dss_conf
+
+- name: Read local DSS conf
+  command: "cat {{ dss_target_conf_dir }}/client_library_conf.json"
+  register: local_dss_conf
+  changed_when: false
+
+- name: Set subsystem_endpoints var
+  set_fact:
+    subsystem_endpoints: "{{ subsystem_endpoints | default([]) + [ item.endpoints[0].ipv4 ] }}"
+  loop: "{{ (local_dss_conf.stdout | from_json).clusters }}"
+  loop_control:
+    label: "Cluster ID: {{ item.id }}"
   run_once: true
-  failed_when: result.rc != 0 or "Error" in result.stdout
+
+- name: Check DSS bucket
+  command: "{{ start_dss_minio_dir }}/mc ls {{ local_mc_alias }}/{{ dss_bucket_name }}"
+  loop: "{{ range(0, tcp_ip_list | length) | list }}"
+  loop_control:
+    label: "{{ tcp_ip }}"
+    extended: true
+  vars:
+    tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
+    local_mc_alias: "local_{{ tcp_ip | replace('.', '_') }}"
+  changed_when: false
+  failed_when: false
+  register: check_dss_bucket
+
+- name: Create DSS bucket
+  command: "{{ start_dss_minio_dir }}/mc mb {{ local_mc_alias }}/{{ dss_bucket_name }}"
+  loop: "{{ range(0, check_dss_bucket.results | length) | list }}"
+  loop_control:
+    label: "{{ tcp_ip }}"
+    extended: true
+  vars:
+    tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
+    local_mc_alias: "local_{{ tcp_ip | replace('.', '_') }}"
+  when:
+    - "'does not exist' in check_dss_bucket.results[item].stderr"
+    - tcp_ip in subsystem_endpoints
+
+- name: Write remote DSS conf
+  command: "{{ start_dss_minio_dir }}/mc cp {{ dss_target_conf_dir }}/client_library_conf.json {{ local_mc_alias }}/{{ dss_bucket_name }}/conf.json"
+  loop: "{{ range(0, read_dss_conf.results | length) | list }}"
+  loop_control:
+    label: "{{ tcp_ip }}"
+    extended: true
+  vars:
+    tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
+    local_mc_alias: "local_{{ tcp_ip | replace('.', '_') }}"
+  when:
+    - read_dss_conf.results[item].stdout != local_dss_conf.stdout
+    - tcp_ip in subsystem_endpoints
