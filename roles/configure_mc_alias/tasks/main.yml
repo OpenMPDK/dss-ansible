@@ -46,14 +46,14 @@
           {% endfor -%}
       {% endfor %}
 
-- name: Create mc dir
-  file:
-    path: "{{ ansible_env.HOME }}/.mc"
-    mode: 0700
-    state: directory
+- name: List local hosts with mc
+  command: "{{ configure_mc_alias_dir }}/mc config host list {{ minio_mc_alias }} --json"
+  register: mc_host_list
+  failed_when: false
+  changed_when: false
 
-- name: Set mc config.json
-  template:
-    src: config.json.j2
-    dest: "{{ ansible_env.HOME }}/.mc/config.json"
-    mode: 0600
+- name: Set Client Minio mc configuration
+  command: "{{ configure_mc_alias_dir }}/mc config host add {{ minio_mc_alias }} {{ minio_endpoint }} {{ minio_access_key }} {{ minio_secret_key }}"
+  when: >
+    (mc_host_list.stdout | from_json).status == 'error' or
+    (mc_host_list.stdout | from_json).URL is defined and (mc_host_list.stdout | from_json).URL != minio_endpoint
