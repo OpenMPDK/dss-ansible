@@ -48,6 +48,10 @@
   roles:
     - configure_host_vlans
     - configure_dcqcn
+
+- name: Remove packet pacing
+  hosts: servers
+  roles:
     - remove_packet_pacing
 
 - name: Configure Onyx VLANs
