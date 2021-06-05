@@ -31,4 +31,3 @@
 ---
 
 combined_vlans: "{{ tcp_vlans }}"
-num_vlans_per_port: 1
