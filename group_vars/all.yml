@@ -153,7 +153,7 @@
 #       - /mnt/nfs_share/10gb
 #       - /mnt/nfs_share/15gb
 #   - ip: 192.168.200.200
-#     shares: 
+#     shares:
 #       - /mnt/nfs_share/5gb-B
 #       - /mnt/nfs_share/10gb-B
 #       - /mnt/nfs_share/15gb-B

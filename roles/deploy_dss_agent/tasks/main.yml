@@ -81,4 +81,3 @@
     dest: /usr/bin/sflowtool
     mode: 0755
   become: true
-

@@ -44,7 +44,10 @@
   changed_when: false
 
 - name: Set local hosts with mc
-  command: "{{ configure_mc_alias_dir }}/mc config host add {{ local_mc_alias }} http://{{ tcp_ip }}:{{ minio_port }} {{ minio_access_key }} {{ minio_secret_key }}"
+  command: >
+    {{ configure_mc_alias_dir }}/mc config host
+    add {{ local_mc_alias }} http://{{ tcp_ip }}:{{ minio_port }}
+    {{ minio_access_key }} {{ minio_secret_key }}
   loop: "{{ range(0, mc_list_local_hosts.results | length) | list }}"
   loop_control:
     label: "{{ tcp_ip }}"
