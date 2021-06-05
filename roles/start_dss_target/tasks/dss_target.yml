@@ -75,9 +75,6 @@
     mode: 0755
   become: true
 
-- name: Check hugepages
-  include_tasks: check_hugepages.yml
-
 - name: Configure target with dss_target_config.sh script
   command: sh ./dss_target_config.sh
   args:
@@ -108,3 +105,6 @@
     dest: "{{ start_dss_target_dest_dir }}/bin/dss_target.out"
     mode: 0644
   become: true
+
+- name: Check hugepages
+  include_tasks: check_hugepages.yml
