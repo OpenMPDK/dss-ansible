@@ -30,26 +30,6 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-# Not used?
-# - name: Stat minio startup scripts
-#   stat:
-#     path: "{{ start_dss_minio_host_bin_dir }}/minio_startup_{{ ip_address }}.sh"
-#   loop: "{{ tcp_ip_list }}"
-#   loop_control:
-#     loop_var: ip_address
-#   register: minio_script_stat
-
-# - name: Check for missing startup scripts
-#   set_fact:
-#     missing_script: true
-#   loop: "{{ ansible_play_hosts }}"
-#   loop_control:
-#     loop_var: host
-  # vars:
-  #   script_exists: "{{ hostvars[host].minio_script_stat.results | map(attribute='stat.exists') | list }}"
-  # when: false in script_exists
-  # run_once: true
-
 - name: Start distributed minio instances
   shell: >
     sleep 1 &&

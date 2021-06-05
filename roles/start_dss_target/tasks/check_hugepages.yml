@@ -42,7 +42,7 @@
 
 - name: Assert hugepages are set
   assert:
-    that: 
+    that:
       - current_2mb_hugepages.stdout | int == num_2mb_hugepages
       - current_1gb_hugepages.stdout | int == num_1gb_hugepages
     fail_msg: |

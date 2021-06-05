@@ -43,4 +43,3 @@
     - deploy_utils
     - deploy_nvme_cli
     - configure_pvrdma
-    
