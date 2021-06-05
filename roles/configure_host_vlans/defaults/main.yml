@@ -31,7 +31,6 @@
 ---
 
 last_octet_offset: 0
-num_vlans_per_port: 1
 mtu_size: 9000
 rocev2_vlans:
   - id: 31
