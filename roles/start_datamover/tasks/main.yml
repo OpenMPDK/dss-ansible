@@ -37,7 +37,7 @@
 - name: Upload NFS data with datamover
   shell: >
     source /usr/local/bin/setenv-for-gcc510.sh &&
-    python3 master_application.py PUT -c {{ datamover_cluster_name }} --config {{ datamover_conf_dir }}/config.json --compaction
+    python3 master_application.py PUT --config {{ datamover_conf_dir }}/config.json --compaction
   args:
     chdir: "{{ deploy_datamover_dest_dir }}"
   run_once: true

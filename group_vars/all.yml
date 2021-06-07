@@ -161,4 +161,3 @@
 # datamover_client_lib: dss_client
 # datamover_logging_path: /var/log/dss
 # datamover_logging_level: INFO
-# datamover_cluster_name: test_cluster
