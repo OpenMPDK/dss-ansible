@@ -61,14 +61,14 @@
     - get_tcp_vlan_ip_list
     - deploy_dss_minio
 
+- name: Start DSS Software
+  import_playbook: start_dss_software.yml
+
 - name: Deploy DSS benchmark
   hosts: clients
   roles:
     - deploy_dss_benchmark
     - configure_mc_alias
-
-- name: Start DSS Software
-  import_playbook: start_dss_software.yml
 
 - name: Deploy Data Mover
   import_playbook: deploy_datamover.yml
