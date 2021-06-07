@@ -376,7 +376,6 @@ The client library and data mover are provided to load data into the cluster fro
         # datamover_bucket: bucket
         # datamover_client_lib: dss_client
         # datamover_logging_path: /var/log/dss
-        # datamover_cluster_name: test_cluster
         ```
 
 * Start datamover:

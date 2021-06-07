@@ -31,5 +31,4 @@
 ---
 
 datamover_conf_dir: /etc/dss/datamover
-datamover_cluster_name: test_cluster
 deploy_datamover_dest_dir: /usr/dss/nkv-datamover
