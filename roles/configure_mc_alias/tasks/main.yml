@@ -56,4 +56,4 @@
   command: "{{ configure_mc_alias_dir }}/mc config host add {{ minio_mc_alias }} {{ minio_endpoint }} {{ minio_access_key }} {{ minio_secret_key }}"
   when: >
     (mc_host_list.stdout | from_json).status == 'error' or
-    (mc_host_list.stdout | from_json).URL is defined and (mc_host_list.stdout | from_json).URL != minio_endpoint
+    ((mc_host_list.stdout | from_json).URL is defined and (mc_host_list.stdout | from_json).URL != minio_endpoint)
