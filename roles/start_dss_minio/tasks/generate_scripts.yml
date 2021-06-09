@@ -34,16 +34,44 @@
   include_role:
     name: get_mountpoints
 
-- name: Get numactl hardware information
-  command: numactl --hardware
+- name: Get num. NUMA nodes
+  shell: |
+    lscpu | grep -oP 'NUMA node\(s\): +\K.+'
   changed_when: false
-  register: numactl_hardware
+  register: lscpu_num_numa
 
-- name: Set num_numa_nodes
+- name: Get num. sockets
+  shell: |
+    lscpu | grep -oP 'Socket\(s\): +\K.+'
+  changed_when: false
+  register: lscpu_num_sockets
+
+- name: Set num_numa and num_sockets vars
   set_fact:
-    num_numa_nodes: "{{ numactl_hardware.stdout | regex_search(numa_re, '\\1') | first | int }}"
+    num_numa: "{{ lscpu_num_numa.stdout | int }}"
+    num_sockets: "{{ lscpu_num_sockets.stdout | int }}"
+
+- name: Get numa / socket allocation
+  shell: "lscpu --parse=NODE,SOCKET | sort -u | grep -v '#'"
+  register: lscpu_numa_socket
+  changed_when: false
+
+- name: Set numa_socket var
+  set_fact:
+    numa_socket: "{{ numa_socket | default([]) + 
+                    [{
+                      'numa': item | regex_search(numa_socket_re, '\\1') | first | int,
+                      'socket': item | regex_search(numa_socket_re, '\\2') | first | int
+                    }]
+                  }}"
+  loop: "{{ lscpu_numa_socket.stdout_lines }}"
   vars:
-    numa_re: 'available: ([\d]+) nodes'
+    numa_socket_re: '([^,]+),(.+)'
+
+- name: Set can_interleave var
+  set_fact:
+    can_interleave: true
+  when: (num_numa | int) / (tcp_ip_list | length) >= 2
 
 - name: Query up adapters
   shell: "ip address show"
@@ -51,6 +79,13 @@
     PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   changed_when: false
   register: up_adapters
+
+- name: Assert more than one NUMA node
+  assert:
+    that: num_numa | int > 1
+    msg: Only 1 NUMA node. NUMA configuration is not optimal.
+  when: num_sockets | int > 1
+  ignore_errors: true
 
 - name: Query NUMA for numactl string
   include_tasks: set_numa.yml
@@ -64,24 +99,60 @@
 - name: Set adjacent_numa_list var
   set_fact:
     adjacent_numa_list: "{{ adjacent_numa_list | default([]) }} +
-      {% if numa - 1 not in numa_list and numa - 1 >= 0 and (adjacent_numa_list is not defined or numa - 1 not in adjacent_numa_list) %}
+      {% if numa - 1 not in numa_list and numa - 1 >= (min_socket_numa | int) and (adjacent_numa_list is not defined or numa - 1 not in adjacent_numa_list) %}
         {{ [ numa - 1 ] }}
-      {% elif numa + 1 not in numa_list and numa + 1 <= (num_numa_nodes | int) and (adjacent_numa_list is not defined or numa + 1 not in adjacent_numa_list) %}
+      {% elif numa + 1 not in numa_list and numa + 1 <= (max_socket_numa | int) and (adjacent_numa_list is not defined or numa + 1 not in adjacent_numa_list) %}
         {{ [ numa + 1 ] }}
       {% else %}
-        [ 'error' ]
+        {{ [ numa ] }}
       {% endif %}"
   loop: "{{ numa_list }}"
   loop_control:
     loop_var: numa
+  vars:
+    socket_num: "{{ numa_socket | selectattr('numa', 'equalto', numa) | map(attribute='socket') | list | first }}"
+    min_socket_numa: "{{ numa_socket | selectattr('socket', 'equalto', socket_num | int) | map(attribute='numa') | list | first }}"
+    max_socket_numa: "{{ numa_socket | selectattr('socket', 'equalto', socket_num | int) | map(attribute='numa') | list | last }}"
 
-- name: Assert valid adjacent NUMA found
+- name: Assert optimal interleaved NUMA configuration
   assert:
-    that: "'error' not in adjacent_numa_list"
-    msg: |
-      Network adapters are not in a valid NUMA configuration.
-      Current NUMA configuration:
-      {{ numa_list }}
+    that: numa != adjacent_numa
+    msg: Network adapters are not in a optimal NUMA configuration.
+  loop: "{{ range(0, numa_list | length) | list }}"
+  loop_control:
+    label: "{{ numa }}"
+  vars:
+    numa: "{{ numa_list[item] }}"
+    adjacent_numa: "{{ adjacent_numa_list[item] }}"
+  when: can_interleave is defined
+
+- name: Assert NUMA belongs to only one socket
+  assert:
+    that: numa_socket | selectattr('numa', 'equalto', numa) | map(attribute='socket') | list | length == 1
+    msg: NUMA belongs to more than one socket. NUMA configuration is not optimal.
+  loop: "{{ numa_list }}"
+  loop_control:
+    loop_var: numa
+  when: num_numa | int > 1
+
+- name: debug numa range
+  debug:
+    msg: "adapter on numa: {{ numa }}, socket_num: {{ socket_num }}, min_socket_numa: {{ min_socket_numa }}, max_socket_numa: {{ max_socket_numa }}"
+  loop: "{{ numa_list }}"
+  loop_control:
+    loop_var: numa
+  vars:
+    socket_num: "{{ numa_socket | selectattr('numa', 'equalto', numa) | map(attribute='socket') | list | first }}"
+    min_socket_numa: "{{ numa_socket | selectattr('socket', 'equalto', socket_num | int) | map(attribute='numa') | list | first }}"
+    max_socket_numa: "{{ numa_socket | selectattr('socket', 'equalto', socket_num | int) | map(attribute='numa') | list | last }}"
+
+- name: Debug numa + adjacent
+  debug:
+    msg: "NUMA: {{ numa }}, adjacent NUMA: {{ adjacent_numa }}"
+  loop: "{{ range(0, numa_list | length) | list }}"
+  vars:
+    numa: "{{ numa_list[item] }}"
+    adjacent_numa: "{{ adjacent_numa_list[item] }}"
 
 - name: Assert distributed minio minimum mountpoints
   assert:

@@ -67,7 +67,7 @@ export MINIO_KV_MAX_SIZE={{ minio_kv_max_size }}
 ulimit -n 65535
 ulimit -c unlimited
 
-{% if num_numa_nodes | int > 1 -%}
+{% if num_numa | int > 1 -%}
     numactl -N {{ numa_node }} -i {{ numa_node }},{{ adjacent_numa }}{{ ' '}}
 {%- endif -%}
 {{ start_dss_minio_dir }}/minio server{% if standalone_minio is not defined %} --address {{ tcp_ip }}:{{ minio_port }}{% endif %}
