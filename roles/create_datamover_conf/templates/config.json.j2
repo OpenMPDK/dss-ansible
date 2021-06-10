@@ -1,10 +1,7 @@
 {
   "tess_clients_ip":[
     {%- for client in groups['clients'] -%}
-        {%- set client_loop_last = loop.last -%}
-        {%- for tcp_ip in hostvars[client].tcp_vlan_ip_list -%}
-            "{{ tcp_ip }}"{% if (not loop.last) or (not client_loop_last) %},{% endif -%}
-        {%- endfor -%}
+            "{{ hostvars[client].tcp_vlan_ip_list[0] }}"{% if not loop.last %},{% endif -%}
     {% endfor -%}
   ],
   "master": {
