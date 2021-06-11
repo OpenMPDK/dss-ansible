@@ -30,52 +30,48 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Configure coredumps
-  hosts:
-    - servers
-    - clients
-  roles:
-    - configure_coredumps
+- name: Set unlimited core dump pam limit
+  pam_limits:
+    domain: '*'
+    limit_type: '-'
+    limit_item: core
+    value: unlimited
+  become: yes
 
-- name: Deploy UFM ETCD
-  hosts:
-    - servers
-    - ufm_hosts
-  roles:
-    - deploy_ufm_etcd
+- name: Create coredump compress dir
+  file:
+    path: "{{ coredump_compress_dir }}"
+    state: directory
+    mode: 0755
+  become: true
 
-- name: Deploy UFM
-  hosts: ufm_hosts
-  roles:
-    - start_ufm_etcd
-    - deploy_ufm
+- name: Create coredump compress file
+  copy:
+    dest: "{{ coredump_compress_dir }}/compress_core.sh"
+    content: |
+      #!/bin/bash
+      /bin/gzip -f - >{{ coredump_dir }}/core-$1-$2.gz
+    mode: 0755
+  become: true
 
-- name: Deploy DSS Target and Host
-  hosts: servers
-  roles:
-    - deploy_gcc
-    - deploy_dss_target
-    - deploy_etcd_gateway
-    - deploy_dss_agent
-    - deploy_dss_host
-    - deploy_dss_diamond
+- name: Set core_pattern in sysctl.d
+  sysctl:
+    name: kernel.core_pattern
+    value: "|{{ coredump_compress_dir }}/compress_core.sh %e %p"
+    sysctl_set: yes
+    state: present
+  become: yes
 
-- name: Deploy DSS Minio
-  hosts:
-    - servers
-    - clients
-  roles:
-    - get_tcp_vlan_ip_list
-    - deploy_dss_minio
+- name: Set kernel.core_uses_pid in sysctl.d
+  sysctl:
+    name: kernel.core_uses_pid
+    value: '1'
+    state: present
+  become: yes
 
-- name: Start DSS Software
-  import_playbook: start_dss_software.yml
-
-- name: Deploy DSS benchmark
-  hosts: clients
-  roles:
-    - deploy_dss_benchmark
-    - configure_mc_alias
-
-- name: Deploy Data Mover
-  import_playbook: deploy_datamover.yml
+- name: Set fs.suid_dumpable in sysctl.d
+  sysctl:
+    name: fs.suid_dumpable
+    value: '2'
+    state: present
+  become: yes
