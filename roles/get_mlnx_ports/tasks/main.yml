@@ -71,7 +71,7 @@
 
 - name: Get NUMA for each adapter
   slurp:
-    src: "/sys/class/net/{{ item.netdev }}//device/numa_node"
+    src: "/sys/class/net/{{ item.netdev }}/device/numa_node"
   loop: "{{ mellanox_devices }}"
   loop_control:
     label: "{{ item.ibdev }}"
