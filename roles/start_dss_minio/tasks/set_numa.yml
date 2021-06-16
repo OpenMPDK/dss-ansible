@@ -58,6 +58,12 @@
 
 - name: Set numa_list var
   set_fact:
-    numa_list: "{{ numa_list | default([]) + [ numa | int ] }}"
+    numa_list: "{{ numa_list | default([]) }} + 
+        [ 
+          {
+            'tcp_ip': '{{ tcp_ip }}',
+            'numa': {{ numa | int }}
+          }
+        ]"
   vars:
     numa: "{% if device_numa_node.stdout == '-1' %}0{% else %}{{ device_numa_node.stdout }}{% endif %}"

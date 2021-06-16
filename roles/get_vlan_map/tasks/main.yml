@@ -30,10 +30,10 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Set interface_switch_map var
+- name: Set interface_switch_map_no_numa var
   set_fact:
-    interface_switch_map: >-
-      {{ interface_switch_map | default([]) }}
+    interface_switch_map_no_numa: >-
+      {{ interface_switch_map_no_numa | default([]) }}
       {%- for switch in groups['onyx'] -%}
         {%- for onyx_interface in hostvars[switch]['lldp_interfaces'] | selectattr('system_name', 'search', inventory_hostname_short) | list -%}
           {%- for interface_name in ansible_interfaces | sort -%}
@@ -53,6 +53,30 @@
           {%- endfor -%}
         {%- endfor -%}
       {%- endfor -%}
+
+- name: Get NUMA
+  command: "cat /sys/class/net/{{ item.local_interface }}/device/numa_node"
+  changed_when: false
+  loop: "{{ interface_switch_map_no_numa }}"
+  loop_control:
+    label: "{{ item.local_interface }}"
+  register: numa_node
+
+- name: Set interface_switch_map with NUMA
+  set_fact:
+    interface_switch_map: "{{ interface_switch_map | default([]) }} +
+      [
+        {
+          'local_interface': '{{ item.item.local_interface }}',
+          'pciid': '{{ item.item.pciid }}',
+          'switch_name': '{{ item.item.switch_name }}',
+          'switch_port': '{{ item.item.switch_port }}',
+          'numa': {{ item.stdout }}
+        }
+      ]"
+  loop: "{{ numa_node.results }}"
+  loop_control:
+    label: "{{ item.item.local_interface }}"
 
 - name: Assert number of links is greater than or equal to number of VLANs on switch
   assert:
@@ -93,7 +117,7 @@
           {%- endif -%}
         {%- endfor -%}
         {%- set link_count = [] -%}
-        {%- for link in interface_switch_map | selectattr('switch_name', 'equalto', switch) | list | sort(attribute='pciid') -%}
+        {%- for link in interface_switch_map | selectattr('switch_name', 'equalto', switch) | list | sort(attribute='pciid') | sort(attribute='numa') -%}
           {%- for sub_port in range(num_vlans_per_port) -%}
             {%- if interleaved_vlan_list[link_count | length] is defined -%}
               + {{
@@ -101,7 +125,8 @@
                   'local_interface': link.local_interface,
                   'switch_name': switch,
                   'switch_port': link.switch_port,
-                  'vlan_id': interleaved_vlan_list[link_count | length]
+                  'vlan_id': interleaved_vlan_list[link_count | length],
+                  'numa': link.numa
                 }]
               }}
               {%- set link_count = link_count.append(1) -%}
@@ -110,7 +135,7 @@
         {%- endfor -%}
       {%- endfor -%}
 
-- name: Set combined_interface_switch_vlan_map
+- name: Set NUMA-sorted combined_interface_switch_vlan_map
   set_fact:
     combined_interface_switch_vlan_map: "{{ combined_interface_switch_vlan_map | default([]) }} + {{ hostvars[host].interface_switch_vlan_map }}"
   loop: "{{ ansible_play_hosts }}"
