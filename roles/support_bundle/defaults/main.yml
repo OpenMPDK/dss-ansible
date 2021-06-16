@@ -1,0 +1,5 @@
+---
+
+coredump_dir: /var/crash
+local_coredump_dir: /tmp/dss_coredumps
+dss_log_dir: /var/log/dss
