@@ -49,11 +49,47 @@
   changed_when: false
   register: up_adapters
 
-- name: Remove Packet Pacing
-  include_tasks: remove_packet_pacing.yml
-  loop: "{{ range(0, rocev2_ip_list | length) | list }}"
-  loop_control:
-    loop_var: vlan_pair
-    extended: true
+- name: Set matching_device_list var
+  set_fact:
+    matching_device_list: >-
+      {{ matching_device_list | default([]) }}
+      {%- for rocev2_ip in rocev2_ip_list -%}
+        {%- for adapter in up_adapters.stdout_lines -%}
+          {%- set vlan_dev_check = adapter | regex_search(adapter_re) -%}
+          {%- if vlan_dev_check != '' -%}
+            {%- set vlan_dev = adapter | regex_search(adapter_re, '\\1') -%}
+            {%- if vlan_dev is iterable and (vlan_dev is not string and vlan_dev is not mapping) -%}
+              {%- set lookup_dev = 'ansible_' ~ vlan_dev | first | replace('-', '_') -%}
+              {%- if (adapter is regex(adapter_re)) and
+                (lookup('vars', lookup_dev).ipv4.address is defined) and
+                (lookup('vars', lookup_dev).ipv4.address == rocev2_ip) -%}
+                + {{ [ vlan_dev | first ] }}
+              {%- else -%}
+                + []
+              {%- endif -%}
+            {%- endif -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endfor -%}
   vars:
-    rocev2_ip: "{{ rocev2_ip_list[ansible_loop.index0] }}"
+    adapter_re: '^[\d]+: ([^@:]+)(@([^:]+))?:'
+
+- name: Get packet pacing status
+  command: "tc qdisc show dev {{ item }}"
+  changed_when: false
+  register: packet_pacing_status
+  loop: "{{ matching_device_list }}"
+  become: true
+
+- name: Delete packet pacing rules
+  command: "tc qdisc del dev {{ matching_device }} root"
+  register: qdisc_del_dev
+  loop: "{{ packet_pacing_status.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: item.stdout is not search('noqueue')
+  failed_when:
+    - qdisc_del_dev.rc !=0
+    - qdisc_del_dev.stderr is not search('No such file or directory')
+  changed_when: qdisc_del_dev.stderr is not search('No such file or directory')
+  become: true
