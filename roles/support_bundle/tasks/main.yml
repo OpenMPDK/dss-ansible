@@ -1,0 +1,69 @@
+---
+
+- name: Create local coredump dir
+  file:
+    path: "{{ local_coredump_dir }}"
+    state: directory
+    mode: 0755
+  delegate_to: localhost
+  run_once: true
+
+- name: Check for coredumps
+  find:
+    path: "{{ coredump_dir }}"
+    patterns: 'core-reactor_*.gz'
+  register: coredumps
+
+- name: Fetch coredumps
+  fetch:
+    src: "{{ item.path }}"
+    dest: "{{ local_coredump_dir }}"
+  loop: "{{ coredumps.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+  when: coredumps.matched > 0
+
+- name: Collect dmesg
+  command: dmesg -T
+  register: dmesg
+  changed_when: false
+  when: coredumps.matched > 0
+
+- name: Fetch dmesg
+  copy:
+    dest: "{{ local_coredump_dir }}/{{ inventory_hostname }}/dmesg"
+    content: "{{ dmesg.stdout }}"
+    mode: 0755
+  delegate_to: localhost
+  when: coredumps.matched > 0
+
+- name: Fetch target log
+  fetch:
+    src: "{{ dss_log_dir }}/nkv-target.log"
+    dest: "{{ local_coredump_dir }}"
+  when: coredumps.matched > 0
+
+- name: Create support bundle tarball
+  archive:
+    path: "{{ local_coredump_dir }}/{{ inventory_hostname }}"
+    dest: "{{ local_coredump_dir }}/{{ ansible_date_time.epoch }}-{{ inventory_hostname_short }}-coredump.tgz"
+    mode: 0755
+  delegate_to: localhost
+  when: coredumps.matched > 0
+
+- name: Remove support bundle temp files
+  file:
+    path: "{{ local_coredump_dir }}/{{ inventory_hostname }}"
+    state: absent
+  delegate_to: localhost
+  when: coredumps.matched > 0
+
+- name: Remove coredumps
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ coredumps.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+  become: true
+  when: coredumps.matched > 0

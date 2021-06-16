@@ -1,0 +1,6 @@
+---
+
+- name: Generate support bundle
+  hosts: servers
+  roles:
+    - support_bundle
