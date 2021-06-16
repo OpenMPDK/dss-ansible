@@ -99,18 +99,32 @@
 - name: Set adjacent_numa_list var
   set_fact:
     adjacent_numa_list: "{{ adjacent_numa_list | default([]) }} +
-      {% if numa - 1 not in numa_list and numa - 1 >= (min_socket_numa | int) and (adjacent_numa_list is not defined or numa - 1 not in adjacent_numa_list) %}
-        {{ [ numa - 1 ] }}
-      {% elif numa + 1 not in numa_list and numa + 1 <= (max_socket_numa | int) and (adjacent_numa_list is not defined or numa + 1 not in adjacent_numa_list) %}
-        {{ [ numa + 1 ] }}
-      {% else %}
-        {{ [ numa ] }}
-      {% endif %}"
-  loop: "{{ numa_list }}"
+      [
+        {
+          'tcp_ip': '{{ tcp_ip }}',
+          'numa': {{ numa }},
+          'adjacent_numa':
+          {% if ((numa | int - 1) not in (numa_list | map(attribute='numa') | list)) and 
+            ((numa | int - 1) >= (min_socket_numa | int)) and 
+            (adjacent_numa_list is not defined or (numa | int - 1) not in (adjacent_numa_list | map(attribute='adjacent_numa') | list)) %}
+              {{ numa | int - 1 }}
+          {% elif ((numa | int + 1) not in (numa_list | map(attribute='numa') | list)) and 
+            ((numa | int + 1) <= (max_socket_numa | int)) and 
+            (adjacent_numa_list is not defined or (numa | int + 1) not in (adjacent_numa_list | map(attribute='adjacent_numa') | list)) %}
+              {{ numa | int + 1 }}
+          {% else %}
+            {{ numa | int }}
+          {% endif %}
+        }
+      ]"
+  loop: "{{ numa_list | sort(attribute='numa') }}"
   loop_control:
-    loop_var: numa
+    loop_var: tcp_adapter
+    label: "{{ tcp_ip }}"
   vars:
-    socket_num: "{{ numa_socket | selectattr('numa', 'equalto', numa) | map(attribute='socket') | list | first }}"
+    numa: "{{ tcp_adapter.numa }}"
+    tcp_ip: "{{ tcp_adapter.tcp_ip }}"
+    socket_num: "{{ numa_socket | selectattr('numa', 'equalto', numa | int) | map(attribute='socket') | list | first }}"
     min_socket_numa: "{{ numa_socket | selectattr('socket', 'equalto', socket_num | int) | map(attribute='numa') | list | first }}"
     max_socket_numa: "{{ numa_socket | selectattr('socket', 'equalto', socket_num | int) | map(attribute='numa') | list | last }}"
 
@@ -118,50 +132,56 @@
   assert:
     that: numa != adjacent_numa
     msg: Network adapters are not in a optimal NUMA configuration.
-  loop: "{{ range(0, numa_list | length) | list }}"
+  loop: "{{ adjacent_numa_list }}"
   loop_control:
-    label: "{{ numa }}"
+    label: "{{ item.tcp_ip }}"
   vars:
-    numa: "{{ numa_list[item] }}"
-    adjacent_numa: "{{ adjacent_numa_list[item] }}"
+    numa: "{{ item.numa }}"
+    adjacent_numa: "{{ item.adjacent_numa }}"
   when: can_interleave is defined
+  ignore_errors: true
 
 - name: Assert NUMA belongs to only one socket
   assert:
     that: numa_socket | selectattr('numa', 'equalto', numa) | map(attribute='socket') | list | length == 1
     msg: NUMA belongs to more than one socket. NUMA configuration is not optimal.
-  loop: "{{ numa_list }}"
+  loop: "{{ numa_list | map(attribute='numa') | list }}"
   loop_control:
     loop_var: numa
   when: num_numa | int > 1
+  ignore_errors: true
 
 - name: debug numa range
   debug:
     msg: "adapter on numa: {{ numa }}, socket_num: {{ socket_num }}, min_socket_numa: {{ min_socket_numa }}, max_socket_numa: {{ max_socket_numa }}"
-  loop: "{{ numa_list }}"
+  loop: "{{ numa_list | map(attribute='numa') | list }}"
   loop_control:
     loop_var: numa
   vars:
-    socket_num: "{{ numa_socket | selectattr('numa', 'equalto', numa) | map(attribute='socket') | list | first }}"
+    socket_num: "{{ numa_socket | selectattr('numa', 'equalto', numa | int) | map(attribute='socket') | list | first }}"
     min_socket_numa: "{{ numa_socket | selectattr('socket', 'equalto', socket_num | int) | map(attribute='numa') | list | first }}"
     max_socket_numa: "{{ numa_socket | selectattr('socket', 'equalto', socket_num | int) | map(attribute='numa') | list | last }}"
 
 - name: Debug numa + adjacent
   debug:
     msg: "NUMA: {{ numa }}, adjacent NUMA: {{ adjacent_numa }}"
-  loop: "{{ range(0, numa_list | length) | list }}"
+  loop: "{{ adjacent_numa_list }}"
+  loop_control:
+    label: "{{ item.tcp_ip }}"
   vars:
-    numa: "{{ numa_list[item] }}"
-    adjacent_numa: "{{ adjacent_numa_list[item] }}"
+    numa: "{{ item.numa }}"
+    adjacent_numa: "{{ item.adjacent_numa }}"
 
 - name: Assert distributed minio minimum mountpoints
   assert:
     that: (nvme_mountpoints | length /  tcp_ip_list | length) >= 4
+    msg: Minimum of 4 subsystems per distributed minio required.
   when: standalone_minio is not defined
 
 - name: Assert standalone minio minimum mountpoints
   assert:
     that: nvme_mountpoints | length >= 4
+    msg: Minimum of 4 subsystems required for standalone minio.
   when: standalone_minio is defined
 
 - name: Create minio scripts
@@ -170,13 +190,13 @@
     dest: "{{ start_dss_minio_host_bin_dir }}/minio_startup_{{ tcp_ip }}.sh"
     mode: 0751
   become: true
-  loop: "{{ range(0, tcp_ip_list | length) | list }}"
+  loop: "{{ range(0, adjacent_numa_list | length) | list }}"
   loop_control:
     loop_var: vlan_pair
     extended: true
   vars:
-    numa_node: "{{ numa_list[ansible_loop.index0] }}"
-    adjacent_numa: "{{ adjacent_numa_list[ansible_loop.index0] }}"
-    tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
+    numa_node: "{{ adjacent_numa_list[ansible_loop.index0].numa }}"
+    adjacent_numa: "{{ adjacent_numa_list[ansible_loop.index0].adjacent_numa }}"
+    tcp_ip: "{{ adjacent_numa_list[ansible_loop.index0].tcp_ip }}"
     min_subsystem: "{{ min_subsystem_list[ansible_loop.index0] }}"
     my_range: "{{ subsys_range[ansible_loop.index0] }}"
