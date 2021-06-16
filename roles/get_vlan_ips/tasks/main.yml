@@ -39,9 +39,18 @@
   set_fact:
     vlan_ip_list: []
 
-- name: Get list of VLAN IP addresses
-  include_tasks: get_vlan_ips.yml
-  loop: "{{ vlan_list }}"
-  loop_control:
-    loop_var: vlan
-    label: "VLAN ID: {{ vlan.id }}"
+- name: Set vlan_ip_list var
+  set_fact:
+    vlan_ip_list: "{{ vlan_ip_list | default([]) }}
+      {% for mellanox_device in mellanox_ports %}
+        {% for vlan in vlan_list %}
+          {% set vlan_device = 'ansible_' ~ mellanox_device.netdev | replace('-', '_') ~ '.' ~ vlan.id %}
+          {% if (mellanox_device.status == 'Up') and
+            (lookup('vars', vlan_device, default='') != '') and
+            (lookup('vars', vlan_device).ipv4.address is defined) %}
+            + {{ [ lookup('vars', vlan_device).ipv4.address ] }}
+          {% else %}
+            + []
+          {% endif %}
+        {% endfor %}
+      {% endfor %}"
