@@ -198,5 +198,6 @@
     numa_node: "{{ adjacent_numa_list[ansible_loop.index0].numa }}"
     adjacent_numa: "{{ adjacent_numa_list[ansible_loop.index0].adjacent_numa }}"
     tcp_ip: "{{ adjacent_numa_list[ansible_loop.index0].tcp_ip }}"
+    rocev2_ip: "{{ rocev2_ip_list[ansible_loop.index0] }}"
     min_subsystem: "{{ min_subsystem_list[ansible_loop.index0] }}"
     my_range: "{{ subsys_range[ansible_loop.index0] }}"
