@@ -39,7 +39,7 @@
 {% endif %}
 
 export LD_LIBRARY_PATH="{{ start_dss_minio_host_dir }}/lib"
-export MINIO_NKV_CONFIG="{{ start_dss_minio_host_dir }}/conf/nkv_config.json"
+export MINIO_NKV_CONFIG="{{ start_dss_minio_host_dir }}/conf/nkv_config_{{ rocev2_ip }}.json"
 {% if standalone_minio is defined %}#{% endif %}export MINIO_INSTANCE_HOST_PORT={{ tcp_ip }}:{{ minio_port }}
 export MINIO_ACCESS_KEY={{ minio_access_key }}
 export MINIO_SECRET_KEY={{ minio_secret_key }}
