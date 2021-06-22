@@ -201,3 +201,21 @@
     rocev2_ip: "{{ rocev2_ip_list[ansible_loop.index0] }}"
     min_subsystem: "{{ min_subsystem_list[ansible_loop.index0] }}"
     my_range: "{{ subsys_range[ansible_loop.index0] }}"
+
+- name: Stat nkv_config scripts
+  stat:
+    path: "{{ start_dss_minio_host_dir }}/conf/nkv_config_{{ item }}.json"
+  loop: "{{ rocev2_ip_list }}"
+  register: nkv_config_scripts
+
+- name: Assert nkv_config scripts exist
+  assert:
+    that: "{{ nkv_config_scripts.results[item].stat.exists }}"
+    msg: |
+      nkv_config script does not exist: 
+      {{ nkv_config_scripts.results[item].invocation.module_args.path }}
+      Check for issues with dss_host.py setup step
+    quiet: true
+  loop: "{{ range(0, nkv_config_scripts.results | length) | list }}"
+  loop_control:
+    label: "{{ nkv_config_scripts.results[item].item }}"
