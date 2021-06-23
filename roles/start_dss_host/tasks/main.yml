@@ -149,7 +149,7 @@
       - all_subsystems_mounted == true
     fail_msg: |
       Failed to mount all subsystems.
-      Expected number of subsystems: {{ expected_num_subsystems }}
+      Expected number of subsystems: {{ combined_expected_num_subsystems }}
       Actual number of mounted subsystems: {{ post_subsystems_found }}
 
 - name: Execute dss_host_config_host.sh script
