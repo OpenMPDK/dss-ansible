@@ -35,15 +35,16 @@
     minio_endpoint: >-
       {%- set client_index = { 'value': 0 } -%}
       {% for server in groups['servers'] -%}
-          {% set server_loop = loop -%}
-          {% for tcp_ip in hostvars[server].tcp_vlan_ip_list -%}
-              {% if groups['clients'][client_index.value] is defined -%}
-                {% if groups['clients'][client_index.value] == inventory_hostname -%}
-                  http://{{ tcp_ip }}:{{ minio_port }}
-                {%- endif -%}
-              {% if client_index.update({ 'value': client_index.value + 1 }) %}{% endif -%}
-              {% endif -%}
-          {% endfor -%}
+        {% set server_loop = loop -%}
+        {% for tcp in hostvars[server].tcp_alias_list -%}
+          {% set tcp_alias = tcp.alias %}
+          {% if groups['clients'][client_index.value] is defined -%}
+            {% if groups['clients'][client_index.value] == inventory_hostname -%}
+              http://{{ tcp_alias }}:{{ minio_port }}
+            {%- endif -%}
+          {% if client_index.update({ 'value': client_index.value + 1 }) %}{% endif -%}
+          {% endif -%}
+        {% endfor -%}
       {% endfor %}
 
 - name: List local hosts with mc
@@ -57,3 +58,9 @@
   when: >
     ((mc_host_list.stdout | from_json).status | default('') == 'error') or
     ((mc_host_list.stdout | from_json).URL | default('') != minio_endpoint)
+
+- name: debug shiz
+  debug:
+    msg: |
+      {{ (mc_host_list.stdout | from_json).URL | default('') }}
+      {{ minio_endpoint }}
