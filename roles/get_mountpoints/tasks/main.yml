@@ -59,16 +59,20 @@
     tcp_ip_list: "{{ vlan_ip_list }}"
   when: tcp_ip_list is not defined
 
+- name: Set TCP aliases
+  include_role:
+    name: configure_tcp_aliases
+
 - name: Set TCP - RoCEv2 IP map
   set_fact:
     vlan_ip_map: "{{ vlan_ip_map | default([]) +
-                  [{'tcp_ip': tcp_ip,
+                  [{'tcp_alias': tcp_alias,
                     'rocev2_ip': rocev2_ip }] }}"
   with_together:
-    - "{{ tcp_ip_list }}"
+    - "{{ tcp_alias_list }}"
     - "{{ rocev2_ip_list }}"
   vars:
-    tcp_ip: "{{ item.0 }}"
+    tcp_alias: "{{ item.0.alias }}"
     rocev2_ip: "{{ item.1 }}"
 
 - name: Set combined_vlan_ip_map
@@ -78,7 +82,7 @@
       '{{ hostvars[host].vlan_ip_map[ansible_loop.index0].rocev2_ip }}'
       {%- if not loop.last %}, {% endif %}{% endfor %}],
           'tcp': [{% for host in ansible_play_hosts -%}
-      '{{ hostvars[host].vlan_ip_map[ansible_loop.index0].tcp_ip }}'
+      '{{ hostvars[host].vlan_ip_map[ansible_loop.index0].tcp_alias }}'
       {%- if not loop.last %}, {% endif %}{% endfor %}] }]"
   loop: "{{ range(0, vlan_ip_map | length) | list }}"
   loop_control:
@@ -163,5 +167,5 @@
     standalone_minio: true
   when:
     - groups['servers'] | length == 1
-    - (tcp_ip_list | length == 1 or
-      (nvme_mountpoints | length /  tcp_ip_list | length) < 4)
+    - (tcp_alias_list | length == 1 or
+      (nvme_mountpoints | length /  tcp_alias_list | length) < 4)
