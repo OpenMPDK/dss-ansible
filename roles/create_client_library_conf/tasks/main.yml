@@ -42,13 +42,13 @@
 
 - name: Check minio connection
   command: "{{ start_dss_minio_dir }}/mc ls {{ local_mc_alias }}"
-  loop: "{{ range(0, tcp_ip_list | length) | list }}"
+  loop: "{{ range(0, tcp_alias_list | length) | list }}"
   loop_control:
-    label: "{{ tcp_ip }}"
+    label: "{{ tcp_alias }}"
     extended: true
   vars:
-    tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
-    local_mc_alias: "local_{{ tcp_ip | replace('.', '_') }}"
+    tcp_alias: "{{ tcp_alias_list[ansible_loop.index0].alias }}"
+    local_mc_alias: "local_{{ tcp_alias | replace('.', '_') | replace('-', '_') }}"
   changed_when: false
 
 - name: Create client library conf.json
@@ -61,13 +61,13 @@
 
 - name: Read DSS conf
   command: "{{ start_dss_minio_dir }}/mc cat {{ local_mc_alias }}/{{ dss_bucket_name }}/conf.json"
-  loop: "{{ range(0, tcp_ip_list | length) | list }}"
+  loop: "{{ range(0, tcp_alias_list | length) | list }}"
   loop_control:
-    label: "{{ tcp_ip }}"
+    label: "{{ tcp_alias }}"
     extended: true
   vars:
-    tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
-    local_mc_alias: "local_{{ tcp_ip | replace('.', '_') }}"
+    tcp_alias: "{{ tcp_alias_list[ansible_loop.index0].alias }}"
+    local_mc_alias: "local_{{ tcp_alias | replace('.', '_') | replace('-', '_') }}"
   changed_when: false
   failed_when: false
   register: read_dss_conf
@@ -87,13 +87,13 @@
 
 - name: Check DSS bucket
   command: "{{ start_dss_minio_dir }}/mc ls {{ local_mc_alias }}/{{ dss_bucket_name }}"
-  loop: "{{ range(0, tcp_ip_list | length) | list }}"
+  loop: "{{ range(0, tcp_alias_list | length) | list }}"
   loop_control:
-    label: "{{ tcp_ip }}"
+    label: "{{ tcp_alias }}"
     extended: true
   vars:
-    tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
-    local_mc_alias: "local_{{ tcp_ip | replace('.', '_') }}"
+    tcp_alias: "{{ tcp_alias_list[ansible_loop.index0].alias }}"
+    local_mc_alias: "local_{{ tcp_alias | replace('.', '_') | replace('-', '_') }}"
   changed_when: false
   failed_when: false
   register: check_dss_bucket
@@ -102,24 +102,24 @@
   command: "{{ start_dss_minio_dir }}/mc mb {{ local_mc_alias }}/{{ dss_bucket_name }}"
   loop: "{{ range(0, check_dss_bucket.results | length) | list }}"
   loop_control:
-    label: "{{ tcp_ip }}"
+    label: "{{ tcp_alias }}"
     extended: true
   vars:
-    tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
-    local_mc_alias: "local_{{ tcp_ip | replace('.', '_') }}"
+    tcp_alias: "{{ tcp_alias_list[ansible_loop.index0].alias }}"
+    local_mc_alias: "local_{{ tcp_alias | replace('.', '_') | replace('-', '_') }}"
   when:
     - "'does not exist' in check_dss_bucket.results[item].stderr"
-    - tcp_ip in subsystem_endpoints
+    - tcp_alias in subsystem_endpoints
 
 - name: Write remote DSS conf
   command: "{{ start_dss_minio_dir }}/mc cp {{ dss_target_conf_dir }}/client_library_conf.json {{ local_mc_alias }}/{{ dss_bucket_name }}/conf.json"
   loop: "{{ range(0, read_dss_conf.results | length) | list }}"
   loop_control:
-    label: "{{ tcp_ip }}"
+    label: "{{ tcp_alias }}"
     extended: true
   vars:
-    tcp_ip: "{{ tcp_ip_list[ansible_loop.index0] }}"
-    local_mc_alias: "local_{{ tcp_ip | replace('.', '_') }}"
+    tcp_alias: "{{ tcp_alias_list[ansible_loop.index0].alias }}"
+    local_mc_alias: "local_{{ tcp_alias | replace('.', '_') | replace('-', '_') }}"
   when:
     - read_dss_conf.results[item].stdout != local_dss_conf.stdout
-    - tcp_ip in subsystem_endpoints
+    - tcp_alias in subsystem_endpoints
