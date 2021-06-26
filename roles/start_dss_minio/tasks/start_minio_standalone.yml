@@ -30,22 +30,10 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-# Not used?
-# - name: Stat minio startup script
-#   stat:
-#     path: "{{ start_dss_minio_host_bin_dir }}/minio_startup_{{ tcp_ip_list[0] }}.sh"
-#   register: minio_script_stat
-
-# - name: Check for missing startup scripts
-#   set_fact:
-#     missing_script: true
-#   when: minio_script_stat.stat.exists == false
-#   run_once: true
-
 - name: Start standalone minio instance
   shell: >
-    nohup ./minio_startup_{{ tcp_ip_list[0] }}.sh >
-    {{ dss_log_dir }}/nkv-minio_{{ tcp_ip_list[0] }}.log 2>&1 &
+    nohup ./minio_startup_{{ tcp_alias_list[0].alias }}.sh >
+    {{ dss_log_dir }}/nkv-minio_{{ tcp_alias_list[0].alias }}.log 2>&1 &
   args:
     chdir: "{{ start_dss_minio_host_bin_dir }}"
   when: "'server' not in minio_ps.stdout"
@@ -66,7 +54,7 @@
     server_string: "server"
 
 - name: Assert standalone minio instance online
-  command: "cat {{ dss_log_dir }}/nkv-minio_{{ tcp_ip_list[0] }}.log"
+  command: "cat {{ dss_log_dir }}/nkv-minio_{{ tcp_alias_list[0].alias }}.log"
   changed_when: false
   register: minio_logs
   until: minio_logs.stdout is search('0 Offline')
