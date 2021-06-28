@@ -58,9 +58,3 @@
   when: >
     ((mc_host_list.stdout | from_json).status | default('') == 'error') or
     ((mc_host_list.stdout | from_json).URL | default('') != minio_endpoint)
-
-- name: debug shiz
-  debug:
-    msg: |
-      {{ (mc_host_list.stdout | from_json).URL | default('') }}
-      {{ minio_endpoint }}
