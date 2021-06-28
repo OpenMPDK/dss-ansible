@@ -48,7 +48,7 @@
       {% endfor %}
 
 - name: List local hosts with mc
-  command: "{{ configure_mc_alias_dir }}/mc config host list {{ minio_mc_alias }} --json"
+  shell: "{{ configure_mc_alias_dir }}/mc config host list {{ minio_mc_alias }} --json | grep -v '^mc: '"
   register: mc_host_list
   failed_when: false
   changed_when: false
