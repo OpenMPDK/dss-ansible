@@ -73,28 +73,12 @@
     can_interleave: true
   when: (num_numa | int) / (tcp_alias_list | length) >= 2
 
-# - name: Query up adapters
-#   shell: "ip address show"
-#   environment:
-#     PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
-#   changed_when: false
-#   register: up_adapters
-
 - name: Assert more than one NUMA node
   assert:
     that: num_numa | int > 1
     msg: Only 1 NUMA node. NUMA configuration is not optimal.
   when: num_sockets | int > 1
   ignore_errors: true
-
-# - name: Query NUMA for numactl string
-#   include_tasks: set_numa.yml
-#   loop: "{{ range(0, tcp_alias_list | length) | list }}"
-#   loop_control:
-#     loop_var: vlan_pair
-#     extended: true
-#   vars:
-#     tcp_ip: "{{ tcp_alias_list[ansible_loop.index0].tcp_ip }}"
 
 - name: Set adjacent_numa_list var
   set_fact:
