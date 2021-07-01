@@ -30,19 +30,19 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Set client library config
-  hosts: servers
-  roles:
-    - get_mountpoints
-    - configure_server_mc_alias
-    - create_client_library_conf
-
 - name: Get VLAN information
   hosts:
     - clients
     - servers
   roles:
     - get_tcp_vlan_ip_list
+
+- name: Set client library config
+  hosts: servers
+  roles:
+    - get_mountpoints
+    - configure_server_mc_alias
+    - create_client_library_conf
 
 - name: Deploy Data Mover
   hosts: clients
