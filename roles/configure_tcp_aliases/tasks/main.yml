@@ -36,13 +36,22 @@
     tcp_adapter_parent_list: []
     tcp_adapter_numa_list: []
     tcp_alias_list: []
+    combined_family_list: []
   
-- name: Assert tcp_ip_list contains IP addresses
-  assert:
-    that: "{{ item | ipaddr != false }}"
-    msg: "{{ item }} is not a valid IP address"
-    quiet: true
+- name: Query IPs from tcp_ip_list
+  shell: "getent ahosts {{ item }} | awk '{ print $1 }' | grep -v '^::1' | head -n 1"
   loop: "{{ tcp_ip_list }}"
+  changed_when: false
+  register: getent
+  
+- name: Assert tcp_ip_list contains routable hostnames or IPs
+  assert:
+    that: "{{ item.stdout | ipaddr != false }}"
+    msg: "{{ item.item }} is not routable on this host"
+    quiet: true
+  loop: "{{ getent.results }}"
+  loop_control:
+    label: "{{ item.item }}"
 
 - name: Set tcp_adapter_list var
   set_fact:
@@ -53,22 +62,44 @@
         {% set ipv4_address = ((hostvars[inventory_hostname]['ansible_' + interface] | d({})).ipv4 | d({})).address | default('') %}
         {% if (tcp_ip in ipv6_address_list) or (tcp_ip == ipv4_address) %}
           {
+            'inventory_name': '{{ inventory_name }}',
             'tcp_ip': '{{ tcp_ip }}',
+            'family': 'IPV{% if tcp_ip | ipv6 %}6{% else %}4{% endif %}',
             'interface': '{{ interface }}'
           }
         {% endif %}
       {% endfor %}
       ]"
-  loop: "{{ tcp_ip_list }}"
+  loop: "{{ getent.results }}"
   loop_control:
-    loop_var: tcp_ip
+    label: "{{ inventory_name }}"
+  vars:
+    tcp_ip: "{{ item.stdout }}"
+    inventory_name: "{{ item.item }}"
+
+- name: Set combined_family_list var
+  set_fact:
+    combined_family_list: "{{ combined_family_list | d([]) + hostvars[hostname].tcp_adapter_list | map(attribute='family') | list }}"
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    loop_var: hostname
+  run_once: true
+
+- name: Assert all TCP IP's are same family
+  assert:
+    that: combined_family_list | unique | length == 1
+    msg: "tcp_ip_list must contain IPs or hostnames of the same family (IPV6 or IPV4)"
+  run_once: true
+
 
 - name: Assert IP addresses found on host 
   assert:
-    that: item in tcp_adapter_list | map(attribute='tcp_ip') | list
-    msg: "{{ item }} is not assigned to any adapter. Check 'tcp_ip_list' setting."
+    that: item.stdout in tcp_adapter_list | map(attribute='tcp_ip') | list
+    msg: "{{ item.item }} is not assigned to any adapter. Check 'tcp_ip_list' setting."
     quiet: true
-  loop: "{{ tcp_ip_list }}"
+  loop: "{{ getent.results }}"
+  loop_control:
+    label: "{{ item.item }}"
 
 - name: Get parent adapters
   shell: "echo $(basename $(readlink /sys/class/net/{{ item.interface }}/lower_* || echo '{{ item.interface }}'))"
@@ -84,7 +115,9 @@
       [
         {
           'parent_interface': '{{ item.stdout }}',
+          'inventory_name': '{{ item.item.inventory_name }}',
           'tcp_ip': '{{ item.item.tcp_ip }}',
+          'family': '{{ item.item.family }}',
           'interface': '{{ item.item.interface }}'
         }
       ]"
@@ -98,7 +131,7 @@
   loop: "{{ tcp_adapter_parent_list }}"
   loop_control:
     label: "{{ item.interface }}"
-  register: numa_node
+  register: numa_node_list
 
 - name: Set tcp_adapter_numa_list var
   set_fact:
@@ -106,12 +139,14 @@
       [
         {
           'parent_interface': '{{ item.item.parent_interface }}',
+          'inventory_name': '{{ item.item.inventory_name }}',
           'tcp_ip': '{{ item.item.tcp_ip }}',
+          'family': '{{ item.item.family }}',
           'interface': '{{ item.item.interface }}',
           'numa': {% if item.stdout == '-1' %}0{% else %}{{ item.stdout }}{% endif %}
         }
       ]"
-  loop: "{{ numa_node.results }}"
+  loop: "{{ numa_node_list.results }}"
   loop_control:
     label: "{{ item.item.tcp_ip }}"
 
@@ -125,10 +160,17 @@
       [
         {
           'parent_interface': '{{ item.parent_interface }}',
+          'inventory_name': '{{ item.inventory_name }}',
           'tcp_ip': '{{ item.tcp_ip }}',
+          'family': '{{ item.family }}',
           'interface': '{{ item.interface }}',
           'numa': {{ item.numa }},
-          'alias': '{{ inventory_hostname_short}}-tcp-{{ ansible_loop.index0 }}'
+          'alias': '
+            {%- if item.tcp_ip == item.inventory_name -%}
+              {{ inventory_hostname_short}}-tcp-{{ ansible_loop.index0 }}
+            {%- else -%}
+              {{ item.inventory_name }}
+            {%- endif -%}'
         }
       ]"
   loop: "{{ tcp_adapter_numa_list }}"
@@ -141,12 +183,12 @@
     path: /etc/hosts
     marker: "# {mark} ANSIBLE MANAGED BLOCK - SERVER TCP ALIASES FOR TESS"
     block: |
-      {% for host in ansible_play_hosts %}
-      {% if host in groups['servers'] %}
+      {% for host in groups['servers'] %}
       {% for tcp_ip in hostvars[host].tcp_alias_list %}
+      {% if tcp_ip.tcp_ip == tcp_ip.inventory_name %}
       {{ tcp_ip.tcp_ip }} {{ tcp_ip.alias }}
-      {% endfor %}
       {% endif %}
+      {% endfor %}
       {% endfor %}
   become: true
 
@@ -155,12 +197,31 @@
     path: /etc/hosts
     marker: "# {mark} ANSIBLE MANAGED BLOCK - CLIENT TCP ALIASES FOR TESS"
     block: |
-      {% for host in ansible_play_hosts %}
-      {% if host in groups['clients'] %}
+      {% for host in groups['clients'] | d([]) %}
+      {% if host not in groups['servers'] %}
       {% for tcp_ip in hostvars[host].tcp_alias_list %}
+      {% if tcp_ip.tcp_ip == tcp_ip.inventory_name %}
       {{ tcp_ip.tcp_ip }} {{ tcp_ip.alias }}
+      {% endif %}
       {% endfor %}
       {% endif %}
       {% endfor %}
-  when: inventory_hostname in groups['clients']
+  when: inventory_hostname in groups['clients'] | d([])
+  become: true
+
+- name: Set UFM aliases in /etc/hosts
+  blockinfile:
+    path: /etc/hosts
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - UFM TCP ALIASES FOR TESS"
+    block: |
+      {% for host in groups['ufm_hosts'] | d([]) %}
+      {% if host not in groups['servers'] %}
+      {% for tcp_ip in hostvars[host].tcp_alias_list %}
+      {% if tcp_ip.tcp_ip == tcp_ip.inventory_name %}
+      {{ tcp_ip.tcp_ip }} {{ tcp_ip.alias }}
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+      {% endfor %}
+  when: inventory_hostname in groups['ufm_hosts'] | d([])
   become: true
