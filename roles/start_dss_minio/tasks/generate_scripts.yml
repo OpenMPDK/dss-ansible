@@ -129,7 +129,7 @@
   assert:
     that: numa_socket | selectattr('numa', 'equalto', numa) | map(attribute='socket') | list | length == 1
     msg: NUMA belongs to more than one socket. NUMA configuration is not optimal.
-  loop: "{{ numa_list | map(attribute='numa') | list }}"
+  loop: "{{ tcp_alias_list | map(attribute='numa') | list }}"
   loop_control:
     loop_var: numa
   when: num_numa | int > 1
