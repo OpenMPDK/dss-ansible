@@ -12,7 +12,7 @@
             {%- if hostvars[host].min_subsystem_list[vlan] == unique_subsystem %}
 
                 {
-                    "ipv4": "{{ hostvars[host].vlan_ip_map[vlan].tcp_ip }}",
+                    "ipv4": "{{ hostvars[host].vlan_ip_map[vlan].tcp_alias }}",
                     "port": {{ minio_port }}
                 }{% if (not loop.last or not vlan_loop_last)  -%}
                     {% if (loop.last) and 
@@ -31,7 +31,7 @@
             "id": 0,
             "endpoints": [
                 {
-                    "ipv4": "{{ hostvars[groups['servers'][0]].vlan_ip_map[0].tcp_ip }}",
+                    "ipv4": "{{ hostvars[groups['servers'][0]].vlan_ip_map[0].tcp_alias }}",
                     "port": {{ minio_port }}
                 }
             ]

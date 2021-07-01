@@ -35,22 +35,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. #}
 {%- set num_minio_servers = { 'value': 0 } -%}
 {%- set minio_server_index = { 'value': 0 } -%}
 {%- for server in groups['servers'] -%}
-	{%- if num_minio_servers.update({ 'value': num_minio_servers.value + (hostvars[server].tcp_vlan_ip_list | length) }) %}{% endif -%}
-    {%- if hostvars[server].tcp_vlan_ip_list | length > max_tcp_ips.value %}
-		{%- if max_tcp_ips.update({ 'value': hostvars[server].tcp_vlan_ip_list | length }) %}{% endif -%}
+	{%- if num_minio_servers.update({ 'value': num_minio_servers.value + (hostvars[server].tcp_alias_list | length) }) %}{% endif -%}
+    {%- if hostvars[server].tcp_alias_list | length > max_tcp_ips.value %}
+		{%- if max_tcp_ips.update({ 'value': hostvars[server].tcp_alias_list | length }) %}{% endif -%}
     {% endif -%}
 {% endfor -%}
 {% for tcp_ip_index in range(max_tcp_ips.value) -%}
     {% for server in groups['servers'] -%}
-        {% if hostvars[server].tcp_vlan_ip_list[tcp_ip_index] is defined -%}
+        {% if hostvars[server].tcp_alias_list[tcp_ip_index] is defined -%}
 		{%- if minio_server_index.update({ 'value': minio_server_index.value + 1 }) %}{% endif -%}
             {% if groups['clients'][client_index.value] is defined %}
 
         {
-            "minioServers": ["{{ hostvars[server].tcp_vlan_ip_list[tcp_ip_index] }}:{{minio_port}}"],
+            "minioServers": ["{{ hostvars[server].tcp_alias_list[tcp_ip_index].alias }}:{{minio_port}}"],
             "minioHosts": ["{{ hostvars[server].inventory_hostname }}"],
             "minioBucket": "{{ benchmark_bucket_prefix }}{{ client_index.value + 1 }}",
-            "warpClients": ["{{ hostvars[groups['clients'][client_index.value]].ansible_default_ipv4.address }}"]
+            "warpClients": ["{{ hostvars[groups['clients'][client_index.value]].tcp_alias_list[0].alias }}"]
         }
 				{%- if (minio_server_index.value != num_minio_servers.value) and (groups['clients'][client_index.value + 1] is defined) -%}
 				,

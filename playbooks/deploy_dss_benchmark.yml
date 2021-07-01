@@ -31,7 +31,9 @@
 ---
 
 - name: Get TCP VLAN IP list
-  hosts: servers
+  hosts:
+    - servers
+    - clients
   roles:
     - get_tcp_vlan_ip_list
 

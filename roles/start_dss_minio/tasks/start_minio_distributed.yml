@@ -33,15 +33,16 @@
 - name: Start distributed minio instances
   shell: >
     sleep 1 &&
-    nohup ./minio_startup_{{ ip_address }}.sh >
-    {{ dss_log_dir }}/nkv-minio_{{ ip_address }}.log 2>&1 &
+    nohup ./minio_startup_{{ tcp_alias }}.sh >
+    {{ dss_log_dir }}/nkv-minio_{{ tcp_alias }}.log 2>&1 &
   args:
     chdir: "{{ start_dss_minio_host_bin_dir }}"
-  loop: "{{ tcp_ip_list }}"
+  loop: "{{ tcp_alias_list }}"
   loop_control:
-    loop_var: ip_address
+    label: "{{ tcp_alias }}"
   vars:
-    distributed_string: "server --address {{ ip_address }}:{{ minio_port }}"
+    tcp_alias: "{{ item.alias }}"
+    distributed_string: "server --address {{ tcp_alias }}:{{ minio_port }}"
   when: >
     ((combined_vlan_ip_map | length > 1 and
     distributed_string not in minio_ps.stdout) or
@@ -61,18 +62,21 @@
     that: server_string in post_minio_ps.stdout
     fail_msg: Minio instance not running
     quiet: true
-  loop: "{{ tcp_ip_list }}"
+  loop: "{{ tcp_alias_list }}"
   loop_control:
-    loop_var: ip_address
+    label: "{{ tcp_alias }}"
   vars:
-    server_string: "server --address {{ ip_address }}:{{ minio_port }}"
+    tcp_alias: "{{ item.alias }}"
+    server_string: "server --address {{ tcp_alias }}:{{ minio_port }}"
 
 - name: Assert distributed minio instances online
-  command: "cat {{ dss_log_dir }}/nkv-minio_{{ ip_address }}.log"
-  loop: "{{ tcp_ip_list }}"
+  command: "cat {{ dss_log_dir }}/nkv-minio_{{ tcp_alias }}.log"
+  loop: "{{ tcp_alias_list }}"
   changed_when: false
   loop_control:
-    loop_var: ip_address
+    label: "{{ tcp_alias }}"
+  vars:
+    tcp_alias: "{{ item.alias }}"
   register: minio_logs
   until: minio_logs.stdout is search('0 Offline')
   retries: 12

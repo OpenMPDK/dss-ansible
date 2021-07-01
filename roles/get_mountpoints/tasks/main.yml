@@ -57,18 +57,24 @@
 - name: Set tcp_ip_list var
   set_fact:
     tcp_ip_list: "{{ vlan_ip_list }}"
+  register: set_tcp_ip_list
   when: tcp_ip_list is not defined
+
+- name: Set TCP aliases
+  include_role:
+    name: configure_tcp_aliases
+  when: not set_tcp_ip_list.skipped
 
 - name: Set TCP - RoCEv2 IP map
   set_fact:
     vlan_ip_map: "{{ vlan_ip_map | default([]) +
-                  [{'tcp_ip': tcp_ip,
+                  [{'tcp_alias': tcp_alias,
                     'rocev2_ip': rocev2_ip }] }}"
   with_together:
-    - "{{ tcp_ip_list }}"
+    - "{{ tcp_alias_list }}"
     - "{{ rocev2_ip_list }}"
   vars:
-    tcp_ip: "{{ item.0 }}"
+    tcp_alias: "{{ item.0.alias }}"
     rocev2_ip: "{{ item.1 }}"
 
 - name: Set combined_vlan_ip_map
@@ -78,7 +84,7 @@
       '{{ hostvars[host].vlan_ip_map[ansible_loop.index0].rocev2_ip }}'
       {%- if not loop.last %}, {% endif %}{% endfor %}],
           'tcp': [{% for host in ansible_play_hosts -%}
-      '{{ hostvars[host].vlan_ip_map[ansible_loop.index0].tcp_ip }}'
+      '{{ hostvars[host].vlan_ip_map[ansible_loop.index0].tcp_alias }}'
       {%- if not loop.last %}, {% endif %}{% endfor %}] }]"
   loop: "{{ range(0, vlan_ip_map | length) | list }}"
   loop_control:
@@ -97,6 +103,14 @@
     that: (nvme_subsys.stdout | from_json).Subsystems is defined
     msg: Subsystems are not mounted. Run `start_dss_software` playbook first.
 
+- name: Assert transports are rdma
+  assert:
+    that: transport == 'rdma'
+    msg: "Transport is {{ transport }}. Non-RDMA subsystem mounted."
+  loop: "{{ ((nvme_subsys.stdout | from_json).Subsystems | batch(2) | flatten)[1::2] | map(attribute='Paths') | flatten }}"
+  vars:
+    transport: "{{ item.Transport }}"
+
 - name: Set nvme_mountpoints
   set_fact:
     nvme_mountpoints: |
@@ -107,10 +121,10 @@
           {
             "name": "{{ subsystem[0].Name }}",
             "nqn": "{{ subsystem[0].NQN }}",
-            "dev": "{{ path.Name | regex_search('nvme(.+)', '\1') | first }}",
+            "dev": "{{ path.Name | regex_search('nvme(.+)', '\1') | d([]) | first }}",
             "transport": "{{ path.Transport }}",
-            "ip": "{{ path.Address | regex_search('traddr=([^ ]+)', '\1') | first }}",
-            "port": "{{ path.Address | regex_search('trsvcid=(.+)', '\1') | first }}",
+            "ip": "{{ path.Address | regex_search('traddr=([^ ]+)', '\1') | d([]) | first }}",
+            "port": "{{ path.Address | regex_search('trsvcid=(.+)', '\1') | d([]) | first }}",
             "state": "{{ path.State }}"
           }{% if (not loop.last) or (not subsystem_loop_last) %},
           {% endif %}
@@ -163,5 +177,5 @@
     standalone_minio: true
   when:
     - groups['servers'] | length == 1
-    - (tcp_ip_list | length == 1 or
-      (nvme_mountpoints | length /  tcp_ip_list | length) < 4)
+    - (tcp_alias_list | length == 1 or
+      (nvme_mountpoints | length /  tcp_alias_list | length) < 4)

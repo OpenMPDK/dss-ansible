@@ -30,18 +30,6 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Remove clients from /etc/hosts
-  lineinfile:
-    path: /etc/hosts
-    state: absent
-    regexp: "{{ hostvars[host].inventory_hostname_short }}"
-  loop: "{{ groups['clients'] + groups['servers'] }}"
-  loop_control:
-    loop_var: host
-  run_once: true
-  when: hostvars[host].inventory_hostname_short != "localhost"
-  become: true
-
 - name: Generate RSA key on master client
   command: "ssh-keygen -q -t rsa -f {{ rsa_key }} -N ''"
   vars:
@@ -73,14 +61,14 @@
   run_once: true
   become: true
 
-- name: Scan machine RSA keys by IP address
-  command: "ssh-keyscan -t rsa {{ scan_ip }}"
+- name: Scan machine RSA keys by TCP alias
+  command: "ssh-keyscan -t rsa {{ scan_alias }}"
   register: ssh_keys_short
   loop: "{{ groups['clients'] + groups['servers'] }}"
   loop_control:
     loop_var: hostname
   vars:
-    scan_ip: "{{ hostvars[hostname].ansible_default_ipv4.address }}"
+    scan_alias: "{{ hostvars[hostname].tcp_alias_list[0].alias }}"
   failed_when: ssh_keys.stdout == ''
   changed_when: false
   run_once: true
@@ -94,6 +82,6 @@
   loop_control:
     label: "{{ item.hostname }}"
   vars:
-    host: "{{ hostvars[item.hostname].ansible_default_ipv4.address }}"
+    host: "{{ hostvars[item.hostname].tcp_alias_list[0].alias }}"
   run_once: true
   become: true
