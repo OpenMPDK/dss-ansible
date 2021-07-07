@@ -30,6 +30,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Validate ansible versions and dependencies
+  hosts: localhost
+  roles:
+    - validate_ansible
+
 - name: Deploy Soft-RoCE on VMs
   hosts:
     - servers

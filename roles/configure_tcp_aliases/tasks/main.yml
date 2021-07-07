@@ -37,13 +37,13 @@
     tcp_adapter_numa_list: []
     tcp_alias_list: []
     combined_family_list: []
-  
+
 - name: Query IPs from tcp_ip_list
   shell: "getent ahosts {{ item }} | awk '{ print $1 }' | grep -v '^::1' | head -n 1"
   loop: "{{ tcp_ip_list }}"
   changed_when: false
   register: getent
-  
+
 - name: Assert tcp_ip_list contains routable hostnames or IPs
   assert:
     that: "{{ item.stdout | ipaddr != false }}"
@@ -92,7 +92,7 @@
   run_once: true
 
 
-- name: Assert IP addresses found on host 
+- name: Assert IP addresses found on host
   assert:
     that: item.stdout in tcp_adapter_list | map(attribute='tcp_ip') | list
     msg: "{{ item.item }} is not assigned to any adapter. Check 'tcp_ip_list' setting."

@@ -30,13 +30,13 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Validate ansible versions and dependencies
-  hosts: localhost
-  roles:
-    - validate_ansible
-
-- name: Stop DSS Software
-  import_playbook: stop_dss_software.yml
-
-- name: Start DSS Software
-  import_playbook: start_dss_software.yml
+min_ansible_version: 2.9.0
+max_ansible_version: 2.10.0
+min_python_version: 3.6
+required_python_modules:
+  - name: netaddr
+    version: 0.8.0
+  - name: jinja2
+    version: 2.8
+  - name: paramiko
+    version: 2.7.1

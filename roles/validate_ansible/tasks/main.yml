@@ -30,13 +30,37 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Validate ansible versions and dependencies
-  hosts: localhost
-  roles:
-    - validate_ansible
+- name: Check Ansible's python version
+  shell: 'ansible --version | grep -oP "python version = \K[^ ]+"'
+  register: local_python_version
+  changed_when: false
 
-- name: Stop DSS Software
-  import_playbook: stop_dss_software.yml
+- name: Validate Ansible python version
+  assert:
+    that: local_python_version.stdout is version(min_python_version, '>=')
+    msg: |
+      Ansible must be installed under python {{ min_python_version }} or newer.
+      Ansible is currently installed under python {{ local_python_version.stdout }}.
+      Remove package-manager version of ansible (eg: 'yum remove ansible').
+      Remove pip2 version of ansible (eg: 'python -m pip uninstall ansible').
+      Remove ansible-base if present.
+      Install ansible via pip3:
+      python3 -m pip install "ansible>={{ min_ansible_version }},<{{ max_ansible_version }}"
 
-- name: Start DSS Software
-  import_playbook: start_dss_software.yml
+- name: Validate Ansible version
+  assert:
+    that:
+      - ansible_version.full is version(min_ansible_version, '>=')
+      - ansible_version.full is version(max_ansible_version, '<')
+    msg: |
+      Ansible version must be >= {{ min_ansible_version }}, < {{ max_ansible_version }}
+      Installed version is {{ ansible_version.full }}
+      Install Ansible via python3 pip module:
+      python3 -m pip install ansible>={{ min_ansible_version }},<{{ max_ansible_version }}
+
+- name: Validate python modules
+  include_tasks: validate_python_modules.yml
+  loop: "{{ required_python_modules }}"
+  vars:
+    python_module: "{{ item.name }}"
+    python_module_version: "{{ item.version }}"

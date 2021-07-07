@@ -58,7 +58,7 @@
 
 - name: Set numa_socket var
   set_fact:
-    numa_socket: "{{ numa_socket | default([]) + 
+    numa_socket: "{{ numa_socket | default([]) +
                     [{
                       'numa': item | regex_search(numa_socket_re, '\\1') | first | int,
                       'socket': item | regex_search(numa_socket_re, '\\2') | first | int
@@ -88,12 +88,12 @@
           'tcp_alias': '{{ tcp_alias }}',
           'numa': {{ numa }},
           'adjacent_numa':
-          {% if ((numa | int - 1) not in (tcp_alias_list | map(attribute='numa') | list)) and 
-            ((numa | int - 1) >= (min_socket_numa | int)) and 
+          {% if ((numa | int - 1) not in (tcp_alias_list | map(attribute='numa') | list)) and
+            ((numa | int - 1) >= (min_socket_numa | int)) and
             (adjacent_numa_list is not defined or (numa | int - 1) not in (adjacent_numa_list | map(attribute='adjacent_numa') | list)) %}
               {{ numa | int - 1 }}
-          {% elif ((numa | int + 1) not in (tcp_alias_list | map(attribute='numa') | list)) and 
-            ((numa | int + 1) <= (max_socket_numa | int)) and 
+          {% elif ((numa | int + 1) not in (tcp_alias_list | map(attribute='numa') | list)) and
+            ((numa | int + 1) <= (max_socket_numa | int)) and
             (adjacent_numa_list is not defined or (numa | int + 1) not in (adjacent_numa_list | map(attribute='adjacent_numa') | list)) %}
               {{ numa | int + 1 }}
           {% else %}
@@ -175,7 +175,7 @@
   assert:
     that: "{{ nkv_config_scripts.results[item].stat.exists }}"
     msg: |
-      nkv_config script does not exist: 
+      nkv_config script does not exist:
       {{ nkv_config_scripts.results[item].invocation.module_args.path }}
       Check for issues with dss_host.py setup step
     quiet: true
