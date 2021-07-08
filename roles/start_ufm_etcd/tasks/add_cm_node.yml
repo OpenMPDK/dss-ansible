@@ -61,5 +61,5 @@
 - name: Add CM Node ip_address
   etcd3:
     key: "/cluster/{{ ansible_hostname | lower }}/ip_address"
-    value: "{{ ansible_default_ipv4.address }}"
+    value: "{{ tcp_alias_list[0].alias }}"
     state: present

@@ -38,7 +38,7 @@ etcd_use_ips: True
 etcd_gateway_nodes: >-
   {%- for host in groups[etcd_master_group_name] -%}
     {%- if etcd_use_ips -%}
-      {{hostvars[host].ansible_default_ipv4.address}}{% else %}{{host}}
+      {{hostvars[host].tcp_alias_list[0].alias}}{% else %}{{host}}
     {%- endif -%}
     :2379{% if not loop.last %},{% endif -%}
   {%- endfor -%}
