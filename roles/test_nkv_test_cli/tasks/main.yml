@@ -40,7 +40,7 @@
 - name: Set rocev2_dev
   set_fact:
     rocev2_dev_list: "{{ rocev2_dev_list | default([]) +
-                      [{ 'ip_prefix': vlan.ip_prefix,
+                      [{ 'ipv4_prefix': vlan.ipv4_prefix,
                           'dev': device }] }}"
   loop: "{{ rocev2_vlans }}"
   loop_control:
@@ -48,10 +48,10 @@
     label: "{{ vlan.id }}"
   vars:
     dev_regex: >-
-      {{ vlan.ip_prefix }}\.0\/\d+ dev ([^. ]+)
+      {{ vlan.ipv4_prefix }}\.0\/\d+ dev ([^. ]+)
     device: "{{ ip_route.stdout | regex_search(dev_regex, '\\1') | first }}"
   when:
-    - ip_route.stdout is regex(vlan.ip_prefix)
+    - ip_route.stdout is regex(vlan.ipv4_prefix)
 
 - name: Get NUMA
   command: "cat /sys/class/net/{{ item.dev }}/device/numa_node"
@@ -64,7 +64,7 @@
 - name: Set rocev2_numa_prefix_list
   set_fact:
     rocev2_numa_prefix_list: "{{ rocev2_numa_prefix_list | default([]) +
-                          [{ 'ip_prefix': vlan.item.ip_prefix,
+                          [{ 'ipv4_prefix': vlan.item.ipv4_prefix,
                               'numa': vlan.stdout | int }] }}"
   loop: "{{ numa_node.results }}"
   loop_control:
