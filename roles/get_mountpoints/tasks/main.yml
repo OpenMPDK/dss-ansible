@@ -63,7 +63,7 @@
 - name: Set TCP aliases
   include_role:
     name: configure_tcp_aliases
-  when: not set_tcp_ip_list.skipped
+  when: tcp_alias_list is not defined
 
 - name: Set TCP - RoCEv2 IP map
   set_fact:
