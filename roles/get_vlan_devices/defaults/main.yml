@@ -36,15 +36,23 @@ device_type: netdev
 vlan_list: "{{ rocev2_vlans + tcp_vlans }}"
 rocev2_vlans:
   - id: 31
-    ip_prefix: 201.0.0
-    netmask: 255.0.0.0
+    ipv4_prefix: 201.0.0
+    ipv4_netmask: 255.0.0.0
+    ipv6_prefix: fd81:7E55:15:D55:31
+    ipv6_prefix_length: 80
   - id: 32
-    ip_prefix: 203.0.0
-    netmask: 255.0.0.0
+    ipv4_prefix: 203.0.0
+    ipv4_netmask: 255.0.0.0
+    ipv6_prefix: fd81:7E55:15:D55:32
+    ipv6_prefix_length: 80
 tcp_vlans:
   - id: 41
-    ip_prefix: 202.0.0
-    netmask: 255.0.0.0
+    ipv4_prefix: 202.0.0
+    ipv4_netmask: 255.0.0.0
+    ipv6_prefix: fd81:7E55:15:D55:41
+    ipv6_prefix_length: 80
   - id: 42
-    ip_prefix: 204.0.0
-    netmask: 255.0.0.0
+    ipv4_prefix: 204.0.0
+    ipv4_netmask: 255.0.0.0
+    ipv6_prefix: fd81:7E55:15:D55:42
+    ipv6_prefix_length: 80

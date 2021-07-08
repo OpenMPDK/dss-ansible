@@ -60,7 +60,7 @@
 - name: Add Cluster IP address
   etcd3:
     key: /cluster/ip_address
-    value: "{{ hostvars[groups[group_names[0]][0]].ansible_default_ipv4.address }}"
+    value: "{{ hostvars[groups[group_names[0]][0]].tcp_alias_list[0].alias }}"
     state: present
 
 - name: Add Cluster time_created
