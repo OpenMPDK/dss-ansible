@@ -49,5 +49,5 @@ NETMASK={{ vlan.ipv4_netmask }}
 PREFIX=8
 MTU={{ mtu_size }}
 IPV6INIT=yes
-IPV6ADDR={{ vlan.ipv6_prefix}}::{{ last_octet }}/{{ ipv6_prefix_length }}
+IPV6ADDR={{ vlan.ipv6_prefix}}::{{ last_octet }}/{{ vlan.ipv6_prefix_length }}
 IPV6_DEFAULTGW={{ vlan.ipv6_prefix }}::1
