@@ -35,21 +35,21 @@
   roles:
     - validate_ansible
 
-- name: Get TCP VLAN information
+- name: Get TCP VLAN IP List
   hosts:
-    - clients
     - servers
+    - clients
+    - ufm_hosts
   roles:
     - get_tcp_vlan_ip_list
 
 - name: Set client library config
   hosts: servers
   roles:
-    - get_mountpoints
     - configure_server_mc_alias
     - create_client_library_conf
 
-- name: Start Compaction
+- name: Start Datamover
   hosts: clients
   roles:
     - start_datamover
