@@ -1,0 +1,54 @@
+---
+
+- name: Init vars
+  set_fact:
+    endpoints: []
+    combined_endpoints: []
+    included_hosts: []
+
+- name: Set included_hosts var
+  set_fact:
+    included_hosts: "{{ included_hosts | default([]) + [ host ] }}"
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    loop_var: host
+  when: hostvars[host].cluster_num | d(cluster_num) | string == current_cluster.cluster_num | string
+  run_once: true
+
+- name: Set endpoints for each min_subsystem_list
+  include_tasks:  set_endpoints.yml
+  loop: "{{ current_cluster.min_subsystem_list | unique }}"
+  loop_control:
+    loop_var: unique_subsystem
+  when: not current_cluster.standalone_minio
+
+- name: Set endpoint for standalone minio
+  set_fact:
+    endpoints: |
+      [
+          {
+              'ipv4': '{{ current_cluster.vlan_ip_map[0].tcp_alias }}',
+              'port': {{ minio_port }}
+          }
+      ]
+  when: current_cluster.standalone_minio
+
+- name: Set combined_endpoints var
+  set_fact:
+    combined_endpoints: "{{ combined_endpoints + hostvars[host].endpoints }}"
+  loop: "{{ included_hosts }}"
+  loop_control:
+    loop_var: host
+  run_once: true
+
+- name: Set clusters var and increment cluster_index
+  set_fact:
+    clusters: "{{ clusters }} +
+      [
+        {
+          'id': {{ cluster_index }},
+          'endpoints': {{ combined_endpoints }}
+        }
+      ]"
+    cluster_index: "{{ cluster_index | int + 1 }}"
+  run_once: true
