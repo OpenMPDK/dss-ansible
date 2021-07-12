@@ -50,19 +50,32 @@
     that: dss_host_path.stat.exists
     fail_msg: DSS Host is not installed. Execute 'deploy_dss_software.yml' playbook first.
 
-- name: Generate minio startup scripts
-  include_tasks: generate_scripts.yml
+- name: Set cluster_num_list var
+  set_fact:
+    cluster_num_list: "{{ cluster_num_list | default([]) }} +
+      [
+        {% for host in ansible_play_hosts %}
+            '{{ hostvars[host].cluster_num }}'{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ]"
+  when: cluster_num_list is not defined
+  run_once: true
 
-- name: Check for running minio instances
-  command: "pgrep -ax minio"
-  register: minio_ps
-  changed_when: false
-  failed_when: false
+- name: Get all RoCEv2 IP Addresses
+  include_role:
+    name: get_vlan_ips
+  vars:
+    vlan_list: "{{ rocev2_vlans }}"
+  when: rocev2_ip_list is not defined
 
-- name: Start standalone minio
-  include_tasks: start_minio_standalone.yml
-  when: standalone_minio is defined
+- name: Set rocev2_ip_list var if IP's auto-discovered
+  set_fact:
+    rocev2_ip_list: "{{ vlan_ip_list }}"
+  when: rocev2_ip_list is not defined
 
-- name: Start distributed minio
-  include_tasks: start_minio_distributed.yml
-  when: standalone_minio is not defined
+- name: Start minio by cluster
+  include_tasks: start_minio_clusters.yml
+  loop: "{{ cluster_num_list | unique }}"
+  loop_control:
+    loop_var: current_cluster_num
+  when: current_cluster_num | string == cluster_num | string

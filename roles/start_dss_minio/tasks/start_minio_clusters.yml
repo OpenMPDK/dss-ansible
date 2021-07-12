@@ -30,52 +30,23 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-cluster_num: 0
+- name: Get Mountpoints
+  include_role:
+    name: get_mountpoints
 
-minio_access_key: minio
-minio_secret_key: minio123
-minio_port: 9000
-minio_ec: 2
-minio_nkv_timeout: 20
-minio_nkv_sync: 1
-minio_nkv_shared_sync_interval: 2
-minio_enable_zero_copy_reader: 1
-minio_ec_block_size: 2097152
-minio_enable_no_lock_read: 1
-minio_enable_no_read_verify: 1
-minio_nkv_use_custom_reader: 1
-minio_no_lock_write: 1
-minio_opt_write: 1
-minio_non_transactional_write: 1
-minio_disable_meta_stat: 1
-minio_on_kv: 1
-minio_disable_ec: 1
-minio_kv_max_size: 1048576
-minio_nkv_shared: 1
-minio_nkv_checksum: 1
+- name: Generate minio startup scripts
+  include_tasks: generate_scripts.yml
 
-dss_log_dir: /var/log/dss
+- name: Check for running minio instances
+  command: "pgrep -ax minio"
+  register: minio_ps
+  changed_when: false
+  failed_when: false
 
-### VLAN Settings
-rocev2_vlans:
-  - id: 31
-    ipv4_prefix: 201.0.0
-    ipv4_netmask: 255.0.0.0
-    ipv6_prefix: fd81:7E55:15:D55:31
-    ipv6_prefix_length: 80
-  - id: 32
-    ipv4_prefix: 203.0.0
-    ipv4_netmask: 255.0.0.0
-    ipv6_prefix: fd81:7E55:15:D55:32
-    ipv6_prefix_length: 80
-tcp_vlans:
-  - id: 41
-    ipv4_prefix: 202.0.0
-    ipv4_netmask: 255.0.0.0
-    ipv6_prefix: fd81:7E55:15:D55:41
-    ipv6_prefix_length: 80
-  - id: 42
-    ipv4_prefix: 204.0.0
-    ipv4_netmask: 255.0.0.0
-    ipv6_prefix: fd81:7E55:15:D55:42
-    ipv6_prefix_length: 80
+- name: Start standalone minio
+  include_tasks: start_minio_standalone.yml
+  when: standalone_minio is defined
+
+- name: Start distributed minio
+  include_tasks: start_minio_distributed.yml
+  when: standalone_minio is not defined
