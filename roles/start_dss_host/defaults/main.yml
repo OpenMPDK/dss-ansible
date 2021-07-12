@@ -30,6 +30,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+cluster_num: 0
 num_subsystems: 1
 dss_host_kvpair:
 

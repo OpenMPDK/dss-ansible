@@ -67,94 +67,20 @@
   when: missing_drivers is defined
   become: true
 
-- name: Get RoCEv2 IP Addresses
-  include_role:
-    name: get_vlan_ips
-  vars:
-    vlan_list: "{{ rocev2_vlans }}"
-  when: rocev2_ip_list is not defined
-
-- name: Set rocev2_ip_list and first_rocev2_ip_list var if IP's auto-discovered
+- name: Set cluster_num_list var
   set_fact:
-    rocev2_ip_list: "{{ vlan_ip_list }}"
-    first_rocev2_ip_list: "{{ vlan_ip_list | first }}"
-  when: rocev2_ip_list is not defined
-
-- name: Set first_rocev2_ip_list var if IP's user-defined
-  set_fact:
-    first_rocev2_ip_list: "{{ rocev2_ip_list | first }}"
-  when: rocev2_ip_list is defined
-
-- name: Assert that at least one RoCEv2 IP is present
-  assert:
-    that:
-      - first_rocev2_ip_list is defined
-      - first_rocev2_ip_list | length > 0
-    fail_msg: "No RoCEv2 IPs configured on any Mellanox adapter. Please configure at least one IP to deploy target."
-    success_msg: "RoCEv2 IP(s) detected."
-
-- name: Set first_vlan_ip_list var
-  set_fact:
-    first_vlan_ip_list: "{{ first_vlan_ip_list | default([]) + [hostvars[host].first_rocev2_ip_list] }}"
-  loop: "{{ ansible_play_hosts }}"
-  loop_control:
-    loop_var: host
+    cluster_num_list: "{{ cluster_num_list | default([]) }} +
+      [
+        {% for host in ansible_play_hosts %}
+            '{{ hostvars[host].cluster_num | d(cluster_num) }}'{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ]"
+  when: cluster_num_list is not defined
   run_once: true
 
-- name: Check number of listeners in nvmf.in.conf
-  shell: |
-    grep '^  Listen RDMA' {{ start_dss_host_nvmf_in_conf }} | wc -l
-  changed_when: false
-  register: num_listeners
-
-- name: Set expected_num_subsystems var
-  set_fact:
-    expected_num_subsystems: "{{ num_listeners.stdout }}"
-
-- name: Set combined_expected_num_subsystems var
-  set_fact:
-    combined_expected_num_subsystems: "{{ (combined_expected_num_subsystems | default(0) | int) + hostvars[host].expected_num_subsystems | int }}"
-  loop: "{{ ansible_play_hosts }}"
+- name: Setup hosts by cluster
+  include_tasks: setup_host_clusters.yml
+  loop: "{{ cluster_num_list | unique }}"
   loop_control:
-    loop_var: host
-  run_once: true
-
-- name: Set dss_host_kvpair cache settings if physical host
-  set_fact:
-    dss_host_kvpair: "{{ dss_host_kvpair | default('') }} nkv_use_read_cache=1 nkv_use_data_cache=1"
-  when: ansible_virtualization_role == "host"
-
-- name: Create dss_host_config_host.sh script
-  copy:
-    content: >
-      ./dss_host.py config_host -a
-      {% for ip in first_vlan_ip_list %}{{ ip }}{% if not loop.last %} {% endif %}{% endfor %}
-      -p {{ start_dss_host_port }}
-      -i {{ start_dss_host_qpairs }} -m {{ start_dss_host_mem_align }}
-      {% if dss_host_kvpair is not none %}-x {{ dss_host_kvpair }}{% endif %}
-    mode: 0755
-    dest: "{{ start_dss_host_dir }}/bin/dss_host_config_host.sh"
-  become: true
-
-- name: Configure Driver
-  include_tasks: configure_driver.yml
-  loop: "{{ range(1,4) | list }}"
-  loop_control:
-    loop_var: config_num
-
-- name: Assert all subsystems are mounted
-  assert:
-    that:
-      - all_subsystems_mounted is defined
-      - all_subsystems_mounted == true
-    fail_msg: |
-      Failed to mount all subsystems.
-      Expected number of subsystems: {{ combined_expected_num_subsystems }}
-      Actual number of mounted subsystems: {{ post_subsystems_found }}
-
-- name: Execute dss_host_config_host.sh script
-  command: sh ./dss_host_config_host.sh
-  args:
-    chdir: "{{ start_dss_host_dir }}/bin"
-  when: subsystems_found is not defined
-  become: true
+    loop_var: current_cluster_num
+  when: current_cluster_num | string == cluster_num | string
