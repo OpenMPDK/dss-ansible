@@ -88,9 +88,10 @@
 - name: Assert all TCP IP's are same family
   assert:
     that: combined_family_list | unique | length == 1
-    msg: "tcp_ip_list must contain IPs or hostnames of the same family (IPV6 or IPV4)"
-  run_once: true
-
+    msg: |
+      tcp_ip_list must contain IPs or hostnames of the same family (IPV6 or IPV4) across all hosts in inventory.
+      tcp_adapter_list:
+      {{ tcp_adapter_list | to_nice_json }}
 
 - name: Assert IP addresses found on host
   assert:
