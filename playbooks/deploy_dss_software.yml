@@ -83,11 +83,5 @@
 - name: Start DSS Software
   import_playbook: start_dss_software.yml
 
-- name: Deploy DSS benchmark
-  hosts: clients
-  roles:
-    - deploy_dss_benchmark
-    - configure_mc_alias
-
 - name: Deploy Data Mover
   import_playbook: deploy_datamover.yml
