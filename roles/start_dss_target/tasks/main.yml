@@ -60,10 +60,6 @@
 
 - name: Run dss_target.py script
   include_tasks: dss_target.yml
-  when: >
-    not nvmf_in_conf.stat.exists or
-    not dss_target_out.stat.exists or
-    (spdk_status.stdout is not search('uio_pci_generic')) and (spdk_status.stdout is not search('vfio-pci'))
 
 - name: Find NVMe PCIe addresses in nvmf.in.conf
   command: >
