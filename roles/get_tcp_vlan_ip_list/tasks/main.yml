@@ -36,21 +36,13 @@
   vars:
     vlan_list: "{{ tcp_vlans }}"
   when:
-    - tcp_vlan_ip_list is not defined
     - tcp_ip_list is not defined
 
-- name: Set tcp_vlan_ip_list var
+- name: Set tcp_ip_list var
   set_fact:
-    tcp_vlan_ip_list: "{{ vlan_ip_list }}"
     tcp_ip_list: "{{ vlan_ip_list }}"
   when:
-    - tcp_vlan_ip_list is not defined
     - tcp_ip_list is not defined
-
-- name: Set tcp_vlan_ip_list var if user-defined
-  set_fact:
-    tcp_vlan_ip_list: "{{ tcp_ip_list }}"
-  when: tcp_ip_list is defined
 
 - name: Set TCP aliases
   include_role:
