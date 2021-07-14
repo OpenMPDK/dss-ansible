@@ -30,10 +30,65 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Set combined_endpoints var
+  set_fact:
+    combined_endpoints: "{{ combined_endpoints | d([]) }} +
+    {% for tcp in hostvars[server].tcp_alias_list %}
+      [
+        {{ tcp }}{% if not loop.last %},{% endif %}
+      ]{% if not loop.last %} +{% endif %}
+    {% endfor %}
+    "
+  loop: "{{ groups['servers'] }}"
+  loop_control:
+    loop_var: server
+  run_once: true
+
 - name: Check minio connection
   command: "{{ start_dss_benchmark_minio_dir }}/mc ls {{ minio_mc_alias }}"
   when: inventory_hostname in groups['clients']
   changed_when: false
+
+- name: Get minio url from mc
+  command: "{{ start_dss_benchmark_minio_dir }}/mc config host list {{ minio_mc_alias }} --json"
+  when: inventory_hostname in groups['clients']
+  register: mc_host_config
+  changed_when: false
+
+- name: Set minio_server and minio_host vars
+  set_fact:
+    minio_server: "{{ mc_url | regex_search(mc_re, '\\1') | first }}"
+    minio_host: "{{ mc_url | regex_search(mc_re, '\\2') | first }}"
+  vars:
+    mc_re: '^http://(([^:]+):.+)'
+    mc_url: "{{ (mc_host_config.stdout | from_json).URL | default('') }}"
+  when: inventory_hostname in groups['clients']
+
+- name: Assert IPV4
+  assert:
+    that: endpoint_family == 'IPV4'
+    msg: "DSS AI Benchmark does not currently support IPV6"
+  vars:
+    endpoint_family: "{{ (combined_endpoints | selectattr('alias', 'equalto', minio_host) | first).family }}"
+  when: inventory_hostname in groups['clients']
+
+- name: Set subnets var
+  set_fact:
+    subnets: "{{ subnets | d([]) }} +
+      [
+        {
+          'minioServers': ['{{ hostvars[client_host].minio_server }}'],
+          'minioHosts': ['{{ hostvars[client_host].minio_host }}'],
+          'minioBucket': '{{ benchmark_bucket_prefix }}{{ bucket_number }}',
+          'warpClients': ['{{ hostvars[client_host].tcp_alias_list[0].alias }}']
+        }
+      ]"
+  loop: "{{ groups['clients'] }}"
+  loop_control:
+    loop_var: client_host
+    index_var: bucket_number
+  when: inventory_hostname in groups['clients']
+  run_once: true
 
 - name: Generate cluster.json template to master client
   template:
