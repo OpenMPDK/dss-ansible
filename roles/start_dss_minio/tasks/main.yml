@@ -55,7 +55,7 @@
     cluster_num_list: "{{ cluster_num_list | default([]) }} +
       [
         {% for host in ansible_play_hosts %}
-            '{{ hostvars[host].cluster_num }}'{% if not loop.last %},{% endif %}
+            '{{ hostvars[host].cluster_num | d(cluster_num) }}'{% if not loop.last %},{% endif %}
         {% endfor %}
       ]"
   when: cluster_num_list is not defined
