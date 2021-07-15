@@ -85,10 +85,6 @@
     tcp_ip: "{{ item.stdout }}"
     inventory_name: "{{ item.item }}"
 
-- name: debug tcp_adapter_list
-  debug:
-    var: tcp_adapter_list
-
 - name: Set combined_family_list var
   set_fact:
     combined_family_list: "{{ combined_family_list | d([]) + hostvars[hostname].tcp_adapter_list | map(attribute='family') | list }}"
