@@ -72,6 +72,16 @@
     endpoint_family: "{{ (combined_endpoints | selectattr('alias', 'equalto', minio_host) | first).family }}"
   when: inventory_hostname in groups['clients']
 
+- name: Set benchmark_bucket var
+  set_fact:
+    benchmark_bucket: >-
+      {%- for client_host in groups['clients'] -%}
+      {%- if inventory_hostname == client_host -%}
+      {{ benchmark_bucket_prefix }}{{ loop.index0 }}
+      {%- endif -%}
+      {%- endfor -%}
+  when: inventory_hostname in groups['clients']
+
 - name: Set subnets var
   set_fact:
     subnets: "{{ subnets | d([]) }} +
@@ -79,14 +89,13 @@
         {
           'minioServers': ['{{ hostvars[client_host].minio_server }}'],
           'minioHosts': ['{{ hostvars[client_host].minio_host }}'],
-          'minioBucket': '{{ benchmark_bucket_prefix }}{{ bucket_number }}',
+          'minioBucket': '{{ hostvars[client_host].benchmark_bucket }}',
           'warpClients': ['{{ hostvars[client_host].tcp_alias_list[0].alias }}']
         }
       ]"
   loop: "{{ groups['clients'] }}"
   loop_control:
     loop_var: client_host
-    index_var: bucket_number
   when: inventory_hostname in groups['clients']
   run_once: true
 
@@ -110,31 +119,6 @@
   register: image_json
   become: true
 
-- name: Prepare list of check_bucket commands
-  set_fact:
-    check_bucket_commands: >-
-      [
-      {%- set client_index = { 'value': 0 } -%}
-      {% for server in groups['servers'] -%}
-          {% set server_loop = loop -%}
-          {% for tcp_ip in hostvars[server].tcp_alias_list -%}
-              {% if groups['clients'][client_index.value] is defined %}
-      "{{ start_dss_benchmark_dest_dir }}/scripts/check_bucket.py
-      --server {{ tcp_ip.alias }}:{{ minio_port }}
-      --access-key {{ minio_access_key }}
-      --secret-key {{ minio_secret_key }}
-      --bucket {{ benchmark_bucket_prefix }}{{ client_index.value + 1 }}
-      --objs {{ benchmark_objects }}"
-                  {%- if ((not loop.last) and
-                      (not server_loop.last)) or
-                      (groups['clients'][client_index.value + 1] is defined) -%}
-                  ,
-                  {%- endif -%}
-              {% if client_index.update({ 'value': client_index.value + 1 }) %}{% endif -%}
-              {% endif -%}
-          {% endfor -%}
-      {% endfor %}]
-  run_once: true
 
 - name: Create dss_benchmark_generate.sh script
   copy:
@@ -183,14 +167,18 @@
   become: true
 
 - name: Check if benchmark data needs to be re-generated
-  command: "{{ check_bucket_command }}"
+  command: |
+    {{ start_dss_benchmark_dest_dir }}/scripts/check_bucket.py
+    --server {{ minio_host }}:{{ minio_port }}
+    --access-key {{ minio_access_key }}
+    --secret-key {{ minio_secret_key }}
+    --bucket {{ benchmark_bucket }}
+    --objs {{ benchmark_objects }}
   changed_when: false
   failed_when: false
-  loop: "{{ check_bucket_commands }}"
-  loop_control:
-    loop_var: check_bucket_command
   register: check_bucket_results
-  run_once: true
+  when: inventory_hostname in groups['clients']
+
 
 - name: Prepare and execute benchmark
   block:
@@ -203,10 +191,15 @@
       register: bench_generate
       no_log: true
       vars:
-        check_buckets_rc_list: "{{ check_bucket_results.results | map(attribute='rc') | list | unique | join(',') }}"
+        check_bucket_rc_list: |
+          [
+            {% for client_host in groups['clients'] %}
+              {{ hostvars[client_host].check_bucket_results.rc }}{% if not loop.last %},{% endif %}
+            {% endfor %}
+          ]
       when:
         - inventory_hostname in groups['clients']
-        - check_buckets_rc_list != '0' or
+        - check_bucket_rc_list | sort | last != 0 or
           cluster_json.changed or
           image_json.changed
       become: true
@@ -218,12 +211,30 @@
         - inventory_hostname in groups['servers']
         - dss_target_mode is search('kv_block')
 
+    - name: Get all RoCEv2 IP Addresses
+      include_role:
+        name: get_vlan_ips
+      vars:
+        vlan_list: "{{ rocev2_vlans }}"
+      when:
+        - rocev2_ip_list is not defined
+        - inventory_hostname in groups['servers']
+
+    - name: Set rocev2_ip_list var if IP's auto-discovered
+      set_fact:
+        rocev2_ip_list: "{{ vlan_ip_list }}"
+      when: rocev2_ip_list is not defined
+
     - name: Enable ustat
       lineinfile:
-        path: "{{ start_dss_benchmark_conf_file }}"
-        regexp: '^    "nkv_need_path_stat":'
-        line: '    "nkv_need_path_stat": 1,'
+        path: "{{ start_dss_benchmark_conf_path }}/nkv_config_{{ rocev2_ip }}.json"
+        regexp: '^( +"nkv_need_path_stat":)'
+        line: '\1 1,'
+        backrefs: true
       when: inventory_hostname in groups['servers']
+      loop: "{{ rocev2_ip_list }}"
+      loop_control:
+        loop_var: rocev2_ip
       become: true
 
     - name: Execute benchmark on master client
@@ -282,8 +293,12 @@
   always:
     - name: Disable ustat
       lineinfile:
-        path: "{{ start_dss_benchmark_conf_file }}"
-        regexp: '^    "nkv_need_path_stat":'
-        line: '    "nkv_need_path_stat": 0,'
+        path: "{{ start_dss_benchmark_conf_path }}/nkv_config_{{ rocev2_ip }}.json"
+        regexp: '^( +"nkv_need_path_stat":)'
+        line: '\1 0,'
+        backrefs: true
       when: inventory_hostname in groups['servers']
+      loop: "{{ rocev2_ip_list }}"
+      loop_control:
+        loop_var: rocev2_ip
       become: true
