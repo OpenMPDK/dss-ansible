@@ -44,10 +44,8 @@
     interface_re: '([^.]+)\.(.+)'
     parent_interface: "{{ item | regex_search(interface_re, '\\1') | first }}"
     found_vlan: "{{ item | regex_search(interface_re, '\\2') | first }}"
-    matching_interface_list: "{{ interface_switch_vlan_map | selectattr('local_interface', 'equalto', parent_interface) | list }}"
   when:
     - item is regex(interface_re)
-    - matching_interface_list | length > 0
   notify:
     - Restart network service
     - Reload facts
