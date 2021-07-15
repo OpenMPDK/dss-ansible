@@ -86,7 +86,9 @@
   register: qdisc_del_dev
   loop: "{{ packet_pacing_status.results }}"
   loop_control:
-    label: "{{ item.item }}"
+    label: "{{ matching_device }}"
+  vars:
+    matching_device: "{{ item.item }}"
   when: item.stdout is not search('noqueue')
   failed_when:
     - qdisc_del_dev.rc !=0
