@@ -224,5 +224,4 @@
       {% endfor %}
       {% endif %}
       {% endfor %}
-  when: inventory_hostname in groups['ufm_hosts'] | d([])
   become: true

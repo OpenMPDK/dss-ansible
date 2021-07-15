@@ -35,3 +35,11 @@
   when:
     - groups['ufm_hosts'] is defined
     - groups['ufm_hosts'] | length > 0
+
+- name: start dss agent kv_cli systemd unit
+  systemd:
+    enabled: no
+    state: started
+    name: kv_cli
+  when: "'kv_cli.service' in ansible_facts.services"
+  become: true
