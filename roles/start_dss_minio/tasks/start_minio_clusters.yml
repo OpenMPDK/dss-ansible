@@ -30,58 +30,23 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Validate ansible versions and dependencies
-  hosts: localhost
-  roles:
-    - validate_ansible
+- name: Get Mountpoints
+  include_role:
+    name: get_mountpoints
 
-- name: Configure coredumps
-  hosts:
-    - servers
-    - clients
-  roles:
-    - configure_coredumps
+- name: Generate minio startup scripts
+  include_tasks: generate_scripts.yml
 
-- name: Get TCP VLAN IP List
-  hosts:
-    - servers
-    - clients
-    - ufm_hosts
-  roles:
-    - get_tcp_vlan_ip_list
+- name: Check for running minio instances
+  command: "pgrep -ax minio"
+  register: minio_ps
+  changed_when: false
+  failed_when: false
 
-- name: Deploy UFM ETCD
-  hosts:
-    - servers
-    - ufm_hosts
-  roles:
-    - deploy_ufm_etcd
+- name: Start standalone minio
+  include_tasks: start_minio_standalone.yml
+  when: standalone_minio is defined
 
-- name: Deploy UFM
-  hosts: ufm_hosts
-  roles:
-    - start_ufm_etcd
-    - deploy_ufm
-
-- name: Deploy DSS Target and Host
-  hosts: servers
-  roles:
-    - deploy_gcc
-    - deploy_dss_target
-    - deploy_etcd_gateway
-    - deploy_dss_agent
-    - deploy_dss_host
-    - deploy_dss_diamond
-
-- name: Deploy DSS Minio
-  hosts:
-    - servers
-    - clients
-  roles:
-    - deploy_dss_minio
-
-- name: Start DSS Software
-  import_playbook: start_dss_software.yml
-
-- name: Deploy Data Mover
-  import_playbook: deploy_datamover.yml
+- name: Start distributed minio
+  include_tasks: start_minio_distributed.yml
+  when: standalone_minio is not defined

@@ -30,58 +30,21 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Validate ansible versions and dependencies
-  hosts: localhost
-  roles:
-    - validate_ansible
+- name: Get Mountpoints
+  include_role:
+    name: get_mountpoints
 
-- name: Configure coredumps
-  hosts:
-    - servers
-    - clients
-  roles:
-    - configure_coredumps
-
-- name: Get TCP VLAN IP List
-  hosts:
-    - servers
-    - clients
-    - ufm_hosts
-  roles:
-    - get_tcp_vlan_ip_list
-
-- name: Deploy UFM ETCD
-  hosts:
-    - servers
-    - ufm_hosts
-  roles:
-    - deploy_ufm_etcd
-
-- name: Deploy UFM
-  hosts: ufm_hosts
-  roles:
-    - start_ufm_etcd
-    - deploy_ufm
-
-- name: Deploy DSS Target and Host
-  hosts: servers
-  roles:
-    - deploy_gcc
-    - deploy_dss_target
-    - deploy_etcd_gateway
-    - deploy_dss_agent
-    - deploy_dss_host
-    - deploy_dss_diamond
-
-- name: Deploy DSS Minio
-  hosts:
-    - servers
-    - clients
-  roles:
-    - deploy_dss_minio
-
-- name: Start DSS Software
-  import_playbook: start_dss_software.yml
-
-- name: Deploy Data Mover
-  import_playbook: deploy_datamover.yml
+- name: Append mountpoints to cluster_mountpoints
+  set_fact:
+    cluster_mountpoints: "{{ cluster_mountpoints }} + 
+        [
+            {
+                'cluster_num': '{{ current_cluster_num }}',
+                'vlan_ip_map': {{ vlan_ip_map }},
+                'combined_vlan_ip_map': {{ combined_vlan_ip_map }},
+                'nvme_mountpoints': {{ nvme_mountpoints }},
+                'subsys_range': {{ subsys_range }},
+                'min_subsystem_list': {{ min_subsystem_list }},
+                'standalone_minio': {{ standalone_minio | d(false) }}
+            }
+        ]"

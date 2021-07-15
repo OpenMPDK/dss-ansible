@@ -34,36 +34,16 @@
   set_fact:
     vlan_ip_map: []
     combined_vlan_ip_map: []
+    included_hosts: []
 
-- name: Get all RoCEv2 IP Addresses
-  include_role:
-    name: get_vlan_ips
-  vars:
-    vlan_list: "{{ rocev2_vlans }}"
-  when: rocev2_ip_list is not defined
-
-- name: Set rocev2_ip_list and tcp_ip_list vars if IP's auto-discovered
+- name: Set included_hosts var
   set_fact:
-    rocev2_ip_list: "{{ vlan_ip_list }}"
-  when: rocev2_ip_list is not defined
-
-- name: Get all TCP IP Addresses
-  include_role:
-    name: get_vlan_ips
-  vars:
-    vlan_list: "{{ tcp_vlans }}"
-  when: tcp_ip_list is not defined
-
-- name: Set tcp_ip_list var
-  set_fact:
-    tcp_ip_list: "{{ vlan_ip_list }}"
-  register: set_tcp_ip_list
-  when: tcp_ip_list is not defined
-
-- name: Set TCP aliases
-  include_role:
-    name: configure_tcp_aliases
-  when: tcp_alias_list is not defined
+    included_hosts: "{{ included_hosts | default([]) + [ host ] }}"
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    loop_var: host
+  when: hostvars[host].cluster_num | d(cluster_num) | string == current_cluster_num | string
+  run_once: true
 
 - name: Set TCP - RoCEv2 IP map
   set_fact:
@@ -80,10 +60,10 @@
 - name: Set combined_vlan_ip_map
   set_fact:
     combined_vlan_ip_map: "{{ combined_vlan_ip_map | default([]) }} +
-      [{ 'rocev2': [{% for host in ansible_play_hosts -%}
+      [{ 'rocev2': [{% for host in included_hosts -%}
       '{{ hostvars[host].vlan_ip_map[ansible_loop.index0].rocev2_ip }}'
       {%- if not loop.last %}, {% endif %}{% endfor %}],
-          'tcp': [{% for host in ansible_play_hosts -%}
+          'tcp': [{% for host in included_hosts -%}
       '{{ hostvars[host].vlan_ip_map[ansible_loop.index0].tcp_alias }}'
       {%- if not loop.last %}, {% endif %}{% endfor %}] }]"
   loop: "{{ range(0, vlan_ip_map | length) | list }}"

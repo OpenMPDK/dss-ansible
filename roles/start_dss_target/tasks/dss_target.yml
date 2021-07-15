@@ -73,7 +73,15 @@
       --rdma {{ dss_target_enable_rdma }}
     dest: "{{ start_dss_target_dest_dir }}/bin/dss_target_config.sh"
     mode: 0755
+  register: dss_target_config_script
   become: true
+
+- name: Reset SPDK
+  include_role:
+    name: reset_spdk
+  when:
+    - dss_target_config_script.changed
+    - spdk_status.stdout is search('uio_pci_generic')
 
 - name: Configure target with dss_target_config.sh script
   command: sh ./dss_target_config.sh
@@ -81,6 +89,11 @@
     chdir: "{{ start_dss_target_dest_dir }}/bin"
   register: dss_target_configure
   become: true
+  when: >
+    dss_target_config_script.changed or
+    not nvmf_in_conf.stat.exists or
+    not dss_target_out.stat.exists or
+    (spdk_status.stdout is not search('uio_pci_generic')) and (spdk_status.stdout is not search('vfio-pci'))
 
 - name: Assert dss_target.py success
   assert:
@@ -105,6 +118,8 @@
     dest: "{{ start_dss_target_dest_dir }}/bin/dss_target.out"
     mode: 0644
   become: true
+  when: dss_target_configure.changed
 
 - name: Check hugepages
   include_tasks: check_hugepages.yml
+  when: dss_target_configure.changed

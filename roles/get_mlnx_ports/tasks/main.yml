@@ -48,6 +48,16 @@
     mellanox_devices_numa: []
     mellanox_ports: []
 
+- name: Assert ibdev2netdev results are parseable
+  assert:
+    that: mlx_list.stdout is regex(mlx_regex)
+    msg: |
+      Unable to parse output from ibdev2netdev.
+      OFED is required for auto-discovered IPs.
+      Configure tcp_ip_list / rocev2_ip_list in inventory if not using OFED.
+  vars:
+    mlx_regex: '([^ ]+) (mlx[\d]_[\d])(?:.+ConnectX-(\d))?.+fw ([^ ]+).+ ==> ([^ ]+) \((Up|Down)\)'
+
 - name: Create list of ConnectX device dict
   set_fact:
     mellanox_devices: "{{ mellanox_devices | default([]) +

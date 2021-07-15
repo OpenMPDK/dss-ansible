@@ -35,6 +35,14 @@
   roles:
     - validate_ansible
 
+- name: Get TCP VLAN IP List
+  hosts:
+    - servers
+    - clients
+    - ufm_hosts
+  roles:
+    - get_tcp_vlan_ip_list
+
 - name: Cleanup DSS minio
   hosts: servers
   roles:
