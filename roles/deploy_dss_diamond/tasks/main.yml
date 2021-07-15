@@ -45,6 +45,7 @@
     src: diamond.conf.j2
     dest: /etc/diamond/diamond.conf
     mode: 0644
+    force: false
   become: true
 
 - name: Configure diamond service file
