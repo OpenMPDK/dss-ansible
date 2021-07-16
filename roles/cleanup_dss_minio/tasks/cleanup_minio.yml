@@ -30,5 +30,22 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-cleanup_dss_minio_bin_dir: /usr/dss/nkv-sdk/bin
-cleanup_dss_minio_conf_path: /usr/dss/nkv-sdk/conf
+- name: Get range of mountpoints
+  shell: >-
+    grep -oP "mount_point\"\: \"/dev/nvme\K." nkv_config_{{ rocev2_ip }}.json
+  register: mountpoint_range
+  args:
+    chdir: "{{ cleanup_dss_minio_conf_path }}"
+  changed_when: false
+
+- name: Set min_mountpoint and max_mountpoint vars
+  set_fact:
+    min_mountpoint: "{{ mountpoint_range.stdout_lines[0] }}"
+    max_mountpoint: "{{ mountpoint_range.stdout_lines[-1] }}"
+
+- name: Execute minio_cleanup.sh
+  command: "sh ./minio_cleanup.sh {{ min_mountpoint }} {{ max_mountpoint }} nkv_config_{{ rocev2_ip }}.json"
+  args:
+    chdir: "{{ cleanup_dss_minio_bin_dir }}"
+  become: true
+  run_once: true
