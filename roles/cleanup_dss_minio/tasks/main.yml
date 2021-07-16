@@ -30,35 +30,46 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: List NVMe subsystems
-  command: nvme list-subsys
-  changed_when: false
-  register: nvme_subsys
-  become: true
-  run_once: true
-
-- name: Assert subsystems mounted
-  assert:
-    that: nvme_subsys.stdout_lines | length > 0
-    msg: NVMeOF subsystems not mounted. Please verify DSS software is running (start_dss_software)
-
-- name: Set nvme_subsys_list
-  set_fact:
-    nvme_subsys_list: "{{ nvme_subsys_list | default([]) + [ nvme_num ] }}"
-  loop: "{{ nvme_subsys.stdout_lines }}"
-  loop_control:
-    loop_var: nvme_line
+- name: Get all RoCEv2 IP Addresses
+  include_role:
+    name: get_vlan_ips
   vars:
-    nvme_regex: >-
-      nvme(\d+) rdma traddr=([^ ]+)
-    nvme_num: "{{ nvme_line | regex_search(nvme_regex, '\\1') | first }}"
-  when: nvme_line is search(nvme_regex)
-  run_once: true
+    vlan_list: "{{ rocev2_vlans }}"
+  when: rocev2_ip_list is not defined
 
-- name: Execute minio_cleanup.sh
-  command: "sh ./minio_cleanup.sh {{ nvme_subsys_list | min }} {{ nvme_subsys_list | max }}"
-  args:
-    chdir: "{{ cleanup_dss_minio_bin_dir }}"
-  when: nvme_subsys_list is defined
-  become: true
+- name: Set rocev2_ip_list var if IP's auto-discovered
+  set_fact:
+    rocev2_ip_list: "{{ vlan_ip_list }}"
+  when: rocev2_ip_list is not defined
+
+- name: Set rocev2_alias_map var
+  set_fact:
+    rocev2_alias_map: "{{ rocev2_alias_map | d([]) }} +
+      [
+        {
+          'alias': '{{ item.0.alias }}',
+          'rocev2_ip': '{{ item.1 }}'
+        }
+      ]"
+  with_together:
+    - "{{ tcp_alias_list }}"
+    - "{{ rocev2_ip_list }}"
+  loop_control:
+    label: "{{ item.0.alias }}"
+
+- name: Read local DSS conf
+  command: "cat {{ dss_target_conf_dir }}/client_library_conf.json"
+  register: local_dss_conf
   run_once: true
+  changed_when: false
+
+- name: debug dss conf
+  include_tasks: cleanup_minio.yml
+  loop: "{{ (local_dss_conf.stdout | from_json).clusters }}"
+  loop_control:
+    label: "{{ first_endpoint }}"
+  vars:
+    endpoints: "{{ item.endpoints }}"
+    first_endpoint: "{{ endpoints[0].ipv4 }}"
+    rocev2_ip: "{{ (rocev2_alias_map | selectattr('alias', 'equalto', first_endpoint) | first).rocev2_ip }}"
+  when: first_endpoint in tcp_alias_list | map(attribute='alias') | list
