@@ -61,8 +61,8 @@
   become: true
 
 - name: Start etcd-gateway systemd unit
-  become: yes
   systemd:
-    enabled: yes
+    enabled: true
     name: etcd-gateway
-
+  when: etcd_gateway_service.changed
+  become: true
