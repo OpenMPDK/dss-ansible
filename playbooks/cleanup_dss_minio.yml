@@ -49,3 +49,4 @@
     - stop_dss_minio
     - cleanup_dss_minio
     - start_dss_minio
+    - create_client_library_conf
