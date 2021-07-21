@@ -144,6 +144,15 @@
 # pip3_version: 21.0.1
 
 ### Datamover Settings
+### datamover_operation possible values: ['PUT', 'GET', 'LIST', 'DEL', 'TEST']
+# datamover_operation: PUT
+# datamover_dryrun: false
+# datamover_compaction: true
+# datamover_prefix: ''
+# datamover_debug: false
+# datamover_data_integrity: true
+# datamover_list_path: /var/log/dss
+# datamover_get_path: "{{ ansible_env.HOME }}/datamover"
 # datamover_conf_dir: /etc/dss/datamover
 # datamover_master_workers: 5
 # datamover_master_max_index_size: 500

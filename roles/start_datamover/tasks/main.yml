@@ -34,11 +34,38 @@
   include_role:
     name: create_datamover_conf
 
-- name: Upload NFS data with datamover
-  shell: >
-    source /usr/local/bin/setenv-for-gcc510.sh &&
-    python3 master_application.py PUT --config {{ datamover_conf_dir }}/config.json --compaction
-  args:
-    chdir: "{{ deploy_datamover_dest_dir }}"
-  run_once: true
+- name: Set datamover vars
+  set_fact:
+    dryrun_string: "{% if datamover_dryrun %}--dryrun{% else %}{% endif %}"
+    compaction_string: "{% if datamover_compaction %}--compaction{% else %}{% endif %}"
+    data_integrity_string: "{% if datamover_data_integrity %}--data_integrity{% else %}{% endif %}"
+
+- name: Kill existing datamover processes
+  command: "pkill -f 'python3 {{ deploy_datamover_dest_dir }}/{{ item }}'"
+  register: pkill_datamover
   become: true
+  failed_when: false
+  changed_when: pkill_datamover.rc == 0
+  loop:
+    - master_application.py
+    - client_application.py
+
+- name: Execute datamover - TEST
+  include_tasks: datamover_test.yml
+  when: datamover_operation == "TEST"
+
+- name: Execute datamover - PUT
+  include_tasks: datamover_put.yml
+  when: datamover_operation == "PUT"
+
+- name: Execute datamover - GET
+  include_tasks: datamover_get.yml
+  when: datamover_operation == "GET"
+
+- name: Execute datamover - LIST
+  include_tasks: datamover_list.yml
+  when: datamover_operation == "LIST"
+
+- name: Execute datamover - DELETE
+  include_tasks: datamover_delete.yml
+  when: datamover_operation == "DEL"
