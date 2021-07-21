@@ -30,14 +30,16 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-# datamover_operation possible values: ['PUT', 'GET', 'LIST', 'DEL', 'TEST']
-datamover_operation: PUT
-datamover_dryrun: false
-datamover_compaction: true
-datamover_prefix: ''
-datamover_debug: false
-datamover_data_integrity: true
-datamover_list_path: /var/log/dss
-datamover_get_path: "{{ ansible_env.HOME }}/datamover"
-datamover_conf_dir: /etc/dss/datamover
-deploy_datamover_dest_dir: /usr/dss/nkv-datamover
+- name: Delete data with datamover
+  shell: >
+    source /usr/local/bin/setenv-for-gcc510.sh &&
+    python3 {{ deploy_datamover_dest_dir }}/master_application.py
+    {{ datamover_operation }}
+    --config {{ datamover_conf_dir }}/config.json
+    {{ compaction_string }}
+    {{ dryrun_string }}
+  args:
+    chdir: "{{ deploy_datamover_dest_dir }}"
+  run_once: true
+  register: datamover_list
+  become: true
