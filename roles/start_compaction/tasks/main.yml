@@ -55,7 +55,7 @@
     compaction_status.rc !=0 or
     (compaction_status.stdout is not search('IDLE') and
     compaction_status.stdout is not search('IN PROGRESS'))
-  retries: 800
-  delay: 15
+  retries: "{{ (start_compaction_timeout | int / start_compaction_delay | int) | int }}"
+  delay: "{{ start_compaction_delay }}"
   become: true
   when: dss_target_mode is search('kv_block')
