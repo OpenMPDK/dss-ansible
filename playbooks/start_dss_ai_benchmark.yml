@@ -35,12 +35,16 @@
   roles:
     - validate_ansible
 
-- name: Terminate benchmark sessions
-  hosts: clients
+- name: Get TCP VLAN IP list
+  hosts:
+    - servers
+    - clients
   roles:
-    - terminate_dss_benchmark
+    - get_tcp_vlan_ip_list
 
-- name: Remove Packet Pacing
-  hosts: servers
+- name: Start DSS Benchmark
+  hosts:
+    - clients
+    - servers
   roles:
-    - remove_packet_pacing
+    - start_dss_ai_benchmark

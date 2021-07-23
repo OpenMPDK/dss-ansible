@@ -30,21 +30,25 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Playbook Documentation ###
+#
+# cleanup_dss_ai_benchmark
+# Execute this playbook in the event that "start_dss_ai_benchmark" has failed.
+# This playbook will terminate stuck warp processes.
+# Additionally, kernel packet pacing will be removed from each server.
+#
+
 - name: Validate ansible versions and dependencies
   hosts: localhost
   roles:
     - validate_ansible
 
-- name: Get TCP VLAN IP list
-  hosts:
-    - servers
-    - clients
+- name: Terminate benchmark sessions
+  hosts: clients
   roles:
-    - get_tcp_vlan_ip_list
+    - terminate_dss_ai_benchmark
 
-- name: Start DSS Benchmark
-  hosts:
-    - clients
-    - servers
+- name: Remove Packet Pacing
+  hosts: servers
   roles:
-    - start_dss_benchmark
+    - remove_packet_pacing
