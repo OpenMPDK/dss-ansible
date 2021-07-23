@@ -30,6 +30,14 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Playbook Documentation ###
+#
+# redeploy_dss_software
+# Execute this playbook to redeploy DSS software to all hosts in your inventory.
+# This playbook is effective the same as executing "stop_dss_software", "remove_dss_software", then "deploy_dss_software".
+# Data present across back-end storage will persist after redeploy.
+#
+
 - name: Validate ansible versions and dependencies
   hosts: localhost
   roles:

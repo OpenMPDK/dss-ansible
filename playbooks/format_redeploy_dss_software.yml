@@ -30,6 +30,14 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Playbook Documentation ###
+#
+# format_redeploy_dss_software
+# Execute this playbook to re-deploy DSS software to all hosts in your inventory.
+# This playbook is effectively identical to running "remove_dss_software", then "deploy_dss_software".
+# Additionally, KVSSDs (with KV firmware) will be formated cleanly.
+#
+
 - name: Validate ansible versions and dependencies
   hosts: localhost
   roles:

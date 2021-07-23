@@ -30,6 +30,13 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Playbook Documentation ###
+#
+# stop_dss_software
+# Execute this playbook to stop DSS software to all hosts in your inventory.
+# This playbook is idempotent, and will only stop DSS processes if they are not already stopped.
+#
+
 - name: Validate ansible versions and dependencies
   hosts: localhost
   roles:

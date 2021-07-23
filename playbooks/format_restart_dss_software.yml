@@ -30,6 +30,14 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Playbook Documentation ###
+#
+# format_restart_dss_software
+# Execute this playbook to restart DSS software to all hosts in your inventory.
+# This playbook is effectively identical to running "stop_dss_software", then "start_dss_software".
+# Additionally, KVSSDs (with KV firmware) will be formated cleanly.
+# SSDs (with block firmware) will be re-formated with mkfs_blobfs.
+#
 - name: Validate ansible versions and dependencies
   hosts: localhost
   roles:

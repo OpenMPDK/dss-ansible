@@ -30,6 +30,42 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Playbook Documentation ###
+#
+# configure_vlans
+# NOTE: For internal Samsung / DSS use! Unsupported!
+# Execute this playbook to automatically configure VLANs in Mellanox / Onyx environment.
+#
+# Hosts that are configured with this playbook do not need to have "tcp_ip_list" and "rocev2_ip_list" lists defined in inventory.
+# If these vars are not defined, Ansible will attempt to automatically discover IP / VLAN configuration, as configured by this playbook.
+#
+# Environment MUST have Mellanox Onyx switch configured in inventory.
+# Onyx Switch(es) must be included under the [onyx] group in your inventory file.
+# Switch credentials must be provided using "ansible_user" and "ansible_ssh_pass" vars for each Onyx host or the entire [onyx] group.
+# Key-based authentication is not possible with Onyx.
+#
+# It is critical to review the "rocev2_vlans" and "tcp_vlans" vars under "group_vars/all.yml" to auto-configure VLANs on Onyx.
+# To make changes to the default values, uncomment these vars and make changes to "group_vars/all.yml" or add them to your inventory file.
+# There must be an even number of physical interface ports available, with each pair of ports corresponding to one TCP and one RoCEv2 VLAN/IP.
+# IPV4 last octet / IPV6 last hextet are automatically derived based on the presence of a digit appended to each hostname in your inventory.
+# If a unique number cannot be automatically derived from each hostname in your inventory, a number will automatically be assigned to each host
+# in your inventory, starting with "1".
+# You can specify a static last octet to each host by assigning the variable, "last_octet" for each host in your inventory file.
+# Additionally, you can offset the automatically derived last octet for a host, or a group, by assigning a "last_octet_offset" var for each host or group.
+# For example, given two hosts in your inventory: "server_01" and "client_01"
+# You can assign "last_octet_offset=100" to "client_01", which will result in "client_01" having a derived last octet of "101"
+#
+# VLAN IDs for all Onyx switches, clients, and servers must be assigned in your inventory file using "tcp_vlan_id_list" and "rocev2_vlan_id_list" vars.
+# The VLAN IDs provided in these list must correspond to the VLAN IDs provided in "rocev2_vlans" and "tcp_vlans" lists, as mentioned above.
+# If using multiple Onyx switches, it is thus possible to spread your VLANs across multiple switches.
+# Note that if a host and switch both are tagged with a VLAN ID, it is expected that there is a physical link between this switch and host.
+# If no link is detected, the playbook fail on this assertion.
+#
+# Note that it is possible to assign multiple VLANs to a single physical link using the "num_vlans_per_port" var as a host / group var.
+# For example, a host with "num_vlans_per_port=2" and 2 physical ports will allow the use of 4 VLANs (2 TCP and 2 RoCEv2)
+#
+
+
 - name: Validate ansible versions and dependencies
   hosts: localhost
   roles:

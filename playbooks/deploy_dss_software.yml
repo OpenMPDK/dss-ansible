@@ -30,6 +30,18 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Playbook Documentation ###
+#
+# deploy_dss_software
+# Execute this playbook to deploy DSS software to all hosts in your inventory.
+# This playbook will perform the following:
+# * Deploy, configure, and start target on all [servers]
+# * Deploy, configure, and start nkv-sdpk host driver to all [servers]
+# * Deploy, configure, and start minio instances to all [servers]
+# * Optionally deploy, configure, and start UFM to all [ufm_hosts]
+# * Deploy and configure datamover and client library to all [clients]
+#
+
 - name: Validate ansible versions and dependencies
   hosts: localhost
   roles:

@@ -29,6 +29,13 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
+### Playbook Documentation ###
+#
+# remove_packet_pacing
+# NOTE: For internal Samsung / DSS use! Unsupported!
+# Execute this playbook to remove packet pacing from servers.
+# This can be used to cleanup DSS AI Benchmark.
+#
 
 - name: Validate ansible versions and dependencies
   hosts: localhost

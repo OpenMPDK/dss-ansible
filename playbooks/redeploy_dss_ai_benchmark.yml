@@ -30,13 +30,21 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Playbook Documentation ###
+#
+# redeploy_dss_ai_benchmark
+# NOTE: For internal Samsung / DSS use! Unsupported!
+# Execute this playbook to redeploy the DSS AI Benchmark software.
+# This is effectively the same as executing "remove_dss_ai_benchmark" then "deploy_dss_ai_benchmark" playbooks.
+#
+
 - name: Validate ansible versions and dependencies
   hosts: localhost
   roles:
     - validate_ansible
 
 - name: Remove DSS Benchmark
-  import_playbook: remove_dss_benchmark.yml
+  import_playbook: remove_dss_ai_benchmark.yml
 
 - name: Deploy DSS Benchmark
-  import_playbook: deploy_dss_benchmark.yml
+  import_playbook: deploy_dss_ai_benchmark.yml

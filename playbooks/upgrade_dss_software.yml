@@ -30,6 +30,14 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Playbook Documentation ###
+#
+# upgrade_dss_software
+# Execute this playbook to upgrade DSS software to all hosts in your inventory.
+# This playbook is equivelent to executing "stop_dss_software" then "deploy_dss_software"
+# Note that software will only be upgraded if new binaries are placed under the "artifacts" directory.
+#
+
 - name: Validate ansible versions and dependencies
   hosts: localhost
   roles:

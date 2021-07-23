@@ -30,6 +30,13 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Playbook Documentation ###
+#
+# start_dss_software
+# Execute this playbook to start DSS software to all hosts in your inventory.
+# This playbook is idempotent, and will only start DSS processes if they are not already running.
+#
+
 - name: Validate ansible versions and dependencies
   hosts: localhost
   roles:

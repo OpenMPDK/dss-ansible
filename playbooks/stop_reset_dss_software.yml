@@ -30,6 +30,13 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Playbook Documentation ###
+#
+# stop_reset_dss_software
+# Execute this playbook to stop DSS software to all hosts in your inventory.
+# Additionally, once DSS software is stopped, disks will be returned back to kernel mode (SPDK reset).
+#
+
 - name: Validate ansible versions and dependencies
   hosts: localhost
   roles:
