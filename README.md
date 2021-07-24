@@ -176,7 +176,7 @@ playbooks/configure_inbox_infiniband.yml
     Execute this playbook to deploy the in-box Infiniband Support group.
     This playbook is intended to be used to configure VMs or hosts where OFED is not desired.
     Note that if configuring a host with inbox Infiniband Support, OFED must be removed from the system first.
-    Note that hosts configured with inbox Infiniband Support must be configured in your inventory with 
+    Note that hosts configured with inbox Infiniband Support must be configured in your inventory with
     "tcp_ip_list" and "rocev2_ip_list" lists populated. See README.md for additional details on inventory configuration.
 
 playbooks/configure_vlans.yml
@@ -453,7 +453,7 @@ Below is the command line arguments to use S3-Benchmark displayed using help:
 #### *Example S3-Benchmark*
 
 Here is an example run of the benchmark for 100 threads with the default 1MB object size. The benchmark reports each operation's PUT, GET and DELETE results in terms of data speed and operations per second. The program writes all results to the log file benchmark.log.
-Note: Do not exceed 50% of the total subsystem capacity. 
+Note: Do not exceed 50% of the total subsystem capacity.
 Note: Do not exceed 256 threads in VM Environment.
 
 Note: After writing data in the storage and before reading the data, it is necessary to run compaction command. Compaction allows obtaining the software's accurate and optimal performance.  
