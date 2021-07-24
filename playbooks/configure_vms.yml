@@ -36,7 +36,7 @@
 #   Execute this playbook to configure VMs, or other hosts using the in-box Infiniband Support group.
 #   This playbook is intended to be used to configure VMs or hosts where OFED is not desired.
 #   Note that if configuring a host with inbox Infiniband Support, OFED must be removed from the system first.
-#   Note that hosts configured with inbox Infiniband Support must be configured in your inventory with 
+#   Note that hosts configured with inbox Infiniband Support must be configured in your inventory with
 #     "tcp_ip_list" and "rocev2_ip_list" lists populated. See README.md for additional details on inventory configuration.
 #
 

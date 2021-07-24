@@ -36,7 +36,7 @@
 
 - name: Append mountpoints to cluster_mountpoints
   set_fact:
-    cluster_mountpoints: "{{ cluster_mountpoints }} + 
+    cluster_mountpoints: "{{ cluster_mountpoints }} +
         [
             {
                 'cluster_num': '{{ current_cluster_num }}',
