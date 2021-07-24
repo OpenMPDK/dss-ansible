@@ -32,33 +32,33 @@
 
 ### Playbook Documentation ###
 #
-# start_datamover
-# Execute this playbook to start the datamover accross all [clients].
+# playbooks/start_datamover.yml
+#   Execute this playbook to start the datamover accross all [clients].
 #
-# By default, "start_datamover" will execute a PUT operation, uploading all files from your configured NFS shares to the minio object store.
-# Please review the "Datamover Settings" section of "group_vars/all.yml"
-# It is critical to set the "datamover_nfs_shares" to match your environment.
-# IPV4, IPV6, or resolvable hostnames are accepted for the "ip" key.
+#   By default, "start_datamover" will execute a PUT operation, uploading all files from your configured NFS shares to the minio object store.
+#   Please review the "Datamover Settings" section of "group_vars/all.yml"
+#   It is critical to set the "datamover_nfs_shares" to match your environment.
+#   IPV4, IPV6, or resolvable hostnames are accepted for the "ip" key.
 #
-# Additional operations supported by "start_datamover: PUT, GET, DEL, LIST, TEST
-# * PUT: Upload files from NFS shares to object store
-# * GET: Download files from object store to a shared mountpoint on all [clients]
-# * LIST: List objects on object store. Produces a count of objects on object store, and saves a list of objects to a default location.
-# * DEL: Delete all objects on object store, previously uploaded by datamover.
-# * TEST: Perform a checksum validation test of all objects on object store, compared to files on NFS shares.
+#   Additional operations supported by "start_datamover: PUT, GET, DEL, LIST, TEST
+#   * PUT: Upload files from NFS shares to object store
+#   * GET: Download files from object store to a shared mountpoint on all [clients]
+#   * LIST: List objects on object store. Produces a count of objects on object store, and saves a list of objects to a default location.
+#   * DEL: Delete all objects on object store, previously uploaded by datamover.
+#   * TEST: Perform a checksum validation test of all objects on object store, compared to files on NFS shares.
 #
-# This playbook has a number of user-definable variables that can be set from the command line to run the operation you choose:
-# datamover_operation: PUT
-# datamover_dryrun: false
-# datamover_compaction: true
-# datamover_prefix: ''
-# datamover_get_path: "{{ ansible_env.HOME }}/datamover"
+#   This playbook has a number of user-definable variables that can be set from the command line to run the operation you choose:
+#   datamover_operation: PUT
+#   datamover_dryrun: false
+#   datamover_compaction: true
+#   datamover_prefix: ''
+#   datamover_get_path: "{{ ansible_env.HOME }}/datamover"
 #
-# For example, to execute datamover GET operation to a writable, shared mount point across all [clients]:
-#   ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=GET,datamover_get_path=/path/to/share/'
+#   For example, to execute datamover GET operation to a writable, shared mount point across all [clients]:
+#     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=GET,datamover_get_path=/path/to/share/'
 #
-# For additional documentation, please consult the datamover README.md file, located on all [clients]:
-#   /usr/dss/nkv-datamover/README.md
+#   For additional documentation, please consult the datamover README.md file, located on all [clients]:
+#     /usr/dss/nkv-datamover/README.md
 #
 
 

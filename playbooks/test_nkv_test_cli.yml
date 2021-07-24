@@ -32,9 +32,9 @@
 
 ### Playbook Documentation ###
 #
-# test_nkv_test_cli
-# NOTE: For internal Samsung / DSS use! Unsupported!
-# Perform a basic nkv_test_cli test and report observed bandwidth.
+# playbooks/test_nkv_test_cli.yml
+#   NOTE: For internal Samsung / DSS use! Unsupported!
+#   Perform a basic nkv_test_cli test and report observed bandwidth.
 #
 
 - name: Validate ansible versions and dependencies

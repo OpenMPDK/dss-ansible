@@ -32,10 +32,10 @@
 
 ### Playbook Documentation ###
 #
-# cleanup_dss_ai_benchmark
-# Execute this playbook in the event that "start_dss_ai_benchmark" has failed.
-# This playbook will terminate stuck warp processes.
-# Additionally, kernel packet pacing will be removed from each server.
+# playbooks/cleanup_dss_ai_benchmark.yml
+#   Execute this playbook in the event that "start_dss_ai_benchmark" has failed.
+#   This playbook will terminate stuck warp processes.
+#   Additionally, kernel packet pacing will be removed from each server.
 #
 
 - name: Validate ansible versions and dependencies

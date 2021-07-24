@@ -32,17 +32,17 @@
 
 ### Playbook Documentation ###
 #
-# start_compaction
-# Execute this playbook to start the compaction process across all [servers].
-# Compaction is useful to reclaim space on backing storage devices after WRITE or DELETE operations.
-# Note that this playbook will wait and retry until compaction has completed across all hosts.
-# Compaction may take a very long time with very large datasets.
-# The default timeout is 12,000 seconds (200 hours)
-# The timeout may be changed by setting the "start_compaction_timeout" var.
-# For example, to start compaction with a 400 hour timeout:
-#   ansible-playbook -i <your_inventory> playbooks/start_compaction -e 'start_compaction_timeout=24000'
+# playbooks/start_compaction.yml
+#   Execute this playbook to start the compaction process across all [servers].
+#   Compaction is useful to reclaim space on backing storage devices after WRITE or DELETE operations.
+#   Note that this playbook will wait and retry until compaction has completed across all hosts.
+#   Compaction may take a very long time with very large datasets.
+#   The default timeout is 12,000 seconds (200 hours)
+#   The timeout may be changed by setting the "start_compaction_timeout" var.
+#   For example, to start compaction with a 400 hour timeout:
+#     ansible-playbook -i <your_inventory> playbooks/start_compaction -e 'start_compaction_timeout=24000'
 #
-# Compaction status is checked every 15 seconds by default. This value can be user-defined with the "start_compaction_delay" var.
+#   Compaction status is checked every 15 seconds by default. This value can be user-defined with the "start_compaction_delay" var.
 #
 
 - name: Validate ansible versions and dependencies

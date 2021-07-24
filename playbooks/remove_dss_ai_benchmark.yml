@@ -32,9 +32,9 @@
 
 ### Playbook Documentation ###
 #
-# remove_dss_ai_benchmark
-# NOTE: For internal Samsung / DSS use! Unsupported!
-# Execute this playbook to remove the DSS AI Benchmark software.
+# playbooks/remove_dss_ai_benchmark.yml
+#   NOTE: For internal Samsung / DSS use! Unsupported!
+#   Execute this playbook to remove the DSS AI Benchmark software.
 #
 
 - name: Validate ansible versions and dependencies

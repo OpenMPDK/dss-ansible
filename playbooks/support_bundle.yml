@@ -32,21 +32,21 @@
 
 ### Playbook Documentation ###
 #
-# support_bundle 
-# Execute this playbook to collect a basic support bundle on all hosts.
-# This playbook will search all hosts for core dumps (by default, under /var/crash/).
-# If core-dumps are found, a support bundle will be generated, including the core dump as well as:
-# * target logs
-# * minio logs
-# * dmesg logs
+# playbooks/support_bundle.yml
+#   Execute this playbook to collect a basic support bundle on all hosts.
+#   This playbook will search all hosts for core dumps (by default, under /var/crash/).
+#   A support bundle will be generated, including the core dump as well as:
+#   * target logs
+#   * minio logs
+#   * dmesg logs
 #
-# Support bundle will be downloaded to a local path, defined by "local_coredump_dir" var.
-# For example, to download support bundles from all hosts to your local home directory:
-#   ansible-playbook -i <your_inventory> playbooks/support_bundle.yml -e 'local_coredump_dir=~/tess_support/'
+#   Support bundle will be downloaded to a local path, defined by "local_coredump_dir" var.
+#   For example, to download support bundles from all hosts to your local home directory:
+#     ansible-playbook -i <your_inventory> playbooks/support_bundle.yml -e 'local_coredump_dir=~/tess_support/'
 #
-# By default, a support bundle will always be downloaded. To only generate a support bundle if a coredump is detected,
-# set the "coredump_only" var to 'true'. Example:
-#   ansible-playbook -i <your_inventory> playbooks/support_bundle.yml -e 'local_coredump_dir=~/tess_support/,coredump_only=true'
+#   By default, a support bundle will always be downloaded. To only generate a support bundle if a coredump is detected,
+#   set the "coredump_only" var to 'true'. Example:
+#     ansible-playbook -i <your_inventory> playbooks/support_bundle.yml -e 'local_coredump_dir=~/tess_support/,coredump_only=true'
 #
 
 - name: Validate ansible versions and dependencies

@@ -32,10 +32,10 @@
 
 ### Playbook Documentation ###
 #
-# remove_dss_software
-# Execute this playbook to remove DSS software to all hosts in your inventory.
-# This playbook is effective the same as executing "stop_dss_software" and "remove_dss_software"
-# Data present across back-end storage will persist after removing DSS software.
+# playbooks/remove_dss_software.yml
+#   Execute this playbook to remove DSS software to all hosts in your inventory.
+#   This playbook is effective the same as executing "stop_dss_software" and "remove_dss_software"
+#   Data present across back-end storage will persist after removing DSS software.
 #
 
 - name: Validate ansible versions and dependencies

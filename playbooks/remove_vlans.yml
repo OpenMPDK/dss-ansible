@@ -32,9 +32,9 @@
 
 ### Playbook Documentation ###
 #
-# remove_vlans
-# NOTE: For internal Samsung / DSS use! Unsupported!
-# Execute this playbook to remove VLAN / IP configuration, which was previously configured with "configure_vlans" playbook.
+# playbooks/remove_vlans.yml
+#   NOTE: For internal Samsung / DSS use! Unsupported!
+#   Execute this playbook to remove VLAN / IP configuration, which was previously configured with "configure_vlans" playbook.
 #
 
 - name: Validate ansible versions and dependencies
