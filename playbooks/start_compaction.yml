@@ -41,6 +41,7 @@
 # The default timeout is 12,000 seconds (200 hours)
 # The timeout may be changed by setting the "start_compaction_timeout" var.
 # For example, to start compaction with a 400 hour timeout:
+#
 #     ansible-playbook -i <your_inventory> playbooks/start_compaction -e 'start_compaction_timeout=24000'
 #
 # Compaction status is checked every 15 seconds by default. This value can be user-defined with the "start_compaction_delay" var.

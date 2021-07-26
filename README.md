@@ -68,9 +68,11 @@ Example command:
 #### Copy Public Key for Passwordless SSH Authentication
 
 Copy the SSH public key to each of the hosts using the shh-copy-id command:
+
     ssh-copy-id ansible@testhost01.domain.com
 
 To copy keys to 10 hosts automatically, use `sshpass` in a bash loop, for example:
+
     for i in {01..10}; do sshpass -p "ansible" ssh-copy-id -o StrictHostKeyChecking=no ansible@testhost${i}.domain.com; done
 
 #### Validate Passwordless SSH Authentication
@@ -81,6 +83,7 @@ To validate that the public key was copied successfully, verify that you can SSH
 
 Configure an Ansible inventory file for the cluster.
 Below is an example inventory file defining a cluster of 10 TESS servers, with one also used as a client.
+
     [servers]
     msl-ssg-vm01.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::1']" rocev2_ip_list="['192.168.199.1']"
     msl-ssg-vm02.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::2']" rocev2_ip_list="['192.168.199.2']"
@@ -128,6 +131,7 @@ Your inventory file should contain hosts in the following groups:
 
 All hosts should have an `ansible_user` var defined, unless the user running the Ansible Playbooks on the Ansible Host is also the same username on your TESS hosts.
 If all hosts in your inventory use the same username, you can achieve this by specifying a group var in your inventory:
+
     [all:vars]
     ansible_user=ansible
 
@@ -151,6 +155,7 @@ These IPs must support RoCEv2 protocol. The TESS target will fail to start unles
 All hosts in the [servers] group must have a populated `rocev2_ip_list` list var defined. Please reference the above sample inventory for example.
 All hosts in the [clients] group should have an empty list set for `rocev2_ip_list`, unless they also appear in the [servers] group.
 For stand-alone clients that do not appear in the [servers] group, you can achieve this by specifying a group var in your inventory:
+
     [clients:vars]
     rocev2_ip_list=[]
 
@@ -197,6 +202,7 @@ In the above cluster, with default settings:
 
 To satisfy the EC criteria, each host can export an additional subsystem, provided there are at least 2 NVMe SSDs per host (minimum of one per subsystem).
 To achieve this, you can specify the `num_subsystems` for each host, or as a group var in your inventory:
+
     [servers:vars]
     num_subsystems=2
 
@@ -216,6 +222,7 @@ This variable can be set to one of four values:
   * SSD with block firmware, exports a block NVMeOF subsystem (not supported)
 
 This var can be specified as a group var in your inventory file:
+
     [servers:vars]
     dss_target_mode=kv_block_perf
 
@@ -225,6 +232,7 @@ All hosts in the [servers] group must have a `target_fw_version` var defined.
 This var should contain a string representing the firmware version of the block NVMe SSDs you wish to use for the TESS datastore on each host.
 If more than one model of SSD is used, you may provide a space-separated list.
 This var may be defined as a group var in your inventory:
+
     [servers:vars]
     target_fw_version=EDA53W0Q EPK9AB5Q
 
@@ -238,6 +246,7 @@ To specify a multi-cluster environment, specify a `cluster_num` var for each hos
 Hosts with a matching `cluster_num` string value will be grouped together as a single cluster.
 
 Example [servers] group with 3 logical clusters defined:
+
     [servers]
     msl-ssg-vm01.msl.lab tcp_ip_list="['msl-ssg-vm1-v6.msl.lab']" rocev2_ip_list="['192.168.200.1']" cluster_num=0
     msl-ssg-vm02.msl.lab tcp_ip_list="['msl-ssg-vm2-v6.msl.lab']" rocev2_ip_list="['192.168.200.2']" cluster_num=0
@@ -259,27 +268,33 @@ Note that MinIO EC limitations apply for each logical cluster in your inventory.
 ### Initial Host Configuration
 
 * Configure VMs (or hosts when you wish to not use OFED)
+  
     ansible-playbook -i your_inventory playbooks/configure_vms.yml
 
 * Configure Physical Hosts (OFED)
+  
     ansible-playbook -i your_inventory playbooks/configure_hosts.yml
 
 ### Pre-Deployment Network Test
 
 * Validate Network Settings (cross-ping all TCP and RoCEv2 endpoints, perform ib_read_bw test):
+  
     ansible-playbook -i your_inventory playbooks/test_network.yml
 
 ### Deploy TESS Software Stack
 
 * Deploy TESS: Deploy and start TESS Software Stack:
+  
     ansible-playbook -i your_inventory playbooks/deploy_dss_software.yml
 
 ### Upload NFS Data to MinIO Using Datamover
 
 * Datamover PUT dry-run:
+  
     ansible-playbook -i your_inventory playbooks/start_datamover.yml -e "datamover_dryrun=true"
 
 * Datamover PUT:
+  
     ansible-playbook -i your_inventory playbooks/start_datamover.yml
 
 ### Complete Playbook Documentation
@@ -472,6 +487,7 @@ Compaction may take a very long time with very large datasets.
 The default timeout is 12,000 seconds (200 hours)
 The timeout may be changed by setting the "start_compaction_timeout" var.
 For example, to start compaction with a 400 hour timeout:
+
     ansible-playbook -i <your_inventory> playbooks/start_compaction -e 'start_compaction_timeout=24000'
 
 Compaction status is checked every 15 seconds by default. This value can be user-defined with the "start_compaction_delay" var.
@@ -503,9 +519,11 @@ This playbook has a number of user-definable variables that can be set from the 
 * datamover_get_path: "{{ ansible_env.HOME }}/datamover"
 
 For example, to execute datamover GET operation to a writable, shared mount point across all [clients]:
+
     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=GET,datamover_get_path=/path/to/share/'
 
 For additional documentation, please consult the datamover README.md file, located on all [clients]:
+
 > /usr/dss/nkv-datamover/README.md
 
 #### playbooks/start_dss_ai_benchmark.yml
@@ -597,6 +615,7 @@ For complete documentation please see <https://github.com/wasabi-tech/s3-benchma
 #### s3-benchmark Help
 
 Example s3-benchmark help:
+
     Wasabi benchmark program v2.0
     Usage of myflag:
     -a string
@@ -638,21 +657,25 @@ Note: After writing data in the storage and before reading the data, it is neces
 Compaction reduces the dataset footprint on back-end storage and ensures optimal read (GET) performance.
 
 * Put Data (from a host in [clients] or [servers] group) to a MinIO endpoint:
+  
     [ansible@msl-ssg-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 1
     Wasabi benchmark program v2.0
     Parameters: url=http://192.168.200.1:9000, bucket=testbucket, region=us-east-1, duration=60, threads=100, num_ios=100, op_type=1, loops=1, size=1M
     Loop 1: PUT time 40.0 secs, objects = 10000, speed = 250.2MB/sec, 250.2 operations/sec. Slowdowns = 0
 
 * Run Compaction (from Ansible host)
+  
     ansible-playbook -i your_inventory playbooks/start_compaction.yml
 
 * Get Data
+  
     [ansible@msl-ssg-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 2
     Wasabi benchmark program v2.0
     Parameters: url=http://192.168.200.1:9000, bucket=testbucket, region=us-east-1, duration=60, threads=100, num_ios=100, op_type=2, loops=1, size=1M
     Loop 1: GET time 18.7 secs, objects = 10000, speed = 536MB/sec, 536.0 operations/sec. Slowdowns = 0
 
 * Delete Data
+  
     [ansible@msl-ssg-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 3
     Wasabi benchmark program v2.0
     Parameters: url=http://192.168.200.1:9000, bucket=testbucket, region=us-east-1, duration=60, threads=100, num_ios=100, op_type=3, loops=1, size=1M
@@ -665,14 +688,17 @@ The MinIO Client (mc) is automatically deployed to each host in your cluster at 
 Each host in the [clients] group is configured with an alias to a single MinIO endpoint in your cluster, named `autominio`.
 The default client alias can be user-defined by specifying the `minio_mc_alias` var. See: `/group_vars/all.yml`.
 To view the configuration details, use:
+
     /usr/dss/nkv-minio/mc config host list autominio
 
 Each host in the [servers] group is configured with an alias to each MinIO endpoint hosted on that host.
 These local endpoints are prefixed with `local_`.
 To view the configuration details, use:
+
     /usr/dss/nkv-minio/mc config host list
 
 Example local mc aliases:
+
     local_msl_ssg_vm01_tcp_0
       URL       : http://msl-ssg-vm01-tcp-0:9000
       AccessKey : minio
@@ -688,9 +714,11 @@ Example local mc aliases:
       Lookup    : auto
 
 To see full MinIO Client documentation, use:
+
     /usr/dss/nkv-minio/mc --help
 
 MinIO help example:
+
     COMMANDS:
     ls       list buckets and objects
     mb       make a bucket
