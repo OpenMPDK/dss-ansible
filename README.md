@@ -647,7 +647,7 @@ Example s3-benchmark help:
 
 #### Example s3-benchmark Test
 
-Below is an example s3-benchmark run, using 100 threads, 100 objects per thread, and 1MB object size.
+Below is an example s3-benchmark run using 100 threads, 100 objects per thread, and 1MB object size (100 GB total).
 The benchmark reports throughput and operations per second for each operation (PUT, GET, and DELETE).
 Results are written to `benchmark.log` in the working directory where the s3-benchmark command was invoked.
 
@@ -656,27 +656,44 @@ Note: Do not exceed 256 threads in VM Environment.
 Note: After writing data in the storage and before reading the data, it is necessary to run compaction command.
 Compaction reduces the dataset footprint on back-end storage and ensures optimal read (GET) performance.
 
-* Put Data (from a host in [clients] or [servers] group) to a MinIO endpoint:
+##### Put Data to a MinIO endpoint (from a host in [clients] or [servers] group)
+
+Command:
 
     [ansible@msl-ssg-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 1
+
+Output:
+
     Wasabi benchmark program v2.0
     Parameters: url=http://192.168.200.1:9000, bucket=testbucket, region=us-east-1, duration=60, threads=100, num_ios=100, op_type=1, loops=1, size=1M
     Loop 1: PUT time 40.0 secs, objects = 10000, speed = 250.2MB/sec, 250.2 operations/sec. Slowdowns = 0
 
-* Run Compaction (from Ansible host)
+##### Run Compaction (from Ansible host)
+
+Command:
 
     ansible-playbook -i your_inventory playbooks/start_compaction.yml
 
-* Get Data
+##### Get Data (from a host in [clients] or [servers] group)
+
+Command:
 
     [ansible@msl-ssg-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 2
+
+Output:
+
     Wasabi benchmark program v2.0
     Parameters: url=http://192.168.200.1:9000, bucket=testbucket, region=us-east-1, duration=60, threads=100, num_ios=100, op_type=2, loops=1, size=1M
     Loop 1: GET time 18.7 secs, objects = 10000, speed = 536MB/sec, 536.0 operations/sec. Slowdowns = 0
 
-* Delete Data
+##### Delete Data (from a host in [clients] or [servers] group)
+
+Command:
 
     [ansible@msl-ssg-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 3
+
+Output:
+
     Wasabi benchmark program v2.0
     Parameters: url=http://192.168.200.1:9000, bucket=testbucket, region=us-east-1, duration=60, threads=100, num_ios=100, op_type=3, loops=1, size=1M
     Loop 1: DELETE time 22.5 secs, 445.2 deletes/sec. Slowdowns = 0
