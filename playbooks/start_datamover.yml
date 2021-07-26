@@ -36,7 +36,8 @@
 #
 # Execute this playbook to start the datamover accross all [clients].
 #
-# By default, "start_datamover" will execute a PUT operation, uploading all files from your configured NFS shares to the minio object store.
+# By default, "start_datamover" will execute a PUT operation, uploading all files from your configured NFS shares to the MinIO object store.
+# Also by default, compaction will run once PUT is complete.
 # Please review the "Datamover Settings" section of "group_vars/all.yml"
 # It is critical to set the "datamover_nfs_shares" to match your environment.
 # IPV4, IPV6, or resolvable hostnames are accepted for the "ip" key.

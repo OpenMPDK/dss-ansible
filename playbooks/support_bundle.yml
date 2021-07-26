@@ -39,7 +39,7 @@
 # A support bundle will be generated, including the core dump as well as:
 #
 # * target logs
-# * minio logs
+# * MinIO logs
 # * dmesg logs
 #
 # Support bundle will be downloaded to a local path, defined by "local_coredump_dir" var.

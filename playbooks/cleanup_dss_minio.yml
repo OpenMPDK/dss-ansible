@@ -34,8 +34,8 @@
 #
 # #### playbooks/cleanup_dss_minio.yml
 #
-# Execute this playbook to cleanup minio object store metadata.
-# This playbook will stop minio, and execute cleanup from a single node of each cluster in your inventory.
+# Execute this playbook to cleanup MinIO object store metadata.
+# This playbook will stop MinIO, and execute cleanup from a single node of each cluster in your inventory.
 # This will effectively remove any metadata at the root level of the object store.
 #
 # Note that this will create the appearance of a reformated object store, but space will not be reclaimed.
@@ -54,7 +54,7 @@
   roles:
     - get_tcp_vlan_ip_list
 
-- name: Cleanup DSS minio
+- name: Cleanup DSS MinIO
   hosts: servers
   roles:
     - stop_dss_minio

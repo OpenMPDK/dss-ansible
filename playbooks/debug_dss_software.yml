@@ -37,9 +37,9 @@
 # Execute this playbook to run a series of basic status debug tests .
 # This playbook will perform the following actions:
 #
-# * Get a count of running minio instances on each host
+# * Get a count of running MinIO instances on each host
 # * Get a count of running target instances on each host
-# * Search for errors in all minio logs across all hosts
+# * Search for errors in all MinIO logs across all hosts
 # * Search for errors in all target logs across all hosts
 
 - name: Validate ansible versions and dependencies

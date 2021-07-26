@@ -39,9 +39,14 @@
 #
 # * Deploy, configure, and start target on all [servers]
 # * Deploy, configure, and start nkv-sdpk host driver to all [servers]
-# * Deploy, configure, and start minio instances to all [servers]
+# * Deploy, configure, and start MinIO instances to all [servers]
 # * Optionally deploy, configure, and start UFM to all [ufm_hosts]
 # * Deploy and configure datamover and client library to all [clients]
+#
+# Note that core dumps are enabled on all [servers] hosts.
+# By default, core dumps will be compressed and stored in `/var/crash`.
+# Please ensure your host has enough disk space to store core dumps, if you wish to use for debugging.
+# This path can be changed by setting the `coredump_dir` var. see: /group_vars/all.yml
 
 - name: Validate ansible versions and dependencies
   hosts: localhost
