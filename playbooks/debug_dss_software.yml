@@ -36,6 +36,7 @@
 #
 # Execute this playbook to run a series of basic status debug tests .
 # This playbook will perform the following actions:
+#
 # * Get a count of running minio instances on each host
 # * Get a count of running target instances on each host
 # * Search for errors in all minio logs across all hosts

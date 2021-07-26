@@ -37,6 +37,7 @@
 # Execute this playbook to stop DSS software on all hosts in your inventory.
 # This playbook is idempotent, and will only stop DSS processes if they are not already stopped.
 # The following actions will be performed on all servers:
+#
 # 1. Stop MinIO
 # 2. Unmount NVMeOF targets / remove kernel driver
 # 3. Stop Target

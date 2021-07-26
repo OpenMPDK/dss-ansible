@@ -37,6 +37,7 @@
 # Execute this playbook to collect a basic support bundle on all hosts.
 # This playbook will search all hosts for core dumps (by default, under /var/crash/).
 # A support bundle will be generated, including the core dump as well as:
+#
 # * target logs
 # * minio logs
 # * dmesg logs

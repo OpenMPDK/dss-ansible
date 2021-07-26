@@ -36,6 +36,7 @@
 #
 # Execute this playbook to deploy DSS software to all hosts in your inventory.
 # This playbook will perform the following:
+#
 # * Deploy, configure, and start target on all [servers]
 # * Deploy, configure, and start nkv-sdpk host driver to all [servers]
 # * Deploy, configure, and start minio instances to all [servers]

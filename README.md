@@ -233,6 +233,7 @@ Note that hosts configured with inbox Infiniband Support must be configured in y
 
 Execute this playbook to run a series of basic status debug tests .
 This playbook will perform the following actions:
+
 * Get a count of running minio instances on each host
 * Get a count of running target instances on each host
 * Search for errors in all minio logs across all hosts
@@ -265,6 +266,7 @@ Re-running this playbook will update the datamover configuration across all host
 
 Execute this playbook to deploy DSS software to all hosts in your inventory.
 This playbook will perform the following:
+
 * Deploy, configure, and start target on all [servers]
 * Deploy, configure, and start nkv-sdpk host driver to all [servers]
 * Deploy, configure, and start minio instances to all [servers]
@@ -350,6 +352,7 @@ It is critical to set the "datamover_nfs_shares" to match your environment.
 IPV4, IPV6, or resolvable hostnames are accepted for the "ip" key.
 
 Additional operations supported by "start_datamover: PUT, GET, DEL, LIST, TEST
+
 * PUT: Upload files from NFS shares to object store
 * GET: Download files from object store to a shared mountpoint on all [clients]
 * LIST: List objects on object store. Produces a count of objects on object store, and saves a list of objects to a default location.
@@ -357,6 +360,7 @@ Additional operations supported by "start_datamover: PUT, GET, DEL, LIST, TEST
 * TEST: Perform a checksum validation test of all objects on object store, compared to files on NFS shares.
 
 This playbook has a number of user-definable variables that can be set from the command line to run the operation you choose:
+
 * datamover_operation: PUT
 * datamover_dryrun: false
 * datamover_compaction: true
@@ -388,6 +392,7 @@ This playbook is idempotent, and will only start DSS processes if they are not a
 Execute this playbook to stop DSS software on all hosts in your inventory.
 This playbook is idempotent, and will only stop DSS processes if they are not already stopped.
 The following actions will be performed on all servers:
+
 1. Stop MinIO
 2. Unmount NVMeOF targets / remove kernel driver
 3. Stop Target
@@ -404,6 +409,7 @@ Additionally, once DSS software is stopped, disks will be returned back to kerne
 Execute this playbook to collect a basic support bundle on all hosts.
 This playbook will search all hosts for core dumps (by default, under /var/crash/).
 A support bundle will be generated, including the core dump as well as:
+
 * target logs
 * minio logs
 * dmesg logs

@@ -42,6 +42,7 @@
 # IPV4, IPV6, or resolvable hostnames are accepted for the "ip" key.
 #
 # Additional operations supported by "start_datamover: PUT, GET, DEL, LIST, TEST
+#
 # * PUT: Upload files from NFS shares to object store
 # * GET: Download files from object store to a shared mountpoint on all [clients]
 # * LIST: List objects on object store. Produces a count of objects on object store, and saves a list of objects to a default location.
@@ -49,6 +50,7 @@
 # * TEST: Perform a checksum validation test of all objects on object store, compared to files on NFS shares.
 #
 # This playbook has a number of user-definable variables that can be set from the command line to run the operation you choose:
+#
 # * datamover_operation: PUT
 # * datamover_dryrun: false
 # * datamover_compaction: true
