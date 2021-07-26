@@ -267,33 +267,33 @@ Note that MinIO EC limitations apply for each logical cluster in your inventory.
 
 ### Initial Host Configuration
 
-* Configure VMs (or hosts when you wish to not use OFED)
+Configure VMs (or hosts when you wish to not use OFED):
   
     ansible-playbook -i your_inventory playbooks/configure_vms.yml
 
-* Configure Physical Hosts (OFED)
+Configure Physical Hosts (using OFED):
   
     ansible-playbook -i your_inventory playbooks/configure_hosts.yml
 
 ### Pre-Deployment Network Test
 
-* Validate Network Settings (cross-ping all TCP and RoCEv2 endpoints, perform ib_read_bw test):
+Validate Network Settings (cross-ping all TCP and RoCEv2 endpoints, perform ib_read_bw test):
   
     ansible-playbook -i your_inventory playbooks/test_network.yml
 
 ### Deploy TESS Software Stack
 
-* Deploy TESS: Deploy and start TESS Software Stack:
+Deploy TESS: Deploy and start TESS Software Stack:
   
     ansible-playbook -i your_inventory playbooks/deploy_dss_software.yml
 
 ### Upload NFS Data to MinIO Using Datamover
 
-* Datamover PUT dry-run:
+Datamover PUT dry-run:
   
     ansible-playbook -i your_inventory playbooks/start_datamover.yml -e "datamover_dryrun=true"
 
-* Datamover PUT:
+Datamover PUT:
   
     ansible-playbook -i your_inventory playbooks/start_datamover.yml
 
