@@ -155,245 +155,294 @@ Below is an example inventory file defining a cluster of 10 TESS servers, with o
 
 ### Complete Playbook documentation
 
-playbooks/cleanup_dss_ai_benchmark.yml
-    Execute this playbook in the event that "start_dss_ai_benchmark" has failed.
-    This playbook will terminate stuck warp processes.
-    Additionally, kernel packet pacing will be removed from each server.
+#### playbooks/cleanup_dss_ai_benchmark.yml
 
-playbooks/cleanup_dss_minio.yml
-    Execute this playbook to cleanup minio object store metadata.
-    This playbook will stop minio, and execute cleanup from a single node of each cluster in your inventory.
-    This will effectively remove any metadata at the root level of the object store.
-    Note that this will create the appearance of a reformated object store, but space will not be reclaimed.
-    Note that if a bucket is re-created after executing cleanup, its child objects will become accessible again.
+NOTE: For internal Samsung / DSS use! Unsupported!
 
-playbooks/configure_hosts.yml
-    Execute this playbook to configure hosts prior to deploying DSS / TESS software.
-    This playbook will deploy custom kernel, install YUM / python dependencies, and configure OFED.
-    Note that presently, only versions of CentOS between 7.4 and 7.8 are supported
+Execute this playbook in the event that "start_dss_ai_benchmark" has failed.
+This playbook will terminate stuck warp processes.
+Additionally, kernel packet pacing will be removed from each server.
 
-playbooks/configure_inbox_infiniband.yml
-    Execute this playbook to deploy the in-box Infiniband Support group.
-    This playbook is intended to be used to configure VMs or hosts where OFED is not desired.
-    Note that if configuring a host with inbox Infiniband Support, OFED must be removed from the system first.
-    Note that hosts configured with inbox Infiniband Support must be configured in your inventory with
-    "tcp_ip_list" and "rocev2_ip_list" lists populated. See README.md for additional details on inventory configuration.
+#### playbooks/cleanup_dss_minio.yml
 
-playbooks/configure_vlans.yml
-    NOTE: For internal Samsung / DSS use! Unsupported!
-    Execute this playbook to automatically configure VLANs in Mellanox / Onyx environment.
+Execute this playbook to cleanup minio object store metadata.
+This playbook will stop minio, and execute cleanup from a single node of each cluster in your inventory.
+This will effectively remove any metadata at the root level of the object store.
 
-    Hosts that are configured with this playbook do not need to have "tcp_ip_list" and "rocev2_ip_list" lists defined in inventory.
-    If these vars are not defined, Ansible will attempt to automatically discover IP / VLAN configuration, as configured by this playbook.
+Note that this will create the appearance of a reformated object store, but space will not be reclaimed.
+Note that if a bucket is re-created after executing cleanup, its child objects will become accessible again.
 
-    Environment MUST have Mellanox Onyx switch configured in inventory.
-    Onyx Switch(es) must be included under the [onyx] group in your inventory file.
-    Switch credentials must be provided using "ansible_user" and "ansible_ssh_pass" vars for each Onyx host or the entire [onyx] group.
-    Key-based authentication is not possible with Onyx.
+#### playbooks/configure_hosts.yml
 
-    It is critical to review the "rocev2_vlans" and "tcp_vlans" vars under "group_vars/all.yml" to auto-configure VLANs on Onyx.
-    To make changes to the default values, uncomment these vars and make changes to "group_vars/all.yml" or add them to your inventory file.
-    There must be an even number of physical interface ports available, with each pair of ports corresponding to one TCP and one RoCEv2 VLAN/IP.
-    IPV4 last octet / IPV6 last hextet are automatically derived based on the presence of a digit appended to each hostname in your inventory.
-    If a unique number cannot be automatically derived from each hostname in your inventory, a number will automatically be assigned to each host
-        in your inventory, starting with "1".
-    You can specify a static last octet to each host by assigning the variable, "last_octet" for each host in your inventory file.
-    Additionally, you can offset the automatically derived last octet for a host, or a group, by assigning a "last_octet_offset" var for each host or group.
-    For example, given two hosts in your inventory: "server_01" and "client_01"
-    You can assign "last_octet_offset=100" to "client_01", which will result in "client_01" having a derived last octet of "101"
+Execute this playbook to configure hosts prior to deploying DSS / TESS software.
+This playbook will deploy custom kernel, install YUM / python dependencies, and configure OFED.
+Note that presently, only versions of CentOS between 7.4 and 7.8 are supported
 
-    VLAN IDs for all Onyx switches, clients, and servers must be assigned in your inventory file using "tcp_vlan_id_list" and "rocev2_vlan_id_list" vars.
-    The VLAN IDs provided in these list must correspond to the VLAN IDs provided in "rocev2_vlans" and "tcp_vlans" lists, as mentioned above.
-    If using multiple Onyx switches, it is thus possible to spread your VLANs across multiple switches.
-    Note that if a host and switch both are tagged with a VLAN ID, it is expected that there is a physical link between this switch and host.
-    If no link is detected, the playbook fail on this assertion.
+#### playbooks/configure_inbox_infiniband.yml
 
-    Note that it is possible to assign multiple VLANs to a single physical link using the "num_vlans_per_port" var as a host / group var.
-    For example, a host with "num_vlans_per_port=2" and 2 physical ports will allow the use of 4 VLANs (2 TCP and 2 RoCEv2)
+Execute this playbook to deploy the in-box Infiniband Support group.
+This playbook is intended to be used to configure VMs or hosts where OFED is not desired.
+Note that if configuring a host with inbox Infiniband Support, OFED must be removed from the system first.
+Note that hosts configured with inbox Infiniband Support must be configured in your inventory with
+"tcp_ip_list" and "rocev2_ip_list" lists populated. See README.md for additional details on inventory configuration.
 
-playbooks/configure_vms.yml
-    Execute this playbook to configure VMs, or other hosts using the in-box Infiniband Support group.
-    This playbook is intended to be used to configure VMs or hosts where OFED is not desired.
-    Note that if configuring a host with inbox Infiniband Support, OFED must be removed from the system first.
-    Note that hosts configured with inbox Infiniband Support must be configured in your inventory with
-        "tcp_ip_list" and "rocev2_ip_list" lists populated. See README.md for additional details on inventory configuration.
+#### playbooks/configure_vlans.yml
 
-playbooks/debug_dss_software.yml
-    Execute this playbook to run a series of basic status debug tests .
-    This playbook will perform the following actions:
+NOTE: For internal Samsung / DSS use! Unsupported!
 
-      * Get a count of running minio instances on each host
-      * Get a count of running target instances on each host
-      * Search for errors in all minio logs across all hosts
-      * Search for errors in all target logs across all hosts
+Execute this playbook to automatically configure VLANs in Mellanox / Onyx environment.
 
-playbooks/deploy_datamover.yml
-    Execute this playbook to deploy the datamover, client library, and their dependencies.
-    Artifacts are deployed to hosts under the [clients] group.
-    Note that it is possible for hosts to appear under both the [clients] and [servers] groups.
-    Hosts under the [clients] group will be used for datamover distributed operations.
-    This playbook will also create configuration files for client library and datamover, based on hosts that appear in your inventory.
-    Please review "Datamover Settings" under "group_vars/all.yml" if you wish to adjust the default settings of the datamover.
-    Uncomment vars with new values, or add them to your inventory file.
+Hosts that are configured with this playbook do not need to have "tcp_ip_list" and "rocev2_ip_list" lists defined in inventory.
+If these vars are not defined, Ansible will attempt to automatically discover IP / VLAN configuration, as configured by this playbook.
 
-    Re-running this playbook will update the datamover configuration across all hosts in your inventory.
+Environment MUST have Mellanox Onyx switch configured in inventory.
+Onyx Switch(es) must be included under the [onyx] group in your inventory file.
+Switch credentials must be provided using "ansible_user" and "ansible_ssh_pass" vars for each Onyx host or the entire [onyx] group.
+Key-based authentication is not possible with Onyx.
 
-playbooks/deploy_dss_ai_benchmark.yml
-    NOTE: For internal Samsung / DSS use! Unsupported!
-    Execute this playbook to deploy the DSS AI Benchmark software.
-    This playbook will also create configuration files for client library and datamover, based on hosts that appear in your inventory.
-    Please review "Datamover Settings" under "group_vars/all.yml" if you wish to adjust the default settings of the datamover.
-    Uncomment vars with new values, or add them to your inventory file.
+It is critical to review the "rocev2_vlans" and "tcp_vlans" vars under "group_vars/all.yml" to auto-configure VLANs on Onyx.
+To make changes to the default values, uncomment these vars and make changes to "group_vars/all.yml" or add them to your inventory file.
+There must be an even number of physical interface ports available, with each pair of ports corresponding to one TCP and one RoCEv2 VLAN/IP.
+IPV4 last octet / IPV6 last hextet are automatically derived based on the presence of a digit appended to each hostname in your inventory.
+If a unique number cannot be automatically derived from each hostname in your inventory, a number will automatically be assigned to each host
+in your inventory, starting with "1".
+You can specify a static last octet to each host by assigning the variable, "last_octet" for each host in your inventory file.
+Additionally, you can offset the automatically derived last octet for a host, or a group, by assigning a "last_octet_offset" var for each host or group.
+For example, given two hosts in your inventory: "server_01" and "client_01"
+You can assign "last_octet_offset=100" to "client_01", which will result in "client_01" having a derived last octet of "101"
 
-    Re-running this playbook will update the datamover configuration across all hosts in your inventory.
+VLAN IDs for all Onyx switches, clients, and servers must be assigned in your inventory file using "tcp_vlan_id_list" and "rocev2_vlan_id_list" vars.
+The VLAN IDs provided in these list must correspond to the VLAN IDs provided in "rocev2_vlans" and "tcp_vlans" lists, as mentioned above.
+If using multiple Onyx switches, it is thus possible to spread your VLANs across multiple switches.
+Note that if a host and switch both are tagged with a VLAN ID, it is expected that there is a physical link between this switch and host.
+If no link is detected, the playbook fail on this assertion.
 
-playbooks/deploy_dss_software.yml
-    Execute this playbook to deploy DSS software to all hosts in your inventory.
-    This playbook will perform the following:
+Note that it is possible to assign multiple VLANs to a single physical link using the "num_vlans_per_port" var as a host / group var.
+For example, a host with "num_vlans_per_port=2" and 2 physical ports will allow the use of 4 VLANs (2 TCP and 2 RoCEv2)
 
-    * Deploy, configure, and start target on all [servers]
-    * Deploy, configure, and start nkv-sdpk host driver to all [servers]
-    * Deploy, configure, and start minio instances to all [servers]
-    * Optionally deploy, configure, and start UFM to all [ufm_hosts]
-    * Deploy and configure datamover and client library to all [clients]
+#### playbooks/configure_vms.yml
 
-playbooks/format_redeploy_dss_software.yml
-    Execute this playbook to re-deploy DSS software to all hosts in your inventory.
-    This playbook is effectively identical to running "remove_dss_software", then "deploy_dss_software".
-    Additionally, KVSSDs (with KV firmware) will be formated cleanly.
+Execute this playbook to configure VMs, or other hosts using the in-box Infiniband Support group.
+This playbook is intended to be used to configure VMs or hosts where OFED is not desired.
 
-playbooks/format_restart_dss_software.yml
-    Execute this playbook to restart DSS software to all hosts in your inventory.
-    This playbook is effectively identical to running "stop_dss_software", then "start_dss_software".
-    Additionally, KVSSDs (with KV firmware) will be formated cleanly.
-    SSDs (with block firmware) will be re-formated with mkfs_blobfs.
+Note that if configuring a host with inbox Infiniband Support, OFED must be removed from the system first.
+Note that hosts configured with inbox Infiniband Support must be configured in your inventory with
+"tcp_ip_list" and "rocev2_ip_list" lists populated. See README.md for additional details on inventory configuration.
 
-playbooks/redeploy_dss_ai_benchmark.yml
-    NOTE: For internal Samsung / DSS use! Unsupported!
-    Execute this playbook to redeploy the DSS AI Benchmark software.
-    This is effectively the same as executing "remove_dss_ai_benchmark" then "deploy_dss_ai_benchmark" playbooks.
+#### playbooks/debug_dss_software.yml
 
-playbooks/redeploy_dss_software.yml
-    Execute this playbook to redeploy DSS software to all hosts in your inventory.
-    This playbook is effective the same as executing "stop_dss_software", "remove_dss_software", then "deploy_dss_software".
-    Data present across back-end storage will persist after redeploy.
+Execute this playbook to run a series of basic status debug tests .
+This playbook will perform the following actions:
+* Get a count of running minio instances on each host
+* Get a count of running target instances on each host
+* Search for errors in all minio logs across all hosts
+* Search for errors in all target logs across all hosts
 
-playbooks/remove_dss_ai_benchmark.yml
-    NOTE: For internal Samsung / DSS use! Unsupported!
-    Execute this playbook to remove the DSS AI Benchmark software.
+#### playbooks/deploy_datamover.yml
 
-playbooks/remove_dss_software.yml
-    Execute this playbook to remove DSS software to all hosts in your inventory.
-    This playbook is effective the same as executing "stop_dss_software" and "remove_dss_software"
-    Data present across back-end storage will persist after removing DSS software.
+Execute this playbook to deploy the datamover, client library, and their dependencies.
+Artifacts are deployed to hosts under the [clients] group.
+Note that it is possible for hosts to appear under both the [clients] and [servers] groups.
+Hosts under the [clients] group will be used for datamover distributed operations.
+This playbook will also create configuration files for client library and datamover, based on hosts that appear in your inventory.
+Please review "Datamover Settings" under "group_vars/all.yml" if you wish to adjust the default settings of the datamover.
+Uncomment vars with new values, or add them to your inventory file.
 
-playbooks/remove_packet_pacing.yml
-    NOTE: For internal Samsung / DSS use! Unsupported!
-    Execute this playbook to remove packet pacing from servers.
-    This can be used to cleanup DSS AI Benchmark.
+Re-running this playbook will update the datamover configuration across all hosts in your inventory.
 
-playbooks/remove_vlans.yml
-    NOTE: For internal Samsung / DSS use! Unsupported!
-    Execute this playbook to remove VLAN / IP configuration, which was previously configured with "configure_vlans" playbook.
+#### playbooks/deploy_dss_ai_benchmark.yml
 
-playbooks/restart_dss_software.yml
-    Execute this playbook to restart DSS software to all hosts in your inventory.
-    This playbook is effective the same as executing "stop_dss_software" then "start_dss_software".
+NOTE: For internal Samsung / DSS use! Unsupported!
 
-playbooks/start_compaction.yml
-    Execute this playbook to start the compaction process across all [servers].
-    Compaction is useful to reclaim space on backing storage devices after WRITE or DELETE operations.
-    Note that this playbook will wait and retry until compaction has completed across all hosts.
-    Compaction may take a very long time with very large datasets.
-    The default timeout is 12,000 seconds (200 hours)
-    The timeout may be changed by setting the "start_compaction_timeout" var.
-    For example, to start compaction with a 400 hour timeout:
-        ansible-playbook -i <your_inventory> playbooks/start_compaction -e 'start_compaction_timeout=24000'
+Execute this playbook to deploy the DSS AI Benchmark software.
+This playbook will also create configuration files for client library and datamover, based on hosts that appear in your inventory.
+Please review "Datamover Settings" under "group_vars/all.yml" if you wish to adjust the default settings of the datamover.
+Uncomment vars with new values, or add them to your inventory file.
 
-    Compaction status is checked every 15 seconds by default. This value can be user-defined with the "start_compaction_delay" var.
+Re-running this playbook will update the datamover configuration across all hosts in your inventory.
 
-playbooks/start_datamover.yml
-    Execute this playbook to start the datamover accross all [clients].
+#### playbooks/deploy_dss_software.yml
 
-    By default, "start_datamover" will execute a PUT operation, uploading all files from your configured NFS shares to the minio object store.
-    Please review the "Datamover Settings" section of "group_vars/all.yml"
-    It is critical to set the "datamover_nfs_shares" to match your environment.
-    IPV4, IPV6, or resolvable hostnames are accepted for the "ip" key.
+Execute this playbook to deploy DSS software to all hosts in your inventory.
+This playbook will perform the following:
+* Deploy, configure, and start target on all [servers]
+* Deploy, configure, and start nkv-sdpk host driver to all [servers]
+* Deploy, configure, and start minio instances to all [servers]
+* Optionally deploy, configure, and start UFM to all [ufm_hosts]
+* Deploy and configure datamover and client library to all [clients]
 
-    Additional operations supported by "start_datamover: PUT, GET, DEL, LIST, TEST
-    * PUT: Upload files from NFS shares to object store
-    * GET: Download files from object store to a shared mountpoint on all [clients]
-    * LIST: List objects on object store. Produces a count of objects on object store, and saves a list of objects to a default location.
-    * DEL: Delete all objects on object store, previously uploaded by datamover.
-    * TEST: Perform a checksum validation test of all objects on object store, compared to files on NFS shares.
+#### playbooks/format_redeploy_dss_software.yml
 
-    This playbook has a number of user-definable variables that can be set from the command line to run the operation you choose:
-    datamover_operation: PUT
-    datamover_dryrun: false
-    datamover_compaction: true
-    datamover_prefix: ''
-    datamover_get_path: "{{ ansible_env.HOME }}/datamover"
+Execute this playbook to re-deploy DSS software to all hosts in your inventory.
+This playbook is effectively identical to running "remove_dss_software", then "deploy_dss_software".
+Additionally, KVSSDs (with KV firmware) will be formated cleanly.
 
-    For example, to execute datamover GET operation to a writable, shared mount point across all [clients]:
-        ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=GET,datamover_get_path=/path/to/share/'
+#### playbooks/format_restart_dss_software.yml
 
-    For additional documentation, please consult the datamover README.md file, located on all [clients]:
-        /usr/dss/nkv-datamover/README.md
+Execute this playbook to restart DSS software to all hosts in your inventory.
+This playbook is effectively identical to running "stop_dss_software", then "start_dss_software".
+Additionally, KVSSDs (with KV firmware) will be formated cleanly.
+SSDs (with block firmware) will be re-formated with mkfs_blobfs.
 
-playbooks/start_dss_ai_benchmark.yml
-    NOTE: For internal Samsung / DSS use! Unsupported!
-    Execute this playbook to destartploy the DSS AI Benchmark software.
-    This playbook will also create configuration files for client library and datamover, based on hosts that appear in your inventory.
-    Please review "Datamover Settings" under "group_vars/all.yml" if you wish to adjust the default settings of the datamover.
-    Uncomment vars with new values, or add them to your inventory file.
+#### playbooks/redeploy_dss_ai_benchmark.yml
 
-playbooks/start_dss_software.yml
-    Execute this playbook to start DSS software to all hosts in your inventory.
-    This playbook is idempotent, and will only start DSS processes if they are not already running.
+NOTE: For internal Samsung / DSS use! Unsupported!
 
-playbooks/stop_dss_software.yml
-    Execute this playbook to stop DSS software to all hosts in your inventory.
-    This playbook is idempotent, and will only stop DSS processes if they are not already stopped.
+Execute this playbook to redeploy the DSS AI Benchmark software.
+This is effectively the same as executing "remove_dss_ai_benchmark" then "deploy_dss_ai_benchmark" playbooks.
 
-playbooks/stop_reset_dss_software.yml
-    Execute this playbook to stop DSS software to all hosts in your inventory.
-    Additionally, once DSS software is stopped, disks will be returned back to kernel mode (SPDK reset).
+#### playbooks/redeploy_dss_software.yml
 
-playbooks/support_bundle.yml
-    Execute this playbook to collect a basic support bundle on all hosts.
-    This playbook will search all hosts for core dumps (by default, under /var/crash/).
-    A support bundle will be generated, including the core dump as well as:
-    * target logs
-    * minio logs
-    * dmesg logs
+Execute this playbook to redeploy DSS software to all hosts in your inventory.
+This playbook is effective the same as executing "stop_dss_software", "remove_dss_software", then "deploy_dss_software".
+Data present across back-end storage will persist after redeploy.
 
-    Support bundle will be downloaded to a local path, defined by "local_coredump_dir" var.
-    For example, to download support bundles from all hosts to your local home directory:
-        ansible-playbook -i <your_inventory> playbooks/support_bundle.yml -e 'local_coredump_dir=~/tess_support/'
+#### playbooks/remove_dss_ai_benchmark.yml
 
-    By default, a support bundle will always be downloaded. To only generate a support bundle if a coredump is detected,
-    set the "coredump_only" var to 'true'. Example:
-        ansible-playbook -i <your_inventory> playbooks/support_bundle.yml -e 'local_coredump_dir=~/tess_support/,coredump_only=true'
+NOTE: For internal Samsung / DSS use! Unsupported!
 
-playbooks/test_network.yml
-    Execute this playbook to perform a basic set of network tests across all hosts.
-    All hosts will ping each other across TCP IP's, and RoCEv2 IPs.
-    An ib_read_bw test will then run, and assert that measured throughput is at least 90% of link speed.
+Execute this playbook to remove the DSS AI Benchmark software.
 
-playbooks/test_nkv_test_cli.yml
-    NOTE: For internal Samsung / DSS use! Unsupported!
-    Perform a basic nkv_test_cli test and report observed bandwidth.
+#### playbooks/remove_dss_software.yml
 
-playbooks/upgrade_dss_software.yml
-    Execute this playbook to upgrade DSS software to all hosts in your inventory.
-    This playbook is equivelent to executing "stop_dss_software" then "deploy_dss_software"
-    Note that software will only be upgraded if new binaries are placed under the "artifacts" directory.
+Execute this playbook to remove DSS software to all hosts in your inventory.
+This playbook is effective the same as executing "stop_dss_software" and "remove_dss_software"
+Data present across back-end storage will persist after removing DSS software.
 
-playbooks/upgrade_kvssd_firmware.yml
-    NOTE: For internal Samsung / DSS use! Unsupported!
-    This playbook can be used to upgrade the firmware of PM983 SSDs. All other models not supported.
-    In order to upgrade firmware, a valid firmware binary must be copied to the "artifacts" directory.
-    Then the "target_fw_version" must be commented out in all vars / defaults files.
+#### playbooks/remove_packet_pacing.yml
+
+NOTE: For internal Samsung / DSS use! Unsupported!
+
+Execute this playbook to remove packet pacing from servers.
+This can be used to cleanup DSS AI Benchmark.
+
+#### playbooks/remove_vlans.yml
+
+NOTE: For internal Samsung / DSS use! Unsupported!
+
+Execute this playbook to remove VLAN / IP configuration, which was previously configured with "configure_vlans" playbook.
+
+#### playbooks/restart_dss_software.yml
+
+Execute this playbook to restart DSS software to all hosts in your inventory.
+This playbook is effective the same as executing "stop_dss_software" then "start_dss_software".
+
+#### playbooks/start_compaction.yml
+
+Execute this playbook to start the compaction process across all [servers].
+Compaction is useful to reclaim space on backing storage devices after WRITE or DELETE operations.
+Note that this playbook will wait and retry until compaction has completed across all hosts.
+Compaction may take a very long time with very large datasets.
+The default timeout is 12,000 seconds (200 hours)
+The timeout may be changed by setting the "start_compaction_timeout" var.
+For example, to start compaction with a 400 hour timeout:
+    ansible-playbook -i <your_inventory> playbooks/start_compaction -e 'start_compaction_timeout=24000'
+
+Compaction status is checked every 15 seconds by default. This value can be user-defined with the "start_compaction_delay" var.
+
+#### playbooks/start_datamover.yml
+
+Execute this playbook to start the datamover accross all [clients].
+
+By default, "start_datamover" will execute a PUT operation, uploading all files from your configured NFS shares to the minio object store.
+Please review the "Datamover Settings" section of "group_vars/all.yml"
+It is critical to set the "datamover_nfs_shares" to match your environment.
+IPV4, IPV6, or resolvable hostnames are accepted for the "ip" key.
+
+Additional operations supported by "start_datamover: PUT, GET, DEL, LIST, TEST
+* PUT: Upload files from NFS shares to object store
+* GET: Download files from object store to a shared mountpoint on all [clients]
+* LIST: List objects on object store. Produces a count of objects on object store, and saves a list of objects to a default location.
+* DEL: Delete all objects on object store, previously uploaded by datamover.
+* TEST: Perform a checksum validation test of all objects on object store, compared to files on NFS shares.
+
+This playbook has a number of user-definable variables that can be set from the command line to run the operation you choose:
+* datamover_operation: PUT
+* datamover_dryrun: false
+* datamover_compaction: true
+* datamover_prefix: ''
+* datamover_get_path: "{{ ansible_env.HOME }}/datamover"
+
+For example, to execute datamover GET operation to a writable, shared mount point across all [clients]:
+    ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=GET,datamover_get_path=/path/to/share/'
+
+For additional documentation, please consult the datamover README.md file, located on all [clients]:
+> /usr/dss/nkv-datamover/README.md
+
+#### playbooks/start_dss_ai_benchmark.yml
+
+NOTE: For internal Samsung / DSS use! Unsupported!
+
+Execute this playbook to destartploy the DSS AI Benchmark software.
+This playbook will also create configuration files for client library and datamover, based on hosts that appear in your inventory.
+Please review "Datamover Settings" under "group_vars/all.yml" if you wish to adjust the default settings of the datamover.
+Uncomment vars with new values, or add them to your inventory file.
+
+#### playbooks/start_dss_software.yml
+
+Execute this playbook to start DSS software to all hosts in your inventory.
+This playbook is idempotent, and will only start DSS processes if they are not already running.
+
+#### playbooks/stop_dss_software.yml
+
+Execute this playbook to stop DSS software on all hosts in your inventory.
+This playbook is idempotent, and will only stop DSS processes if they are not already stopped.
+The following actions will be performed on all servers:
+1. Stop MinIO
+2. Unmount NVMeOF targets / remove kernel driver
+3. Stop Target
+
+Note: Disks will remain in user space (SPDK)
+
+#### playbooks/stop_reset_dss_software.yml
+
+Execute this playbook to stop DSS software to all hosts in your inventory.
+Additionally, once DSS software is stopped, disks will be returned back to kernel mode (SPDK reset).
+
+#### playbooks/support_bundle.yml
+
+Execute this playbook to collect a basic support bundle on all hosts.
+This playbook will search all hosts for core dumps (by default, under /var/crash/).
+A support bundle will be generated, including the core dump as well as:
+* target logs
+* minio logs
+* dmesg logs
+
+Support bundle will be downloaded to a local path, defined by "local_coredump_dir" var.
+For example, to download support bundles from all hosts to your local home directory:
+
+    ansible-playbook -i <your_inventory> playbooks/support_bundle.yml -e 'local_coredump_dir=~/tess_support/'
+
+By default, a support bundle will always be downloaded. To only generate a support bundle if a coredump is detected,
+set the "coredump_only" var to 'true'. Example:
+
+    ansible-playbook -i <your_inventory> playbooks/support_bundle.yml -e 'local_coredump_dir=~/tess_support/,coredump_only=true'
+
+#### playbooks/test_network.yml
+
+Execute this playbook to perform a basic set of network tests across all hosts.
+All hosts will ping each other across TCP IP's, and RoCEv2 IPs.
+An ib_read_bw test will then run, and assert that measured throughput is at least 90% of link speed.
+
+#### playbooks/test_nkv_test_cli.yml
+
+NOTE: For internal Samsung / DSS use! Unsupported!
+
+Perform a basic nkv_test_cli test and report observed bandwidth.
+
+#### playbooks/upgrade_dss_software.yml
+
+Execute this playbook to upgrade DSS software to all hosts in your inventory.
+This playbook is equivelent to executing "stop_dss_software" then "deploy_dss_software"
+Note that software will only be upgraded if new binaries are placed under the "artifacts" directory.
+
+#### playbooks/upgrade_kvssd_firmware.yml
+
+NOTE: For internal Samsung / DSS use! Unsupported!
+
+This playbook can be used to upgrade the firmware of PM983 SSDs. All other models not supported.
+In order to upgrade firmware, a valid firmware binary must be copied to the "artifacts" directory.
+Then the "target_fw_version" must be commented out in all vars / defaults files.
 
 ## Testing DSS Software Stack
 

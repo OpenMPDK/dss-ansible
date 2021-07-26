@@ -7,15 +7,15 @@
 #  modification, are permitted provided that the following conditions
 #  are met:
 #
-#    * Redistributions of source code must retain the above copyright
-#      notice, this list of conditions and the following disclaimer.
-#    * Redistributions in binary form must reproduce the above copyright
-#      notice, this list of conditions and the following disclaimer in
-#      the documentation and/or other materials provided with the
-#      distribution.
-#    * Neither the name of Samsung Electronics Co., Ltd. nor the names of
-#      its contributors may be used to endorse or promote products derived
-#      from this software without specific prior written permission.
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in
+#        the documentation and/or other materials provided with the
+#        distribution.
+#      * Neither the name of Samsung Electronics Co., Ltd. nor the names of
+#        its contributors may be used to endorse or promote products derived
+#        from this software without specific prior written permission.
 #
 #  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 #  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -32,15 +32,16 @@
 
 ### Playbook Documentation ###
 #
-# playbooks/deploy_dss_ai_benchmark.yml
-#   NOTE: For internal Samsung / DSS use! Unsupported!
-#   Execute this playbook to deploy the DSS AI Benchmark software.
-#   This playbook will also create configuration files for client library and datamover, based on hosts that appear in your inventory.
-#   Please review "Datamover Settings" under "group_vars/all.yml" if you wish to adjust the default settings of the datamover.
-#   Uncomment vars with new values, or add them to your inventory file.
+# #### playbooks/deploy_dss_ai_benchmark.yml
 #
-#   Re-running this playbook will update the datamover configuration across all hosts in your inventory.
+# NOTE: For internal Samsung / DSS use! Unsupported!
 #
+# Execute this playbook to deploy the DSS AI Benchmark software.
+# This playbook will also create configuration files for client library and datamover, based on hosts that appear in your inventory.
+# Please review "Datamover Settings" under "group_vars/all.yml" if you wish to adjust the default settings of the datamover.
+# Uncomment vars with new values, or add them to your inventory file.
+#
+# Re-running this playbook will update the datamover configuration across all hosts in your inventory.
 
 - name: Validate ansible versions and dependencies
   hosts: localhost

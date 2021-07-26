@@ -7,15 +7,15 @@
 #  modification, are permitted provided that the following conditions
 #  are met:
 #
-#    * Redistributions of source code must retain the above copyright
-#      notice, this list of conditions and the following disclaimer.
-#    * Redistributions in binary form must reproduce the above copyright
-#      notice, this list of conditions and the following disclaimer in
-#      the documentation and/or other materials provided with the
-#      distribution.
-#    * Neither the name of Samsung Electronics Co., Ltd. nor the names of
-#      its contributors may be used to endorse or promote products derived
-#      from this software without specific prior written permission.
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in
+#        the documentation and/or other materials provided with the
+#        distribution.
+#      * Neither the name of Samsung Electronics Co., Ltd. nor the names of
+#        its contributors may be used to endorse or promote products derived
+#        from this software without specific prior written permission.
 #
 #  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 #  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -32,10 +32,10 @@
 
 ### Playbook Documentation ###
 #
-# playbooks/start_dss_software.yml
-#   Execute this playbook to start DSS software to all hosts in your inventory.
-#   This playbook is idempotent, and will only start DSS processes if they are not already running.
+# #### playbooks/start_dss_software.yml
 #
+# Execute this playbook to start DSS software to all hosts in your inventory.
+# This playbook is idempotent, and will only start DSS processes if they are not already running.
 
 - name: Validate ansible versions and dependencies
   hosts: localhost
