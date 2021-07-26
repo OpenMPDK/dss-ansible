@@ -657,25 +657,25 @@ Note: After writing data in the storage and before reading the data, it is neces
 Compaction reduces the dataset footprint on back-end storage and ensures optimal read (GET) performance.
 
 * Put Data (from a host in [clients] or [servers] group) to a MinIO endpoint:
-  
+
     [ansible@msl-ssg-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 1
     Wasabi benchmark program v2.0
     Parameters: url=http://192.168.200.1:9000, bucket=testbucket, region=us-east-1, duration=60, threads=100, num_ios=100, op_type=1, loops=1, size=1M
     Loop 1: PUT time 40.0 secs, objects = 10000, speed = 250.2MB/sec, 250.2 operations/sec. Slowdowns = 0
 
 * Run Compaction (from Ansible host)
-  
+
     ansible-playbook -i your_inventory playbooks/start_compaction.yml
 
 * Get Data
-  
+
     [ansible@msl-ssg-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 2
     Wasabi benchmark program v2.0
     Parameters: url=http://192.168.200.1:9000, bucket=testbucket, region=us-east-1, duration=60, threads=100, num_ios=100, op_type=2, loops=1, size=1M
     Loop 1: GET time 18.7 secs, objects = 10000, speed = 536MB/sec, 536.0 operations/sec. Slowdowns = 0
 
 * Delete Data
-  
+
     [ansible@msl-ssg-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 3
     Wasabi benchmark program v2.0
     Parameters: url=http://192.168.200.1:9000, bucket=testbucket, region=us-east-1, duration=60, threads=100, num_ios=100, op_type=3, loops=1, size=1M
