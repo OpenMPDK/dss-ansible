@@ -30,7 +30,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Upload NFS data with datamover
+- name: Test Datamover Data Integrity
   shell: >
     source /usr/local/bin/setenv-for-gcc510.sh &&
     python3 {{ deploy_datamover_dest_dir }}/master_application.py
@@ -40,5 +40,6 @@
     --dest_path {{ datamover_get_path }}
   args:
     chdir: "{{ deploy_datamover_dest_dir }}"
+  register: master_application
   run_once: true
   become: true

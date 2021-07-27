@@ -69,3 +69,17 @@
 - name: Execute datamover - DELETE
   include_tasks: datamover_delete.yml
   when: datamover_operation == "DEL"
+
+- name: Print master_application.log
+  debug:
+    msg: "{{ master_application.stdout }}"
+  run_once: true
+
+- name: Assert no errors in master_application.log
+  assert:
+    that: "item not in master_application.stdout"
+    msg: Errors found in Datamover
+  run_once: true
+  loop:
+    - ERROR
+    - FATAL

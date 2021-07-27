@@ -40,5 +40,6 @@
     {{ dryrun_string }}
   args:
     chdir: "{{ deploy_datamover_dest_dir }}"
+  register: master_application
   run_once: true
   become: true

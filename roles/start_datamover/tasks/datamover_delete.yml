@@ -41,5 +41,5 @@
   args:
     chdir: "{{ deploy_datamover_dest_dir }}"
   run_once: true
-  register: datamover_list
+  register: master_application
   become: true
