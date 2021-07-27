@@ -7,15 +7,15 @@
 #  modification, are permitted provided that the following conditions
 #  are met:
 #
-#    * Redistributions of source code must retain the above copyright
-#      notice, this list of conditions and the following disclaimer.
-#    * Redistributions in binary form must reproduce the above copyright
-#      notice, this list of conditions and the following disclaimer in
-#      the documentation and/or other materials provided with the
-#      distribution.
-#    * Neither the name of Samsung Electronics Co., Ltd. nor the names of
-#      its contributors may be used to endorse or promote products derived
-#      from this software without specific prior written permission.
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in
+#        the documentation and/or other materials provided with the
+#        distribution.
+#      * Neither the name of Samsung Electronics Co., Ltd. nor the names of
+#        its contributors may be used to endorse or promote products derived
+#        from this software without specific prior written permission.
 #
 #  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 #  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -29,6 +29,22 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
+
+### Playbook Documentation ###
+#
+# #### playbooks/start_compaction.yml
+#
+# Execute this playbook to start the compaction process across all [servers].
+# Compaction is useful to reclaim space on backing storage devices after WRITE or DELETE operations.
+# Note that this playbook will wait and retry until compaction has completed across all hosts.
+# Compaction may take a very long time with very large datasets.
+# The default timeout is 12,000 seconds (200 hours)
+# The timeout may be changed by setting the "start_compaction_timeout" var.
+# For example, to start compaction with a 400 hour timeout:
+#
+#     ansible-playbook -i <your_inventory> playbooks/start_compaction -e 'start_compaction_timeout=24000'
+#
+# Compaction status is checked every 15 seconds by default. This value can be user-defined with the "start_compaction_delay" var.
 
 - name: Validate ansible versions and dependencies
   hosts: localhost

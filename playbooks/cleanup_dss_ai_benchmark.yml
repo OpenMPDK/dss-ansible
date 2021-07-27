@@ -30,14 +30,27 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Playbook Documentation ###
+#
+# #### playbooks/cleanup_dss_ai_benchmark.yml
+#
+# NOTE: For internal Samsung / DSS use! Unsupported!
+#
+# Execute this playbook in the event that "start_dss_ai_benchmark" has failed.
+# This playbook will terminate stuck warp processes.
+# Additionally, kernel packet pacing will be removed from each server.
+
 - name: Validate ansible versions and dependencies
   hosts: localhost
   roles:
     - validate_ansible
 
-- name: Deploy Soft-RoCE on VMs
-  hosts:
-    - servers
-    - clients
+- name: Terminate benchmark sessions
+  hosts: clients
   roles:
-    - configure_pvrdma
+    - terminate_dss_ai_benchmark
+
+- name: Remove Packet Pacing
+  hosts: servers
+  roles:
+    - remove_packet_pacing

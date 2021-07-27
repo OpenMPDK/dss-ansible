@@ -30,6 +30,14 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Playbook Documentation ###
+#
+# #### playbooks/configure_hosts.yml
+#
+# Execute this playbook to configure hosts prior to deploying DSS / TESS software.
+# This playbook will deploy custom kernel, install YUM / python dependencies, and configure OFED.
+# Note that presently, only versions of CentOS between 7.4 and 7.8 are supported
+
 - name: Validate ansible versions and dependencies
   hosts: localhost
   roles:
