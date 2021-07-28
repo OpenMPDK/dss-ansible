@@ -7,6 +7,7 @@ Ansible automation for configuration, deployment and orchestration of TESS softw
 ### Ansible Host Setup
 
 On a linux host, on the same management network as all hosts in the TESS cluster, install the latest version of Ansible version 2.9 using python3.
+Note that Ansible 2.10 or later is not yet supported.
 **Do not use a package-manager version of Ansible.**
 
     yum install -y python3
@@ -14,7 +15,6 @@ On a linux host, on the same management network as all hosts in the TESS cluster
     python3 get-pip.py
     python3 -m pip install "ansible>=2.9,<2.10"
 
-Note that Ansible 2.10 or later is not yet supported.
 
 Additionally, ensure that the following python modules are installed on the Ansible host:
 
@@ -82,8 +82,17 @@ To validate that the public key was copied successfully, verify that you can SSH
 
 ### Prepare Inventory File
 
+Prior to creating your inventory file for your cluster, it is necessary to have some understanding of Ansible inventory file creation, as well as Ansible variables.
+
+Please reference the official documentation:
+
+<https://docs.ansible.com/ansible/2.9/user_guide/intro_inventory.html>
+<https://docs.ansible.com/ansible/2.9/user_guide/playbooks_variables.html>
+
+#### Example Inventory File
+
 Configure an Ansible inventory file for the cluster.
-Below is an example inventory file defining a cluster of 10 TESS servers, with one also used as a client.
+Below is an example inventory file defining a cluster of 10 TESS VM hosts in the [servers] group, with one also in the [clients] group.
 
     [servers]
     msl-ssg-vm01.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::1']" rocev2_ip_list="['192.168.199.1']"
@@ -136,6 +145,12 @@ If all hosts in your inventory use the same username, you can achieve this by sp
     [all:vars]
     ansible_user=ansible
 
+The `ansible_user` var can also be defined as a host var in your inventory:
+
+    [servers]
+    msl-ssg-vm01.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::1']" rocev2_ip_list="['192.168.199.1']" ansible_user=foo
+    msl-ssg-vm02.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::2']" rocev2_ip_list="['192.168.199.2']" ansible_user=bar
+
 ##### Front End Traffic: `tcp_ip_list` var
 
 All hosts in the [servers] and [clients] groups must have `tcp_ip_list` and `rocev2_ip_list` lists defined.
@@ -159,6 +174,8 @@ For stand-alone clients that do not appear in the [servers] group, you can achie
 
     [clients:vars]
     rocev2_ip_list=[]
+
+Note that if a host appears in multiple groups, host vars only need to be defined a single time. It is not necessary to define the same vars each time the host appears in your inventory.
 
 #### Target-specific Variables
 
@@ -236,6 +253,11 @@ This var may be defined as a group var in your inventory:
 
     [servers:vars]
     target_fw_version=EDA53W0Q EPK9AB5Q
+
+Note that virtual disks on VMware hosts using the Virtual NVMe controller have a firmare version `1.0`. In this scenario, specify in your inventory file:
+
+    [servers:vars]
+    target_fw_version=1.0
 
 #### Multi-Cluster Inventory Configuration
 
@@ -393,6 +415,7 @@ Hosts under the [clients] group will be used for datamover distributed operation
 This playbook will also create configuration files for client library and datamover, based on hosts that appear in your inventory.
 Please review "Datamover Settings" under "group_vars/all.yml" if you wish to adjust the default settings of the datamover.
 Uncomment vars with new values, or add them to your inventory file.
+It is critical to specify the correct values for your NFS shares for the `datamover_nfs_shares` var.
 
 Re-running this playbook will update the datamover configuration across all hosts in your inventory.
 
@@ -531,7 +554,7 @@ For additional documentation, please consult the datamover README.md file, locat
 
 NOTE: For internal Samsung / DSS use! Unsupported!
 
-Execute this playbook to destartploy the DSS AI Benchmark software.
+Execute this playbook to start the DSS AI Benchmark software.
 This playbook will also create configuration files for client library and datamover, based on hosts that appear in your inventory.
 Please review "Datamover Settings" under "group_vars/all.yml" if you wish to adjust the default settings of the datamover.
 Uncomment vars with new values, or add them to your inventory file.
@@ -561,20 +584,20 @@ Additionally, once DSS software is stopped, disks will be returned back to kerne
 #### playbooks/support_bundle.yml
 
 Execute this playbook to collect a basic support bundle on all hosts.
-This playbook will search all hosts for core dumps (by default, under /var/crash/).
-A support bundle will be generated, including the core dump as well as:
+A support bundle will be generated, including any coredumps found (by default, under /var/crash/),
+as well as the following the following logs:
 
 * target logs
 * MinIO logs
 * dmesg logs
 
-Support bundle will be downloaded to a local path, defined by "local_coredump_dir" var.
+The support bundle will be downloaded to a local path, defined by `local_coredump_dir` var.
 For example, to download support bundles from all hosts to your local home directory:
 
     ansible-playbook -i <your_inventory> playbooks/support_bundle.yml -e 'local_coredump_dir=~/tess_support/'
 
 By default, a support bundle will always be downloaded. To only generate a support bundle if a coredump is detected,
-set the "coredump_only" var to 'true'. Example:
+set the `coredump_only` var to `true`. Example:
 
     ansible-playbook -i <your_inventory> playbooks/support_bundle.yml -e 'local_coredump_dir=~/tess_support/,coredump_only=true'
 
