@@ -83,24 +83,39 @@
     that: (nvme_subsys.stdout | from_json).Subsystems is defined
     msg: Subsystems are not mounted. Run `start_dss_software` playbook first.
 
-- name: Assert transports are rdma
+- name: Set flattened_subsystems
+  set_fact:
+    flattened_subsystems: "{{ flattened_subsystems | d([]) }} +
+      [
+        {
+          'NQN': '{{ item[0].NQN }}',
+          'Name': '{{ item[0].Name }}',
+          'Paths': {{ item[1].Paths }}
+        }
+      ]"
+  loop: "{{ (nvme_subsys.stdout | from_json).Subsystems | batch(2) | list }}"
+  loop_control:
+    label: "{{ item[0].Name }}"
+
+- name: Set rdma_subsystems var
+  set_fact:
+    rdma_subsystems: "{{ flattened_subsystems | json_query('[?Paths[?Transport==`rdma`]]') }}"
+
+- name: Assert rdma subsystems present
   assert:
-    that: transport == 'rdma'
-    msg: "Transport is {{ transport }}. Non-RDMA subsystem mounted."
-  loop: "{{ ((nvme_subsys.stdout | from_json).Subsystems | batch(2) | flatten)[1::2] | map(attribute='Paths') | flatten }}"
-  vars:
-    transport: "{{ item.Transport }}"
+    that: rdma_subsystems | length > 0
+    msg: "No RDMA subsystems are mounted."
 
 - name: Set nvme_mountpoints
   set_fact:
     nvme_mountpoints: |
       [
-      {% for subsystem in (nvme_subsys.stdout | from_json).Subsystems | batch(2) %}
+      {% for subsystem in rdma_subsystems %}
         {% set subsystem_loop_last = loop.last %}
-        {% for path in subsystem[1].Paths %}
+        {% for path in subsystem.Paths %}
           {
-            "name": "{{ subsystem[0].Name }}",
-            "nqn": "{{ subsystem[0].NQN }}",
+            "name": "{{ subsystem.Name }}",
+            "nqn": "{{ subsystem.NQN }}",
             "dev": "{{ path.Name | regex_search('nvme(.+)', '\1') | d([]) | first }}",
             "transport": "{{ path.Transport }}",
             "ip": "{{ path.Address | regex_search('traddr=([^ ]+)', '\1') | d([]) | first }}",
