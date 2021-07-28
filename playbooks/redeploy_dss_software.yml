@@ -45,6 +45,8 @@
 
 - name: Remove DSS Software
   import_playbook: remove_dss_software.yml
+  vars:
+    remove_etc: false
 
 - name: Deploy DSS Software
   import_playbook: deploy_dss_software.yml
