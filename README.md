@@ -285,6 +285,14 @@ Example [servers] group with 3 logical clusters defined:
 
 Note that MinIO EC limitations apply for each logical cluster in your inventory.
 
+#### Validate Inventory Connectivity
+
+Validate your inventory file, and the ansible host's connectivity to all hosts in your TESS cluster by executing an ad-hoc ansible ping command:
+
+    ansible all -i your_inventory -m ping
+
+All hosts should return `SUCCESS`. If any hosts fail the ping command, validate that you can SSH to the failed host with its specified `ansible_user`, without using a password.
+
 ## Configure Hosts and Deploy TESS Software Stack (Quick-Start)
 
 ### Initial Host Configuration
