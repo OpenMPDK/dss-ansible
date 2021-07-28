@@ -94,6 +94,8 @@
     not nvmf_in_conf.stat.exists or
     not dss_target_out.stat.exists or
     (spdk_status.stdout is not search('uio_pci_generic')) and (spdk_status.stdout is not search('vfio-pci'))
+  environment:
+    PCI_BLACKLIST: "{{ pci_blacklist | d('') }}"
 
 - name: Assert dss_target.py success
   assert:
