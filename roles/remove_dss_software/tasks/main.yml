@@ -30,6 +30,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Remove Target Configuration Directory on Remove
+  set_fact:
+    remove_dss_software_dir_list: "{{ remove_dss_software_dir_list + [ dss_target_conf_dir ] }}"
+  when: remove_etc
+
 - name: Remove DSS Software
   file:
     path: "{{ dss_path }}"

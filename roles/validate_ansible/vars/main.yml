@@ -40,3 +40,5 @@ required_python_modules:
     version: 2.8
   - name: paramiko
     version: 2.7.1
+  - name: jmespath
+    version: 0.10.0

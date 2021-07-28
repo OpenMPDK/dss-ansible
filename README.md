@@ -21,6 +21,7 @@ Additionally, ensure that the following python modules are installed on the Ansi
     python3 -m pip install "netaddr>=0.8.0"
     python3 -m pip install "jinja2>=2.8"
     python3 -m pip install "paramiko>=2.7.1"
+    python3 -m pip install "jmespath>=0.10.0"
 
 The above dependencies will be validated on runtime, and if not met, will fail assertion, preventing Ansible playbook execution.
 
