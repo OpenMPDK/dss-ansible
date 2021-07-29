@@ -41,3 +41,14 @@ datamover_list_path: /var/log/dss
 datamover_get_path: "{{ ansible_env.HOME }}/datamover"
 datamover_conf_dir: /etc/dss/datamover
 deploy_datamover_dest_dir: /usr/dss/nkv-datamover
+things_to_do_while_waiting:
+  - grab a cup of coffee
+  - go for a walk
+  - take a nap
+  - browse reddit
+  - play a game of solitaire
+  - write a poem
+  - learn to dance
+  - teach your dog a new trick
+  - learn how to juggle
+  - learn how to whistle with your fingers

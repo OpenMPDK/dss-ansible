@@ -50,25 +50,43 @@
     - master_application.py
     - client_application.py
 
+- name: While you wait ...
+  debug:
+    msg: |
+      Datamover is about to execute.
+      This could take a very long time, depending on the size of your dataset.
+      You may want to {{ item }}.
+      In the mean time, you can view Datamover progress by tailing the master_application.log:
+        {{ inventory_hostname }}:{{ datamover_list_path }}/master_application.log
+      Client application logs can also be viewed on each [clients] host:
+        {{ datamover_list_path }}/client_application.log
+  run_once: true
+  with_random_choice: "{{ things_to_do_while_waiting }}"
+
 - name: Execute datamover - TEST
   include_tasks: datamover_test.yml
   when: datamover_operation == "TEST"
+  run_once: true
 
 - name: Execute datamover - PUT
   include_tasks: datamover_put.yml
   when: datamover_operation == "PUT"
+  run_once: true
 
 - name: Execute datamover - GET
   include_tasks: datamover_get.yml
   when: datamover_operation == "GET"
+  run_once: true
 
 - name: Execute datamover - LIST
   include_tasks: datamover_list.yml
   when: datamover_operation == "LIST"
+  run_once: true
 
 - name: Execute datamover - DELETE
   include_tasks: datamover_delete.yml
   when: datamover_operation == "DEL"
+  run_once: true
 
 - name: Print master_application.log
   debug:
