@@ -2,17 +2,18 @@
 
 - name: Init vars
   set_fact:
+    endpoints: []
     combined_endpoints: []
 
 - name: Set endpoints var
   set_fact:
-    endpoints: |
+    endpoints: "{{ endpoints | d([]) }} +
       [
           {
               'ipv4': '{{ current_cluster.vlan_ip_map[vlan].tcp_alias }}',
               'port': {{ minio_port }}
           }
-      ]
+      ]"
   loop: "{{ range(0, current_cluster.vlan_ip_map | length) | list }}"
   loop_control:
     loop_var: vlan
