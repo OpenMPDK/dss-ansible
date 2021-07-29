@@ -85,6 +85,11 @@
     tcp_ip: "{{ item.stdout }}"
     inventory_name: "{{ item.item }}"
 
+- name: Assert TCP IPs are found
+  assert:
+    that: tcp_adapter_list | length > 0
+    msg: No TCP IPs configured on host. Configure `tcp_ip_list` var for host. See README.md for details.
+
 - name: Set combined_family_list var
   set_fact:
     combined_family_list: "{{ combined_family_list | d([]) + hostvars[hostname].tcp_adapter_list | map(attribute='family') | list }}"
