@@ -53,6 +53,7 @@
     compaction_string: "{% if datamover_compaction %}--compaction{% else %}{% endif %}"
     data_integrity_string: "{% if datamover_data_integrity %}--data_integrity{% else %}{% endif %}"
     skip_upload_string: "{% if datamover_skip_upload %}--skip_upload{% else %}{% endif %}"
+    prefix_string: "{% if datamover_prefix != '' %}--prefix={{ datamover_prefix }}{% else %}{% endif %}"
 
 - name: Kill existing datamover processes
   command: "pkill -f 'python3 {{ deploy_datamover_dest_dir }}/{{ item }}'"

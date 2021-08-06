@@ -38,6 +38,7 @@
     --config {{ datamover_conf_dir }}/config.json
     {{ data_integrity_string }}
     {{ skip_upload_string }}
+    {{ prefix_string }}
     --dest_path {{ datamover_get_path }}
   args:
     chdir: "{{ deploy_datamover_dest_dir }}"

@@ -38,6 +38,7 @@
     --config {{ datamover_conf_dir }}/config.json
     {{ compaction_string }}
     {{ dryrun_string }}
+    {{ prefix_string }}
   args:
     chdir: "{{ deploy_datamover_dest_dir }}"
   register: master_application
