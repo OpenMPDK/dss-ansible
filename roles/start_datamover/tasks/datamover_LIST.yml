@@ -37,6 +37,7 @@
     {{ datamover_operation }}
     --config {{ datamover_conf_dir }}/config.json
     --dest_path {{ datamover_list_path }}
+    {{ prefix_string }}
   args:
     chdir: "{{ deploy_datamover_dest_dir }}"
   run_once: true
