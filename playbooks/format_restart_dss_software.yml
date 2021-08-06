@@ -49,6 +49,7 @@
 
 - name: Format Disks
   hosts: servers
+  gather_facts: false
   roles:
     - format_disks
 

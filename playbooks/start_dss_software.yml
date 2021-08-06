@@ -52,6 +52,7 @@
 
 - name: Start DSS software
   hosts: servers
+  gather_facts: false
   roles:
     - start_dss_target
     - start_etcd_gateway

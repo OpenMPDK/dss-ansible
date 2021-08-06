@@ -93,6 +93,7 @@
 
 - name: Remove packet pacing
   hosts: servers
+  gather_facts: false
   roles:
     - remove_packet_pacing
 

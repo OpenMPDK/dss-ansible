@@ -46,6 +46,7 @@
 - name: Remove DSS benchmark
   hosts:
     - clients
+  gather_facts: false
   roles:
     - remove_dss_software
   vars:

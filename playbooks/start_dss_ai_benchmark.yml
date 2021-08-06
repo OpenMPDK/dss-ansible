@@ -50,6 +50,7 @@
   hosts:
     - servers
     - clients
+    - ufm_hosts
   roles:
     - get_tcp_vlan_ip_list
 
@@ -57,5 +58,6 @@
   hosts:
     - clients
     - servers
+  gather_facts: false
   roles:
     - start_dss_ai_benchmark

@@ -72,17 +72,20 @@
   hosts:
     - servers
     - ufm_hosts
+  gather_facts: false
   roles:
     - deploy_ufm_etcd
 
 - name: Deploy UFM
   hosts: ufm_hosts
+  gather_facts: false
   roles:
     - start_ufm_etcd
     - deploy_ufm
 
 - name: Deploy DSS Target and Host
   hosts: servers
+  gather_facts: false
   roles:
     - deploy_gcc
     - deploy_dss_target
@@ -95,6 +98,7 @@
   hosts:
     - servers
     - clients
+  gather_facts: false
   roles:
     - deploy_dss_minio
 
