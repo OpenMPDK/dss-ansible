@@ -33,6 +33,7 @@
 # datamover_operation possible values: ['PUT', 'GET', 'LIST', 'DEL', 'TEST']
 datamover_operation: PUT
 datamover_dryrun: false
+datamover_skip_upload: false
 datamover_compaction: true
 datamover_prefix: ''
 datamover_debug: false

@@ -56,6 +56,7 @@
 
 - name: Cleanup DSS MinIO
   hosts: servers
+  gather_facts: false
   roles:
     - stop_dss_minio
     - cleanup_dss_minio

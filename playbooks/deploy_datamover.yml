@@ -59,12 +59,14 @@
 
 - name: Set client library config
   hosts: servers
+  gather_facts: false
   roles:
     - configure_server_mc_alias
     - create_client_library_conf
 
 - name: Deploy Data Mover
   hosts: clients
+  gather_facts: false
   roles:
     - deploy_gcc
     - deploy_aws_sdk_cpp

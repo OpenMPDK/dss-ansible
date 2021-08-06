@@ -57,6 +57,7 @@
 
 - name: Deploy DSS benchmark
   hosts: clients
+  gather_facts: false
   roles:
     - deploy_dss_ai_benchmark
     - deploy_dss_minio
