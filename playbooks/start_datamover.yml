@@ -54,12 +54,46 @@
 #
 # * datamover_operation: PUT
 # * datamover_dryrun: false
+# * datamover_skip_upload: false
 # * datamover_compaction: true
 # * datamover_prefix: ''
 # * datamover_get_path: "{{ ansible_env.HOME }}/datamover"
 #
+# Explanation of configurable vars:
+#
+# * datamover_operation - Datamover operation, one of PUT, GET, DEL, LIST, or TEST
+# * datamover_dryrun - Execute datamove operation without making changes (applies to PUT, GET, DEL)
+# * datamover_skip_upload - If `true`, do not upload during datamover TEST operation. Data must already be uploaded
+# * datamover_compaction - Execute target compaction on each node after PUT, DEL, or TEST operations. Should always be set to `true`
+# * datamover_prefix - Prefix of path to perform datamover operation on a subset of the total number of objects
+# * datamover_get_path - Path to download objects during GET and TEST operations. For GET, path should be a shared mountpoint on all [clients] hosts
+#
 # For example, to execute datamover GET operation to a writable, shared mount point across all [clients]:
-#     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=GET,datamover_get_path=/path/to/share/'
+#     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=GET datamover_get_path=/path/to/share/'
+#
+# Datamover PUT examples:
+#     ansible-playbook -i <your_inventory> playbooks/start_datamover
+#     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=PUT'
+#     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=PUT datamover_dryrun=true'
+#
+# Datamover LIST examples:
+#     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=LIST'
+#     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=LIST datamover_list_path=/var/log/datamover'
+#
+# Datamover DEL examples:
+#     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=DEL'
+#     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=DEL datamover_dryrun=true'
+#     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=DEL datamover_prefix=foo/'
+#
+# Datamover GET examples:
+#     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=GET'
+#     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=GET datamover_dryrun=true'
+#     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=GET datamover_get_path=/mnt/dir/'
+#
+# Datamover TEST examples (Data integrity):
+#     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=TEST'
+#     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=TEST datamover_get_path=/mnt/dir/'
+#     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=TEST datamover_get_path=/mnt/dir/ datamover_skip_upload=true'
 #
 # For additional documentation, please consult the datamover README.md file, located on all [clients]:
 # > /usr/dss/nkv-datamover/README.md
@@ -80,11 +114,13 @@
 
 - name: Set client library config
   hosts: servers
+  gather_facts: false
   roles:
     - configure_server_mc_alias
     - create_client_library_conf
 
 - name: Start Datamover
   hosts: clients
+  gather_facts: false
   roles:
     - start_datamover
