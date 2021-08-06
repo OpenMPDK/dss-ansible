@@ -30,6 +30,19 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Assert datamover_operation is valid
+  assert:
+    that: datamover_operation in valid_operations
+    msg: datamover_operation var must be one of {{ valid_operations }}
+  vars:
+    valid_operations:
+      - PUT
+      - GET
+      - DEL
+      - LIST
+      - TEST
+  run_once: true
+
 - name: Create datamover config file
   include_role:
     name: create_datamover_conf
@@ -39,6 +52,7 @@
     dryrun_string: "{% if datamover_dryrun %}--dryrun{% else %}{% endif %}"
     compaction_string: "{% if datamover_compaction %}--compaction{% else %}{% endif %}"
     data_integrity_string: "{% if datamover_data_integrity %}--data_integrity{% else %}{% endif %}"
+    skip_upload_string: "{% if datamover_skip_upload %}--skip_upload{% else %}{% endif %}"
 
 - name: Kill existing datamover processes
   command: "pkill -f 'python3 {{ deploy_datamover_dest_dir }}/{{ item }}'"
@@ -62,30 +76,11 @@
         {{ datamover_list_path }}/client_application.log
   run_once: true
   with_random_choice: "{{ things_to_do_while_waiting }}"
+  loop_control:
+    label: ''
 
-- name: Execute datamover - TEST
-  include_tasks: datamover_test.yml
-  when: datamover_operation == "TEST"
-  run_once: true
-
-- name: Execute datamover - PUT
-  include_tasks: datamover_put.yml
-  when: datamover_operation == "PUT"
-  run_once: true
-
-- name: Execute datamover - GET
-  include_tasks: datamover_get.yml
-  when: datamover_operation == "GET"
-  run_once: true
-
-- name: Execute datamover - LIST
-  include_tasks: datamover_list.yml
-  when: datamover_operation == "LIST"
-  run_once: true
-
-- name: Execute datamover - DELETE
-  include_tasks: datamover_delete.yml
-  when: datamover_operation == "DEL"
+- name: "Execute datamover - {{ datamover_operation }}"
+  include_tasks: "datamover_{{ datamover_operation }}.yml"
   run_once: true
 
 - name: Print master_application.log
