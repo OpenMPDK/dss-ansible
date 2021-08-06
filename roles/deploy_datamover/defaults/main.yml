@@ -31,3 +31,4 @@
 ---
 
 pip3_version: 21.0.1
+dss_log_dir: /var/log/dss
