@@ -566,25 +566,29 @@ Datamover PUT examples:
     ansible-playbook -i <your_inventory> playbooks/start_datamover
     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=PUT'
     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=PUT datamover_dryrun=true'
+    ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_prefix=192.168.1.1/mnt/share/folder'
 
 Datamover LIST examples:
     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=LIST'
     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=LIST datamover_list_path=/var/log/datamover'
+    ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=LIST datamover_prefix=192.168.1.1/mnt/share/folder'
 
 Datamover DEL examples:
     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=DEL'
     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=DEL datamover_dryrun=true'
-    ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=DEL datamover_prefix=foo/'
+    ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=DEL datamover_prefix=192.168.1.1/mnt/share/folder/'
 
 Datamover GET examples:
     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=GET'
     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=GET datamover_dryrun=true'
     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=GET datamover_get_path=/mnt/dir/'
+    ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=GET datamover_prefix=192.168.1.1/mnt/share/folder/'
 
 Datamover TEST examples (Data integrity):
     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=TEST'
     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=TEST datamover_get_path=/mnt/dir/'
     ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=TEST datamover_get_path=/mnt/dir/ datamover_skip_upload=true'
+    ansible-playbook -i <your_inventory> playbooks/start_datamover -e 'datamover_operation=TEST datamover_prefix=192.168.1.1/mnt/share/folder/'
 
 For additional documentation, please consult the datamover README.md file, located on all [clients]:
 > /usr/dss/nkv-datamover/README.md
