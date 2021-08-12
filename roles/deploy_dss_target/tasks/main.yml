@@ -43,20 +43,33 @@
   loop:
     - tbb-devel
     - libaio-devel
-    - python-pip
+    - "python{% if ansible_distribution_version == '8' %}2{% endif %}-pip"
     - python3
     - sysstat
     - Judy
   become: true
 
+- name: Identify pip2 executable
+  shell: which pip2 pip-2 | grep 'bin/pip' | head -n 1
+  register: pip2_path
+  changed_when: false
+  failed_when: false
+
+- name: Assert pip2_path is found
+  assert:
+    that: pip2_path.stdout != ''
+    msg: "pip2 is not installed"
+
 - name: Upgrade pip
   pip:
     name: "pip=={{ pip2_version }}"
+    executable: "{{ pip2_path.stdout}}"
   become: true
 
 - name: Install netifaces python dependency
   pip:
     name: netifaces
+    executable: "{{ pip2_path.stdout}}"
   become: true
 
 - name: Identify target tarball
