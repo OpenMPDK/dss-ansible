@@ -33,25 +33,34 @@
 - name: Gather service facts
   service_facts:
 
-- name: CentOS specific tasks
-  block:
-    - name: Install dependencies - CentOS
-      import_tasks: deps_centos.yml
+- name: Install dependencies
+  include_tasks: "deps_centos{{ ansible_distribution_version }}.yml"
 
-    - name: Open Ports - CentOS
-      import_tasks: ports_centos.yml
-  when: ansible_os_family == 'RedHat'
+- name: Open Ports - CentOS
+  include_tasks: ports_centos.yml
 
-- name: Update pip if package manager version is old
+- name: Identify pip2 executable
+  shell: which pip2 pip-2 | grep 'bin/pip' | head -n 1
+  register: pip2_path
+  changed_when: false
+  failed_when: false
+
+- name: Assert pip2_path is found
+  assert:
+    that: pip2_path.stdout != ''
+    msg: "pip2 is not installed"
+
+- name: Upgrade pip
   pip:
     name: "pip=={{ pip2_version }}"
-    state: present
-  become: yes
+    executable: "{{ pip2_path.stdout}}"
+  become: true
 
 - name: Install etcd3 python module
   pip:
     name: etcd3
     state: present
+    executable: "{{ pip2_path.stdout}}"
   become: yes
 
 - name: Stop and disable default etcd service
