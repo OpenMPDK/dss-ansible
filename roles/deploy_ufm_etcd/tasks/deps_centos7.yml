@@ -37,9 +37,13 @@
     state: present
   become: yes
 
-
 - name: Install Required Packages (yum)
   yum:
-    name: "{{ ufm_etcd_packages }}"
+    name:
+      - fping
+      - python-pip
+      - python-setuptools
+      - python3-pip
+      - etcd
     state: present
   become: true
