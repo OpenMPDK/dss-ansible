@@ -40,6 +40,18 @@
 #   - '7.9'
 #   - '8'
 
+### In-box Infiniband RPM URLS
+# infiniband_rpm_urls:
+#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/ibacm-22.4-6.el7_9.x86_64.rpm
+#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/iwpmd-22.4-6.el7_9.x86_64.rpm
+#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/libibumad-22.4-6.el7_9.x86_64.rpm
+#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/libibverbs-22.4-6.el7_9.x86_64.rpm
+#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/libibverbs-utils-22.4-6.el7_9.x86_64.rpm
+#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/librdmacm-22.4-6.el7_9.x86_64.rpm
+#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/librdmacm-utils-22.4-6.el7_9.x86_64.rpm
+#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/rdma-core-22.4-6.el7_9.x86_64.rpm
+#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/srp_daemon-22.4-6.el7_9.x86_64.rpm
+
 ### Target Settings
 # target_fw_version: ETA51KCB
 # kvssd_models:

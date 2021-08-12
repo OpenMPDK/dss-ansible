@@ -31,11 +31,7 @@
 ---
 
 - name: Install Infiniband
-  include_tasks: "infiniband_centos{{ ansible_distribution_version }}.yml"
-
-- name: Start and enable RDMA service
-  service:
-    name: rdma
-    enabled: yes
-    state: started
+  yum:
+    name: '@Infiniband Support'
+    state: present
   become: true
