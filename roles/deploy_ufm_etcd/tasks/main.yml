@@ -34,7 +34,7 @@
   service_facts:
 
 - name: Install dependencies
-  include_tasks: "deps_centos{{ ansible_distribution_version }}.yml"
+  include_tasks: "deps_centos{{ ansible_distribution_version.split('.') | first }}.yml"
 
 - name: Open Ports - CentOS
   include_tasks: ports_centos.yml
