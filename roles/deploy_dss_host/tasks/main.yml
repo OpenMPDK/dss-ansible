@@ -56,6 +56,7 @@
     src: /usr/lib64/libjemalloc.so
     dest: /usr/lib64/libjemalloc.so.1
     state: link
+  failed_when: false
   become: true
 
 # Needed for CentOS Stream 8
@@ -64,6 +65,7 @@
     src: /usr/lib64/libboost_filesystem.so
     dest: /usr/lib64/libboost_filesystem.so.1.53.0
     state: link
+  failed_when: false
   become: true
 
 - name: Identify pip2 executable
