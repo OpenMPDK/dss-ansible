@@ -30,8 +30,20 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Restart lldpad
+- name: Install lldpd and snmp
+  yum:
+    name:
+      - lldpd
+      - net-snmp
+    state: present
+  become: true
+
+- name: Start and enable lldpd and snmp services
   service:
-    name: lldpad
-    state: restarted
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop:
+    - lldpd
+    - snmp
   become: true
