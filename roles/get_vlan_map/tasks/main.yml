@@ -30,6 +30,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Assert onyx group is defined
+  assert:
+    that: "'onyx' in groups"
+    msg: No hosts defined in onyx group. Cannot automatically configure VLANs.
+
 - name: Set interface_switch_map_no_numa var
   set_fact:
     interface_switch_map_no_numa: >-
@@ -53,6 +58,11 @@
           {%- endfor -%}
         {%- endfor -%}
       {%- endfor -%}
+
+- name: Assert links found
+  assert:
+    that: interface_switch_map_no_numa | length > 0
+    msg: No links found for host on any switch. Check that NICs are connected to switch and that LLDPD is running.
 
 - name: Get NUMA
   command: "cat /sys/class/net/{{ item.local_interface }}/device/numa_node"
