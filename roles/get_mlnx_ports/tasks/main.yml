@@ -56,7 +56,7 @@
       OFED is required for auto-discovered IPs.
       Configure tcp_ip_list / rocev2_ip_list in inventory if not using OFED.
   vars:
-    mlx_regex: '([^ ]+) (mlx[\d]_[\d])(?:.+ConnectX-(\d))?.+fw ([^ ]+).+ ==> ([^ ]+) \((Up|Down)\)'
+    mlx_regex: '^(?:([\d]+:[\d]+:[\d]+\.[\d]+) )?(mlx[\d]_[\d]) (?:\([^)]+\))(?:.+ConnectX-(\d))?.+fw ([^ ]+).+ ==> ([^ ]+) \((Up|Down)\)'
 
 - name: Create list of ConnectX device dict
   set_fact:
@@ -71,7 +71,7 @@
   loop_control:
     label: "{{ ibdev_val }}"
   vars:
-    mlx_regex: '([^ ]+) (mlx[\d]_[\d])(?:.+ConnectX-(\d))?.+fw ([^ ]+).+ ==> ([^ ]+) \((Up|Down)\)'
+    mlx_regex: '^(?:([\d]+:[\d]+:[\d]+\.[\d]+) )?(mlx[\d]_[\d]) (?:\([^)]+\))(?:.+ConnectX-(\d))?.+fw ([^ ]+).+ ==> ([^ ]+) \((Up|Down)\)'
     hw_addr: "{{ item | regex_search(mlx_regex, '\\1') | first }}"
     ibdev_val: "{{ item | regex_search(mlx_regex, '\\2') | first }}"
     connectx_val: "{{ item | regex_search(mlx_regex, '\\3') | first }}"
