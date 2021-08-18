@@ -59,4 +59,3 @@
     - deploy_utils
     - deploy_nvme_cli
     - configure_inbox_infiniband
-    - configure_lldpd

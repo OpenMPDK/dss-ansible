@@ -72,6 +72,13 @@
   roles:
     - validate_ansible
 
+- name: Configure LLDPD
+  hosts:
+    - servers
+    - clients
+  roles:
+    - configure_lldpd
+
 - name: Get Onyx LLDP tables
   hosts: onyx
   connection: network_cli

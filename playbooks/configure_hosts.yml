@@ -62,6 +62,5 @@
     - deploy_nvme_cli
     - deploy_ofed
     - load_mlnx_drivers
-    - configure_lldpd
     - configure_irq
     - upgrade_connectx_firmware
