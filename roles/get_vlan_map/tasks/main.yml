@@ -40,11 +40,12 @@
     interface_switch_map_no_numa: >-
       {{ interface_switch_map_no_numa | default([]) }}
       {%- for switch in groups['onyx'] -%}
-        {%- for onyx_interface in hostvars[switch]['lldp_interfaces'] | selectattr('system_name', 'search', inventory_hostname_short) | list -%}
+        {%- for onyx_interface in hostvars[switch]['lldp_interfaces'] -%}
           {%- for interface_name in ansible_interfaces | sort -%}
             {%- set host_interface = hostvars[inventory_hostname]['ansible_' + interface_name] -%}
             {%- if (host_interface.macaddress is defined) and (host_interface.pciid is defined) -%}
-              {%- if host_interface.macaddress == onyx_interface.device_id -%}
+              {%- if (host_interface.macaddress == onyx_interface.device_id) or
+                (host_interface.macaddress == onyx_interface.port_id) -%}
                 + {{
                   [{
                     'local_interface': interface_name,
