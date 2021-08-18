@@ -30,7 +30,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Install lldpd and snmp
+- name: Install lldpd and net-snmp
   yum:
     name:
       - lldpd
@@ -38,12 +38,12 @@
     state: present
   become: true
 
-- name: Start and enable lldpd and snmp services
+- name: Start and enable lldpd and snmpd services
   service:
     name: "{{ item }}"
     state: started
     enabled: true
   loop:
     - lldpd
-    - snmp
+    - snmpd
   become: true
