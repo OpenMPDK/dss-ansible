@@ -33,7 +33,7 @@
 - name: Print nkv_test_cli commands
   debug:
     msg: >
-      {{ test_nkv_test_cli_dir }}/dss_host.py
+      /usr/bin/python2 {{ test_nkv_test_cli_dir }}/dss_host.py
       verify_nkv_cli
       -c n{{ ansible_loop.index }}
       -a {{ vlan.ipv4_prefix }}
@@ -47,7 +47,7 @@
 
 - name: Execute nkv_test_cli command
   command: >
-      {{ test_nkv_test_cli_dir }}/dss_host.py
+      /usr/bin/python2 {{ test_nkv_test_cli_dir }}/dss_host.py
       verify_nkv_cli
       -c n{{ ansible_loop.index }}
       -a {{ vlan.ipv4_prefix }}

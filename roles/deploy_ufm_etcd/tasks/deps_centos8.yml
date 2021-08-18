@@ -30,13 +30,25 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Gather service facts
-  service_facts:
+- name: Enable epel-release extras repo (yum)
+  yum:
+    name: epel-release
+    enablerepo: extras
+    state: present
+  become: yes
 
-- name: Firewall is stopped and disabled
-  service:
-    name: firewalld
-    state: stopped
-    enabled: false
-  when: "'firewalld.service' in ansible_facts.services"
+- name: Install Required Packages (yum)
+  yum:
+    name:
+      - fping
+      - python2-pip
+      - python2-setuptools
+      - python3-pip
+    state: present
+  become: true
+
+- name: Install etcd from URL
+  yum:
+    name: "{{ ufm_etcd_rpm_url }}"
+    state: present
   become: true

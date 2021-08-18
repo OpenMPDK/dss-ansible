@@ -30,16 +30,21 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Enable epel-release extras repo (yum)
-  yum:
-    name: epel-release
-    enablerepo: extras
-    state: present
-  become: yes
-
-
-- name: Install Required Packages (yum)
-  yum:
-    name: "{{ ufm_etcd_packages }}"
-    state: present
-  become: true
+infiniband_rpm_urls:
+  - http://mirror.centos.org/centos/7/updates/x86_64/Packages/ibacm-22.4-6.el7_9.x86_64.rpm
+  - http://mirror.centos.org/centos/7/updates/x86_64/Packages/iwpmd-22.4-6.el7_9.x86_64.rpm
+  - http://mirror.centos.org/centos/7/updates/x86_64/Packages/libibumad-22.4-6.el7_9.x86_64.rpm
+  - http://mirror.centos.org/centos/7/updates/x86_64/Packages/libibverbs-22.4-6.el7_9.x86_64.rpm
+  - http://mirror.centos.org/centos/7/updates/x86_64/Packages/libibverbs-utils-22.4-6.el7_9.x86_64.rpm
+  - http://mirror.centos.org/centos/7/updates/x86_64/Packages/librdmacm-22.4-6.el7_9.x86_64.rpm
+  - http://mirror.centos.org/centos/7/updates/x86_64/Packages/librdmacm-utils-22.4-6.el7_9.x86_64.rpm
+  - http://mirror.centos.org/centos/7/updates/x86_64/Packages/rdma-core-22.4-6.el7_9.x86_64.rpm
+  - http://mirror.centos.org/centos/7/updates/x86_64/Packages/srp_daemon-22.4-6.el7_9.x86_64.rpm
+  - http://mirror.centos.org/centos/7/os/x86_64/Packages/gd-2.0.35-26.el7.x86_64.rpm
+  - http://mirror.centos.org/centos/7/os/x86_64/Packages/opensm-libs-3.3.21-3.el7_8.x86_64.rpm
+  - http://mirror.centos.org/centos/7/os/x86_64/Packages/tcl-8.5.13-8.el7.x86_64.rpm
+  - http://mirror.centos.org/centos/7/os/x86_64/Packages/tk-8.5.13-6.el7.x86_64.rpm
+  - http://mirror.centos.org/centos/7/os/x86_64/Packages/graphviz-2.30.1-22.el7.x86_64.rpm
+  - http://mirror.centos.org/centos/7/os/x86_64/Packages/graphviz-tcl-2.30.1-22.el7.x86_64.rpm
+  - http://mirror.centos.org/centos/7/os/x86_64/Packages/ibutils-libs-1.5.7-14.el7.x86_64.rpm
+  - http://mirror.centos.org/centos/7/os/x86_64/Packages/ibutils-1.5.7-14.el7.x86_64.rpm

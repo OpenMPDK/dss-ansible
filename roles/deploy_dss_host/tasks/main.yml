@@ -45,14 +45,44 @@
       - numactl-devel
       - tbb-devel
       - jemalloc-devel
-      - python-pip
+      - "python{% if ansible_distribution_version == '8' %}2{% endif %}-pip"
       - lshw
       - gcc
   become: true
 
+# Needed for CentOS Stream 8
+- name: Set symlink for libjemalloc.so.1
+  file:
+    src: /usr/lib64/libjemalloc.so
+    dest: /usr/lib64/libjemalloc.so.1
+    state: link
+  failed_when: false
+  become: true
+
+# Needed for CentOS Stream 8
+- name: Set symlink for libboost_filesystem.so
+  file:
+    src: /usr/lib64/libboost_filesystem.so
+    dest: /usr/lib64/libboost_filesystem.so.1.53.0
+    state: link
+  failed_when: false
+  become: true
+
+- name: Identify pip2 executable
+  shell: which pip2 pip-2 | grep 'bin/pip' | head -n 1
+  register: pip2_path
+  changed_when: false
+  failed_when: false
+
+- name: Assert pip2_path is found
+  assert:
+    that: pip2_path.stdout != ''
+    msg: "pip2 is not installed"
+
 - name: Upgrade pip
   pip:
     name: "pip=={{ pip2_version }}"
+    executable: "{{ pip2_path.stdout}}"
   become: true
 
 - name: Install python dependencies
@@ -60,6 +90,7 @@
     name:
       - paramiko
       - pssh
+    executable: "{{ pip2_path.stdout}}"
   become: true
 
 - name: Identify host tarball

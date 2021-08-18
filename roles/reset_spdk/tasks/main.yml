@@ -36,7 +36,7 @@
   register: dss_target_path
 
 - name: Move disks back to kernel mode (spdk reset)
-  command: ./dss_target.py reset
+  command: /usr/bin/python2 ./dss_target.py reset
   args:
     chdir: "{{ reset_spdk_bin_dir }}"
   register: target_reset

@@ -30,13 +30,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Gather service facts
-  service_facts:
-
-- name: Firewall is stopped and disabled
-  service:
-    name: firewalld
-    state: stopped
-    enabled: false
-  when: "'firewalld.service' in ansible_facts.services"
-  become: true
+supported_distributions:
+  - '7.4'
+  - '7.5'
+  - '7.6'
+  - '7.7'
+  - '7.8'
+  - '7.9'
+  - '8'

@@ -39,7 +39,7 @@
   yum:
     name:
       - python3-pip
-      - python-setuptools
+      - python{% if ansible_distribution_version == '8' %}3{% endif %}-setuptools
   become: true
 
 - name: Identify datamover tarball

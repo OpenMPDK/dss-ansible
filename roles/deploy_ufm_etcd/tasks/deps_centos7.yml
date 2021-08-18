@@ -30,8 +30,20 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Restart lldpad
-  service:
-    name: lldpad
-    state: restarted
+- name: Enable epel-release extras repo (yum)
+  yum:
+    name: epel-release
+    enablerepo: extras
+    state: present
+  become: yes
+
+- name: Install Required Packages (yum)
+  yum:
+    name:
+      - fping
+      - python-pip
+      - python-setuptools
+      - python3-pip
+      - etcd
+    state: present
   become: true

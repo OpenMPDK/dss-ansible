@@ -30,6 +30,28 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Distribution Settings
+# supported_distributions:
+#   - '7.4'
+#   - '7.5'
+#   - '7.6'
+#   - '7.7'
+#   - '7.8'
+#   - '7.9'
+#   - '8'
+
+### In-box Infiniband RPM URLS
+# infiniband_rpm_urls:
+#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/ibacm-22.4-6.el7_9.x86_64.rpm
+#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/iwpmd-22.4-6.el7_9.x86_64.rpm
+#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/libibumad-22.4-6.el7_9.x86_64.rpm
+#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/libibverbs-22.4-6.el7_9.x86_64.rpm
+#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/libibverbs-utils-22.4-6.el7_9.x86_64.rpm
+#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/librdmacm-22.4-6.el7_9.x86_64.rpm
+#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/librdmacm-utils-22.4-6.el7_9.x86_64.rpm
+#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/rdma-core-22.4-6.el7_9.x86_64.rpm
+#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/srp_daemon-22.4-6.el7_9.x86_64.rpm
+
 ### Target Settings
 # target_fw_version: ETA51KCB
 # kvssd_models:
@@ -125,12 +147,6 @@
 # ufm_etcd_client_port: 2379
 # ufm_etcd_peer_port: 2380
 # ufm_etcd_token: etcd-token
-# ufm_etcd_packages:
-#   - fping
-#   - python-pip
-#   - python-setuptools
-#   - python3-pip
-#   - etcd
 # ufm_service_file: /etc/systemd/system/ufm.service
 # ufm_etcd_service_file: /etc/systemd/system/ufm_etcd.service
 # ufm_install_packages:

@@ -107,7 +107,7 @@
 - name: Create dss_host_config_host.sh script
   copy:
     content: >
-      ./dss_host.py config_host -a
+      /usr/bin/python2 ./dss_host.py config_host -a
       {% for ip in first_vlan_ip_list %}{{ ip }}{% if not loop.last %} {% endif %}{% endfor %}
       -p {{ start_dss_host_port }}
       -i {{ start_dss_host_qpairs }} -m {{ start_dss_host_mem_align }}

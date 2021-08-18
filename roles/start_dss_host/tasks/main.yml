@@ -61,7 +61,7 @@
     label: "{{ item.item }}"
 
 - name: Configure Driver
-  command: ./dss_host.py config_driver
+  command: /usr/bin/python2 ./dss_host.py config_driver
   args:
     chdir: "{{ start_dss_host_dir }}/bin"
   when: missing_drivers is defined

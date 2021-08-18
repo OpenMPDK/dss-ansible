@@ -62,6 +62,8 @@
   command: make
   args:
     chdir: "{{ deploy_nvme_cli_staging_dir }}"
+  environment:
+    CFLAGS: "-O2 -g"
 
 - name: Copy nvme-cli to usr/bin path
   copy:

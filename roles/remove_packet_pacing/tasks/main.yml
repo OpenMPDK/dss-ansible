@@ -30,6 +30,12 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+# Needed if OFED not installed
+- name: Install iproute
+  yum:
+    name: "iproute{% if ansible_distribution_version == '8' %}-tc{% endif %}"
+  become: true
+
 - name: Get all RoCEv2 IP Addresses
   include_role:
     name: get_vlan_ips

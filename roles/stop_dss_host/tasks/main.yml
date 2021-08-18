@@ -36,7 +36,7 @@
   register: dss_host_path
 
 - name: Execute dss_host.py remove script
-  command: ./dss_host.py remove
+  command: /usr/bin/python2 ./dss_host.py remove
   args:
     chdir: "{{ stop_dss_host_dir }}/bin"
   when: dss_host_path.stat.exists

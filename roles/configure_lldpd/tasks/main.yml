@@ -30,13 +30,20 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Gather service facts
-  service_facts:
+- name: Install lldpd and net-snmp
+  yum:
+    name:
+      - lldpd
+      - net-snmp
+    state: present
+  become: true
 
-- name: Firewall is stopped and disabled
+- name: Start and enable lldpd and snmpd services
   service:
-    name: firewalld
-    state: stopped
-    enabled: false
-  when: "'firewalld.service' in ansible_facts.services"
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop:
+    - lldpd
+    - snmpd
   become: true

@@ -52,13 +52,9 @@
   loop: "{{ kernel_rpms.files }}"
   loop_control:
     label: "{{ item.path | basename }}"
-
-- name: Set default grub
-  command: "grub2-set-default 'CentOS Linux ({{ target_kernel_version }}) 7 (Core)'"
   notify:
     - Reboot system - kernel
     - Gather facts post-reboot
-  become: true
 
 - name: Delete staging directory for Kernel RPMs
   file:

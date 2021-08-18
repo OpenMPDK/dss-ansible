@@ -30,16 +30,22 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Assert onyx group is defined
+  assert:
+    that: "'onyx' in groups"
+    msg: No hosts defined in onyx group. Cannot automatically configure VLANs.
+
 - name: Set interface_switch_map_no_numa var
   set_fact:
     interface_switch_map_no_numa: >-
       {{ interface_switch_map_no_numa | default([]) }}
       {%- for switch in groups['onyx'] -%}
-        {%- for onyx_interface in hostvars[switch]['lldp_interfaces'] | selectattr('system_name', 'search', inventory_hostname_short) | list -%}
+        {%- for onyx_interface in hostvars[switch]['lldp_interfaces'] -%}
           {%- for interface_name in ansible_interfaces | sort -%}
             {%- set host_interface = hostvars[inventory_hostname]['ansible_' + interface_name] -%}
             {%- if (host_interface.macaddress is defined) and (host_interface.pciid is defined) -%}
-              {%- if host_interface.macaddress == onyx_interface.device_id -%}
+              {%- if (host_interface.macaddress == onyx_interface.device_id) or
+                (host_interface.macaddress == onyx_interface.port_id) -%}
                 + {{
                   [{
                     'local_interface': interface_name,
@@ -53,6 +59,11 @@
           {%- endfor -%}
         {%- endfor -%}
       {%- endfor -%}
+
+- name: Assert links found
+  assert:
+    that: interface_switch_map_no_numa | length > 0
+    msg: No links found for host on any switch. Check that NICs are connected to switch and that LLDPD is running.
 
 - name: Get NUMA
   command: "cat /sys/class/net/{{ item.local_interface }}/device/numa_node"
