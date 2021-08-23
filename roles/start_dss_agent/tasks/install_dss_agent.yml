@@ -37,6 +37,7 @@
   loop:
     - python-pip
     - fping
+    - etcd3
   when: ansible_os_family == 'RedHat' and inventory_hostname in groups['servers']
   become: true
 
