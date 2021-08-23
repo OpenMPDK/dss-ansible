@@ -34,57 +34,16 @@
   include_role:
     name: get_ofed_versions
 
-- name: Set OFED version variables
+- name: Set infiniband_driver to 'inbox' if not supported distribution version
   set_fact:
-    ofed_url: "{{ item.url }}"
-    ofed_target_version: "{{ item.version }}"
-    ofed_dir: "{{ item.dir }}"
-  loop: "{{ ofed_files }}"
-  loop_control:
-    label: "{{ item.filename }}"
-  when: ansible_distribution_version is version(item.distribution_version, '==')
+    ofed_unsupported: true
+  when: ansible_distribution_version not in ofed_files | map(attribute='distribution_version') | list
 
-- name: Check OFED version
-  command: ofed_info -n
-  failed_when: false
-  changed_when: false
-  register: ofed_version
-
-- name: Deploy OFED
+- name: Deploy Mellanox OFED
   import_tasks: deploy_ofed.yml
-  when: >
-    ofed_version.rc != 0 or
-    ofed_version.stdout is version(ofed_target_version, '!=')
+  when: not ofed_unsupported | d(true)
 
-- name: Check OFED version post-deploy
-  command: ofed_info -n
-  changed_when: false
-  register: post_ofed_version
-
-- name: Assert target OFED version
-  assert:
-    that: post_ofed_version.stdout is version(ofed_target_version, '==')
-    fail_msg: "Expected OFED version {{ ofed_target_version }} but found {{ post_ofed_version.stdout }}"
-    success_msg: "Detected target OFED version {{ ofed_target_version }}"
-
-- name: Stop and disable openibd service
-  service:
-    name: openibd
-    state: stopped
-    enabled: false
-  register: openibd_service
-  become: true
-
-- name: Remove mlnx-ofa_kernel modules
-  file:
-    path: "/lib/modules/{{ ansible_kernel }}/extra/mlnx-ofa_kernel"
-    state: absent
-  register: rm_mlnx_ofa_kernel
-  become: true
-
-- name: Reload module dependencies
-  command: depmod -a
-  when: >
-    openibd_service.changed or
-    rm_mlnx_ofa_kernel.changed
-  become: true
+- name: Install in-box Infiniband driver if OFED is not supported
+  include_role:
+    name: configure_inbox_infiniband
+  when: ofed_unsupported | d(false)

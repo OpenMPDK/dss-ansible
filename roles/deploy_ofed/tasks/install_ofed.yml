@@ -30,9 +30,57 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-ofed_versions:
-  - https://www.mellanox.com/downloads/ofed/MLNX_OFED-5.0-2.1.8.0/MLNX_OFED_LINUX-5.0-2.1.8.0-rhel7.4-x86_64.tgz
-  - https://www.mellanox.com/downloads/ofed/MLNX_OFED-5.0-2.1.8.0/MLNX_OFED_LINUX-5.0-2.1.8.0-rhel7.5-x86_64.tgz
-  - https://www.mellanox.com/downloads/ofed/MLNX_OFED-5.0-2.1.8.0/MLNX_OFED_LINUX-5.0-2.1.8.0-rhel7.6-x86_64.tgz
-  - https://www.mellanox.com/downloads/ofed/MLNX_OFED-5.0-2.1.8.0/MLNX_OFED_LINUX-5.0-2.1.8.0-rhel7.7-x86_64.tgz
-  - https://www.mellanox.com/downloads/ofed/MLNX_OFED-5.0-2.1.8.0/MLNX_OFED_LINUX-5.0-2.1.8.0-rhel7.8-x86_64.tgz
+- name: Install epel-release
+  yum:
+    name: epel-release
+  become: true
+
+- name: Install OFED dependencies
+  yum:
+    name:
+      - pciutils
+      - wget
+      - elfutils-libelf-devel
+      - python-devel
+      - lsof
+      - redhat-rpm-config
+      - rpm-build
+      - gcc
+      - createrepo
+      - gtk2
+      - atk
+      - cairo
+      - tcl
+      - gcc-gfortran
+      - tcsh
+      - tk
+  become: true
+
+- name: Create staging directory for OFED tgz
+  file:
+    path: "{{ deploy_ofed_staging_dir }}"
+    state: directory
+    mode: 0755
+
+- name: Unarchive OFED tgz
+  unarchive:
+    src: "{{ ofed_url }}"
+    dest: "{{ deploy_ofed_staging_dir }}"
+    mode: 0754
+    remote_src: true
+
+- name: Install OFED
+  command: "./mlnxofedinstall --add-kernel-support --force"
+  args:
+    chdir: "{{ deploy_ofed_staging_dir }}/{{ ofed_dir }}"
+  become: true
+
+- name: Delete staging directory for OFED tgz
+  file:
+    path: "{{ deploy_ofed_staging_dir }}"
+    state: absent
+  become: true
+
+- name: Set mlnx_tune profile
+  command: "mlnx_tune {{ mlnx_tune_profile }}"
+  become: true
