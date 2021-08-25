@@ -47,9 +47,9 @@
     mellanox_devices: []
     mellanox_devices_numa: []
     mellanox_ports: []
-    mlx_regex: "^(?:({{ pci_addr }}) )?(mlx[\d]_[\d]) (?:\([^)]+\))(?:.+ConnectX-(\d))?.+fw ([^ ]+).+ ==> ([^ ]+) \((Up|Down)\)"
+    mlx_regex: '^(?:({{ pci_addr }}) )?(mlx[\d]_[\d]) (?:\([^)]+\))(?:.+ConnectX-(\d))?.+fw ([^ ]+).+ ==> ([^ ]+) \((Up|Down)\)'
   vars:
-    pci_addr: "[\da-fA-F]+:[\da-fA-F]+:[\da-fA-F]+\.[\da-fA-F]+"
+    pci_addr: '[\da-fA-F]+:[\da-fA-F]+:[\da-fA-F]+\.[\da-fA-F]+'
 
 - name: Assert ibdev2netdev results are parseable
   assert:
