@@ -67,6 +67,7 @@
 # * datamover_compaction - Execute target compaction on each node after PUT, DEL, or TEST operations. Should always be set to `true`
 # * datamover_prefix - Prefix of path to perform datamover operation on a subset of the total number of objects
 # * datamover_get_path - Path to download objects during GET and TEST operations. For GET, path should be a shared mountpoint on all [clients] hosts
+# * datamover_put_retries - Number of times to retry PUT operation if incomplete upload is detected
 #
 # For example, to execute datamover GET operation to a writable, shared mount point across all [clients]:
 #

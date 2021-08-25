@@ -349,8 +349,13 @@ Note that if a bucket is re-created after executing cleanup, its child objects w
 #### playbooks/configure_hosts.yml
 
 Execute this playbook to configure hosts prior to deploying DSS / TESS software.
-This playbook will deploy custom kernel, install YUM / python dependencies, and configure OFED.
-Note that presently, only versions of CentOS between 7.4 and 7.8 are supported
+This playbook will deploy custom kernel, install YUM / python dependencies, and deploy the Infiniband driver.
+
+To install OFED, set `infiniband_driver` host var to `ofed`.
+To install the in-box Infiniband driver, set `infiniband_driver` host var to `inbox`.
+Note that OFED is presently only supported on CentOS 7.4 - 7.8.
+In-box driver will be installed on CentOS 7.9 or 8.
+No other versions of CentOS are supported.
 
 #### playbooks/configure_inbox_infiniband.yml
 
@@ -393,15 +398,6 @@ If no link is detected, the playbook fail on this assertion.
 
 Note that it is possible to assign multiple VLANs to a single physical link using the "num_vlans_per_port" var as a host / group var.
 For example, a host with "num_vlans_per_port=2" and 2 physical ports will allow the use of 4 VLANs (2 TCP and 2 RoCEv2)
-
-#### playbooks/configure_vms.yml
-
-Execute this playbook to configure VMs, or other hosts using the in-box Infiniband Support group.
-This playbook is intended to be used to configure VMs or hosts where OFED is not desired.
-
-Note that if configuring a host with inbox Infiniband Support, OFED must be removed from the system first.
-Note that hosts configured with inbox Infiniband Support must be configured in your inventory with
-"tcp_ip_list" and "rocev2_ip_list" lists populated. See README.md for additional details on inventory configuration.
 
 #### playbooks/debug_dss_software.yml
 
@@ -558,6 +554,7 @@ Explanation of configurable vars:
 * datamover_compaction - Execute target compaction on each node after PUT, DEL, or TEST operations. Should always be set to `true`
 * datamover_prefix - Prefix of path to perform datamover operation on a subset of the total number of objects
 * datamover_get_path - Path to download objects during GET and TEST operations. For GET, path should be a shared mountpoint on all [clients] hosts
+* datamover_put_retries - Number of times to retry PUT operation if incomplete upload is detected
 
 For example, to execute datamover GET operation to a writable, shared mount point across all [clients]:
 
