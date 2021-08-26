@@ -41,6 +41,7 @@
 # This playbook will also create configuration files for client library and datamover, based on hosts that appear in your inventory.
 # Please review "Datamover Settings" under "group_vars/all.yml" if you wish to adjust the default settings of the datamover.
 # Uncomment vars with new values, or add them to your inventory file.
+# It is critical to specify the correct values for your NFS shares for the `datamover_nfs_shares` var.
 #
 # Re-running this playbook will update the datamover configuration across all hosts in your inventory.
 
