@@ -44,8 +44,7 @@
           {%- for interface_name in ansible_interfaces | sort -%}
             {%- set host_interface = hostvars[inventory_hostname]['ansible_' + interface_name] -%}
             {%- if (host_interface.macaddress is defined) and (host_interface.pciid is defined) -%}
-              {%- if (host_interface.macaddress == onyx_interface.device_id) or
-                (host_interface.macaddress == onyx_interface.port_id) -%}
+              {%- if host_interface.macaddress == onyx_interface.port_id -%}
                 + {{
                   [{
                     'local_interface': interface_name,
