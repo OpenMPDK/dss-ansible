@@ -87,13 +87,13 @@
 - name: Upgrade pip
   pip:
     name: "pip=={{ pip3_version }}"
-    executable: "{{ pip3_path.stdout}}"
+    executable: "{{ pip3_path.stdout }}"
   become: true
 
 - name: Install python dependencies from requirements.txt
   pip:
     requirements: "{{ deploy_datamover_dest_dir }}/requirements.txt"
-    executable: "{{ pip3_path.stdout}}"
+    executable: "{{ pip3_path.stdout }}"
   register: benchmark_requirements
   become: true
 

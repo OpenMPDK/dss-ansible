@@ -63,13 +63,13 @@
 - name: Upgrade pip
   pip:
     name: "pip=={{ pip2_version }}"
-    executable: "{{ pip2_path.stdout}}"
+    executable: "{{ pip2_path.stdout }}"
   become: true
 
 - name: Install netifaces python dependency
   pip:
     name: netifaces
-    executable: "{{ pip2_path.stdout}}"
+    executable: "{{ pip2_path.stdout }}"
   become: true
 
 - name: Identify target tarball

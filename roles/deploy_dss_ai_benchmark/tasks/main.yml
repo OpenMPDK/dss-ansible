@@ -58,7 +58,7 @@
 - name: Upgrade pip
   pip:
     name: "pip=={{ pip3_version }}"
-    executable: "{{ pip3_path.stdout}}"
+    executable: "{{ pip3_path.stdout }}"
   become: true
 
 - name: Identify benchmark tarball
@@ -115,7 +115,7 @@
 - name: Install python dependencies from requirements.txt
   pip:
     requirements: "{{ deploy_dss_benchmark_dest_dir }}/scripts/requirements.txt"
-    executable: "{{ pip3_path.stdout}}"
+    executable: "{{ pip3_path.stdout }}"
   register: benchmark_requirements
   become: true
 
