@@ -28,12 +28,14 @@
 #  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---
 
 parseable: true
 quiet: true
 skip_list:
-  - 301
-  - 306
-  - 503
-  - 602
+  - no-changed-when
+  - risky-shell-pipe
+  - no-handler
+  - empty-string-compare
+  - ignore-errors
 use_default_rules: true
