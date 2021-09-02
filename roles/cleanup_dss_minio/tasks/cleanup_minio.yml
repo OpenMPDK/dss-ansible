@@ -31,7 +31,7 @@
 ---
 
 - name: Get range of mountpoints
-  shell: >-
+  command: >-
     grep -oP "mount_point\"\: \"/dev/nvme\K." nkv_config_{{ rocev2_ip }}.json
   register: mountpoint_range
   args:
