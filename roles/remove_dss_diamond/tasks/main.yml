@@ -37,7 +37,7 @@
   systemd:
     name: diamond
     state: stopped
-    enabled: no
+    enabled: false
   when: "'diamond.service' in ansible_facts.services"
   become: true
 
@@ -48,9 +48,9 @@
   loop:
     - /etc/diamond/diamond.conf
     - /etc/systemd/system/diamond.service
-  become: yes
+  become: true
 
 - name: Update systemd configuration
   systemd:
-    daemon-reload: yes
+    daemon-reload: true
   become: true

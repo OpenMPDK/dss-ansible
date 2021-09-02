@@ -75,7 +75,8 @@
   import_tasks: deploy_kernel.yml
   when: ansible_kernel is version (target_kernel_version, '!=')
 
-- meta: flush_handlers
+- name: Flush handlers
+  meta: flush_handlers
 
 - name: Assert target kernel version
   assert:

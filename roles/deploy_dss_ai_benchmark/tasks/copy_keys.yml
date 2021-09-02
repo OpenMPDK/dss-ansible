@@ -43,7 +43,7 @@
   command: "ssh-keygen -q -y -f {{ rsa_key }} -N '' > {{ pub_key }}"
   vars:
     rsa_key: "/root/.ssh/{{ deploy_dss_benchmark_ssh_key_name }}"
-    pub_key: "{{ rsa_key}}.pub"
+    pub_key: "{{ rsa_key }}.pub"
   args:
     creates: "{{ pub_key }}"
   run_once: true

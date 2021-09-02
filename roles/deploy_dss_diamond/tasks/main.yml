@@ -58,6 +58,6 @@
 - name: Enable diamond service
   systemd:
     name: diamond
-    daemon_reload: yes
-    enabled: yes
+    daemon_reload: true
+    enabled: true
   become: true

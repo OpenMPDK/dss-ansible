@@ -31,7 +31,7 @@
 ---
 
 - name: Remove agent related packages
-  become: yes
+  become: true
   package:
     name: "{{ item }}"
     state: absent
@@ -39,7 +39,7 @@
     - nkvagent
 
 - name: Delete log files and config directories
-  become: yes
+  become: true
   file:
     path: "{{ item }}"
     state: absent

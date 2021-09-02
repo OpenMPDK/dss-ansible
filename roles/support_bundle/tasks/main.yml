@@ -14,7 +14,7 @@
     state: directory
     mode: 0755
   delegate_to: localhost
-  when: coredump_only == false
+  when: not coredump_only
 
 - name: Check for coredumps
   find:
@@ -35,7 +35,7 @@
   command: dmesg -T
   register: dmesg
   changed_when: false
-  when: coredumps.matched > 0 or coredump_only == false
+  when: coredumps.matched > 0 or not coredump_only
 
 - name: Fetch dmesg
   copy:
@@ -43,13 +43,13 @@
     content: "{{ dmesg.stdout }}"
     mode: 0755
   delegate_to: localhost
-  when: coredumps.matched > 0 or coredump_only == false
+  when: coredumps.matched > 0 or not coredump_only
 
 - name: Fetch target log
   fetch:
     src: "{{ dss_log_dir }}/nkv-target.log"
     dest: "{{ local_coredump_dir }}"
-  when: coredumps.matched > 0 or coredump_only == false
+  when: coredumps.matched > 0 or not coredump_only
 
 - name: Find minio logs
   find:
@@ -65,7 +65,7 @@
   loop: "{{ minio_logs.files }}"
   loop_control:
     label: "{{ item.path }}"
-  when: coredumps.matched > 0 or coredump_only == false
+  when: coredumps.matched > 0 or not coredump_only
 
 - name: Create support bundle tarball
   archive:
@@ -73,14 +73,14 @@
     dest: "{{ local_coredump_dir }}/{{ ansible_date_time.epoch }}-{{ inventory_hostname_short }}-{{ coredump_suffix_name }}.tgz"
     mode: 0755
   delegate_to: localhost
-  when: coredumps.matched > 0 or coredump_only == false
+  when: coredumps.matched > 0 or not coredump_only
 
 - name: Remove support bundle temp files
   file:
     path: "{{ local_coredump_dir }}/{{ inventory_hostname }}"
     state: absent
   delegate_to: localhost
-  when: coredumps.matched > 0  or coredump_only == false
+  when: coredumps.matched > 0  or not coredump_only
 
 - name: Remove coredumps
   file:

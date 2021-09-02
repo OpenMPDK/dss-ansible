@@ -35,7 +35,7 @@
     name: epel-release
     enablerepo: extras
     state: present
-  become: yes
+  become: true
 
 - name: Install DSS host dependencies
   yum:
@@ -82,7 +82,7 @@
 - name: Upgrade pip
   pip:
     name: "pip=={{ pip2_version }}"
-    executable: "{{ pip2_path.stdout}}"
+    executable: "{{ pip2_path.stdout }}"
   become: true
 
 - name: Install python dependencies
@@ -90,7 +90,7 @@
     name:
       - paramiko
       - pssh
-    executable: "{{ pip2_path.stdout}}"
+    executable: "{{ pip2_path.stdout }}"
   become: true
 
 - name: Identify host tarball

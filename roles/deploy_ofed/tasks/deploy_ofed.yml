@@ -87,8 +87,8 @@
 
 - name: Load Mellanox Drivers
   include_role:
-    name: load_mlnx_drivers.yml
+    name: load_mlnx_drivers
 
 - name: Upgrade ConnectX Firmware
   include_role:
-    name: upgrade_connectx_firmware.yml
+    name: upgrade_connectx_firmware

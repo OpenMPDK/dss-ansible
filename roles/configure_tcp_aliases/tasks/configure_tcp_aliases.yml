@@ -181,7 +181,7 @@
           'numa': {{ item.numa }},
           'alias': '
             {%- if item.tcp_ip == item.inventory_name -%}
-              {{ inventory_hostname_short}}-tcp-{{ ansible_loop.index0 }}
+              {{ inventory_hostname_short }}-tcp-{{ ansible_loop.index0 }}
             {%- else -%}
               {{ item.inventory_name }}
             {%- endif -%}'

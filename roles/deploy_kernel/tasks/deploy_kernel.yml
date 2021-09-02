@@ -52,7 +52,7 @@
   loop: "{{ kernel_rpms.files }}"
   loop_control:
     label: "{{ item.path | basename }}"
-  
+
 - name: Set default grub
   command: "grub2-set-default 'CentOS {{ dist_string }} ({{ target_kernel_version }}) {{ major_dist_ver }}{{ core_string }}'"
   vars:

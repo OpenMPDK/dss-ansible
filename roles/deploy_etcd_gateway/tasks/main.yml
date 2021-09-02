@@ -33,7 +33,7 @@
 - name: Install etcd-gateway.service systemd unit
   blockinfile:
     path: /etc/systemd/system/etcd-gateway.service
-    create: yes
+    create: true
     mode: 0644
     block: |
       [Unit]

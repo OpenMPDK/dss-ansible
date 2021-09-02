@@ -93,12 +93,12 @@
   systemd:
     name: "{{ item }}"
     state: started
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
   loop:
     - ufm
     - ufm_api
-  become: yes
+  become: true
 
 - name: Check that UFM services are running
   service:

@@ -50,4 +50,5 @@
     loop_var: vlangroup
   when: which_mlxconfig.rc == 0
 
-- meta: flush_handlers
+- name: Flush handlers
+  meta: flush_handlers

@@ -40,7 +40,7 @@
 - name: Create agent configuration file
   blockinfile:
     path: "{{ dss_agent_config_file_dir }}/agent.conf"
-    create: yes
+    create: true
     mode: 0755
     block: |
       [agent]
