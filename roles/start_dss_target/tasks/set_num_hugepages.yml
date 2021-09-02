@@ -109,4 +109,5 @@
     - Execute grub2-mkconfig for hugepages
   become: true
 
-- meta: flush_handlers
+- name: Flush handlers
+  meta: flush_handlers
