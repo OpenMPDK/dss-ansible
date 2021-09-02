@@ -52,6 +52,13 @@
   loop: "{{ kernel_rpms.files }}"
   loop_control:
     label: "{{ item.path | basename }}"
+  
+- name: Set default grub
+  command: "grub2-set-default 'CentOS {{ dist_string }} ({{ target_kernel_version }}) {{ major_dist_ver }}{{ core_string }}'"
+  vars:
+    major_dist_ver: "{{ ansible_distribution_version.split('.')[-1] }}"
+    dist_string: "{% if major_dist_ver == '8' %}Stream{% else %}Linux{% endif %}"
+    core_string: "{% if major_dist_ver == '8' %}{% else %} (Core){% endif %}"
   notify:
     - Reboot system - kernel
     - Gather facts post-reboot
