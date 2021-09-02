@@ -49,7 +49,7 @@
   when: rocev2_ip_list is not defined
 
 - name: Query adapters
-  shell: "ip address show"
+  command: "ip address show"
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   changed_when: false
