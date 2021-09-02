@@ -41,7 +41,7 @@
 
 - name: Deploy Mellanox OFED
   import_tasks: deploy_ofed.yml
-  when: not ofed_unsupported | d(true)
+  when: not ofed_unsupported | d(false)
 
 - name: Install in-box Infiniband driver if OFED is not supported
   include_role:
