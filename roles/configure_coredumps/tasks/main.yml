@@ -42,7 +42,7 @@
     limit_type: '-'
     limit_item: core
     value: unlimited
-  become: yes
+  become: true
 
 - name: Create coredump compress dir
   file:
@@ -64,20 +64,20 @@
   sysctl:
     name: kernel.core_pattern
     value: "|{{ coredump_compress_dir }}/compress_core.sh %e %p"
-    sysctl_set: yes
+    sysctl_set: true
     state: present
-  become: yes
+  become: true
 
 - name: Set kernel.core_uses_pid in sysctl.d
   sysctl:
     name: kernel.core_uses_pid
     value: '1'
     state: present
-  become: yes
+  become: true
 
 - name: Set fs.suid_dumpable in sysctl.d
   sysctl:
     name: fs.suid_dumpable
     value: '2'
     state: present
-  become: yes
+  become: true

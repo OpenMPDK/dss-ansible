@@ -38,7 +38,7 @@
 
 - name: start dss agent kv_cli systemd unit
   systemd:
-    enabled: no
+    enabled: false
     state: started
     name: kv_cli
   when: "'kv_cli.service' in ansible_facts.services"

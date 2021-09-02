@@ -35,7 +35,7 @@
     name: epel-release
     enablerepo: extras
     state: present
-  become: yes
+  become: true
 
 - name: Install DSS host dependencies
   yum:

@@ -34,12 +34,12 @@
   firewalld:
     port: "{{ item }}/tcp"
     immediate: true
-    permanent: yes
+    permanent: true
     state: enabled
   when:
     - "'firewalld.service' in ansible_facts.services"
     - ansible_facts.services['firewalld.service'].state == "running"
-  become: yes
+  become: true
   loop:
     - "{{ ufm_etcd_client_port }}"
     - "{{ ufm_etcd_peer_port }}"

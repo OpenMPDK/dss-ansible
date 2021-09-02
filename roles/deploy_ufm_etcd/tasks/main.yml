@@ -61,11 +61,11 @@
     name: etcd3
     state: present
     executable: "{{ pip2_path.stdout}}"
-  become: yes
+  become: true
 
 - name: Stop and disable default etcd service
   systemd:
     name: etcd
     state: stopped
-    enabled: no
+    enabled: false
   become: true

@@ -34,7 +34,7 @@ etcd_data_dir: /var/lib/etcd
 etcd_master_group_name: ufm_hosts
 etcd_user: etcd
 etcd_group: etcd
-etcd_use_ips: True
+etcd_use_ips: true
 etcd_gateway_nodes: >-
   {%- for host in groups[etcd_master_group_name] -%}
     {%- if etcd_use_ips -%}

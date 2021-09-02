@@ -34,17 +34,17 @@
   systemd:
     name: "{{ ufm_etcd_service_file | basename }}"
     state: stopped
-    daemon_reload: yes
-    enabled: no
+    daemon_reload: true
+    enabled: false
   register: stop_service
   failed_when:
     - stop_service.msg is defined
     - "'Could not find' not in stop_service.msg"
-  become: yes
+  become: true
 
 - name: Remove UFM files and directories
   file:
     path: "{{ item }}"
     state: absent
   loop: "{{ ufm_reset_dirs + [ ufm_etcd_service_file ] }}"
-  become: yes
+  become: true

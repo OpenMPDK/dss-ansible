@@ -34,10 +34,10 @@
   yum_repository:
     name: ufm
     state: absent
-  become: yes
+  become: true
 
 - name: Remove UFM Packages (yum)
   yum:
     name: "{{ ufm_install_packages }}"
     state: absent
-  become: yes
+  become: true

@@ -45,7 +45,7 @@
   yum:
     name: "{{ ufm_devtest_staging_dir }}/{{ item | basename }}"
   register: ufm_rpm_status
-  become: yes
+  become: true
   loop:
     - "{{ ufm_rpm_file }}"
     - "{{ ufmbroker_rpm_file }}"

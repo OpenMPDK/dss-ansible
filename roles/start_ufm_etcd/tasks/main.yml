@@ -42,8 +42,8 @@
   systemd:
     name: "{{ ufm_etcd_service_file | basename }}"
     state: restarted
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
   when: service_file.changed
   become: true
 
@@ -51,8 +51,8 @@
   systemd:
     name: "{{ ufm_etcd_service_file | basename }}"
     state: started
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
   become: true
 
 - name: Add etcd Cluster

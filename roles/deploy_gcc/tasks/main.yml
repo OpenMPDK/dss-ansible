@@ -66,7 +66,7 @@
 - name: Install GCC RPM
   yum:
     name: "{{ deploy_gcc_staging_dir }}/{{ gcc_rpm_file | basename }}"
-  become: yes
+  become: true
   when: gcc_rpm_qa.rc != 0
 
 - name: Delete GCC RPM from staging directory
