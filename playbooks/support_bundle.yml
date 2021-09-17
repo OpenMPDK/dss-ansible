@@ -58,6 +58,9 @@
     - validate_ansible
 
 - name: Generate support bundle
-  hosts: servers
+  hosts:
+    - servers
+    - targets
+    - hosts
   roles:
     - support_bundle

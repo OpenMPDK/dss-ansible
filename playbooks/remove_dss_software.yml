@@ -49,6 +49,7 @@
 - name: Reset SPDK
   hosts:
     - servers
+    - targets
   gather_facts: false
   roles:
     - reset_spdk
@@ -56,10 +57,19 @@
 - name: Remove DSS Agent software
   hosts:
     - servers
+    - targets
   gather_facts: false
   roles:
     - remove_dss_diamond
     - remove_dss_agent
+
+- name: Remove etcd Gateway
+  hosts:
+    - servers
+    - targets
+    - ufm_hosts
+  gather_facts: false
+  roles:
     - remove_etcd_gateway
 
 - name: Remove UFM Software
@@ -71,7 +81,6 @@
 
 - name: Remove UFM ETCD
   hosts:
-    - servers
     - ufm_hosts
   gather_facts: false
   roles:
@@ -80,6 +89,8 @@
 - name: Remove DSS software
   hosts:
     - servers
+    - targets
+    - hosts
     - clients
   gather_facts: false
   roles:

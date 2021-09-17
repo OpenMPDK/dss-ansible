@@ -44,6 +44,8 @@
     - validate_ansible
 
 - name: Test nkv_test_cli
-  hosts: servers
+  hosts:
+    - servers
+    - targets
   roles:
     - test_nkv_test_cli

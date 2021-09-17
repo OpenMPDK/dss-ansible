@@ -35,7 +35,7 @@
 #
 # NOTE: For internal Samsung / DSS use! Unsupported!
 #
-# Execute this playbook to remove packet pacing from servers.
+# Execute this playbook to remove packet pacing from [servers] / [targets].
 # This can be used to cleanup DSS AI Benchmark.
 
 - name: Validate ansible versions and dependencies
@@ -44,6 +44,8 @@
     - validate_ansible
 
 - name: Remove Packet Pacing
-  hosts: servers
+  hosts:
+    - servers
+    - targets
   roles:
     - remove_packet_pacing

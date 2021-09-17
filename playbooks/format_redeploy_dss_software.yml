@@ -47,7 +47,9 @@
   import_playbook: remove_dss_software.yml
 
 - name: Format Disks
-  hosts: servers
+  hosts:
+    - servers
+    - targets
   gather_facts: false
   roles:
     - format_disks

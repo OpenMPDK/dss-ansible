@@ -46,6 +46,8 @@
     - validate_ansible
 
 - name: Upgrade KVSSD firmware
-  hosts: servers
+  hosts:
+    - servers
+    - targets
   roles:
     - upgrade_kvssd_firmware
