@@ -57,7 +57,8 @@
 # For example, given two hosts in your inventory: "server_01" and "client_01"
 # You can assign "last_octet_offset=100" to "client_01", which will result in "client_01" having a derived last octet of "101"
 #
-# VLAN IDs for all Onyx switches, clients, and servers must be assigned in your inventory file using "tcp_vlan_id_list" and "rocev2_vlan_id_list" vars.
+# VLAN IDs for all Onyx switches, clients, servers, targets, and hosts must be assigned in your inventory file using "tcp_vlan_id_list" and
+# "rocev2_vlan_id_list" vars.
 # The VLAN IDs provided in these list must correspond to the VLAN IDs provided in "rocev2_vlans" and "tcp_vlans" lists, as mentioned above.
 # If using multiple Onyx switches, it is thus possible to spread your VLANs across multiple switches.
 # Note that if a host and switch both are tagged with a VLAN ID, it is expected that there is a physical link between this switch and host.
@@ -75,6 +76,8 @@
 - name: Configure LLDPD
   hosts:
     - servers
+    - targets
+    - hosts
     - clients
   roles:
     - configure_lldpd
@@ -93,13 +96,17 @@
 - name: Configure host VLANs
   hosts:
     - servers
+    - targets
+    - hosts
     - clients
   roles:
     - configure_host_vlans
     - configure_dcqcn
 
 - name: Remove packet pacing
-  hosts: servers
+  hosts:
+    - servers
+    - targets
   gather_facts: false
   roles:
     - remove_packet_pacing

@@ -52,11 +52,15 @@
   hosts:
     - clients
     - servers
+    - targets
+    - hosts
   roles:
     - validate_centos
 
 - name: Deploy kernel on servers
-  hosts: servers
+  hosts:
+    - servers
+    - hosts
   roles:
     - deploy_kernel
 
@@ -64,6 +68,8 @@
   hosts:
     - clients
     - servers
+    - targets
+    - hosts
   roles:
     - validate_centos
     - configure_sysctl
