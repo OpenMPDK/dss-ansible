@@ -37,6 +37,7 @@
     tcp_adapter_numa_list: []
     tcp_alias_list: []
     combined_family_list: []
+    hostnames_list: []
 
 - name: Query IPs from tcp_ip_list
   shell: "getent ahosts {{ item }} | awk '{ print $1 }' | grep -v '^::1' | head -n 1"
@@ -192,49 +193,63 @@
     label: "{{ item.tcp_ip }}"
     extended: true
 
-- name: Set SERVER aliases in /etc/hosts
-  blockinfile:
-    path: /etc/hosts
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - SERVER TCP ALIASES FOR TESS"
-    block: |
-      {% for host in groups['servers'] %}
-      {% for tcp_ip in hostvars[host].tcp_alias_list %}
-      {% if tcp_ip.tcp_ip == tcp_ip.inventory_name %}
-      {{ tcp_ip.tcp_ip }} {{ tcp_ip.alias }}
-      {% endif %}
-      {% endfor %}
-      {% endfor %}
-  become: true
+- name: Set hostnames_list var for servers
+  set_fact:
+    hostnames_list: "{{ (hostnames_list | d([]) + groups[item] | d([])) | unique }}"
+  loop:
+    - servers
+    - targets
+    - hosts
+    - ufm_hosts
+  when: >
+    inventory_hostname in groups['servers'] | d([]) or
+    inventory_hostname in groups['targets'] | d([]) or
+    inventory_hostname in groups['hosts'] | d([]) or
+    inventory_hostname in groups['ufm_hosts'] | d([])
 
-- name: Set CLIENT aliases in /etc/hosts
-  blockinfile:
-    path: /etc/hosts
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - CLIENT TCP ALIASES FOR TESS"
-    block: |
-      {% for host in groups['clients'] | d([]) %}
-      {% if host not in groups['servers'] %}
-      {% for tcp_ip in hostvars[host].tcp_alias_list %}
-      {% if tcp_ip.tcp_ip == tcp_ip.inventory_name %}
-      {{ tcp_ip.tcp_ip }} {{ tcp_ip.alias }}
-      {% endif %}
-      {% endfor %}
-      {% endif %}
-      {% endfor %}
+- name: Set hostnames_list var for clients
+  set_fact:
+    hostnames_list: "{{ (hostnames_list | d([]) + groups[item] | d([])) | unique }}"
+  loop:
+    - servers
+    - targets
+    - hosts
+    - clients
   when: inventory_hostname in groups['clients'] | d([])
-  become: true
 
-- name: Set UFM aliases in /etc/hosts
+- name: Set non_resolvable_aliases var
+  set_fact:
+    needs_aliases: >-
+      {%- set needs_alias = { 'value': false } -%}
+      {%- for host in hostnames_list -%}
+      {%- for tcp_ip in hostvars[host].tcp_alias_list -%}
+      {%- if tcp_ip.tcp_ip == tcp_ip.inventory_name -%}
+      {%- if needs_alias.update({ 'value': true }) %}{% endif -%}
+      {%- endif -%}
+      {%- endfor -%}
+      {%- endfor -%}
+      {{ needs_alias.value }}
+  run_once: true
+
+- name: Set hostname aliases in /etc/hosts
   blockinfile:
     path: /etc/hosts
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - UFM TCP ALIASES FOR TESS"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - TCP ALIASES FOR TESS"
     block: |
-      {% for host in groups['ufm_hosts'] | d([]) %}
-      {% if host not in groups['servers'] %}
+      {% for host in hostnames_list %}
       {% for tcp_ip in hostvars[host].tcp_alias_list %}
       {% if tcp_ip.tcp_ip == tcp_ip.inventory_name %}
       {{ tcp_ip.tcp_ip }} {{ tcp_ip.alias }}
       {% endif %}
       {% endfor %}
-      {% endif %}
       {% endfor %}
+  when: needs_aliases
+  become: true
+
+- name: Clear hostname aliases in /etc/hosts if aliases not needed
+  blockinfile:
+    path: /etc/hosts
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - TCP ALIASES FOR TESS"
+    block: ''
+  when: not needs_aliases
   become: true

@@ -34,15 +34,15 @@
 
   },
   "s3_storage": {
-    "minio": {"url": "{{ hostvars[groups['servers'][0]].tcp_alias_list[0].alias }}:9000", "access_key": "{{ minio_access_key }}", "secret_key": "{{ minio_secret_key }}"},
+    "minio": {"url": "{{ hostvars[minio_hostnames[0]].tcp_alias_list[0].alias }}:9000", "access_key": "{{ minio_access_key }}", "secret_key": "{{ minio_secret_key }}"},
     "bucket": "{{ datamover_bucket }}",
     "client_lib": "{{ datamover_client_lib }}"
   },
   "operations": ["PUT","GET","DEL","LIST"],
   "logging": {"path": "{{ datamover_logging_path }}", "level": "{{ datamover_logging_level }}"},
   "dss_targets": [
-    {%- for server in groups['servers'] -%}
-        "{{ hostvars[server].tcp_alias_list[0].alias }}"{% if not loop.last %},{% endif -%}
+    {%- for target in ((groups['servers'] | d([]) + groups['targets'] | d([])) | unique) -%}
+        "{{ hostvars[target].tcp_alias_list[0].alias }}"{% if not loop.last %},{% endif -%}
     {% endfor -%}
   ],
   "environment": {

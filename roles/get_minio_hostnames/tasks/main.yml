@@ -30,20 +30,13 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Create datamover conf dir
-  file:
-    path: "{{ datamover_conf_dir }}"
-    state: directory
-    mode: 0755
-  become: true
+- name: Initialize minio_hostnames var
+  set_fact:
+    minio_hostnames: []
+  run_once: true
 
-- name: Get MinIO Hostnames
-  include_role:
-    name: get_minio_hostnames
-
-- name: Set datamover conf template
-  template:
-    src: config.json.j2
-    dest: "{{ datamover_conf_dir }}/config.json"
-    mode: 0555
-  become: true
+- name: Set minio_hostnames var
+  set_fact:
+    minio_hostnames: "{{ minio_hostnames | d([]) + [ item ] }}"
+  loop: "{{ (groups['servers'] | d([]) + groups['hosts'] | d([])) | unique }}"
+  run_once: true

@@ -63,7 +63,7 @@
     user: root
     key: "{{ ssh_key }}"
   delegate_to: "{{ key_host }}"
-  loop: "{{ groups['clients'] + groups['servers'] }}"
+  loop: "{{ (groups['clients'] + groups['servers'] | d([]) + groups['targets'] | d([]) + groups['hosts'] | d([])) | unique }}"
   loop_control:
     loop_var: key_host
   vars:
@@ -74,7 +74,7 @@
 - name: Scan machine RSA keys by TCP alias
   command: "ssh-keyscan -t rsa {{ scan_alias }}"
   register: ssh_keys_short
-  loop: "{{ groups['clients'] + groups['servers'] }}"
+  loop: "{{ (groups['clients'] + groups['servers'] | d([]) + groups['targets'] | d([]) + groups['hosts'] | d([])) | unique }}"
   loop_control:
     loop_var: hostname
   vars:

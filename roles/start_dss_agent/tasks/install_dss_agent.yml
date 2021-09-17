@@ -38,7 +38,9 @@
     - python-pip
     - fping
     - etcd3
-  when: ansible_os_family == 'RedHat' and inventory_hostname in groups['servers']
+  when: >
+    inventory_hostname in groups['servers'] | d([]) or
+    inventory_hostname in groups['targets'] | d([])
   become: true
 
 - name: Remove existing staging directory
