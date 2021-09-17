@@ -30,6 +30,30 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Configure server mc aliases
-  include_tasks: configure_server_mc_alias.yml
-  when: not no_minio | d(false)
+- name: List local hosts with mc
+  command: "{{ configure_mc_alias_dir }}/mc config host list {{ local_mc_alias }}"
+  loop: "{{ range(0, tcp_alias_list | length) | list }}"
+  loop_control:
+    label: "{{ tcp_alias }}"
+    extended: true
+  vars:
+    tcp_alias: "{{ tcp_alias_list[ansible_loop.index0].alias }}"
+    local_mc_alias: "local_{{ tcp_alias | replace('.', '_') | replace('-', '_') }}"
+  register: mc_list_local_hosts
+  failed_when: false
+  changed_when: false
+
+- name: Set local hosts with mc
+  command: >
+    {{ configure_mc_alias_dir }}/mc config host
+    add {{ local_mc_alias }} http://{{ tcp_alias }}:{{ minio_port }}
+    {{ minio_access_key }} {{ minio_secret_key }}
+  loop: "{{ range(0, mc_list_local_hosts.results | length) | list }}"
+  loop_control:
+    label: "{{ tcp_alias }}"
+    extended: true
+  vars:
+    tcp_alias: "{{ tcp_alias_list[ansible_loop.index0].alias }}"
+    local_mc_alias: "local_{{ tcp_alias | replace('.', '_') | replace('-', '_') }}"
+    alias_status: "{{ mc_list_local_hosts.results[item].stderr }}"
+  when: "'No such alias' in alias_status"
