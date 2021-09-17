@@ -36,17 +36,23 @@
 
 - name: Generate minio startup scripts
   include_tasks: generate_scripts.yml
+  when: inventory_hostname in host_hostnames
 
 - name: Check for running minio instances
   command: "pgrep -ax minio"
   register: minio_ps
   changed_when: false
   failed_when: false
+  when: inventory_hostname in host_hostnames
 
 - name: Start standalone minio
   include_tasks: start_minio_standalone.yml
-  when: standalone_minio is defined
+  when:
+    - inventory_hostname in host_hostnames
+    - standalone_minio is defined
 
 - name: Start distributed minio
   include_tasks: start_minio_distributed.yml
-  when: standalone_minio is not defined
+  when:
+    - inventory_hostname in host_hostnames
+    - standalone_minio is not defined

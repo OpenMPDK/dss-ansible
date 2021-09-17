@@ -34,15 +34,15 @@
   set_fact:
     vlan_ip_map: []
     combined_vlan_ip_map: []
-    included_hosts: []
+    included_targets: []
 
-- name: Set included_hosts var
+- name: Set included_targets var
   set_fact:
-    included_hosts: "{{ included_hosts | default([]) + [ host ] }}"
-  loop: "{{ ansible_play_hosts }}"
+    included_targets: "{{ included_targets | default([]) + [ target ] }}"
+  loop: "{{ target_hostnames }}"
   loop_control:
-    loop_var: host
-  when: hostvars[host].cluster_num | d(cluster_num) | string == current_cluster_num | string
+    loop_var: target
+  when: hostvars[target].cluster_num | d(cluster_num) | string == current_cluster_num | string
   run_once: true
 
 - name: Set TCP - RoCEv2 IP map
@@ -60,10 +60,10 @@
 - name: Set combined_vlan_ip_map
   set_fact:
     combined_vlan_ip_map: "{{ combined_vlan_ip_map | default([]) }} +
-      [{ 'rocev2': [{% for host in included_hosts -%}
+      [{ 'rocev2': [{% for host in included_targets -%}
       '{{ hostvars[host].vlan_ip_map[ansible_loop.index0].rocev2_ip }}'
       {%- if not loop.last %}, {% endif %}{% endfor %}],
-          'tcp': [{% for host in included_hosts -%}
+          'tcp': [{% for host in included_targets -%}
       '{{ hostvars[host].vlan_ip_map[ansible_loop.index0].tcp_alias }}'
       {%- if not loop.last %}, {% endif %}{% endfor %}] }]"
   loop: "{{ range(0, vlan_ip_map | length) | list }}"
@@ -77,11 +77,13 @@
   changed_when: false
   register: nvme_subsys
   become: true
+  when: inventory_hostname in host_hostnames
 
 - name: Assert Subsystems mounted
   assert:
     that: (nvme_subsys.stdout | from_json).Subsystems is defined
     msg: Subsystems are not mounted. Run `start_dss_software` playbook first.
+  when: inventory_hostname in host_hostnames
 
 - name: Set flattened_subsystems
   set_fact:
@@ -96,15 +98,18 @@
   loop: "{{ (nvme_subsys.stdout | from_json).Subsystems | batch(2) | list }}"
   loop_control:
     label: "{{ item[0].Name }}"
+  when: inventory_hostname in host_hostnames
 
 - name: Set rdma_subsystems var
   set_fact:
     rdma_subsystems: "{{ flattened_subsystems | json_query('[?Paths[?Transport==`rdma`]]') }}"
+  when: inventory_hostname in host_hostnames
 
 - name: Assert rdma subsystems present
   assert:
     that: rdma_subsystems | length > 0
     msg: "No RDMA subsystems are mounted."
+  when: inventory_hostname in host_hostnames
 
 - name: Set nvme_mountpoints
   set_fact:
@@ -126,11 +131,13 @@
         {%- endfor %}
       {% endfor %}
       ]
+  when: inventory_hostname in host_hostnames
 
 - name: Assert subsystems mounted
   assert:
     that: nvme_mountpoints | length > 0
     msg: NVMeOF subsystems not mounted. Please verify DSS software is running (start_dss_software)
+  when: inventory_hostname in host_hostnames
 
 - name: Find min/max devmap
   set_fact:
@@ -150,13 +157,14 @@
     loop_var: vlan_pair
     extended: true
     label: "{{ ansible_loop.index0 }}"
-  run_once: true
+  when: inventory_hostname in host_hostnames
 
 - name: Assert mountpoints found for each VLAN
   assert:
     that: item.min != 999
     msg: "NVMe mountpoints not found for all VLANs. Check rocev2_vlans or rocev2_ip_list vars."
   loop: "{{ subsys_range }}"
+  when: inventory_hostname in host_hostnames
 
 - name: Set min_subsystem_list
   set_fact:
@@ -166,11 +174,19 @@
           "{{ (nvme_mountpoints | selectattr('dev', 'equalto', vlan.min) | list)[0].nqn }}"{%- if not loop.last %}, {% endif %}
         {% endfor %}
       ]
+  when: inventory_hostname in host_hostnames
 
 - name: Set standalone_minio var
   set_fact:
     standalone_minio: true
   when:
-    - groups['servers'] | length == 1
+    - inventory_hostname in host_hostnames
+    - groups['servers'] | d([]) | length == 1
     - (tcp_alias_list | length == 1 or
       (nvme_mountpoints | length /  tcp_alias_list | length) < 4)
+
+- name: Set standalone_minio var if disaggregated
+  set_fact:
+    standalone_minio: true
+  when:
+    - inventory_hostname in groups['hosts'] | d([])

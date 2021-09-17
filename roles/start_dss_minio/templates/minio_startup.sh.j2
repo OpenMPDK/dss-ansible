@@ -30,7 +30,7 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 {% set num_mountpoints = { 'value': 0 } %}
-{% if standalone_minio is defined %}
+{% if standalone_minio | d(false) %}
     {%- for vlan in vlan_ip_map -%}
         {%- if num_mountpoints.update({ 'value': num_mountpoints.value + (subsys_range[loop.index0].max | int - subsys_range[loop.index0].min | int + 1) }) %}{% endif -%}
     {% endfor %}
@@ -40,7 +40,7 @@
 
 export LD_LIBRARY_PATH="{{ start_dss_minio_host_dir }}/lib"
 export MINIO_NKV_CONFIG="{{ start_dss_minio_host_dir }}/conf/nkv_config_{{ rocev2_ip }}.json"
-{% if standalone_minio is defined %}#{% endif %}export MINIO_INSTANCE_HOST_PORT={{ tcp_alias }}:{{ minio_port }}
+{% if standalone_minio | d(false) %}#{% endif %}export MINIO_INSTANCE_HOST_PORT={{ tcp_alias }}:{{ minio_port }}
 export MINIO_ACCESS_KEY={{ minio_access_key }}
 export MINIO_SECRET_KEY={{ minio_secret_key }}
 
@@ -61,7 +61,7 @@ export MINIO_DISABLE_META_STAT={{ minio_disable_meta_stat }}
 export MINIO_ON_KV={{ minio_on_kv }}
 export MINIO_DISABLE_EC={{ minio_disable_ec }}
 export MINIO_KV_MAX_SIZE={{ minio_kv_max_size }}
-{% if standalone_minio is defined %}#{% endif %}export MINIO_NKV_SHARED={{ minio_nkv_shared }}
+{% if standalone_minio | d(false) %}#{% endif %}export MINIO_NKV_SHARED={{ minio_nkv_shared }}
 #export MINIO_NKV_CHECKSUM={{ minio_nkv_checksum }}
 
 ulimit -n 65535
@@ -70,19 +70,21 @@ ulimit -c unlimited
 {% if num_numa | int > 1 -%}
     numactl -N {{ numa_node }} -i {{ numa_node }},{{ adjacent_numa }}{{ ' '}}
 {%- endif -%}
-{{ start_dss_minio_dir }}/minio server{% if standalone_minio is not defined %} --address {{ tcp_alias }}:{{ minio_port }}{% endif %}
-{%- for vlan in combined_vlan_ip_map -%}
-    {%- set vlan_index = loop.index0 -%}
-    {%- for alias in vlan.tcp -%}
-        {%- if standalone_minio is not defined -%}
-            {%- if groups['servers'] | length == 1 or min_subsystem_list[vlan_index] == min_subsystem -%}
+{{ start_dss_minio_dir }}/minio server{% if not standalone_minio | d(false) %} --address {{ tcp_alias }}:{{ minio_port }}{% endif %}
+{%- if standalone_minio | d(false) -%}
+    {%- for vlan in vlan_ip_map -%}
+        {%- for mountpoint in range(subsys_range[loop.index0].min | int, subsys_range[loop.index0].max | int + 1) -%}
+            {{ ' ' }}/dev/nvme{{ mountpoint }}n1
+        {%- endfor -%}
+    {%- endfor -%}
+{%- else -%}
+    {%- for vlan in combined_vlan_ip_map -%}
+        {%- set vlan_index = loop.index0 -%}
+        {%- for alias in vlan.tcp -%}
+            {%- if (groups['servers'] | d([]) + groups['targets'] | d([])) | unique | length == 1 or min_subsystem_list[vlan_index] == min_subsystem -%}
                 {{ ' ' }}http://{{ alias }}:{{ minio_port }}/dev/nvme{{ '{' }}{{ subsys_range[vlan_index].min }}...{{ subsys_range[vlan_index].max }}{{ '}' }}n1
             {%- endif -%}
-        {%- else -%}
-            {%- for mountpoint in range(subsys_range[vlan_index].min | int, subsys_range[vlan_index].max | int + 1) -%}
-                {{ ' ' }}/dev/nvme{{ mountpoint }}n1
-            {%- endfor -%}
-        {%- endif -%}
+        {%- endfor -%}
     {%- endfor -%}
-{%- endfor -%}
+{%- endif -%}
 {{ ' ' }}| grep -v 'Pool count' --line-buffered
