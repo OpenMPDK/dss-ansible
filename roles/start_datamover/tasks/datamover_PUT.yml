@@ -43,6 +43,6 @@
     chdir: "{{ deploy_datamover_dest_dir }}"
   register: master_application
   run_once: true
-  until: "'DataMover RESUME operation is required' not in master_application.sdtout"
+  until: "'DataMover RESUME operation is required' not in master_application.stdout"
   retries: "{{ datamover_put_retries }}"
   become: true
