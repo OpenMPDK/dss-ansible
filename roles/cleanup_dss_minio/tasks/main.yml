@@ -30,6 +30,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Init vars
+  set_fact:
+    target_hostnames: "{{ (groups['servers'] | d([]) + groups['targets'] | d([])) | unique }}"
+    host_hostnames: "{{ (groups['servers'] | d([]) + groups['hosts'] | d([])) | unique }}"
+
 - name: Get all RoCEv2 IP Addresses
   include_role:
     name: get_vlan_ips
@@ -61,9 +66,28 @@
   command: "cat {{ dss_target_conf_dir }}/client_library_conf.json"
   register: local_dss_conf
   run_once: true
+  delegate_to: "{{ host_hostnames[0] }}"
   changed_when: false
 
-- name: debug dss conf
+- name: Set cluster_num_list var
+  set_fact:
+    cluster_num_list: "{{ cluster_num_list | default([]) }} +
+      [
+        {% for host in ansible_play_hosts %}
+            '{{ hostvars[host].cluster_num | d(cluster_num) }}'{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ]"
+  when: cluster_num_list is not defined
+  run_once: true
+
+- name: Check subsystems are mounted
+  include_tasks: check_subsystems.yml
+  loop: "{{ cluster_num_list | unique }}"
+  loop_control:
+    loop_var: current_cluster_num
+  when: current_cluster_num | string == cluster_num | string
+
+- name: Cleanup MinIO
   include_tasks: cleanup_minio.yml
   loop: "{{ (local_dss_conf.stdout | from_json).clusters }}"
   loop_control:

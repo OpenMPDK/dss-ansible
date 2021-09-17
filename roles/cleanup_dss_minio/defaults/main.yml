@@ -31,3 +31,5 @@
 ---
 
 dss_target_conf_dir: /etc/dss
+cluster_num: 0
+start_dss_host_nvmf_in_conf: /etc/dss/nvmf.in.conf
