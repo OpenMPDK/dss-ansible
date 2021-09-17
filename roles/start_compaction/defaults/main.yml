@@ -32,5 +32,6 @@
 
 # dss_target_mode valid values: [kv, kv_block_vm, kv_block_perf, block]
 dss_target_mode: kv_block_perf
+dss_target_conf_dir: /etc/dss
 start_compaction_timeout: 12000
 start_compaction_delay: 15
