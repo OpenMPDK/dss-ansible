@@ -89,9 +89,17 @@
     loop_var: host
   run_once: true
 
-- name: Ping all endpoints
-  command: "ping -c 1 {{ ip_address }}"
-  changed_when: false
+- name: Query IPs from tcp_ip_list (getent)
+  shell: "getent ahosts {{ item }} | awk '{ print $1 }' | grep -v '^::1' | head -n 1"
   loop: "{{ combined_vlan_ip_list }}"
+  changed_when: false
+  register: getent
+
+- name: Assert tcp_ip_list contains routable hostnames or IPs
+  assert:
+    that: "{{ item.stdout | ipaddr != false }}"
+    msg: "{{ item.item }} is not routable on this host"
+    quiet: true
+  loop: "{{ getent.results }}"
   loop_control:
-    loop_var: ip_address
+    label: "{{ item.item }}"
