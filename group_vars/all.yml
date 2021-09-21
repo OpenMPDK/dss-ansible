@@ -159,6 +159,9 @@
 # pip2_version: 20.3.4
 # pip3_version: 21.0.1
 
+### Client Library Setting
+# client_library_init_time: 1
+
 ### Datamover Settings
 ### datamover_operation possible values: ['PUT', 'GET', 'LIST', 'DEL', 'TEST']
 # datamover_operation: PUT
