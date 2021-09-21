@@ -35,3 +35,4 @@ minio_port: 9000
 minio_access_key: minio
 minio_secret_key: minio123
 dss_target_conf_dir: /etc/dss
+client_library_init_time: 1

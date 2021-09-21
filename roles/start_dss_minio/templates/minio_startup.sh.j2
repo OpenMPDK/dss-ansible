@@ -64,7 +64,7 @@ export MINIO_KV_MAX_SIZE={{ minio_kv_max_size }}
 {% if standalone_minio is defined %}#{% endif %}export MINIO_NKV_SHARED={{ minio_nkv_shared }}
 #export MINIO_NKV_CHECKSUM={{ minio_nkv_checksum }}
 
-ulimit -n 65535
+ulimit -n {{ minio_ulimit }}
 ulimit -c unlimited
 
 {% if num_numa | int > 1 -%}

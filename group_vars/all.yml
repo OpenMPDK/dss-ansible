@@ -95,6 +95,7 @@
 # minio_kv_max_size: 1048576
 # minio_nkv_shared: 1
 # minio_nkv_checksum: 1
+# minio_ulimit: 1048576
 
 ### AI Benchmark Settings
 # benchmark_objects: 1000
@@ -158,6 +159,9 @@
 ### pip Settings
 # pip2_version: 20.3.4
 # pip3_version: 21.0.1
+
+### Client Library Setting
+# client_library_init_time: 1
 
 ### Datamover Settings
 ### datamover_operation possible values: ['PUT', 'GET', 'LIST', 'DEL', 'TEST']
