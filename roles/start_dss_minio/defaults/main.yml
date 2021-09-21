@@ -53,6 +53,7 @@ minio_disable_ec: 1
 minio_kv_max_size: 1048576
 minio_nkv_shared: 1
 minio_nkv_checksum: 1
+minio_ulimit: 1048576
 
 dss_log_dir: /var/log/dss
 

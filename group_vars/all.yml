@@ -95,6 +95,7 @@
 # minio_kv_max_size: 1048576
 # minio_nkv_shared: 1
 # minio_nkv_checksum: 1
+# minio_ulimit: 1048576
 
 ### AI Benchmark Settings
 # benchmark_objects: 1000
