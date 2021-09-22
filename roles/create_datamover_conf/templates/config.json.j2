@@ -8,6 +8,7 @@
     "host_or_ip_address": "{{ hostvars[groups['clients'][0]].tcp_alias_list[0].alias }}",
     "workers": {{ datamover_master_workers }},
     "max_index_size": {{ datamover_master_max_index_size }},
+    "index_data_queue_size": {{ datamover_index_data_queue_size }},
     "size": "{{ datamover_master_size }}"
   },
   "client": {
