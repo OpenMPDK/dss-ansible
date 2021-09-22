@@ -61,3 +61,4 @@ datamover_logging_path: /var/log/dss
 datamover_logging_level: INFO
 datamover_gcc_source: /usr/local/bin/setenv-for-gcc510.sh
 datamover_gcc_version: 5.1
+datamover_index_data_queue_size: 50000
