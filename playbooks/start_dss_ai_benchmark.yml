@@ -51,7 +51,6 @@
   hosts:
     - servers
     - servers
-    - targets
     - clients
     - ufm_hosts
   roles:

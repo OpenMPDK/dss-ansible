@@ -45,7 +45,6 @@
 - name: Get TCP VLAN IP List
   hosts:
     - servers
-    - targets
     - hosts
     - clients
     - ufm_hosts
@@ -91,6 +90,5 @@
     - servers
     - targets
     - hosts
-  gather_facts: false
   roles:
     - start_dss_minio
