@@ -50,7 +50,7 @@
   set_fact:
     server_linkspeed: "{{ hostvars[server_hostname][server_ans_netdev]['speed'] }}"
   vars:
-    server_ans_netdev: "ansible_{{ client_netdev | replace('-', '_') }}"
+    server_ans_netdev: "ansible_{{ server_netdev | replace('-', '_') }}"
 
 - name: print ib_read_bw client command
   debug:
