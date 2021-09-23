@@ -39,3 +39,10 @@
     enabled: true
     state: started
   become: true
+
+- name: Copy show_gids script
+  copy:
+    src: show_gids.sh
+    dest: /usr/local/bin
+    mode: 0755
+  become: true
