@@ -42,7 +42,7 @@
   "logging": {"path": "{{ datamover_logging_path }}", "level": "{{ datamover_logging_level }}"},
   "dss_targets": [
     {%- for target in ((groups['servers'] | d([]) + groups['targets'] | d([])) | unique) -%}
-        "{{ hostvars[target].tcp_alias_list[0].alias }}"{% if not loop.last %},{% endif -%}
+        "{{ hostvars[target].inventory_hostname }}"{% if not loop.last %},{% endif -%}
     {% endfor -%}
   ],
   "environment": {
