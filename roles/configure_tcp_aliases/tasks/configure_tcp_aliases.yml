@@ -198,12 +198,10 @@
     hostnames_list: "{{ (hostnames_list | d([]) + groups[item] | d([])) | unique }}"
   loop:
     - servers
-    - targets
     - hosts
     - ufm_hosts
   when: >
     inventory_hostname in groups['servers'] | d([]) or
-    inventory_hostname in groups['targets'] | d([]) or
     inventory_hostname in groups['hosts'] | d([]) or
     inventory_hostname in groups['ufm_hosts'] | d([])
 
@@ -212,7 +210,6 @@
     hostnames_list: "{{ (hostnames_list | d([]) + groups[item] | d([])) | unique }}"
   loop:
     - servers
-    - targets
     - hosts
     - clients
   when: inventory_hostname in groups['clients'] | d([])
