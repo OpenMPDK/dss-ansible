@@ -30,6 +30,26 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Get ib_read_bw versions
+  command: ib_read_bw --version
+  changed_when: false
+  failed_when: false
+  register: ib_read_bw_version
+
+- name: Set ib_read_bw_ver_list var
+  set_fact:
+    ib_read_bw_ver_list: "{{ ib_read_bw_ver_list | d([]) + [ hostvars[item].ib_read_bw_version.stdout ] }}"
+  loop: "{{ ansible_play_hosts }}"
+  run_once: true
+
+- name: Assert ib_read_bw versions match
+  assert:
+    that: ib_read_bw_ver_list | unique | length == 1
+    msg: |
+      Mixed versions of ib_read_bw detected.
+      Cannot test ib_read_bw between hosts running OFED and inbox infiniband driver
+      {{ ib_read_bw_version.stdout }}
+
 - name: Get RoCEv2 IP Address
   include_role:
     name: get_vlan_ips
@@ -45,6 +65,8 @@
 
 - name: Query show_gids
   command: show_gids
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/usr/local/bin:/usr/sbin"
   changed_when: false
   register: gids_list
   become: true
