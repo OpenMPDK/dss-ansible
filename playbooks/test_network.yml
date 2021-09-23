@@ -49,6 +49,7 @@
   hosts:
     - servers
     - targets
+    - hosts
   vars:
     test_vlans: rocev2
   roles:
@@ -58,7 +59,6 @@
   hosts:
     - clients
     - servers
-    - targets
     - hosts
   vars:
     test_vlans: tcp
@@ -69,5 +69,6 @@
   hosts:
     - servers
     - targets
+    - hosts
   roles:
     - test_network_ib
