@@ -49,7 +49,6 @@
 - name: Get TCP VLAN IP List
   hosts:
     - servers
-    - targets
     - hosts
     - clients
     - ufm_hosts
