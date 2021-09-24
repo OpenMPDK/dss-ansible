@@ -34,6 +34,7 @@
   set_fact:
     target_hostnames: "{{ (groups['servers'] | d([]) + groups['targets'] | d([])) | unique }}"
     host_hostnames: "{{ (groups['servers'] | d([]) + groups['hosts'] | d([])) | unique }}"
+    cluster_num_list: []
 
 - name: Stat DSS Minio path
   stat:
@@ -52,6 +53,7 @@
     path: "{{ dss_target_conf_dir }}"
     state: directory
     mode: 0755
+  when: inventory_hostname in host_hostnames
   become: true
 
 - name: Check minio connection
@@ -68,13 +70,12 @@
 
 - name: Set cluster_num_list var
   set_fact:
-    cluster_num_list: "{{ cluster_num_list | default([]) }} +
+    cluster_num_list: "{{ cluster_num_list }} +
       [
         {% for host in ansible_play_hosts %}
             '{{ hostvars[host].cluster_num | d(cluster_num) }}'{% if not loop.last %},{% endif %}
         {% endfor %}
       ]"
-  when: cluster_num_list is not defined
   run_once: true
 
 - name: Get all RoCEv2 IP Addresses
@@ -123,6 +124,13 @@
   register: create_conf_template
   become: true
   when: inventory_hostname in host_hostnames
+
+- name: Remove client library conf.json from targets
+  file:
+    path: "{{ dss_target_conf_dir }}/client_library_conf.json"
+    state: absent
+  when: inventory_hostname in groups['targets'] | d([])
+  become: true
 
 - name: Read DSS conf
   command: "{{ start_dss_minio_dir }}/mc cat {{ local_mc_alias }}/{{ dss_bucket_name }}/conf.json"
