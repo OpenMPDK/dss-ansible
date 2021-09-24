@@ -30,6 +30,16 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Stat DSS Minio path
+  stat:
+    path: "{{ configure_mc_alias_dir }}"
+  register: mc_alias_path
+
+- name: Assert DSS Minio path exists
+  assert:
+    that: mc_alias_path.stat.exists
+    fail_msg: DSS Minio is not installed. Execute 'deploy_dss_software.yml' playbook first.
+
 - name: List local hosts with mc
   command: "{{ configure_mc_alias_dir }}/mc config host list {{ local_mc_alias }}"
   loop: "{{ range(0, tcp_alias_list | length) | list }}"
