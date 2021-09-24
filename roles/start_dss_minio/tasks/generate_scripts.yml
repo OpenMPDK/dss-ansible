@@ -36,16 +36,9 @@
   changed_when: false
   register: lscpu_num_numa
 
-- name: Get num. sockets
-  shell: |
-    lscpu | grep -oP 'Socket\(s\): +\K.+'
-  changed_when: false
-  register: lscpu_num_sockets
-
-- name: Set num_numa and num_sockets vars
+- name: Set num_numa var
   set_fact:
     num_numa: "{{ lscpu_num_numa.stdout | int }}"
-    num_sockets: "{{ lscpu_num_sockets.stdout | int }}"
 
 - name: Get numa / socket allocation
   shell: "lscpu --parse=NODE,SOCKET | sort -u | grep -v '#'"
@@ -72,8 +65,13 @@
 - name: Assert more than one NUMA node
   assert:
     that: num_numa | int > 1
-    msg: Only 1 NUMA node. NUMA configuration is not optimal.
-  when: num_sockets | int > 1
+    msg: |
+      NUMA Nodes: {{ num_numa }}
+      Processor count: {{ ansible_processor_count }}
+      For optimal performance, configure NUMA nodes per socket.
+  when:
+    - ansible_processor_count > 1
+    - ansible_virtualization_role == 'host'
   ignore_errors: true
 
 - name: Set adjacent_numa_list var
@@ -135,13 +133,13 @@
   assert:
     that: (nvme_mountpoints | length /  tcp_alias_list | length) >= 4
     msg: Minimum of 4 subsystems per distributed minio required.
-  when: standalone_minio is not defined
+  when: not standalone_minio
 
 - name: Assert standalone minio minimum mountpoints
   assert:
     that: nvme_mountpoints | length >= 4
     msg: Minimum of 4 subsystems required for standalone minio.
-  when: standalone_minio is defined
+  when: standalone_minio
 
 - name: Create minio scripts
   template:
