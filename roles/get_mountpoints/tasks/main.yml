@@ -35,6 +35,8 @@
     vlan_ip_map: []
     combined_vlan_ip_map: []
     included_targets: []
+    included_hosts: []
+    standalone_minio: false
 
 - name: Set included_targets var
   set_fact:
@@ -45,16 +47,27 @@
   when: hostvars[target].cluster_num | d(cluster_num) | string == current_cluster_num | string
   run_once: true
 
+- name: Set included_hosts var
+  set_fact:
+    included_hosts: "{{ included_hosts | default([]) + [ host ] }}"
+  loop: "{{ host_hostnames }}"
+  loop_control:
+    loop_var: host
+  when: hostvars[host].cluster_num | d(cluster_num) | string == current_cluster_num | string
+  run_once: true
+
 - name: Set TCP - RoCEv2 IP map
   set_fact:
     vlan_ip_map: "{{ vlan_ip_map | default([]) +
                   [{'tcp_alias': tcp_alias,
                     'rocev2_ip': rocev2_ip }] }}"
   with_together:
-    - "{{ tcp_alias_list }}"
+    - "{{ tcp_alias_list | d([]) }}"
     - "{{ rocev2_ip_list }}"
+  loop_control:
+    label: "tcp_alias: {{ tcp_alias }}, rocev2_ip: {{ rocev2_ip}}"
   vars:
-    tcp_alias: "{{ item.0.alias }}"
+    tcp_alias: "{{ item.0.alias | d('') }}"
     rocev2_ip: "{{ item.1 }}"
 
 - name: Set combined_vlan_ip_map
@@ -63,7 +76,7 @@
       [{ 'rocev2': [{% for host in included_targets -%}
       '{{ hostvars[host].vlan_ip_map[ansible_loop.index0].rocev2_ip }}'
       {%- if not loop.last %}, {% endif %}{% endfor %}],
-          'tcp': [{% for host in included_targets -%}
+          'tcp': [{% for host in included_hosts -%}
       '{{ hostvars[host].vlan_ip_map[ansible_loop.index0].tcp_alias }}'
       {%- if not loop.last %}, {% endif %}{% endfor %}] }]"
   loop: "{{ range(0, vlan_ip_map | length) | list }}"
