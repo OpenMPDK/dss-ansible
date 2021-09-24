@@ -30,6 +30,12 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Remove inbox infiniband drivers
+  yum:
+    name: '@Infiniband Support'
+    state: absent
+  become: true
+
 - name: Set OFED version variables
   set_fact:
     ofed_url: "{{ item.url }}"
