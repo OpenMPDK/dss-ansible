@@ -55,7 +55,6 @@
   hosts:
     - servers
     - targets
-  gather_facts: false
   roles:
     - start_dss_target
 
