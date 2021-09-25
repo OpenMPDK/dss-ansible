@@ -214,6 +214,7 @@
       when:
         - inventory_hostname in groups['servers'] | d([]) or inventory_hostname in groups['targets'] | d([])
         - dss_target_mode is search('kv_block')
+        - bench_generate.changed
 
     - name: Get all RoCEv2 IP Addresses
       include_role:
@@ -266,7 +267,7 @@
     - name: Remove packet pacing from servers
       include_role:
         name: remove_packet_pacing
-      when: inventory_hostname in groups['servers'] | d([]) or inventory_hostname in groups['targets'] | d([])
+      when: inventory_hostname in groups['servers'] | d([]) or inventory_hostname in groups['hosts'] | d([])
 
     - name: Benchmark Generate Failed
       fail:

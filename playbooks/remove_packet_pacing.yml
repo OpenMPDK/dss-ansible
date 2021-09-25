@@ -46,6 +46,6 @@
 - name: Remove Packet Pacing
   hosts:
     - servers
-    - targets
+    - hosts
   roles:
     - remove_packet_pacing
