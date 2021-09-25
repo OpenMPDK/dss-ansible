@@ -60,7 +60,7 @@
   hosts:
     - clients
     - servers
+    - hosts
     - targets
-  gather_facts: false
   roles:
     - start_dss_ai_benchmark
