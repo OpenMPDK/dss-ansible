@@ -33,7 +33,7 @@
 - name: Find a host that has a defined combined_interface_switch_vlan_map
   set_fact:
     combined_interface_switch_vlan_map: "{{ hostvars[host]['combined_interface_switch_vlan_map'] }}"
-  loop: "{{ (groups['clients'] + groups['servers'] | d([]) + groups['targets'] | d([]) + groups['hosts'] | d([])) | unique }}"
+  loop: "{{ (groups['clients'] | d([]) + groups['servers'] | d([]) + groups['targets'] | d([]) + groups['hosts'] | d([])) | unique }}"
   loop_control:
     loop_var: host
   when:
