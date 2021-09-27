@@ -65,7 +65,7 @@
     - "{{ tcp_alias_list | d([]) }}"
     - "{{ rocev2_ip_list }}"
   loop_control:
-    label: "tcp_alias: {{ tcp_alias }}, rocev2_ip: {{ rocev2_ip}}"
+    label: "tcp_alias: {{ tcp_alias }}, rocev2_ip: {{ rocev2_ip }}"
   vars:
     tcp_alias: "{{ item.0.alias | d('') }}"
     rocev2_ip: "{{ item.1 }}"
