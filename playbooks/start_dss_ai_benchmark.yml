@@ -50,7 +50,7 @@
 - name: Get TCP VLAN IP list
   hosts:
     - servers
-    - servers
+    - hosts
     - clients
     - ufm_hosts
   roles:
