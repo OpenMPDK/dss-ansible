@@ -102,6 +102,7 @@
     name:
       - nfs-utils
       - libnfsidmap
+      - libcap-devel
   become: true
 
 - name: Create datamover config file
