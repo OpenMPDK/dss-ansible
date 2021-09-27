@@ -30,34 +30,40 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Start standalone minio instance
-  shell: >
-    nohup ./minio_startup_{{ tcp_alias_list[0].alias }}.sh >
-    {{ dss_log_dir }}/nkv-minio_{{ tcp_alias_list[0].alias }}.log 2>&1 &
-  args:
-    chdir: "{{ start_dss_minio_host_bin_dir }}"
-  when: "'server' not in minio_ps.stdout"
-  become: true
+- name: Stat DSS Minio path
+  stat:
+    path: "{{ configure_mc_alias_dir }}"
+  register: mc_alias_path
 
-- name: Check for running minio instance post-start
-  command: "pgrep -ax minio"
-  register: post_minio_ps
-  changed_when: false
-  failed_when: false
-
-- name: Assert standalone minio instances running
+- name: Assert DSS Minio path exists
   assert:
-    that: server_string in post_minio_ps.stdout
-    fail_msg: Minio instance not running
-    quiet: true
-  vars:
-    server_string: "server"
+    that: mc_alias_path.stat.exists
+    fail_msg: DSS Minio is not installed. Execute 'deploy_dss_software.yml' playbook first.
 
-- name: Assert standalone minio instance online
-  command: "cat {{ dss_log_dir }}/nkv-minio_{{ tcp_alias_list[0].alias }}.log"
+- name: List local hosts with mc
+  command: "{{ configure_mc_alias_dir }}/mc config host list {{ local_mc_alias }}"
+  loop: "{{ range(0, tcp_alias_list | length) | list }}"
+  loop_control:
+    label: "{{ tcp_alias }}"
+    extended: true
+  vars:
+    tcp_alias: "{{ tcp_alias_list[ansible_loop.index0].alias }}"
+    local_mc_alias: "local_{{ tcp_alias | replace('.', '_') | replace('-', '_') }}"
+  register: mc_list_local_hosts
+  failed_when: false
   changed_when: false
-  register: minio_logs
-  until: minio_logs.stdout is search('0 Offline')
-  retries: 12
-  delay: 5
-  become: true
+
+- name: Set local hosts with mc
+  command: >
+    {{ configure_mc_alias_dir }}/mc config host
+    add {{ local_mc_alias }} http://{{ tcp_alias }}:{{ minio_port }}
+    {{ minio_access_key }} {{ minio_secret_key }}
+  loop: "{{ range(0, mc_list_local_hosts.results | length) | list }}"
+  loop_control:
+    label: "{{ tcp_alias }}"
+    extended: true
+  vars:
+    tcp_alias: "{{ tcp_alias_list[ansible_loop.index0].alias }}"
+    local_mc_alias: "local_{{ tcp_alias | replace('.', '_') | replace('-', '_') }}"
+    alias_status: "{{ mc_list_local_hosts.results[item].stderr }}"
+  when: "'No such alias' in alias_status"

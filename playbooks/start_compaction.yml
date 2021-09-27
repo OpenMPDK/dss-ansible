@@ -34,7 +34,7 @@
 #
 # #### playbooks/start_compaction.yml
 #
-# Execute this playbook to start the compaction process across all [servers].
+# Execute this playbook to start the compaction process across all [servers] / [targets].
 # Compaction is useful to reclaim space on backing storage devices after WRITE or DELETE operations.
 # Note that this playbook will wait and retry until compaction has completed across all hosts.
 # Compaction may take a very long time with very large datasets.
@@ -52,6 +52,8 @@
     - validate_ansible
 
 - name: Start Compaction
-  hosts: servers
+  hosts:
+    - servers
+    - targets
   roles:
     - start_compaction

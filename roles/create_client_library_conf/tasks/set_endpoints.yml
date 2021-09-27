@@ -26,6 +26,7 @@
   loop: "{{ included_hosts }}"
   loop_control:
     loop_var: host
+  when: endpoints | length > 0
   run_once: true
 
 - name: Set clusters var and increment cluster_index
@@ -38,4 +39,5 @@
         }
       ]"
     cluster_index: "{{ cluster_index | int + 1 }}"
+  when: endpoints | length > 0
   run_once: true

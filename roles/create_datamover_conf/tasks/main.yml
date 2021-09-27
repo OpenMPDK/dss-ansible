@@ -37,6 +37,10 @@
     mode: 0755
   become: true
 
+- name: Get MinIO Hostnames
+  include_role:
+    name: get_minio_hostnames
+
 - name: Set datamover conf template
   template:
     src: config.json.j2

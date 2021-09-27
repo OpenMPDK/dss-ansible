@@ -134,6 +134,24 @@ Your inventory file should contain hosts in the following groups:
   * Optional group of Mellanox Onyx switches your hosts are connected to.
     * For Samsung internal use only. - Not supported!
 
+##### Disaggregated Inventory
+
+Rather than deploying collocated servers, with both target and minio / host on the same system, DSS can be deployed in disaggregated mode.
+
+To achieve this, replace the [servers] group with two groups:
+
+* [targets]
+  * Hosts running only the Target
+* [hosts]
+  * Hosts running only the NVMe Driver and MinIO
+
+Note that cluster deployment must be either collocated or disaggregated, but not a combination of both.
+You will be prevented from deploying a cluster that has a combination of [servers] and either [targets] or [hosts].
+
+### Installation without MinIO
+
+If you wish to deploy either a collocated or disaggregated cluster without MinIO, set a host var, `no_minio=true` in your inventory for all hosts.
+
 #### Host Networking vars
 
 ##### Ansible User
@@ -329,6 +347,12 @@ Datamover PUT:
 
 ### Complete Playbook Documentation
 
+#### playbooks/cleanup_datamover.yml
+
+Execute this playbook to terminate the datamover accross all [clients].
+
+This playbook will terminate all instances of datamover client and master application.
+
 #### playbooks/cleanup_dss_ai_benchmark.yml
 
 NOTE: For internal Samsung / DSS use! Unsupported!
@@ -340,7 +364,7 @@ Additionally, kernel packet pacing will be removed from each server.
 #### playbooks/cleanup_dss_minio.yml
 
 Execute this playbook to cleanup MinIO object store metadata.
-This playbook will stop MinIO, and execute cleanup from a single node of each cluster in your inventory.
+This playbook will stop MinIO, and execute cleanup from a target node of each cluster in your inventory.
 This will effectively remove any metadata at the root level of the object store.
 
 Note that this will create the appearance of a reformated object store, but space will not be reclaimed.
@@ -390,7 +414,8 @@ Additionally, you can offset the automatically derived last octet for a host, or
 For example, given two hosts in your inventory: "server_01" and "client_01"
 You can assign "last_octet_offset=100" to "client_01", which will result in "client_01" having a derived last octet of "101"
 
-VLAN IDs for all Onyx switches, clients, and servers must be assigned in your inventory file using "tcp_vlan_id_list" and "rocev2_vlan_id_list" vars.
+VLAN IDs for all Onyx switches, clients, servers, targets, and hosts must be assigned in your inventory file using "tcp_vlan_id_list" and
+"rocev2_vlan_id_list" vars.
 The VLAN IDs provided in these list must correspond to the VLAN IDs provided in "rocev2_vlans" and "tcp_vlans" lists, as mentioned above.
 If using multiple Onyx switches, it is thus possible to spread your VLANs across multiple switches.
 Note that if a host and switch both are tagged with a VLAN ID, it is expected that there is a physical link between this switch and host.
@@ -404,16 +429,16 @@ For example, a host with "num_vlans_per_port=2" and 2 physical ports will allow 
 Execute this playbook to run a series of basic status debug tests .
 This playbook will perform the following actions:
 
-* Get a count of running MinIO instances on each host
-* Get a count of running target instances on each host
-* Search for errors in all MinIO logs across all hosts
-* Search for errors in all target logs across all hosts
+* Get a count of running MinIO instances on all [hosts] / [servers]
+* Get a count of running target instances on all [targets] / [servers]
+* Search for errors in all MinIO logs across all [hosts] / [servers]
+* Search for errors in all target logs across all [targets] / [servers]
 
 #### playbooks/deploy_datamover.yml
 
 Execute this playbook to deploy the datamover, client library, and their dependencies.
 Artifacts are deployed to hosts under the [clients] group.
-Note that it is possible for hosts to appear under both the [clients] and [servers] groups.
+Note that it is possible for hosts to appear under both the [clients] and [servers] / [targets] / [hosts] groups.
 Hosts under the [clients] group will be used for datamover distributed operations.
 This playbook will also create configuration files for client library and datamover, based on hosts that appear in your inventory.
 Please review "Datamover Settings" under "group_vars/all.yml" if you wish to adjust the default settings of the datamover.
@@ -425,6 +450,7 @@ Re-running this playbook will update the datamover configuration across all host
 #### playbooks/deploy_dss_ai_benchmark.yml
 
 NOTE: For internal Samsung / DSS use! Unsupported!
+NOTE: IPV6 not supported
 
 Execute this playbook to deploy the DSS AI Benchmark software.
 This playbook will also create configuration files for client library and datamover, based on hosts that appear in your inventory.
@@ -438,9 +464,9 @@ Re-running this playbook will update the datamover configuration across all host
 Execute this playbook to deploy DSS software to all hosts in your inventory.
 This playbook will perform the following:
 
-* Deploy, configure, and start target on all [servers]
-* Deploy, configure, and start nkv-sdpk host driver to all [servers]
-* Deploy, configure, and start MinIO instances to all [servers]
+* Deploy, configure, and start target on all [servers] / [targets]
+* Deploy, configure, and start nkv-sdpk host driver to all [servers] / [hosts]
+* Deploy, configure, and start MinIO instances to all [servers] / [hosts]
 * Optionally deploy, configure, and start UFM to all [ufm_hosts]
 * Deploy and configure datamover and client library to all [clients]
 
@@ -465,6 +491,7 @@ SSDs (with block firmware) will be re-formated with mkfs_blobfs.
 #### playbooks/redeploy_dss_ai_benchmark.yml
 
 NOTE: For internal Samsung / DSS use! Unsupported!
+NOTE: IPV6 not supported
 
 Execute this playbook to redeploy the DSS AI Benchmark software.
 This is effectively the same as executing "remove_dss_ai_benchmark" then "deploy_dss_ai_benchmark" playbooks.
@@ -491,7 +518,7 @@ Data present across back-end storage will persist after removing DSS software.
 
 NOTE: For internal Samsung / DSS use! Unsupported!
 
-Execute this playbook to remove packet pacing from servers.
+Execute this playbook to remove packet pacing from [servers] / [targets].
 This can be used to cleanup DSS AI Benchmark.
 
 #### playbooks/remove_vlans.yml
@@ -507,7 +534,7 @@ This playbook is effective the same as executing "stop_dss_software" then "start
 
 #### playbooks/start_compaction.yml
 
-Execute this playbook to start the compaction process across all [servers].
+Execute this playbook to start the compaction process across all [servers] / [targets].
 Compaction is useful to reclaim space on backing storage devices after WRITE or DELETE operations.
 Note that this playbook will wait and retry until compaction has completed across all hosts.
 Compaction may take a very long time with very large datasets.
@@ -599,6 +626,7 @@ For additional documentation, please consult the datamover README.md file, locat
 #### playbooks/start_dss_ai_benchmark.yml
 
 NOTE: For internal Samsung / DSS use! Unsupported!
+NOTE: IPV6 not supported
 
 Execute this playbook to start the DSS AI Benchmark software.
 This playbook will also create configuration files for client library and datamover, based on hosts that appear in your inventory.
@@ -614,7 +642,7 @@ This playbook is idempotent, and will only start DSS processes if they are not a
 
 Execute this playbook to stop DSS software on all hosts in your inventory.
 This playbook is idempotent, and will only stop DSS processes if they are not already stopped.
-The following actions will be performed on all servers:
+The following actions will be performed on all [servers] / [targets] / [hosts]:
 
 1. Stop MinIO
 2. Unmount NVMeOF targets / remove kernel driver
@@ -662,7 +690,7 @@ Perform a basic nkv_test_cli test and report observed bandwidth.
 #### playbooks/upgrade_dss_software.yml
 
 Execute this playbook to upgrade DSS software to all hosts in your inventory.
-This playbook is equivelent to executing "stop_dss_software" then "deploy_dss_software"
+This playbook is equivelent to executing "stop_dss_software", then "deploy_dss_software".
 Note that software will only be upgraded if new binaries are placed under the "artifacts" directory.
 
 #### playbooks/upgrade_kvssd_firmware.yml

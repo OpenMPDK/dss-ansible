@@ -1,0 +1,203 @@
+#  BSD LICENSE
+#
+#  Copyright (c) 2021 Samsung Electronics Co., Ltd.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in
+#      the documentation and/or other materials provided with the
+#      distribution.
+#    * Neither the name of Samsung Electronics Co., Ltd. nor the names of
+#      its contributors may be used to endorse or promote products derived
+#      from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---
+
+- name: Set target/host group vars
+  set_fact:
+    target_hostnames: "{{ (groups['servers'] | d([]) + groups['targets'] | d([])) | unique }}"
+    host_hostnames: "{{ (groups['servers'] | d([]) + groups['hosts'] | d([])) | unique }}"
+    cluster_num_list: []
+
+- name: Stat DSS Minio path
+  stat:
+    path: "{{ start_dss_minio_dir }}"
+  register: dss_minio_path
+  when: inventory_hostname in host_hostnames
+
+- name: Assert DSS Minio path exists
+  assert:
+    that: dss_minio_path.stat.exists
+    fail_msg: DSS Minio is not installed. Execute 'deploy_dss_software.yml' playbook first.
+  when: inventory_hostname in host_hostnames
+
+- name: Create conf dir
+  file:
+    path: "{{ dss_target_conf_dir }}"
+    state: directory
+    mode: 0755
+  when: inventory_hostname in host_hostnames
+  become: true
+
+- name: Check minio connection
+  command: "{{ start_dss_minio_dir }}/mc ls {{ local_mc_alias }}"
+  loop: "{{ range(0, tcp_alias_list | length) | list }}"
+  loop_control:
+    label: "{{ tcp_alias }}"
+    extended: true
+  vars:
+    tcp_alias: "{{ tcp_alias_list[ansible_loop.index0].alias }}"
+    local_mc_alias: "local_{{ tcp_alias | replace('.', '_') | replace('-', '_') }}"
+  changed_when: false
+  when: inventory_hostname in host_hostnames
+
+- name: Set cluster_num_list var
+  set_fact:
+    cluster_num_list: "{{ cluster_num_list }} +
+      [
+        {% for host in ansible_play_hosts %}
+            '{{ hostvars[host].cluster_num | d(cluster_num) }}'{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ]"
+  run_once: true
+
+- name: Get all RoCEv2 IP Addresses
+  include_role:
+    name: get_vlan_ips
+  vars:
+    vlan_list: "{{ rocev2_vlans }}"
+  when: rocev2_ip_list is not defined
+
+- name: Set rocev2_ip_list var if IP's auto-discovered
+  set_fact:
+    rocev2_ip_list: "{{ vlan_ip_list }}"
+  when: rocev2_ip_list is not defined
+
+- name: Initialize cluster_mountpoints var
+  set_fact:
+    cluster_mountpoints: []
+
+- name: Collect mountpoints for each cluster
+  include_tasks: collect_cluster_mountpoints.yml
+  loop: "{{ cluster_num_list | unique }}"
+  loop_control:
+    loop_var: current_cluster_num
+  when: current_cluster_num | string == cluster_num | string
+
+- name: Initialize vars for cluster map
+  set_fact:
+    clusters: []
+    cluster_index: 0
+
+- name: Set clusters array
+  include_tasks: set_clusters.yml
+  loop: "{{ range(0, cluster_mountpoints | length) | list }}"
+  loop_control:
+    loop_var: current_cluster_count
+    label: "{{ current_cluster.cluster_num }}"
+  vars:
+    current_cluster: "{{ cluster_mountpoints[current_cluster_count] }}"
+  when: current_cluster.cluster_num | string == cluster_num | string
+
+- name: Create client library conf.json
+  template:
+    src: conf.json.j2
+    dest: "{{ dss_target_conf_dir }}/client_library_conf.json"
+    mode: 0644
+  register: create_conf_template
+  become: true
+  when: inventory_hostname in host_hostnames
+
+- name: Remove client library conf.json from targets
+  file:
+    path: "{{ dss_target_conf_dir }}/client_library_conf.json"
+    state: absent
+  when: inventory_hostname in groups['targets'] | d([])
+  become: true
+
+- name: Read DSS conf
+  command: "{{ start_dss_minio_dir }}/mc cat {{ local_mc_alias }}/{{ dss_bucket_name }}/conf.json"
+  loop: "{{ range(0, tcp_alias_list | length) | list }}"
+  loop_control:
+    label: "{{ tcp_alias }}"
+    extended: true
+  vars:
+    tcp_alias: "{{ tcp_alias_list[ansible_loop.index0].alias }}"
+    local_mc_alias: "local_{{ tcp_alias | replace('.', '_') | replace('-', '_') }}"
+  changed_when: false
+  failed_when: false
+  register: read_dss_conf
+  when: inventory_hostname in host_hostnames
+
+- name: Read local DSS conf
+  command: "cat {{ dss_target_conf_dir }}/client_library_conf.json"
+  register: local_dss_conf
+  changed_when: false
+  when: inventory_hostname in host_hostnames
+
+- name: Set subsystem_endpoints var
+  set_fact:
+    subsystem_endpoints: "{{ subsystem_endpoints | default([]) + [ item.endpoints[0].ipv4 ] }}"
+  loop: "{{ (local_dss_conf.stdout | from_json).clusters }}"
+  loop_control:
+    label: "Cluster ID: {{ item.id }}"
+  when: inventory_hostname in host_hostnames
+
+- name: Check DSS bucket
+  command: "{{ start_dss_minio_dir }}/mc ls {{ local_mc_alias }}/{{ dss_bucket_name }}"
+  loop: "{{ range(0, tcp_alias_list | length) | list }}"
+  loop_control:
+    label: "{{ tcp_alias }}"
+    extended: true
+  vars:
+    tcp_alias: "{{ tcp_alias_list[ansible_loop.index0].alias }}"
+    local_mc_alias: "local_{{ tcp_alias | replace('.', '_') | replace('-', '_') }}"
+  changed_when: false
+  failed_when: false
+  register: check_dss_bucket
+  when: inventory_hostname in host_hostnames
+
+- name: Create DSS bucket
+  command: "{{ start_dss_minio_dir }}/mc mb {{ local_mc_alias }}/{{ dss_bucket_name }}"
+  loop: "{{ range(0, check_dss_bucket.results | length) | list }}"
+  loop_control:
+    label: "{{ tcp_alias }}"
+    extended: true
+  vars:
+    tcp_alias: "{{ tcp_alias_list[ansible_loop.index0].alias }}"
+    local_mc_alias: "local_{{ tcp_alias | replace('.', '_') | replace('-', '_') }}"
+  when:
+    - inventory_hostname in host_hostnames
+    - "'does not exist' in check_dss_bucket.results[item].stderr"
+    - tcp_alias in subsystem_endpoints
+
+- name: Write remote DSS conf
+  command: "{{ start_dss_minio_dir }}/mc cp {{ dss_target_conf_dir }}/client_library_conf.json {{ local_mc_alias }}/{{ dss_bucket_name }}/conf.json"
+  loop: "{{ range(0, read_dss_conf.results | length) | list }}"
+  loop_control:
+    label: "{{ tcp_alias }}"
+    extended: true
+  vars:
+    tcp_alias: "{{ tcp_alias_list[ansible_loop.index0].alias }}"
+    local_mc_alias: "local_{{ tcp_alias | replace('.', '_') | replace('-', '_') }}"
+  when:
+    - inventory_hostname in host_hostnames
+    - read_dss_conf.results[item].stdout != local_dss_conf.stdout
+    - tcp_alias in subsystem_endpoints

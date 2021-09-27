@@ -39,7 +39,7 @@
       ]{% if not loop.last %} +{% endif %}
     {% endfor %}
     "
-  loop: "{{ groups['servers'] }}"
+  loop: "{{ (groups['servers'] | d([]) + groups['hosts'] | d([])) | unique }}"
   loop_control:
     loop_var: server
   run_once: true

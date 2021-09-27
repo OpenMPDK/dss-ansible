@@ -44,3 +44,4 @@
     client_gid_index: "{{ client_ib_device.gid_index }}"
   when:
     - server_vlan_id == client_vlan_id
+    - client_hostname != server_hostname

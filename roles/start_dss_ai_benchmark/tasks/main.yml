@@ -30,6 +30,10 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Get MinIO Hostnames
+  include_role:
+    name: get_minio_hostnames
+
 - name: Set combined_endpoints var
   set_fact:
     combined_endpoints: "{{ combined_endpoints | d([]) }} +
@@ -39,7 +43,7 @@
       ]{% if not loop.last %} +{% endif %}
     {% endfor %}
     "
-  loop: "{{ groups['servers'] }}"
+  loop: "{{ minio_hostnames }}"
   loop_control:
     loop_var: server
   run_once: true
@@ -208,8 +212,9 @@
       include_role:
         name: start_compaction
       when:
-        - inventory_hostname in groups['servers']
+        - inventory_hostname in groups['servers'] | d([]) or inventory_hostname in groups['targets'] | d([])
         - dss_target_mode is search('kv_block')
+        - bench_generate.changed
 
     - name: Get all RoCEv2 IP Addresses
       include_role:
@@ -218,7 +223,7 @@
         vlan_list: "{{ rocev2_vlans }}"
       when:
         - rocev2_ip_list is not defined
-        - inventory_hostname in groups['servers']
+        - inventory_hostname in groups['servers'] | d([]) or inventory_hostname in groups['hosts'] | d([])
 
     - name: Set rocev2_ip_list var if IP's auto-discovered
       set_fact:
@@ -231,7 +236,7 @@
         regexp: '^( +"nkv_need_path_stat":)'
         line: '\1 1,'
         backrefs: true
-      when: inventory_hostname in groups['servers']
+      when: inventory_hostname in groups['servers'] | d([]) or inventory_hostname in groups['hosts'] | d([])
       loop: "{{ rocev2_ip_list }}"
       loop_control:
         loop_var: rocev2_ip
@@ -262,7 +267,7 @@
     - name: Remove packet pacing from servers
       include_role:
         name: remove_packet_pacing
-      when: inventory_hostname in groups['servers']
+      when: inventory_hostname in groups['servers'] | d([]) or inventory_hostname in groups['hosts'] | d([])
 
     - name: Benchmark Generate Failed
       fail:
@@ -297,7 +302,7 @@
         regexp: '^( +"nkv_need_path_stat":)'
         line: '\1 0,'
         backrefs: true
-      when: inventory_hostname in groups['servers']
+      when: inventory_hostname in groups['servers'] | d([]) or inventory_hostname in groups['hosts'] | d([])
       loop: "{{ rocev2_ip_list }}"
       loop_control:
         loop_var: rocev2_ip

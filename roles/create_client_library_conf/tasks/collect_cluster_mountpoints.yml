@@ -48,3 +48,4 @@
                 'standalone_minio': {{ standalone_minio | d(false) }}
             }
         ]"
+  when: inventory_hostname in host_hostnames

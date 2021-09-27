@@ -30,52 +30,6 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Stat DSS Minio path
-  stat:
-    path: "{{ start_dss_minio_dir }}"
-  register: dss_minio_path
-
-- name: Assert DSS Minio path exists
-  assert:
-    that: dss_minio_path.stat.exists
-    fail_msg: DSS Minio is not installed. Execute 'deploy_dss_software.yml' playbook first.
-
-- name: Stat DSS Host path
-  stat:
-    path: "{{ start_dss_minio_host_bin_dir }}"
-  register: dss_host_path
-
-- name: Assert DSS Host path exists
-  assert:
-    that: dss_host_path.stat.exists
-    fail_msg: DSS Host is not installed. Execute 'deploy_dss_software.yml' playbook first.
-
-- name: Set cluster_num_list var
-  set_fact:
-    cluster_num_list: "{{ cluster_num_list | default([]) }} +
-      [
-        {% for host in ansible_play_hosts %}
-            '{{ hostvars[host].cluster_num | d(cluster_num) }}'{% if not loop.last %},{% endif %}
-        {% endfor %}
-      ]"
-  when: cluster_num_list is not defined
-  run_once: true
-
-- name: Get all RoCEv2 IP Addresses
-  include_role:
-    name: get_vlan_ips
-  vars:
-    vlan_list: "{{ rocev2_vlans }}"
-  when: rocev2_ip_list is not defined
-
-- name: Set rocev2_ip_list var if IP's auto-discovered
-  set_fact:
-    rocev2_ip_list: "{{ vlan_ip_list }}"
-  when: rocev2_ip_list is not defined
-
-- name: Start minio by cluster
-  include_tasks: start_minio_clusters.yml
-  loop: "{{ cluster_num_list | unique }}"
-  loop_control:
-    loop_var: current_cluster_num
-  when: current_cluster_num | string == cluster_num | string
+- name: Start MinIO
+  include_tasks: start_minio.yml
+  when: not no_minio | d(false)

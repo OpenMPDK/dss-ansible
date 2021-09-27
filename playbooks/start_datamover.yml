@@ -118,16 +118,27 @@
 - name: Get TCP VLAN IP List
   hosts:
     - servers
+    - hosts
     - clients
     - ufm_hosts
   roles:
     - get_tcp_vlan_ip_list
 
-- name: Set client library config
-  hosts: servers
+- name: Configure server mc alias
+  hosts:
+    - servers
+    - hosts
   gather_facts: false
   roles:
     - configure_server_mc_alias
+
+- name: Set client library config
+  hosts:
+    - servers
+    - hosts
+    - targets
+  gather_facts: false
+  roles:
     - create_client_library_conf
 
 - name: Start Datamover

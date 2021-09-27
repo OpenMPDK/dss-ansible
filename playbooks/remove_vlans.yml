@@ -62,6 +62,8 @@
 - name: Remove ConnectX VLANs
   hosts:
     - servers
+    - targets
+    - hosts
     - clients
   roles:
     - remove_host_vlans

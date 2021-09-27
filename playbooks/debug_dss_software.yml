@@ -37,22 +37,30 @@
 # Execute this playbook to run a series of basic status debug tests .
 # This playbook will perform the following actions:
 #
-# * Get a count of running MinIO instances on each host
-# * Get a count of running target instances on each host
-# * Search for errors in all MinIO logs across all hosts
-# * Search for errors in all target logs across all hosts
+# * Get a count of running MinIO instances on all [hosts] / [servers]
+# * Get a count of running target instances on all [targets] / [servers]
+# * Search for errors in all MinIO logs across all [hosts] / [servers]
+# * Search for errors in all target logs across all [targets] / [servers]
 
 - name: Validate ansible versions and dependencies
   hosts: localhost
   roles:
     - validate_ansible
 
-- name: Debug DSS Software
+- name: Debug Targets
   hosts:
     - servers
+    - targets
+  gather_facts: false
+  roles:
+    - check_target_up
+    - check_target_errors
+
+- name: Debug MinIO
+  hosts:
+    - servers
+    - hosts
   gather_facts: false
   roles:
     - check_minio_up
-    - check_target_up
     - check_minio_errors
-    - check_target_errors

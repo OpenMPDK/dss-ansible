@@ -51,6 +51,8 @@
     - terminate_dss_ai_benchmark
 
 - name: Remove Packet Pacing
-  hosts: servers
+  hosts:
+    - servers
+    - targets
   roles:
     - remove_packet_pacing

@@ -30,15 +30,22 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Set target/host group vars
+  set_fact:
+    target_hostnames: "{{ (groups['servers'] | d([]) + groups['targets'] | d([])) | unique }}"
+    host_hostnames: "{{ (groups['servers'] | d([]) + groups['hosts'] | d([])) | unique }}"
+
 - name: Stat DSS Host path
   stat:
     path: "{{ start_dss_host_dir }}"
   register: dss_host_path
+  when: inventory_hostname in host_hostnames
 
 - name: Assert DSS Host path exists
   assert:
     that: dss_host_path.stat.exists
     fail_msg: DSS Host is not installed. Execute 'deploy_dss_software.yml' playbook first.
+  when: inventory_hostname in host_hostnames
 
 - name: Stat KV kernel drivers
   stat:
@@ -51,11 +58,14 @@
     - nvme-rdma.ko
     - nvme-tcp.ko
     - nvme.ko
+  when: inventory_hostname in host_hostnames
 
 - name: Check for missing KV kernel drivers
   set_fact:
     missing_drivers: true
-  when: not item.stat.exists
+  when:
+    - inventory_hostname in host_hostnames
+    - not item.stat.exists
   loop: "{{ kv_kernel_drivers.results }}"
   loop_control:
     label: "{{ item.item }}"
@@ -64,7 +74,9 @@
   command: /usr/bin/python2 ./dss_host.py config_driver
   args:
     chdir: "{{ start_dss_host_dir }}/bin"
-  when: missing_drivers is defined
+  when:
+    - inventory_hostname in host_hostnames
+    - missing_drivers is defined
   become: true
 
 - name: Set cluster_num_list var

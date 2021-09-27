@@ -45,17 +45,49 @@
 - name: Get TCP VLAN IP List
   hosts:
     - servers
+    - hosts
     - clients
     - ufm_hosts
   roles:
     - get_tcp_vlan_ip_list
 
-- name: Start DSS software
-  hosts: servers
-  gather_facts: false
+- name: Start DSS Target
+  hosts:
+    - servers
+    - targets
   roles:
     - start_dss_target
+
+- name: Start etcd Gateway
+  hosts:
+    - servers
+    - targets
+    - ufm_hosts
+  gather_facts: false
+  roles:
     - start_etcd_gateway
+
+- name: Start DSS Agent
+  hosts:
+    - servers
+    - targets
+  gather_facts: false
+  roles:
     - start_dss_agent
+
+- name: Start DSS Host
+  hosts:
+    - servers
+    - targets
+    - hosts
+  gather_facts: false
+  roles:
     - start_dss_host
+
+- name: Start DSS MinIO
+  hosts:
+    - servers
+    - targets
+    - hosts
+  roles:
     - start_dss_minio

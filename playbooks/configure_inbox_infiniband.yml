@@ -49,5 +49,7 @@
   hosts:
     - servers
     - clients
+    - targets
+    - hosts
   roles:
     - configure_inbox_infiniband

@@ -32,17 +32,19 @@
 
 - name: Init vars
   set_fact:
-    included_hosts: []
+    included_targets: []
     first_vlan_ip_list: []
     combined_expected_num_subsystems: 0
 
-- name: Set included_hosts var
+- name: Set included_targets var
   set_fact:
-    included_hosts: "{{ included_hosts + [ host ] }}"
+    included_targets: "{{ included_targets + [ target ] }}"
   loop: "{{ ansible_play_hosts }}"
   loop_control:
-    loop_var: host
-  when: hostvars[host].cluster_num | d(cluster_num) | string == current_cluster_num | string
+    loop_var: target
+  when:
+    - hostvars[target].cluster_num | d(cluster_num) | string == current_cluster_num | string
+    - target in target_hostnames
   run_once: true
 
 - name: Get RoCEv2 IP Addresses
@@ -50,18 +52,24 @@
     name: get_vlan_ips
   vars:
     vlan_list: "{{ rocev2_vlans }}"
-  when: rocev2_ip_list is not defined
+  when:
+    - inventory_hostname in included_targets
+    - rocev2_ip_list is not defined
 
 - name: Set rocev2_ip_list and first_rocev2_ip_list var if IP's auto-discovered
   set_fact:
     rocev2_ip_list: "{{ vlan_ip_list }}"
     first_rocev2_ip_list: "{{ vlan_ip_list | first }}"
-  when: rocev2_ip_list is not defined
+  when:
+    - inventory_hostname in included_targets
+    - rocev2_ip_list is not defined
 
 - name: Set first_rocev2_ip_list var if IP's user-defined
   set_fact:
     first_rocev2_ip_list: "{{ rocev2_ip_list | first }}"
-  when: rocev2_ip_list is defined
+  when:
+    - inventory_hostname in included_targets
+    - rocev2_ip_list is defined
 
 - name: Assert that at least one RoCEv2 IP is present
   assert:
@@ -70,14 +78,14 @@
       - first_rocev2_ip_list | length > 0
     fail_msg: "No RoCEv2 IPs configured on any Mellanox adapter. Please configure at least one IP to deploy target."
     success_msg: "RoCEv2 IP(s) detected."
+  when: inventory_hostname in included_targets
 
 - name: Set first_vlan_ip_list var
   set_fact:
     first_vlan_ip_list: "{{ first_vlan_ip_list + [hostvars[host].first_rocev2_ip_list] }}"
-  loop: "{{ included_hosts }}"
+  loop: "{{ included_targets }}"
   loop_control:
     loop_var: host
-  when: hostvars[host].cluster_num | d(cluster_num) | string == current_cluster_num | string
   run_once: true
 
 - name: Check number of listeners in nvmf.in.conf
@@ -85,24 +93,27 @@
     grep '^  Listen RDMA' {{ start_dss_host_nvmf_in_conf }} | wc -l
   changed_when: false
   register: num_listeners
+  when: inventory_hostname in included_targets
 
 - name: Set expected_num_subsystems var
   set_fact:
     expected_num_subsystems: "{{ num_listeners.stdout }}"
+  when: inventory_hostname in included_targets
 
 - name: Set combined_expected_num_subsystems var
   set_fact:
     combined_expected_num_subsystems: "{{ combined_expected_num_subsystems | int + hostvars[host].expected_num_subsystems | int }}"
-  loop: "{{ included_hosts }}"
+  loop: "{{ included_targets }}"
   loop_control:
     loop_var: host
-  when: hostvars[host].cluster_num | d(cluster_num) | string == current_cluster_num | string
   run_once: true
 
 - name: Set dss_host_kvpair cache settings if physical host
   set_fact:
     dss_host_kvpair: "{{ dss_host_kvpair | default('') }} nkv_use_read_cache=1 nkv_use_data_cache=1"
-  when: ansible_virtualization_role == "host"
+  when:
+    - inventory_hostname in host_hostnames
+    - ansible_virtualization_role == "host"
 
 - name: Create dss_host_config_host.sh script
   copy:
@@ -114,6 +125,7 @@
       {% if dss_host_kvpair is not none %}-x {{ dss_host_kvpair }}{% endif %}
     mode: 0755
     dest: "{{ start_dss_host_dir }}/bin/dss_host_config_host.sh"
+  when: inventory_hostname in host_hostnames
   become: true
 
 - name: Configure Driver
@@ -121,6 +133,7 @@
   loop: "{{ range(1,4) | list }}"
   loop_control:
     loop_var: config_num
+  when: inventory_hostname in host_hostnames
 
 - name: Assert all subsystems are mounted
   assert:
@@ -131,10 +144,13 @@
       Failed to mount all subsystems.
       Expected number of subsystems: {{ combined_expected_num_subsystems }}
       Actual number of mounted subsystems: {{ post_subsystems_found }}
+  when: inventory_hostname in host_hostnames
 
 - name: Execute dss_host_config_host.sh script
   command: sh ./dss_host_config_host.sh
   args:
     chdir: "{{ start_dss_host_dir }}/bin"
-  when: subsystems_found is not defined
+  when:
+    - subsystems_found is not defined
+    - inventory_hostname in host_hostnames
   become: true
