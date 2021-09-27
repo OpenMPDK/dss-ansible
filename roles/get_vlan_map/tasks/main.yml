@@ -35,6 +35,13 @@
     that: "'onyx' in groups"
     msg: No hosts defined in onyx group. Cannot automatically configure VLANs.
 
+- name: Assert VLAN ID lists are defined
+  assert:
+    that:
+      - tcp_vlan_id_list is defined
+      - rocev2_vlan_id_list is defined
+    msg: "VLAN ID list var is not defined"
+
 - name: Set interface_switch_map_no_numa var
   set_fact:
     interface_switch_map_no_numa: >-
