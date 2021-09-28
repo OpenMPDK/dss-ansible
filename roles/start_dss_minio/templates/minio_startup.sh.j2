@@ -71,20 +71,18 @@ ulimit -c unlimited
     numactl -N {{ numa_node }} -i {{ numa_node }},{{ adjacent_numa }}{{ ' '}}
 {%- endif -%}
 {{ start_dss_minio_dir }}/minio server --address {{ tcp_alias }}:{{ minio_port }}
-{%- if standalone_minio -%}
-    {%- for vlan in vlan_ip_map -%}
-        {%- for mountpoint in range(subsys_range[loop.index0].min | int, subsys_range[loop.index0].max | int + 1) -%}
-            {{ ' ' }}/dev/nvme{{ mountpoint }}n1
-        {%- endfor -%}
-    {%- endfor -%}
-{%- else -%}
     {%- for vlan in combined_vlan_ip_map -%}
         {%- set vlan_index = loop.index0 -%}
-        {%- for alias in vlan.tcp -%}
-            {%- if (groups['servers'] | d([]) + groups['targets'] | d([])) | unique | length == 1 or min_subsystem_list[vlan_index] == min_subsystem -%}
-                {{ ' ' }}http://{{ alias }}:{{ minio_port }}/dev/nvme{{ '{' }}{{ subsys_range[vlan_index].min }}...{{ subsys_range[vlan_index].max }}{{ '}' }}n1
+        {%- if min_subsystem_list[vlan_index] == min_subsystem -%}
+            {%- if standalone_minio -%}
+                {%- for mountpoint in range(subsys_range[vlan_index].min | int, subsys_range[vlan_index].max | int + 1) -%}
+                    {{ ' ' }}/dev/nvme{{ mountpoint }}n1
+                {%- endfor -%}
+            {%- else -%}
+                {%- for alias in vlan.tcp -%}
+                        {{ ' ' }}http://{{ alias }}:{{ minio_port }}/dev/nvme{{ '{' }}{{ subsys_range[vlan_index].min }}...{{ subsys_range[vlan_index].max }}{{ '}' }}n1
+                {%- endfor -%}
             {%- endif -%}
-        {%- endfor -%}
+        {%- endif -%}
     {%- endfor -%}
-{%- endif -%}
 {{ ' ' }}| grep -v 'Pool count' --line-buffered
