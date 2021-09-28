@@ -41,6 +41,7 @@
   yum:
     name: "{{ item }}"
   loop:
+    - jemalloc-devel
     - tbb-devel
     - libaio-devel
     - "python{% if ansible_distribution_version == '8' %}2{% endif %}-pip"
