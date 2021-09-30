@@ -35,6 +35,14 @@
     name: epel-release
   become: true
 
+- name: Install datamover yum dependencies
+  yum:
+    name:
+      - nfs-utils
+      - libnfsidmap
+      - libcap-devel
+  become: true
+
 - name: Install pip3
   yum:
     name:
@@ -95,14 +103,6 @@
     requirements: "{{ deploy_datamover_dest_dir }}/requirements.txt"
     executable: "{{ pip3_path.stdout }}"
   register: benchmark_requirements
-  become: true
-
-- name: Install datamover yum dependencies
-  yum:
-    name:
-      - nfs-utils
-      - libnfsidmap
-      - libcap-devel
   become: true
 
 - name: Create datamover config file
