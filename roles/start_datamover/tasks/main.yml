@@ -55,15 +55,9 @@
     skip_upload_string: "{% if datamover_skip_upload %}--skip_upload{% else %}{% endif %}"
     prefix_string: "{% if datamover_prefix != '' %}--prefix={{ datamover_prefix }}{% else %}{% endif %}"
 
-- name: Kill existing datamover processes
-  command: "pkill -f 'python3 {{ deploy_datamover_dest_dir }}/{{ item }}'"
-  register: pkill_datamover
-  become: true
-  failed_when: false
-  changed_when: pkill_datamover.rc == 0
-  loop:
-    - master_application.py
-    - client_application.py
+- name: Cleanup Datamover
+  include_role:
+    name: cleanup_datamover
 
 - name: While you wait ...
   debug:
