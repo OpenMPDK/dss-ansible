@@ -30,22 +30,4 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Install epel-release repo
-  include_role:
-    name: deploy_epel
-
-- name: Install Required Packages (yum)
-  yum:
-    name:
-      - fping
-      - python2-pip
-      - python2-setuptools
-      - python3-pip
-    state: present
-  become: true
-
-- name: Install etcd from URL
-  yum:
-    name: "{{ ufm_etcd_rpm_url }}"
-    state: present
-  become: true
+skip_epel: false

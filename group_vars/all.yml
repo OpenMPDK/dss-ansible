@@ -40,6 +40,9 @@
 #   - '7.9'
 #   - '8'
 
+### EPEL Repo Settings
+# skip_epel: false
+
 ### In-box Infiniband RPM URLS
 # infiniband_rpm_urls:
 #   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/ibacm-22.4-6.el7_9.x86_64.rpm

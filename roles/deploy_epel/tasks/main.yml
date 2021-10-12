@@ -31,21 +31,9 @@
 ---
 
 - name: Install epel-release repo
-  include_role:
-    name: deploy_epel
-
-- name: Install Required Packages (yum)
   yum:
-    name:
-      - fping
-      - python2-pip
-      - python2-setuptools
-      - python3-pip
+    name: epel-release
+    enablerepo: extras
     state: present
-  become: true
-
-- name: Install etcd from URL
-  yum:
-    name: "{{ ufm_etcd_rpm_url }}"
-    state: present
+  when: not skip_epel
   become: true
