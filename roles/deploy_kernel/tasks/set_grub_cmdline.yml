@@ -67,7 +67,7 @@
     state: present
     backrefs: true
     regexp: '^GRUB_DEFAULT=.+'
-    line: 'GRUB_DEFAULT=saved'
+    line: 'GRUB_DEFAULT="saved"'
   notify:
     - Identify UEFI boot
     - Execute grub2-mkconfig
