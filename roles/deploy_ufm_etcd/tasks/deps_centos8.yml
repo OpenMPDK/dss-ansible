@@ -30,12 +30,9 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Enable epel-release extras repo (yum)
-  yum:
-    name: epel-release
-    enablerepo: extras
-    state: present
-  become: true
+- name: Install epel-release repo
+  include_role:
+    name: deploy_epel
 
 - name: Install Required Packages (yum)
   yum:

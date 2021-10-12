@@ -31,9 +31,8 @@
 ---
 
 - name: Install epel-release repo
-  yum:
-    name: epel-release
-  become: true
+  include_role:
+    name: deploy_epel
 
 - name: Install yum dependencies
   yum:
