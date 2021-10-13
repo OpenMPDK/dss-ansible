@@ -55,6 +55,8 @@
 
 - name: Set default grub
   command: "grub2-set-default 'CentOS {{ dist_string }} ({{ target_kernel_version }}) {{ major_dist_ver }}{{ core_string }}'"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   vars:
     major_dist_ver: "{{ ansible_distribution_version.split('.')[0] }}"
     dist_string: "{% if major_dist_ver == '8' %}Stream{% else %}Linux{% endif %}"
