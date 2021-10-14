@@ -30,17 +30,10 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Check nvme-cli version
-  command: nvme --version
-  changed_when: false
-  failed_when: false
-  register: nvme_cli_version
-
 - name: Install nvme-cli
-  import_tasks: deploy_nvme_cli.yml
-  when: >
-    nvme_cli_version.stdout is not defined or
-    nvme_cli_version.stdout.split(' ')[-1] is version(deploy_nvme_cli_version, '!=')
+  yum:
+    name: "nvme-cli-{{ deploy_nvme_cli_version }}"
+  become: true
 
 - name: Check nvme-cli version post-install
   command: nvme --version
