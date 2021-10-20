@@ -30,7 +30,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-test_nkv_test_cli_dir: /usr/dss/nkv-sdk/bin/
+test_nkv_test_cli_dir: /usr/dss/nkv-sdk/bin
 test_nkv_test_cli_put: 0
 test_nkv_test_cli_get: 1
 test_nkv_test_cli_delete: 2

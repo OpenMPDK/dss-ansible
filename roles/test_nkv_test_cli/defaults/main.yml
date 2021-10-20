@@ -53,3 +53,4 @@ tcp_vlans:
     ipv4_netmask: 255.0.0.0
     ipv6_prefix: fd81:7E55:15:D55:42
     ipv6_prefix_length: 80
+dss_target_mode: kv_block_perf
