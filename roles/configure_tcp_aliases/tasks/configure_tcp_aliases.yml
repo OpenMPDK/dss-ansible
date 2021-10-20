@@ -250,3 +250,16 @@
     block: ''
   when: not needs_aliases
   become: true
+
+- name: Clear legacy alias blocks from /etc/hosts
+  blockinfile:
+    path: /etc/hosts
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ item }} TCP ALIASES FOR TESS"
+    block: ''
+  loop:
+    - SERVER
+    - CLIENT
+    - UFM
+    - HOST
+    - TARGET
+  become: true
