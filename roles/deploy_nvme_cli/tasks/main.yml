@@ -31,9 +31,7 @@
 ---
 
 - name: Install nvme-cli
-  yum:
-    name: "nvme-cli-{{ deploy_nvme_cli_version }}"
-  become: true
+  include_tasks: "nvme_centos_{{ ansible_distribution_version.split('.') | first }}.yml"
 
 - name: Check nvme-cli version post-install
   command: nvme --version
