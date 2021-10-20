@@ -1,0 +1,168 @@
+#  BSD LICENSE
+#
+#  Copyright (c) 2021 Samsung Electronics Co., Ltd.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in
+#      the documentation and/or other materials provided with the
+#      distribution.
+#    * Neither the name of Samsung Electronics Co., Ltd. nor the names of
+#      its contributors may be used to endorse or promote products derived
+#      from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---
+
+- name: Collect dmesg
+  command: dmesg -T
+  register: dmesg
+  changed_when: false
+
+- name: Fetch dmesg
+  copy:
+    dest: "{{ local_coredump_dir }}/{{ inventory_hostname }}/dmesg"
+    content: "{{ dmesg.stdout }}"
+    mode: 0755
+  delegate_to: localhost
+
+- name: Collect ifconfig
+  command: ifconfig
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
+  register: ifconfig
+  changed_when: false
+
+- name: Fetch ifconfig
+  copy:
+    dest: "{{ local_coredump_dir }}/{{ inventory_hostname }}/ifconfig"
+    content: "{{ ifconfig.stdout }}"
+    mode: 0755
+  delegate_to: localhost
+
+- name: Collect ip route
+  command: ip route
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
+  register: ip_route
+  changed_when: false
+
+- name: Fetch ip route
+  copy:
+    dest: "{{ local_coredump_dir }}/{{ inventory_hostname }}/ip_route"
+    content: "{{ ip_route.stdout }}"
+    mode: 0755
+  delegate_to: localhost
+
+- name: Find DSS logs and config files
+  find:
+    paths:
+      - "{{ dss_log_dir }}"
+      - "{{ dss_target_conf_dir }}"
+    recurse: true
+  register: dss_files
+
+- name: Fetch DSS logs and config files
+  fetch:
+    src: "{{ item.path }}"
+    dest: "{{ local_coredump_dir }}"
+  loop: "{{ dss_files.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Find nkv config json files
+  find:
+    paths: "{{ minio_conf_path }}"
+    patterns: 'nkv_config_*.json'
+    recurse: false
+  register: nkv_config_files
+
+- name: Fetch nkv config json files
+  fetch:
+    src: "{{ item.path }}"
+    dest: "{{ local_coredump_dir }}"
+  loop: "{{ nkv_config_files.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Find minio startup scripts and host config script
+  find:
+    paths: "{{ minio_host_bin_dir }}"
+    patterns: 'minio_startup_*.sh,dss_host_config_host.sh'
+    recurse: false
+  register: minio_startup_scripts
+
+- name: Fetch minio startup scripts and host config script
+  fetch:
+    src: "{{ item.path }}"
+    dest: "{{ local_coredump_dir }}"
+  loop: "{{ minio_startup_scripts.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+  become: true
+
+- name: Find target setup script
+  find:
+    paths: "{{ target_bin_dir }}"
+    patterns: 'dss_target_config.sh'
+    recurse: false
+  register: target_setup_script
+
+- name: Fetch target setup script
+  fetch:
+    src: "{{ item.path }}"
+    dest: "{{ local_coredump_dir }}"
+  loop: "{{ target_setup_script.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Fetch coredumps
+  fetch:
+    src: "{{ item.path }}"
+    dest: "{{ local_coredump_dir }}"
+  loop: "{{ coredumps.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Fetch /etc/hosts
+  fetch:
+    src: /etc/hosts
+    dest: "{{ local_coredump_dir }}"
+
+- name: Create support bundle tarball
+  archive:
+    path: "{{ local_coredump_dir }}/{{ inventory_hostname }}"
+    dest: "{{ local_coredump_dir }}/{{ ansible_date_time.epoch }}-{{ inventory_hostname_short }}-{{ coredump_suffix_name }}.tgz"
+    mode: 0755
+  delegate_to: localhost
+
+- name: Remove support bundle temp files
+  file:
+    path: "{{ local_coredump_dir }}/{{ inventory_hostname }}"
+    state: absent
+  delegate_to: localhost
+
+- name: Remove coredumps
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ coredumps.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+  become: true
