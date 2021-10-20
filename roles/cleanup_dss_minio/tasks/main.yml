@@ -61,6 +61,7 @@
     - "{{ rocev2_ip_list }}"
   loop_control:
     label: "{{ item.0.alias }}"
+  when: inventory_hostname in host_hostnames
 
 - name: Read local DSS conf
   command: "cat {{ dss_target_conf_dir }}/client_library_conf.json"
@@ -96,4 +97,6 @@
     endpoints: "{{ item.endpoints }}"
     first_endpoint: "{{ endpoints[0].ipv4 }}"
     rocev2_ip: "{{ (rocev2_alias_map | selectattr('alias', 'equalto', first_endpoint) | first).rocev2_ip }}"
-  when: first_endpoint in tcp_alias_list | map(attribute='alias') | list
+  when:
+    - inventory_hostname in host_hostnames
+    - first_endpoint in tcp_alias_list | map(attribute='alias') | list
