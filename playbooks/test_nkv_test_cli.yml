@@ -46,6 +46,7 @@
 - name: Test nkv_test_cli
   hosts:
     - servers
+    - hosts
     - targets
   roles:
     - test_nkv_test_cli
