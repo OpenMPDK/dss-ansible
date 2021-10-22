@@ -73,7 +73,9 @@
 
 - name: Deploy Kernel
   import_tasks: deploy_kernel.yml
-  when: ansible_kernel is version (target_kernel_version, '!=')
+  when:
+    - inventory_hostname in (groups['servers'] | d([]) + groups['hosts'] | d([]))
+    - ansible_kernel is version (target_kernel_version, '!=')
 
 - name: Flush handlers
   meta: flush_handlers
