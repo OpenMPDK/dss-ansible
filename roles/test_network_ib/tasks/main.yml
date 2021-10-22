@@ -38,7 +38,7 @@
 
 - name: Assert ib_read_bw installed
   assert:
-    that: ib_read_bw_version.rc != 127
+    that: ib_read_bw_version.stdout is defined
     msg: ib_read_bw is not installed. Install 'perftest' RPM.
 
 - name: Set ib_read_bw_ver_list var
