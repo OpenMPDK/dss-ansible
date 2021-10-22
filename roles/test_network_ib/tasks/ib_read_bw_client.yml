@@ -62,7 +62,7 @@
     - inventory_hostname == client_hostname
     - inventory_hostname != server_hostname
 
-- name: Start ib_read_bw client for server {{ server_hostname }} vlan_index {{ server_vlan_index }}
+- name: Start ib_read_bw client for server {{ server_hostname }} VLAN_INDEX {{ server_vlan_index }}
   command: |
     ib_read_bw -d {{ client_ibdev }} -x {{ client_gid_index }}
     -q 1 -s 1048576 -D {{ sanity_check_ib_test_duration }}
@@ -73,7 +73,7 @@
     - inventory_hostname == client_hostname
     - inventory_hostname != server_hostname
 
-- name: Collect ib_read_bw results for server {{ server_hostname }} vlan_index {{ server_vlan_index }}
+- name: Collect ib_read_bw results for server {{ server_hostname }} VLAN_INDEX {{ server_vlan_index }}
   set_fact:
     combined_ib_results: "{{ combined_ib_results | default([]) +
                           [{'bytes': bytes | int,
