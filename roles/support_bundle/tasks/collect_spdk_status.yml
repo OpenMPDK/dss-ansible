@@ -28,13 +28,18 @@
 #  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---
 
-[defaults]
-inventory = hosts
-roles_path = roles
-forks = 12
-retry_files_enabled = false
-stdout_callback = yaml
-log_path = ~/.tess_ansible.log
-any_errors_fatal = true
-host_key_checking = False
+- name: Collect spdk status
+  command: "{{ spdk_setup_script }} status"
+  register: spdk_status
+  changed_when: false
+  failed_when: false
+
+- name: Fetch spdk status
+  copy:
+    dest: "{{ local_coredump_dir }}/{{ inventory_hostname }}/spdk_status"
+    content: "{{ spdk_status.stdout }}"
+    mode: 0755
+  when: spdk_status.rc == 0
+  delegate_to: localhost

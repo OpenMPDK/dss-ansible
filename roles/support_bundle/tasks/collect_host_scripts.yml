@@ -28,13 +28,20 @@
 #  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---
 
-[defaults]
-inventory = hosts
-roles_path = roles
-forks = 12
-retry_files_enabled = false
-stdout_callback = yaml
-log_path = ~/.tess_ansible.log
-any_errors_fatal = true
-host_key_checking = False
+- name: Find host config script and MinIO startup scripts
+  find:
+    paths: "{{ minio_host_bin_dir }}"
+    patterns: 'minio_startup_*.sh,dss_host_config_host.sh'
+    recurse: false
+  register: minio_startup_scripts
+
+- name: Fetch host config script and MinIO startup scripts
+  fetch:
+    src: "{{ item.path }}"
+    dest: "{{ local_coredump_dir }}"
+  loop: "{{ minio_startup_scripts.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+  become: true

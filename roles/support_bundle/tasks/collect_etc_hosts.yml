@@ -28,13 +28,9 @@
 #  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---
 
-[defaults]
-inventory = hosts
-roles_path = roles
-forks = 12
-retry_files_enabled = false
-stdout_callback = yaml
-log_path = ~/.tess_ansible.log
-any_errors_fatal = true
-host_key_checking = False
+- name: Fetch /etc/hosts
+  fetch:
+    src: /etc/hosts
+    dest: "{{ local_coredump_dir }}"

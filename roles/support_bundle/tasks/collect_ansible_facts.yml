@@ -28,13 +28,11 @@
 #  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---
 
-[defaults]
-inventory = hosts
-roles_path = roles
-forks = 12
-retry_files_enabled = false
-stdout_callback = yaml
-log_path = ~/.tess_ansible.log
-any_errors_fatal = true
-host_key_checking = False
+- name: Fetch ansible facts
+  copy:
+    dest: "{{ local_coredump_dir }}/{{ inventory_hostname }}/ansible_facts.json"
+    content: "{{ ansible_facts | to_nice_json  }}"
+    mode: 0755
+  delegate_to: localhost

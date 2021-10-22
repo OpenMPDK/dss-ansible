@@ -206,3 +206,6 @@
 ### Coredump Settings
 # coredump_compress_dir: /etc/dss
 # coredump_dir: /var/crash
+
+### Ansible log path (console output)
+# ansible_log_path: ~/.tess_ansible.log

@@ -30,120 +30,42 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Collect ansible_facts
+  include_tasks: collect_ansible_facts.yml
+
 - name: Collect dmesg
-  command: dmesg -T
-  register: dmesg
-  changed_when: false
+  include_tasks: collect_dmesg.yml
 
-- name: Fetch dmesg
-  copy:
-    dest: "{{ local_coredump_dir }}/{{ inventory_hostname }}/dmesg"
-    content: "{{ dmesg.stdout }}"
-    mode: 0755
-  delegate_to: localhost
+- name: Collect SPDK status
+  include_tasks: collect_spdk_status.yml
+  when: inventory_hostname in target_hostnames
 
-- name: Collect ifconfig
-  command: ifconfig
-  environment:
-    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
-  register: ifconfig
-  changed_when: false
+- name: Collect DSS logs dir
+  include_tasks: collect_dss_logs.yml
 
-- name: Fetch ifconfig
-  copy:
-    dest: "{{ local_coredump_dir }}/{{ inventory_hostname }}/ifconfig"
-    content: "{{ ifconfig.stdout }}"
-    mode: 0755
-  delegate_to: localhost
+- name: Collect DSS config dir
+  include_tasks: collect_dss_config.yml
 
-- name: Collect ip route
-  command: ip route
-  environment:
-    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
-  register: ip_route
-  changed_when: false
+- name: Collect nkv_config json files
+  include_tasks: collect_nkv_config.yml
 
-- name: Fetch ip route
-  copy:
-    dest: "{{ local_coredump_dir }}/{{ inventory_hostname }}/ip_route"
-    content: "{{ ip_route.stdout }}"
-    mode: 0755
-  delegate_to: localhost
+- name: Collect host config script and MinIO startup scripts
+  include_tasks: collect_host_scripts.yml
 
-- name: Find DSS logs and config files
-  find:
-    paths:
-      - "{{ dss_log_dir }}"
-      - "{{ dss_target_conf_dir }}"
-    recurse: true
-  register: dss_files
+- name: Collect target setup script, dss_target.py output, and mkfs_blobfs output
+  include_tasks: collect_target_scripts.yml
 
-- name: Fetch DSS logs and config files
-  fetch:
-    src: "{{ item.path }}"
-    dest: "{{ local_coredump_dir }}"
-  loop: "{{ dss_files.files }}"
-  loop_control:
-    label: "{{ item.path }}"
+- name: Collect coredumps
+  include_tasks: collect_coredumps.yml
 
-- name: Find nkv config json files
-  find:
-    paths: "{{ minio_conf_path }}"
-    patterns: 'nkv_config_*.json'
-    recurse: false
-  register: nkv_config_files
+- name: Collect /etc/hosts
+  include_tasks: collect_etc_hosts.yml
 
-- name: Fetch nkv config json files
-  fetch:
-    src: "{{ item.path }}"
-    dest: "{{ local_coredump_dir }}"
-  loop: "{{ nkv_config_files.files }}"
-  loop_control:
-    label: "{{ item.path }}"
+- name: Collect numactl
+  include_tasks: collect_numactl.yml
 
-- name: Find minio startup scripts and host config script
-  find:
-    paths: "{{ minio_host_bin_dir }}"
-    patterns: 'minio_startup_*.sh,dss_host_config_host.sh'
-    recurse: false
-  register: minio_startup_scripts
-
-- name: Fetch minio startup scripts and host config script
-  fetch:
-    src: "{{ item.path }}"
-    dest: "{{ local_coredump_dir }}"
-  loop: "{{ minio_startup_scripts.files }}"
-  loop_control:
-    label: "{{ item.path }}"
-  become: true
-
-- name: Find target setup script
-  find:
-    paths: "{{ target_bin_dir }}"
-    patterns: 'dss_target_config.sh'
-    recurse: false
-  register: target_setup_script
-
-- name: Fetch target setup script
-  fetch:
-    src: "{{ item.path }}"
-    dest: "{{ local_coredump_dir }}"
-  loop: "{{ target_setup_script.files }}"
-  loop_control:
-    label: "{{ item.path }}"
-
-- name: Fetch coredumps
-  fetch:
-    src: "{{ item.path }}"
-    dest: "{{ local_coredump_dir }}"
-  loop: "{{ coredumps.files }}"
-  loop_control:
-    label: "{{ item.path }}"
-
-- name: Fetch /etc/hosts
-  fetch:
-    src: /etc/hosts
-    dest: "{{ local_coredump_dir }}"
+- name: Collect ansible log
+  include_tasks: collect_ansible_log.yml
 
 - name: Create support bundle tarball
   archive:
