@@ -38,7 +38,6 @@
 # All hosts will ping each other across TCP IP's, and RoCEv2 IPs.
 # An ib_read_bw test will then run, and assert that measured throughput is at least 90% of link speed.
 
-# NOTE: ib_read_bw will only execute if VLANs are configured
 
 - name: Validate ansible versions and dependencies
   hosts: localhost
