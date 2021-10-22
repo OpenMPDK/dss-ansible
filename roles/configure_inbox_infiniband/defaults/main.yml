@@ -48,3 +48,4 @@ infiniband_rpm_urls:
   - http://mirror.centos.org/centos/7/os/x86_64/Packages/graphviz-tcl-2.30.1-22.el7.x86_64.rpm
   - http://mirror.centos.org/centos/7/os/x86_64/Packages/ibutils-libs-1.5.7-14.el7.x86_64.rpm
   - http://mirror.centos.org/centos/7/os/x86_64/Packages/ibutils-1.5.7-14.el7.x86_64.rpm
+  - http://mirror.centos.org/centos/7/os/x86_64/Packages/perftest-4.2-2.el7.x86_64.rpm
