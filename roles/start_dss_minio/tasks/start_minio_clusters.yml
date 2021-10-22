@@ -94,7 +94,7 @@
     tcp_alias: "{{ item.alias }}"
   register: minio_logs
   until: minio_logs.stdout is search('0 Offline')
-  retries: 12
+  retries: 24
   delay: 5
   become: true
   when: inventory_hostname in host_hostnames
