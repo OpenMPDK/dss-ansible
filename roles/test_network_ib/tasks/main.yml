@@ -30,6 +30,114 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Test ib_read_bw if IP's are not user-defined
-  include_tasks: test_network_ib.yml
+- name: Get ib_read_bw versions
+  command: ib_read_bw --version
+  changed_when: false
+  failed_when: false
+  register: ib_read_bw_version
+
+- name: Assert ib_read_bw installed
+  assert:
+    that: ib_read_bw_version.rc != 127
+    msg: ib_read_bw is not installed. Install 'perftest' RPM.
+
+- name: Set ib_read_bw_ver_list var
+  set_fact:
+    ib_read_bw_ver_list: "{{ ib_read_bw_ver_list | d([]) + [ hostvars[item].ib_read_bw_version.stdout ] }}"
+  loop: "{{ ansible_play_hosts }}"
+  run_once: true
+
+- name: Assert ib_read_bw versions match
+  assert:
+    that: ib_read_bw_ver_list | unique | length == 1
+    msg: |
+      Mixed versions of ib_read_bw detected.
+      Cannot test ib_read_bw between hosts running OFED and inbox infiniband driver
+      {{ ib_read_bw_version.stdout }}
+
+- name: Get RoCEv2 IP Address
+  include_role:
+    name: get_vlan_ips
+  vars:
+    vlan_list: "{{ rocev2_vlans }}"
   when: rocev2_ip_list is not defined
+
+- name: Set rocev2_ip_list var if IP's auto-discovered
+  set_fact:
+    rocev2_ip_list: "{{ vlan_ip_list }}"
+  when: rocev2_ip_list is not defined
+
+- name: Assert that IP's are defined
+  assert:
+    that: rocev2_ip_list | length > 0
+    fail_msg: |
+      No IPs configured on any Mellanox adapter.
+      Please configure at least one IP to test ping.
+
+- name: Query show_gids
+  command: show_gids
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/usr/local/bin:/usr/sbin"
+  changed_when: false
+  failed_when: false
+  register: gids_list
+  become: true
+
+- name: Assert show_gids installed
+  assert:
+    that: gids_list.rc != 127
+    msg: show_gids is not installed. Run 'playbooks/configure_hosts.yml' playbook.
+
+- name: Set ib_devices var
+  set_fact:
+    ib_devices: "{{ ib_devices | default([]) +
+                [{ 'ibdev': ibdev,
+                  'gid_index': gid_index,
+                  'ip_address': ip_address,
+                  'netdev': netdev,
+                  'vlan_index': vlan_index,
+                  'hostname': inventory_hostname }] }}"
+  loop: "{{ rocev2_ip_list }}"
+  loop_control:
+    loop_var: ip_address
+    extended: true
+  vars:
+    gid_regex: '(mlx\d_\d+)\s+\d+\s+([\d]+)\s+[^\s+]+\s+{{ ip_address }}\s+v2\s+([\w]+)((\.\w+)?)'
+    ibdev: "{{ gids_list.stdout | regex_search(gid_regex, '\\1') | first }}"
+    gid_index: "{{ gids_list.stdout | regex_search(gid_regex, '\\2') | first }}"
+    netdev: "{{ gids_list.stdout | regex_search(gid_regex, '\\3') | first }}"
+    vlan_index: "{{ ansible_loop.index0 }}"
+  when: gids_list.stdout is regex(gid_regex)
+
+- name: Set combined_ib_devices var
+  set_fact:
+    combined_ib_devices: "{{ combined_ib_devices | default([]) }} + {{ hostvars[host].ib_devices }}"
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    loop_var: host
+  run_once: true
+
+- name: Iterate ib_read_bw servers
+  include_tasks: ib_read_bw_server.yml
+  vars:
+    server_vlan_index: "{{ server_ib_device.vlan_index }}"
+    server_ibdev: "{{ server_ib_device.ibdev }}"
+    server_netdev: "{{ server_ib_device.netdev }}"
+    server_hostname: "{{ server_ib_device.hostname }}"
+    server_ip_address: "{{ server_ib_device.ip_address }}"
+    server_gid_index: "{{ server_ib_device.gid_index }}"
+  loop: "{{ combined_ib_devices }}"
+  loop_control:
+    loop_var: server_ib_device
+
+- name: Assert ib_read_bw bw_avg is > 90% of link speed
+  assert:
+    that: ib_result.bw_avg | float >= min_linkspeed | float
+    fail_msg: "Expected bw: {{ min_linkspeed }}. Actual bw: {{ ib_result.bw_avg }}"
+    quiet: true
+  vars:
+    min_linkspeed: "{{ [ib_result.server_linkspeed, ib_result.client_linkspeed] | min | float * 0.0009 }}"
+  loop: "{{ combined_ib_results }}"
+  loop_control:
+    loop_var: ib_result
+  ignore_errors: true
