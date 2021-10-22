@@ -30,62 +30,13 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-### Playbook Documentation ###
-#
-# #### playbooks/configure_hosts.yml
-#
-# Execute this playbook to configure hosts prior to deploying DSS / TESS software.
-# This playbook will deploy custom kernel, install YUM / python dependencies, and deploy the Infiniband driver.
-#
-# To install OFED, set `infiniband_driver` host var to `ofed`.
-# To install the in-box Infiniband driver, set `infiniband_driver` host var to `inbox`.
-# Note that OFED is presently only supported on CentOS 7.4 - 7.8.
-# In-box driver will be installed on CentOS 7.9 or 8.
-# No other versions of CentOS are supported.
+- name: Find IOMMU groups
+  find:
+    name: Identify datamover tarball
+    path: /sys/kernel/iommu_groups
+  register: iommu_groups
 
-- name: Validate ansible versions and dependencies
-  hosts: localhost
-  roles:
-    - validate_ansible
-
-- name: Validate CentOS hosts
-  hosts:
-    - clients
-    - servers
-    - targets
-    - hosts
-  roles:
-    - validate_centos
-
-- name: Check IOMMU Off
-  gather_facts: false
-  hosts:
-    - servers
-    - targets
-    - hosts
-  roles:
-    - check_iommu_off
-
-- name: Deploy kernel on servers
-  hosts:
-    - servers
-    - hosts
-  roles:
-    - deploy_kernel
-
-- name: Configure Hosts
-  hosts:
-    - clients
-    - servers
-    - targets
-    - hosts
-  roles:
-    - validate_centos
-    - configure_sysctl
-    - configure_firewalld
-    - configure_tuned
-    - deploy_utils
-    - deploy_nvme_cli
-    - deploy_infiniband
-    - configure_irq
-    - configure_lldpd
+- name: Assert IOMMU off
+  assert:
+    that: iommu_groups.files | length == 0
+    msg: IOMMU is enabled. Please disable IOMMU to use DSS software.
