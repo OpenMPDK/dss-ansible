@@ -30,14 +30,9 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-coredump_only: false
-coredump_suffix_name: support_bundle
-coredump_dir: /var/crash
-local_coredump_dir: /tmp/dss_coredumps
-dss_log_dir: /var/log/dss
-dss_target_conf_dir: /etc/dss
-minio_conf_path: /usr/dss/nkv-sdk/conf
-minio_host_bin_dir: /usr/dss/nkv-sdk/bin
-target_bin_dir: /usr/dss/nkv-target/bin
-spdk_setup_script: /usr/dss/nkv-target/scripts/setup.sh
-ansible_log_path: ~/.tess_ansible.log
+- name: Fetch ansible facts
+  copy:
+    dest: "{{ local_coredump_dir }}/{{ inventory_hostname }}/ansible_facts.json"
+    content: "{{ ansible_facts | to_nice_json  }}"
+    mode: 0755
+  delegate_to: localhost

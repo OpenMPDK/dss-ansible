@@ -30,14 +30,17 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-coredump_only: false
-coredump_suffix_name: support_bundle
-coredump_dir: /var/crash
-local_coredump_dir: /tmp/dss_coredumps
-dss_log_dir: /var/log/dss
-dss_target_conf_dir: /etc/dss
-minio_conf_path: /usr/dss/nkv-sdk/conf
-minio_host_bin_dir: /usr/dss/nkv-sdk/bin
-target_bin_dir: /usr/dss/nkv-target/bin
-spdk_setup_script: /usr/dss/nkv-target/scripts/setup.sh
-ansible_log_path: ~/.tess_ansible.log
+- name: Find nkv config json files
+  find:
+    paths: "{{ minio_conf_path }}"
+    patterns: 'nkv_config_*.json'
+    recurse: false
+  register: nkv_config_files
+
+- name: Fetch nkv config json files
+  fetch:
+    src: "{{ item.path }}"
+    dest: "{{ local_coredump_dir }}"
+  loop: "{{ nkv_config_files.files }}"
+  loop_control:
+    label: "{{ item.path }}"
