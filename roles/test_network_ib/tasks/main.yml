@@ -85,7 +85,7 @@
 
 - name: Assert show_gids installed
   assert:
-    that: gids_list.rc != 127
+    that: gids_list.stdout is defined
     msg: show_gids is not installed. Run 'playbooks/configure_hosts.yml' playbook.
 
 - name: Set ib_devices var
