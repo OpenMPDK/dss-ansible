@@ -42,6 +42,15 @@
   roles:
     - validate_ansible
 
+- name: Check IOMMU Off
+  gather_facts: false
+  hosts:
+    - servers
+    - targets
+    - hosts
+  roles:
+    - check_iommu_off
+
 - name: Get TCP VLAN IP List
   hosts:
     - servers

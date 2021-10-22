@@ -57,6 +57,15 @@
   roles:
     - validate_centos
 
+- name: Check IOMMU Off
+  gather_facts: false
+  hosts:
+    - servers
+    - targets
+    - hosts
+  roles:
+    - check_iommu_off
+
 - name: Deploy kernel on servers
   hosts:
     - servers
