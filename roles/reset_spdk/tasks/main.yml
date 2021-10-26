@@ -32,13 +32,13 @@
 
 - name: Stat DSS Target path
   stat:
-    path: "{{ reset_spdk_bin_dir }}"
+    path: "{{ target_bin_dir }}"
   register: dss_target_path
 
 - name: Move disks back to kernel mode (spdk reset)
   command: /usr/bin/python2 ./dss_target.py reset
   args:
-    chdir: "{{ reset_spdk_bin_dir }}"
+    chdir: "{{ target_bin_dir }}"
   register: target_reset
   changed_when: target_reset.stdout is search('uio_pci_generic -> nvme')
   when: dss_target_path.stat.exists

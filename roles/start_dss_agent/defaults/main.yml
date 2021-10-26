@@ -30,6 +30,13 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Path defaults
+artifacts_dir: "{{ inventory_dir }}/artifacts"
 dss_log_dir: /var/log/dss
-dss_target_conf_dir: /etc/dss
-dss_target_conf_file: "{{ dss_target_conf_dir }}/nvmf.in.conf"
+nkv_agent_tmp_dir: /tmp/dss
+dss_subsystem_script_temp_file: "{{ nkv_agent_tmp_dir }}/subsystem_store.py"
+nkv_agent_dir: /usr/share/nkvagent
+start_dss_agent_subsystem_log: "{{ dss_log_dir }}/subsystem_store.log"
+target_conf_dir: /etc/dss
+target_conf_file: "{{ target_conf_dir }}/nvmf.in.conf"
+kv_cli_location: "{{ nkv_agent_dir }}/kv-cli.py"

@@ -30,6 +30,12 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Path defaults
+dss_dir: /usr/dss
+target_dir: "{{ dss_dir }}/nkv-target"
+artifacts_dir: "{{ inventory_dir }}/artifacts"
 dss_log_dir: /var/log/dss
-dss_target_conf_dir: /etc/dss
+target_conf_dir: /etc/dss
+
+### PIP defaults
 pip2_version: 20.3.4

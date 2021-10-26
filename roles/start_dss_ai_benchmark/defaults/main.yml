@@ -30,6 +30,15 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Path defaults
+dss_dir: /usr/dss
+nkv_sdk_dir: "{{ dss_dir }}/nkv-sdk"
+ai_benchmark_dir: "{{ dss_dir }}/nkv-benchmark"
+nkv_sdk_conf_dir: "{{ nkv_sdk_dir }}/conf"
+minio_dir: "{{ dss_dir }}/nkv-minio"
+dss_log_dir: /var/log/dss
+
+### AI Benchmark defaults
 benchmark_objects: 1000
 benchmark_clients: 20
 benchmark_rate_limit: 0
@@ -40,10 +49,12 @@ benchmark_concurrent: 1
 benchmark_cap: 0GiB
 benchmark_client_start_port: 7000
 benchmark_bucket_prefix: benchmark-bucket-
+
+### MinIO defaults
 minio_access_key: minio
 minio_secret_key: minio123
 minio_mc_alias: autominio
 minio_port: 9000
 
-dss_log_dir: /var/log/dss
+### Target defaults
 dss_target_mode: kv_block_vm

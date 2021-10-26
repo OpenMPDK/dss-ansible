@@ -49,12 +49,12 @@
   run_once: true
 
 - name: Check minio connection
-  command: "{{ start_dss_benchmark_minio_dir }}/mc ls {{ minio_mc_alias }}"
+  command: "{{ minio_dir }}/mc ls {{ minio_mc_alias }}"
   when: inventory_hostname in groups['clients']
   changed_when: false
 
 - name: Get minio url from mc
-  command: "{{ start_dss_benchmark_minio_dir }}/mc config host list {{ minio_mc_alias }} --json"
+  command: "{{ minio_dir }}/mc config host list {{ minio_mc_alias }} --json"
   when: inventory_hostname in groups['clients']
   register: mc_host_config
   changed_when: false
@@ -106,7 +106,7 @@
 - name: Generate cluster.json template to master client
   template:
     src: cluster.json.j2
-    dest: "{{ start_dss_benchmark_dest_dir }}/cluster.json"
+    dest: "{{ ai_benchmark_dir }}/cluster.json"
     mode: 0644
   run_once: true
   when: inventory_hostname in groups['clients']
@@ -116,7 +116,7 @@
 - name: Copy image.json to master client
   copy:
     src: image.json
-    dest: "{{ start_dss_benchmark_dest_dir }}/image.json"
+    dest: "{{ ai_benchmark_dir }}/image.json"
     mode: 0644
   run_once: true
   when: inventory_hostname in groups['clients']
@@ -128,17 +128,17 @@
   copy:
     content: >
       python3
-      {{ start_dss_benchmark_dest_dir }}/scripts/bench.py
+      {{ ai_benchmark_dir }}/scripts/bench.py
       generate
-      --cluster-config {{ start_dss_benchmark_dest_dir }}/cluster.json
-      --obj-dist-file {{ start_dss_benchmark_dest_dir }}/image.json
+      --cluster-config {{ ai_benchmark_dir }}/cluster.json
+      --obj-dist-file {{ ai_benchmark_dir }}/image.json
       --objects {{ benchmark_objects }}
-      --warp-binary {{ start_dss_benchmark_dest_dir }}/warp
+      --warp-binary {{ ai_benchmark_dir }}/warp
       --access-key {{ minio_access_key }}
       --secret-key "{{ minio_secret_key }}"
       --output-dir {{ dss_log_dir }}
       --client-start-port {{ benchmark_client_start_port }}
-    dest: "{{ start_dss_benchmark_dest_dir }}/scripts/dss_benchmark_generate.sh"
+    dest: "{{ ai_benchmark_dir }}/scripts/dss_benchmark_generate.sh"
     mode: 0755
   run_once: true
   when: inventory_hostname in groups['clients']
@@ -148,23 +148,23 @@
   copy:
     content: >
       python3
-      {{ start_dss_benchmark_dest_dir }}/scripts/bench.py
+      {{ ai_benchmark_dir }}/scripts/bench.py
       benchmark
       --num-clients {{ benchmark_clients }}
       --rate-limit {{ benchmark_rate_limit }}
       --software-rate-limit {{ benchmark_software_rate_limit }}
       --ustat-profiles "{{ benchmark_ustat_profiles }}"
-      --warp-binary {{ start_dss_benchmark_dest_dir }}/warp
+      --warp-binary {{ ai_benchmark_dir }}/warp
       --access-key {{ minio_access_key }}
       --secret-key "{{ minio_secret_key }}"
       --output-dir {{ dss_log_dir }}
       --duration {{ benchmark_duration }}
       --concurrent {{ benchmark_concurrent }}
       --cap {{ benchmark_cap }}
-      --cluster-config {{ start_dss_benchmark_dest_dir }}/cluster.json
-      --ustat-binary-path {{ start_dss_benchmark_dest_dir }}/ustat
+      --cluster-config {{ ai_benchmark_dir }}/cluster.json
+      --ustat-binary-path {{ ai_benchmark_dir }}/ustat
       --client-start-port {{ benchmark_client_start_port }}
-    dest: "{{ start_dss_benchmark_dest_dir }}/scripts/dss_benchmark.sh"
+    dest: "{{ ai_benchmark_dir }}/scripts/dss_benchmark.sh"
     mode: 0755
   run_once: true
   when: inventory_hostname in groups['clients']
@@ -172,7 +172,7 @@
 
 - name: Check if benchmark data needs to be re-generated
   command: |
-    {{ start_dss_benchmark_dest_dir }}/scripts/check_bucket.py
+    {{ ai_benchmark_dir }}/scripts/check_bucket.py
     --server {{ minio_host }}:{{ minio_port }}
     --access-key {{ minio_access_key }}
     --secret-key {{ minio_secret_key }}
@@ -189,7 +189,7 @@
     - name: Execute generate on master client
       shell: >
         set -o pipefail &&
-        {{ start_dss_benchmark_dest_dir }}/scripts/dss_benchmark_generate.sh
+        {{ ai_benchmark_dir }}/scripts/dss_benchmark_generate.sh
         | tee -a {{ dss_log_dir }}/nkv-benchmark-generate.log
       run_once: true
       register: bench_generate
@@ -232,7 +232,7 @@
 
     - name: Enable ustat
       lineinfile:
-        path: "{{ start_dss_benchmark_conf_path }}/nkv_config_{{ rocev2_ip }}.json"
+        path: "{{ nkv_sdk_conf_dir }}/nkv_config_{{ rocev2_ip }}.json"
         regexp: '^( +"nkv_need_path_stat":)'
         line: '\1 1,'
         backrefs: true
@@ -245,7 +245,7 @@
     - name: Execute benchmark on master client
       shell: >
         set -o pipefail &&
-        {{ start_dss_benchmark_dest_dir }}/scripts/dss_benchmark.sh
+        {{ ai_benchmark_dir }}/scripts/dss_benchmark.sh
         | tee -a {{ dss_log_dir }}/nkv-benchmark.log
       run_once: true
       register: bench_benchmark
@@ -257,9 +257,9 @@
     - name: Terminate failed benchmark
       command: >
         python3
-        {{ start_dss_benchmark_dest_dir }}/scripts/bench.py
+        {{ ai_benchmark_dir }}/scripts/bench.py
         terminate
-        --cluster-config {{ start_dss_benchmark_dest_dir }}/cluster.json
+        --cluster-config {{ ai_benchmark_dir }}/cluster.json
       run_once: true
       when: inventory_hostname in groups['clients']
       become: true
@@ -298,7 +298,7 @@
   always:
     - name: Disable ustat
       lineinfile:
-        path: "{{ start_dss_benchmark_conf_path }}/nkv_config_{{ rocev2_ip }}.json"
+        path: "{{ nkv_sdk_conf_dir }}/nkv_config_{{ rocev2_ip }}.json"
         regexp: '^( +"nkv_need_path_stat":)'
         line: '\1 0,'
         backrefs: true

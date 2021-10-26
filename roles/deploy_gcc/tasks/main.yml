@@ -32,7 +32,7 @@
 
 - name: Identify GCC RPM
   find:
-    path: "{{ deploy_gcc_path }}"
+    path: "{{ artifacts_dir }}"
     patterns: 'kewb-gcc*.rpm'
   delegate_to: localhost
   run_once: true
@@ -41,7 +41,7 @@
 - name: Assert GCC RPM found
   assert:
     that: gcc_rpm.files | length > 0
-    fail_msg: "No gcc RPM found. Please download RPM to {{ deploy_gcc_path }}"
+    fail_msg: "No gcc RPM found. Please download RPM to {{ artifacts_dir }}"
 
 - name: Identify newest version of GCC RPM found
   set_fact:

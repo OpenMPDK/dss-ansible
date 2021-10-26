@@ -44,7 +44,7 @@
     path: "{{ item }}"
     state: absent
   loop:
-    - /var/log/nkv-agent
-    - /etc/nkv-agent
-    - /tmp/dss
+    - "{{ nkv_agent_log_dir }}"
+    - "{{ nkv_agent_conf_dir }}"
+    - "{{ nkv_agent_tmp_dir }}"
     - "{{ dss_log_dir }}/subsystem_store.log"

@@ -72,7 +72,7 @@
 
 - name: Identify target tarball
   find:
-    path: "{{ deploy_dss_target_path }}"
+    path: "{{ artifacts_dir }}"
     patterns: 'nkv-target*.tgz'
   delegate_to: localhost
   run_once: true
@@ -81,11 +81,11 @@
 - name: Assert target tarball found
   assert:
     that: target_tgz.files | length > 0
-    fail_msg: "No target tarball found. Please download tarball to {{ deploy_dss_target_path }}"
+    fail_msg: "No target tarball found. Please download tarball to {{ artifacts_dir }}"
 
 - name: Create target destination path
   file:
-    path: "{{ deploy_dss_target_dest_dir }}"
+    path: "{{ target_dir }}"
     state: directory
     mode: 0555
   become: true
@@ -93,7 +93,7 @@
 - name: Deploy target from tarball
   unarchive:
     src: "{{ (target_tgz.files | sort(attribute='ctime', reverse=true) | first).path }}"
-    dest: "{{ deploy_dss_target_dest_dir }}"
+    dest: "{{ target_dir }}"
     extra_opts: [--strip-components=1]
     owner: root
     group: root
@@ -111,7 +111,7 @@
 
 - name: Create conf dir
   file:
-    path: "{{ dss_target_conf_dir }}"
+    path: "{{ target_conf_dir }}"
     state: directory
     mode: 0755
   become: true

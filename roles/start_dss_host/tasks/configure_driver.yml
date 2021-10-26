@@ -53,7 +53,7 @@
     - name: "Configure Driver #{{ config_num }}"
       command: sh ./dss_host_config_host.sh
       args:
-        chdir: "{{ start_dss_host_dir }}/bin"
+        chdir: "{{ nkv_sdk_bin_dir }}"
       when: subsystems_found != combined_expected_num_subsystems
       become: true
 

@@ -32,7 +32,7 @@
 
 - name: Find BlobFS config files
   find:
-    paths: "{{ dss_target_conf_dir }}"
+    paths: "{{ target_conf_dir }}"
     patterns: blobfs.mkfs.in*.conf
   register: blobfs_conf_files
 
@@ -47,7 +47,7 @@
 
 - name: Remove format_disks.sh files
   file:
-    path: "{{ start_dss_target_dest_dir }}/bin/{{ item }}"
+    path: "{{ target_dir }}/bin/{{ item }}"
     state: absent
   loop:
     - format_disks.sh

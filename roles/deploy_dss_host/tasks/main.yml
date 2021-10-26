@@ -92,7 +92,7 @@
 
 - name: Identify host tarball
   find:
-    path: "{{ deploy_host_path }}"
+    path: "{{ artifacts_dir }}"
     patterns: 'nkv-sdk-bin-*.tgz'
   delegate_to: localhost
   run_once: true
@@ -101,11 +101,11 @@
 - name: Assert host tarball found
   assert:
     that: host_tgz.files | length > 0
-    fail_msg: "No host tarball found. Please download tarball to {{ deploy_host_path }}"
+    fail_msg: "No host tarball found. Please download tarball to {{ artifacts_dir }}"
 
 - name: Create host destination path
   file:
-    path: "{{ deploy_host_dest_dir }}"
+    path: "{{ nkv_sdk_dir }}"
     state: directory
     mode: 0555
   become: true
@@ -113,7 +113,7 @@
 - name: Deploy host from tarball
   unarchive:
     src: "{{ (host_tgz.files | sort(attribute='ctime', reverse=true) | first).path }}"
-    dest: "{{ deploy_host_dest_dir }}"
+    dest: "{{ nkv_sdk_dir }}"
     extra_opts: [--strip-components=1]
     owner: root
     group: root

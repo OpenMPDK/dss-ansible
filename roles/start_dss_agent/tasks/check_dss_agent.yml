@@ -32,7 +32,7 @@
 
 - name: Identify agent RPM
   find:
-    path: "{{ deploy_dss_agent_path }}"
+    path: "{{ artifacts_dir }}"
     patterns: 'nkvagent-*.rpm'
   delegate_to: localhost
   run_once: true

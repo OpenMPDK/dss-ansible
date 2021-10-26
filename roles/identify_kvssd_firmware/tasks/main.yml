@@ -32,7 +32,7 @@
 
 - name: Identify kvssd firmware
   find:
-    path: "{{ kvssd_firmware_path }}"
+    path: "{{ artifacts_dir }}"
     patterns: '*.bin'
   delegate_to: localhost
   run_once: true
@@ -41,7 +41,7 @@
 - name: Assert kvssd firmware found
   assert:
     that: firmware_bin.files | count == 1
-    fail_msg: "Expected 1 but found {{ firmware_bin.files | count }} firmware files. Please download firmware bin to {{ kvssd_firmware_path }}"
+    fail_msg: "Expected 1 but found {{ firmware_bin.files | count }} firmware files. Please download firmware bin to {{ artifacts_dir }}"
     success_msg: "Found {{ firmware_bin.files[0].path | basename }}"
 
 - name: Set target firmware version

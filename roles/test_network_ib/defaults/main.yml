@@ -30,6 +30,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### VLAN defaults
 rocev2_vlans:
   - id: 31
     ipv4_prefix: 201.0.0

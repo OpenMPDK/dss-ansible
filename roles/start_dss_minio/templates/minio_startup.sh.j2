@@ -38,8 +38,8 @@
     {% if num_mountpoints.update({ 'value': num_mountpoints.value + (my_range.max | int - my_range.min | int + 1) }) %}{% endif %}
 {% endif %}
 
-export LD_LIBRARY_PATH="{{ start_dss_minio_host_dir }}/lib"
-export MINIO_NKV_CONFIG="{{ start_dss_minio_host_dir }}/conf/nkv_config_{{ rocev2_ip }}.json"
+export LD_LIBRARY_PATH="{{ nkv_sdk_lib_dir }}"
+export MINIO_NKV_CONFIG="{{ nkv_sdk_conf_dir }}/nkv_config_{{ rocev2_ip }}.json"
 {% if standalone_minio %}#{% endif %}export MINIO_INSTANCE_HOST_PORT={{ tcp_alias }}:{{ minio_port }}
 export MINIO_ACCESS_KEY={{ minio_access_key }}
 export MINIO_SECRET_KEY={{ minio_secret_key }}
@@ -70,7 +70,7 @@ ulimit -c unlimited
 {% if num_numa | int > 1 -%}
     numactl -N {{ numa_node }} -i {{ numa_node }},{{ adjacent_numa }}{{ ' '}}
 {%- endif -%}
-{{ start_dss_minio_dir }}/minio server --address {{ tcp_alias }}:{{ minio_port }}
+{{ minio_dir }}/minio server --address {{ tcp_alias }}:{{ minio_port }}
     {%- for vlan in combined_vlan_ip_map -%}
         {%- set vlan_index = loop.index0 -%}
         {%- if min_subsystem_list[vlan_index] == min_subsystem -%}

@@ -32,7 +32,7 @@
 
 - name: Stat DSS Target path
   stat:
-    path: "{{ start_dss_target_dest_dir }}"
+    path: "{{ target_dir }}"
   register: dss_target_path
 
 - name: Assert DSS Target path exists
@@ -42,19 +42,19 @@
 
 - name: Stat nvmf.in.conf
   stat:
-    path: "{{ dss_target_conf_dir }}/nvmf.in.conf"
+    path: "{{ target_conf_file }}"
   register: nvmf_in_conf
 
 - name: Stat dss_target.out
   stat:
-    path: "{{ start_dss_target_dest_dir }}/bin/dss_target.out"
+    path: "{{ target_dir }}/bin/dss_target.out"
   register: dss_target_out
 
 - name: Get spdk status
   command: ./setup.sh status
   changed_when: false
   args:
-    chdir: "{{ start_dss_target_dest_dir }}/scripts"
+    chdir: "{{ target_dir }}/scripts"
   register: spdk_status
   become: true
 
@@ -63,7 +63,7 @@
 
 - name: Find NVMe PCIe addresses in nvmf.in.conf
   command: >
-    grep 'TransportID "trtype:PCIe traddr' {{ dss_target_conf_dir }}/nvmf.in.conf
+    grep 'TransportID "trtype:PCIe traddr' {{ target_conf_file }}
   register: pcie_addrs
   changed_when: false
   failed_when: false
@@ -81,7 +81,7 @@
   when: dss_target_mode is search('kv_block')
 
 - name: Read dss_target.out
-  command: "cat {{ start_dss_target_dest_dir }}/bin/dss_target.out"
+  command: "cat {{ target_dir }}/bin/dss_target.out"
   become: true
   changed_when: false
   register: dss_target_out
@@ -95,8 +95,8 @@
 - name: Set hardcoded nvmf_tgt command if more than 128 cores
   set_fact:
     nvmf_tgt_cmd: >-
-      {{ start_dss_target_dest_dir }}/bin/nvmf_tgt
-      -c {{ dss_target_conf_dir }}/nvmf.in.conf
+      {{ target_dir }}/bin/nvmf_tgt
+      -c {{ target_conf_file }}
       -r /var/run/spdk.sock
       -m {{ custom_coremask }}
   when: custom_coremask is defined
@@ -108,9 +108,9 @@
   failed_when: false
 
 - name: Start DSS target process
-  shell: source {{ start_dss_target_gcc_setenv }} && nohup {{ nvmf_tgt_cmd }} > {{ dss_log_dir }}/nkv-target.log 2>&1 &
+  shell: source {{ gcc_setenv }} && nohup {{ nvmf_tgt_cmd }} > {{ dss_log_dir }}/nkv-target.log 2>&1 &
   args:
-    chdir: "{{ start_dss_target_dest_dir }}/bin"
+    chdir: "{{ target_dir }}/bin"
   when: nvmf_ps.rc != 0
   become: true
 

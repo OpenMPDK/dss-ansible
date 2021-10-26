@@ -30,8 +30,15 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Path defaults
+dss_dir: /usr/dss
+target_dir: "{{ dss_dir }}/nkv-target"
+target_bin_dir: "{{ target_dir }}/bin"
+target_conf_dir: /etc/dss
+target_conf_file: "{{ target_conf_dir }}/nvmf.in.conf"
+dss_agent_config_file_dir: /etc/nkv-agent
+
+### Stats server defaults
 stats_proto: graphite
 stats_ip: 0.0.0.0
 stats_port: 2004
-dss_target_conf_dir: /etc/dss
-dss_target_conf_file: "{{ dss_target_conf_dir }}/nvmf.in.conf"

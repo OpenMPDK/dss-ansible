@@ -32,20 +32,20 @@
 
 - name: Get Subsystems NQNs
   command: |
-    grep -oP '^  NQN \Knqn\..+' {{ dss_target_conf_dir }}/nvmf.in.conf
+    grep -oP '^  NQN \Knqn\..+' {{ target_conf_file }}
   register: nqn_list
   become: true
   changed_when: false
   when: dss_target_mode is search('kv_block')
 
 - name: Start compaction
-  command: "/usr/dss/nkv-target/scripts/dss_rpc.py -s /var/run/spdk.sock rdb_compact -n {{ item }}"
+  command: "{{ target_script_dir }}/dss_rpc.py -s /var/run/spdk.sock rdb_compact -n {{ item }}"
   loop: "{{ nqn_list.stdout_lines }}"
   become: true
   when: dss_target_mode is search('kv_block')
 
 - name: Check compaction status
-  command: "/usr/dss/nkv-target/scripts/dss_rpc.py -s /var/run/spdk.sock rdb_compact --get_status -n {{ item }}"
+  command: "{{ target_script_dir }}/dss_rpc.py -s /var/run/spdk.sock rdb_compact --get_status -n {{ item }}"
   register: compaction_status
   loop: "{{ nqn_list.stdout_lines }}"
   until: >

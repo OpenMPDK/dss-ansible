@@ -56,9 +56,9 @@
       # Needs to be same as the statsd flush interval
       stats_poll=10
       hugepages=8192
-      nvmf_conf_file={{ dss_target_conf_file }}
-      nvmf_tgt=/usr/dss/nkv-target/bin/nvmf_tgt
-      ustat_binary=/usr/dss/nkv-target/bin/ustat
+      nvmf_conf_file={{ target_conf_file }}
+      nvmf_tgt={{ target_bin_dir }}/nvmf_tgt
+      ustat_binary={{ target_bin_dir }}/ustat
 
       [logging]
       console=disabled

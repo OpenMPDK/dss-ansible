@@ -30,6 +30,13 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-dss_target_conf_dir: /etc/dss
+### Path defaults
+dss_dir: /usr/dss
+nkv_sdk_dir: "{{ dss_dir }}/nkv-sdk"
+nkv_sdk_bin_dir: "{{ nkv_sdk_dir }}/bin"
+nkv_sdk_conf_dir: "{{ nkv_sdk_dir }}/conf"
+target_conf_dir: /etc/dss
+target_conf_file: "{{ target_conf_dir }}/nvmf.in.conf"
+
+### Cluster defaults
 cluster_num: 0
-start_dss_host_nvmf_in_conf: /etc/dss/nvmf.in.conf

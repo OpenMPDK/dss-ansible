@@ -30,6 +30,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Path defaults
+dss_dir: /usr/dss
+minio_dir: "{{ dss_dir }}/nkv-minio"
+
+### MinIO defaults
 minio_port: 9000
 minio_access_key: minio
 minio_secret_key: minio123

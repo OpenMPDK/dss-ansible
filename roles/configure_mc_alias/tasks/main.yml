@@ -74,13 +74,13 @@
     minio_endpoint: "http://{{ (endpoint_map | selectattr('client', 'equalto', inventory_hostname) | first).endpoint }}:{{ minio_port }}"
 
 - name: List local hosts with mc
-  shell: "{{ configure_mc_alias_dir }}/mc config host list {{ minio_mc_alias }} --json | sed -n '/^{/,$p'"
+  shell: "{{ minio_dir }}/mc config host list {{ minio_mc_alias }} --json | sed -n '/^{/,$p'"
   register: mc_host_list
   failed_when: false
   changed_when: false
 
 - name: Set Client Minio mc configuration
-  command: "{{ configure_mc_alias_dir }}/mc config host add {{ minio_mc_alias }} {{ minio_endpoint }} {{ minio_access_key }} {{ minio_secret_key }}"
+  command: "{{ minio_dir }}/mc config host add {{ minio_mc_alias }} {{ minio_endpoint }} {{ minio_access_key }} {{ minio_secret_key }}"
   when: >
     ((mc_host_list.stdout | from_json).status | default('') == 'error') or
     ((mc_host_list.stdout | from_json).URL | default('') != minio_endpoint)

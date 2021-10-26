@@ -30,4 +30,10 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Path defaults
+artifacts_dir: "{{ inventory_dir }}/artifacts"
+dss_dir: /usr/dss
+nkv_sdk_dir: "{{ dss_dir }}/nkv-sdk"
+
+### PIP defaults
 pip2_version: 20.3.4

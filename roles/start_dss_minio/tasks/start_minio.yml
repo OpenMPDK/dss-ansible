@@ -55,7 +55,7 @@
 
 - name: Stat DSS Minio path
   stat:
-    path: "{{ start_dss_minio_dir }}"
+    path: "{{ minio_dir }}"
   register: dss_minio_path
   when: inventory_hostname in host_hostnames
 
@@ -67,7 +67,7 @@
 
 - name: Stat DSS Host path
   stat:
-    path: "{{ start_dss_minio_host_bin_dir }}"
+    path: "{{ nkv_sdk_bin_dir }}"
   register: dss_host_path
   when: inventory_hostname in host_hostnames
 

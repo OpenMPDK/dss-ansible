@@ -32,15 +32,15 @@
 
 - name: Delete data with datamover
   shell: >
-    source /usr/local/bin/setenv-for-gcc510.sh &&
-    python3 {{ deploy_datamover_dest_dir }}/master_application.py
+    source {{ gcc_setenv }} &&
+    python3 {{ datamover_dir }}/master_application.py
     {{ datamover_operation }}
     --config {{ datamover_conf_dir }}/config.json
     {{ compaction_string }}
     {{ dryrun_string }}
     {{ prefix_string }}
   args:
-    chdir: "{{ deploy_datamover_dest_dir }}"
+    chdir: "{{ datamover_dir }}"
   run_once: true
   register: master_application
   become: true

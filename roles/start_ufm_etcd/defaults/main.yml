@@ -30,8 +30,6 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-### UFM Settings
+### UFM defaults
 ufm_etcd_client_port: 2379
 ufm_etcd_peer_port: 2380
-ufm_etcd_token: etcd-token
-ufm_etcd_service_file: /etc/systemd/system/ufm_etcd.service

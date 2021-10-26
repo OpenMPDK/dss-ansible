@@ -46,14 +46,14 @@
 
 - name: Create coredump compress dir
   file:
-    path: "{{ coredump_compress_dir }}"
+    path: "{{ target_conf_dir }}"
     state: directory
     mode: 0755
   become: true
 
 - name: Create coredump compress file
   copy:
-    dest: "{{ coredump_compress_dir }}/compress_core.sh"
+    dest: "{{ target_conf_dir }}/compress_core.sh"
     content: |
       #!/bin/bash
       /bin/gzip -f - >{{ coredump_dir }}/core-$1-$2.gz
@@ -63,7 +63,7 @@
 - name: Set core_pattern in sysctl.d
   sysctl:
     name: kernel.core_pattern
-    value: "|{{ coredump_compress_dir }}/compress_core.sh %e %p"
+    value: "|{{ target_conf_dir }}/compress_core.sh %e %p"
     sysctl_set: true
     state: present
   become: true

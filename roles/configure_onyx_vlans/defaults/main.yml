@@ -30,6 +30,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### VLAN Defaults
 mtu_size: 9000
 rocev2_vlans:
   - id: 31
