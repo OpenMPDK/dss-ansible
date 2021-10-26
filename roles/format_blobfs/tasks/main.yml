@@ -34,7 +34,7 @@
   command: ./setup.sh status
   changed_when: false
   args:
-    chdir: "{{ start_dss_target_dest_dir }}/scripts"
+    chdir: "{{ target_dir }}/scripts"
   register: spdk_status
   become: true
 
@@ -47,7 +47,7 @@
 
 - name: Stat nvmf.in.conf
   stat:
-    path: "{{ dss_target_conf_dir }}/nvmf.in.conf"
+    path: "{{ target_conf_file }}"
   register: nvmf_in_conf
 
 - name: Assert nvmf.in.conf found
@@ -57,7 +57,7 @@
 
 - name: Find NVMe PCIe addresses in nvmf.in.conf
   command: >
-    grep 'TransportID "trtype:PCIe traddr' {{ dss_target_conf_dir }}/nvmf.in.conf
+    grep 'TransportID "trtype:PCIe traddr' {{ target_conf_file }}
   register: pcie_addrs
   changed_when: false
   failed_when: false
@@ -74,7 +74,7 @@
 - name: Create blobfs scripts for each device
   template:
     src: blobfs.mkfs.in.conf.j2
-    dest: "{{ dss_target_conf_dir }}/blobfs.mkfs.in.{{ ansible_loop.index0 }}.conf"
+    dest: "{{ target_conf_dir }}/blobfs.mkfs.in.{{ ansible_loop.index0 }}.conf"
     mode: 0644
   loop: "{{ pcie_addrs.stdout_lines }}"
   loop_control:

@@ -30,5 +30,5 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-deploy_dss_target_path: "{{ inventory_dir }}/artifacts"
-deploy_dss_target_dest_dir: /usr/dss/nkv-target
+ufm_etcd_token: etcd-token
+ufm_etcd_service_file: /etc/systemd/system/ufm_etcd.service

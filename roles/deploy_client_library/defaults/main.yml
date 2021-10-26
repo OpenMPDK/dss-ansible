@@ -30,4 +30,9 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-aws_sdk_cpp_url: https://codeload.github.com/aws/aws-sdk-cpp/tar.gz/1.8.99
+### Path defaults
+dss_dir: /usr/dss
+client_library_dir: "{{ dss_dir }}/client-library"
+minio_dir: "{{ dss_dir }}/nkv-minio"
+aws_sdk_cpp_staging_dir: /tmp/aws-sdk-cpp
+artifacts_dir: "{{ inventory_dir }}/artifacts"

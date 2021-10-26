@@ -30,8 +30,19 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Path defaults
+dss_dir: /usr/dss
+minio_dir: "{{ dss_dir }}/nkv-minio"
+nkv_sdk_dir: "{{ dss_dir }}/nkv-sdk"
+nkv_sdk_bin_dir: "{{ nkv_sdk_dir }}/bin"
+nkv_sdk_conf_dir: "{{ nkv_sdk_dir }}/conf"
+nkv_sdk_lib_dir: "{{ nkv_sdk_dir }}/lib"
+dss_log_dir: /var/log/dss
+
+### Cluster defaults
 cluster_num: 0
 
+### MinIO defaults
 minio_access_key: minio
 minio_secret_key: minio123
 minio_port: 9000
@@ -55,9 +66,7 @@ minio_nkv_shared: 1
 minio_nkv_checksum: 1
 minio_ulimit: 1048576
 
-dss_log_dir: /var/log/dss
-
-### VLAN Settings
+### VLAN defaults
 rocev2_vlans:
   - id: 31
     ipv4_prefix: 201.0.0

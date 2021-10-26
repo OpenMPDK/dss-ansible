@@ -32,7 +32,7 @@
 
 - name: Find host config script and MinIO startup scripts
   find:
-    paths: "{{ minio_host_bin_dir }}"
+    paths: "{{ nkv_sdk_bin_dir }}"
     patterns: 'minio_startup_*.sh,dss_host_config_host.sh'
     recurse: false
   register: minio_startup_scripts

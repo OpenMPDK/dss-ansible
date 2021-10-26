@@ -38,7 +38,7 @@
 
 - name: Stat DSS Minio path
   stat:
-    path: "{{ start_dss_minio_dir }}"
+    path: "{{ minio_dir }}"
   register: dss_minio_path
   when: inventory_hostname in host_hostnames
 
@@ -50,14 +50,14 @@
 
 - name: Create conf dir
   file:
-    path: "{{ dss_target_conf_dir }}"
+    path: "{{ target_conf_dir }}"
     state: directory
     mode: 0755
   when: inventory_hostname in host_hostnames
   become: true
 
 - name: Check minio connection
-  command: "{{ start_dss_minio_dir }}/mc ls {{ local_mc_alias }}"
+  command: "{{ minio_dir }}/mc ls {{ local_mc_alias }}"
   loop: "{{ range(0, tcp_alias_list | length) | list }}"
   loop_control:
     label: "{{ tcp_alias }}"
@@ -119,7 +119,7 @@
 - name: Create client library conf.json
   template:
     src: conf.json.j2
-    dest: "{{ dss_target_conf_dir }}/client_library_conf.json"
+    dest: "{{ target_conf_dir }}/client_library_conf.json"
     mode: 0644
   register: create_conf_template
   become: true
@@ -127,13 +127,13 @@
 
 - name: Remove client library conf.json from targets
   file:
-    path: "{{ dss_target_conf_dir }}/client_library_conf.json"
+    path: "{{ target_conf_dir }}/client_library_conf.json"
     state: absent
   when: inventory_hostname in groups['targets'] | d([])
   become: true
 
 - name: Read DSS conf
-  command: "{{ start_dss_minio_dir }}/mc cat {{ local_mc_alias }}/{{ dss_bucket_name }}/conf.json"
+  command: "{{ minio_dir }}/mc cat {{ local_mc_alias }}/{{ dss_bucket_name }}/conf.json"
   loop: "{{ range(0, tcp_alias_list | length) | list }}"
   loop_control:
     label: "{{ tcp_alias }}"
@@ -147,7 +147,7 @@
   when: inventory_hostname in host_hostnames
 
 - name: Read local DSS conf
-  command: "cat {{ dss_target_conf_dir }}/client_library_conf.json"
+  command: "cat {{ target_conf_dir }}/client_library_conf.json"
   register: local_dss_conf
   changed_when: false
   when: inventory_hostname in host_hostnames
@@ -161,7 +161,7 @@
   when: inventory_hostname in host_hostnames
 
 - name: Check DSS bucket
-  command: "{{ start_dss_minio_dir }}/mc ls {{ local_mc_alias }}/{{ dss_bucket_name }}"
+  command: "{{ minio_dir }}/mc ls {{ local_mc_alias }}/{{ dss_bucket_name }}"
   loop: "{{ range(0, tcp_alias_list | length) | list }}"
   loop_control:
     label: "{{ tcp_alias }}"
@@ -175,7 +175,7 @@
   when: inventory_hostname in host_hostnames
 
 - name: Create DSS bucket
-  command: "{{ start_dss_minio_dir }}/mc mb {{ local_mc_alias }}/{{ dss_bucket_name }}"
+  command: "{{ minio_dir }}/mc mb {{ local_mc_alias }}/{{ dss_bucket_name }}"
   loop: "{{ range(0, check_dss_bucket.results | length) | list }}"
   loop_control:
     label: "{{ tcp_alias }}"
@@ -189,7 +189,7 @@
     - tcp_alias in subsystem_endpoints
 
 - name: Write remote DSS conf
-  command: "{{ start_dss_minio_dir }}/mc cp {{ dss_target_conf_dir }}/client_library_conf.json {{ local_mc_alias }}/{{ dss_bucket_name }}/conf.json"
+  command: "{{ minio_dir }}/mc cp {{ target_conf_dir }}/client_library_conf.json {{ local_mc_alias }}/{{ dss_bucket_name }}/conf.json"
   loop: "{{ range(0, read_dss_conf.results | length) | list }}"
   loop_control:
     label: "{{ tcp_alias }}"

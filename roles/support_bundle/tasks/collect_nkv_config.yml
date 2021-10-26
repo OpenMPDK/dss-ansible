@@ -32,7 +32,7 @@
 
 - name: Find nkv config json files
   find:
-    paths: "{{ minio_conf_path }}"
+    paths: "{{ nkv_sdk_conf_dir }}"
     patterns: 'nkv_config_*.json'
     recurse: false
   register: nkv_config_files

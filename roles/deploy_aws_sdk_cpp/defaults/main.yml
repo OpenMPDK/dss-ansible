@@ -30,5 +30,6 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-deploy_aws_sdk_cpp_path: "{{ inventory_dir }}/artifacts"
+### Path defaults
+artifacts_dir: "{{ inventory_dir }}/artifacts"
 deploy_aws_sdk_cpp_staging_dir: /tmp

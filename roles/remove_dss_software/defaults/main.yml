@@ -30,8 +30,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-remove_etc: true
-dss_target_conf_dir: /etc/dss
+### Path defaults
 dss_dir: /usr/dss
+target_conf_dir: /etc/dss
+
+### Remove DSS defaults
+remove_etc: true
 remove_dss_software_dir_list:
   - "{{ dss_dir }}"

@@ -30,4 +30,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-stop_dss_host_dir: /usr/dss/nkv-sdk
+### Path defaults
+dss_dir: /usr/dss
+nkv_sdk_dir: "{{ dss_dir }}/nkv-sdk"
+nkv_sdk_bin_dir: "{{ nkv_sdk_dir }}/bin"

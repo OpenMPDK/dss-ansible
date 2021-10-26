@@ -33,7 +33,7 @@
 - name: Execute nkv_test_cli command
   command: "{{ nkv_test_cli_command }}"
   args:
-    chdir: "{{ test_nkv_test_cli_dir }}"
+    chdir: "{{ nkv_sdk_bin_dir }}"
   loop: "{{ rocev2_numa_prefix_list }}"
   loop_control:
     loop_var: vlan
@@ -41,7 +41,7 @@
     extended: true
   vars:
     nkv_test_cli_command: >-
-      /usr/bin/python2 {{ test_nkv_test_cli_dir }}/dss_host.py
+      /usr/bin/python2 {{ nkv_sdk_bin_dir }}/dss_host.py
       verify_nkv_cli
       -c nkv_config_{{ vlan.ip }}.json
       -a {{ vlan.ipv4_prefix }}

@@ -30,4 +30,8 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Path defaults
 dss_log_dir: /var/log/dss
+nkv_agent_log_dir: /var/log/nkv-agent
+nkv_agent_conf_dir: /etc/nkv-agent
+nkv_agent_tmp_dir: /tmp/dss

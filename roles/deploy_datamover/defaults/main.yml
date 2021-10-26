@@ -30,5 +30,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-pip3_version: 21.0.1
+### Path defaults
+artifacts_dir: "{{ inventory_dir }}/artifacts"
+dss_dir: /usr/dss
+datamover_dir: "{{ dss_dir }}/nkv-datamover"
 dss_log_dir: /var/log/dss
+
+### PIP defaults
+pip3_version: 21.0.1

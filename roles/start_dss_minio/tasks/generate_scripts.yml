@@ -144,7 +144,7 @@
 - name: Create minio scripts
   template:
     src: minio_startup.sh.j2
-    dest: "{{ start_dss_minio_host_bin_dir }}/minio_startup_{{ tcp_alias }}.sh"
+    dest: "{{ nkv_sdk_bin_dir }}/minio_startup_{{ tcp_alias }}.sh"
     mode: 0751
   become: true
   loop: "{{ range(0, adjacent_numa_list | length) | list }}"
@@ -161,7 +161,7 @@
 
 - name: Stat nkv_config scripts
   stat:
-    path: "{{ start_dss_minio_host_dir }}/conf/nkv_config_{{ item }}.json"
+    path: "{{ nkv_sdk_conf_dir }}/nkv_config_{{ item }}.json"
   loop: "{{ rocev2_ip_list }}"
   register: nkv_config_scripts
 

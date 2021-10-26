@@ -90,7 +90,7 @@
 
 - name: Check number of listeners in nvmf.in.conf
   shell: |
-    grep '^  Listen RDMA' {{ start_dss_host_nvmf_in_conf }} | wc -l
+    grep '^  Listen RDMA' {{ target_conf_file }} | wc -l
   changed_when: false
   register: num_listeners
   when: inventory_hostname in included_targets
@@ -124,7 +124,7 @@
       -i {{ start_dss_host_qpairs }} -m {{ start_dss_host_mem_align }}
       {% if dss_host_kvpair is not none %}-x {{ dss_host_kvpair }}{% endif %}
     mode: 0755
-    dest: "{{ start_dss_host_dir }}/bin/dss_host_config_host.sh"
+    dest: "{{ nkv_sdk_bin_dir }}/dss_host_config_host.sh"
   when: inventory_hostname in host_hostnames
   become: true
 
@@ -149,7 +149,7 @@
 - name: Execute dss_host_config_host.sh script
   command: sh ./dss_host_config_host.sh
   args:
-    chdir: "{{ start_dss_host_dir }}/bin"
+    chdir: "{{ nkv_sdk_bin_dir }}"
   when:
     - subsystems_found is not defined
     - inventory_hostname in host_hostnames

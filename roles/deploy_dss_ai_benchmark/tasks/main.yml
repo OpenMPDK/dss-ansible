@@ -62,7 +62,7 @@
 
 - name: Identify benchmark tarball
   find:
-    path: "{{ deploy_dss_benchmark_path }}"
+    path: "{{ artifacts_dir }}"
     patterns: 'dss-benchmark-*.gz'
   delegate_to: localhost
   run_once: true
@@ -71,11 +71,11 @@
 - name: Assert benchmark tarball found
   assert:
     that: benchmark_tgz.files | length > 0
-    fail_msg: "No benchmark tarball found. Please download tarball to {{ deploy_dss_benchmark_path }}"
+    fail_msg: "No benchmark tarball found. Please download tarball to {{ artifacts_dir }}"
 
 - name: Identify target tarball
   find:
-    path: "{{ deploy_dss_benchmark_path }}"
+    path: "{{ artifacts_dir }}"
     patterns: 'nkv-target*.tgz'
   delegate_to: localhost
   run_once: true
@@ -83,7 +83,7 @@
 
 - name: Create benchmark destination path
   file:
-    path: "{{ deploy_dss_benchmark_dest_dir }}"
+    path: "{{ ai_benchmark_dir }}"
     state: directory
     mode: 0755
   become: true
@@ -91,7 +91,7 @@
 - name: Deploy benchmark from tarball
   unarchive:
     src: "{{ (benchmark_tgz.files | sort(attribute='ctime', reverse=true) | first).path }}"
-    dest: "{{ deploy_dss_benchmark_dest_dir }}"
+    dest: "{{ ai_benchmark_dir }}"
     owner: root
     group: root
     mode: 0555
@@ -100,7 +100,7 @@
 - name: Deploy ustat from target tarball
   unarchive:
     src: "{{ (target_tgz.files | sort(attribute='ctime', reverse=true) | first).path }}"
-    dest: "{{ deploy_dss_benchmark_dest_dir }}"
+    dest: "{{ ai_benchmark_dir }}"
     extra_opts:
       - --strip=2
       - --wildcards
@@ -112,7 +112,7 @@
 
 - name: Install python dependencies from requirements.txt
   pip:
-    requirements: "{{ deploy_dss_benchmark_dest_dir }}/scripts/requirements.txt"
+    requirements: "{{ ai_benchmark_dir }}/scripts/requirements.txt"
     executable: "{{ pip3_path.stdout }}"
   register: benchmark_requirements
   become: true

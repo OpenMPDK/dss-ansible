@@ -48,7 +48,7 @@
     name: "{{ item }}"
     state: absent
   loop:
-    - "{{ start_dss_agent_temp_dir }}"
+    - "{{ nkv_agent_tmp_dir }}"
   become: true
 
 - name: Create RPM staging directory
@@ -57,17 +57,17 @@
     path: "{{ item }}"
     mode: 0755
   loop:
-    - "{{ start_dss_agent_temp_dir }}"
+    - "{{ nkv_agent_tmp_dir }}"
 
 - name: Copy DSS Agent RPM
   copy:
     src: "{{ agent_rpm_file }}"
-    dest: "{{ start_dss_agent_temp_dir }}"
+    dest: "{{ nkv_agent_tmp_dir }}"
     mode: 0755
 
 - name: Install DSS Agent RPM
   yum:
-    name: "{{ start_dss_agent_temp_dir }}/{{ agent_rpm_file | basename }}"
+    name: "{{ nkv_agent_tmp_dir }}/{{ agent_rpm_file | basename }}"
   register: agent_rpm_status
   failed_when: >
     'scriptlet failure' in agent_rpm_status.msg or

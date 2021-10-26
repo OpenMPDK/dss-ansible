@@ -46,7 +46,7 @@
 
 - name: Check number of listeners in nvmf.in.conf
   shell: |
-    grep '^  Listen RDMA' {{ start_dss_host_nvmf_in_conf }} | wc -l
+    grep '^  Listen RDMA' {{ target_conf_file }} | wc -l
   changed_when: false
   register: num_listeners
   when: inventory_hostname in included_targets
@@ -82,6 +82,9 @@
 - name: Assert subsystems mounted
   assert:
     that: subsystems_found == combined_expected_num_subsystems
-    msg: Subsystems are not mounted. Cannot cleanup MinIO unless DSS software is started.
+    msg: >
+      Subsystems are not mounted. Cannot cleanup MinIO unless DSS software is started.
+      Expected {{ combined_expected_num_subsystems }}.
+      Found {{ subsystems_found }}.
   become: true
   when: inventory_hostname in host_hostnames

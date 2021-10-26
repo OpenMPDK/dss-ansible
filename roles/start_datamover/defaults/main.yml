@@ -30,6 +30,20 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Path defaults
+dss_log_dir: /var/log/dss
+datamover_list_path: "{{ dss_log_dir }}"
+datamover_get_path: "{{ ansible_env.HOME }}/datamover"
+target_conf_dir: /etc/dss
+datamover_conf_dir: "{{ target_conf_dir }}/datamover"
+dss_dir: /usr/dss
+datamover_dir: "{{ dss_dir }}/nkv-datamover"
+
+### GCC defaults
+gcc_setenv: /usr/local/bin/setenv-for-gcc510.sh
+gcc_restore: /usr/local/bin/restore-default-paths-gcc510.sh
+
+### Datamover defaults
 # datamover_operation possible values: ['PUT', 'GET', 'LIST', 'DEL', 'TEST']
 datamover_operation: PUT
 datamover_dryrun: false
@@ -38,10 +52,6 @@ datamover_compaction: true
 datamover_prefix: ''
 datamover_debug: false
 datamover_data_integrity: true
-datamover_list_path: /var/log/dss
-datamover_get_path: "{{ ansible_env.HOME }}/datamover"
-datamover_conf_dir: /etc/dss/datamover
-deploy_datamover_dest_dir: /usr/dss/nkv-datamover
 datamover_put_retries: 5
 things_to_do_while_waiting:
   - grab a cup of coffee

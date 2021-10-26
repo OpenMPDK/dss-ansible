@@ -32,7 +32,7 @@
 
 - name: Identify aws-sdk-cpp RPM
   find:
-    path: "{{ deploy_aws_sdk_cpp_path }}"
+    path: "{{ artifacts_dir }}"
     patterns: 'aws-sdk-cpp*.rpm'
   delegate_to: localhost
   run_once: true
@@ -41,7 +41,7 @@
 - name: Assert aws-sdk-cpp RPM found
   assert:
     that: aws_sdk_cpp_rpm.files | length > 0
-    fail_msg: "No aws_sdk_cpp RPM found. Please download RPM to {{ deploy_aws_sdk_cpp_path }}"
+    fail_msg: "No aws_sdk_cpp RPM found. Please download RPM to {{ artifacts_dir }}"
 
 - name: Identify newest version of aws-sdk-cpp RPM found
   set_fact:

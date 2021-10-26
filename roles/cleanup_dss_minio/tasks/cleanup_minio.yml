@@ -35,7 +35,7 @@
     grep -oP "mount_point\"\: \"/dev/nvme\K." nkv_config_{{ rocev2_ip }}.json
   register: mountpoint_range
   args:
-    chdir: "{{ cleanup_dss_minio_conf_path }}"
+    chdir: "{{ nkv_sdk_conf_dir }}"
   changed_when: false
 
 - name: Set min_mountpoint and max_mountpoint vars
@@ -46,6 +46,6 @@
 - name: Execute minio_cleanup.sh
   command: "sh ./minio_cleanup.sh {{ min_mountpoint }} {{ max_mountpoint }} nkv_config_{{ rocev2_ip }}.json"
   args:
-    chdir: "{{ cleanup_dss_minio_bin_dir }}"
+    chdir: "{{ nkv_sdk_bin_dir }}"
   become: true
   run_once: true

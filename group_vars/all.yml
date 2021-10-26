@@ -30,77 +30,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-### Distribution Settings
-# supported_distributions:
-#   - '7.4'
-#   - '7.5'
-#   - '7.6'
-#   - '7.7'
-#   - '7.8'
-#   - '7.9'
-#   - '8'
-
-### EPEL Repo Settings
-# skip_epel: false
-
-### In-box Infiniband RPM URLS
-# infiniband_rpm_urls:
-#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/ibacm-22.4-6.el7_9.x86_64.rpm
-#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/iwpmd-22.4-6.el7_9.x86_64.rpm
-#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/libibumad-22.4-6.el7_9.x86_64.rpm
-#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/libibverbs-22.4-6.el7_9.x86_64.rpm
-#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/libibverbs-utils-22.4-6.el7_9.x86_64.rpm
-#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/librdmacm-22.4-6.el7_9.x86_64.rpm
-#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/librdmacm-utils-22.4-6.el7_9.x86_64.rpm
-#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/rdma-core-22.4-6.el7_9.x86_64.rpm
-#   - http://mirror.centos.org/centos/7/updates/x86_64/Packages/srp_daemon-22.4-6.el7_9.x86_64.rpm
-
-### Target Settings
-# target_fw_version: ETA51KCB
-# kvssd_models:
-#   - SAMSUNG MZQLB3T8HALS-000AZ
-#   - SAMSUNG MZQLB3T8HALS-00007
-#   - MZ4LB3T8HALS-00003
-#   - MZ4LB3T8HALS-00003-001
-#   - SAMSUNG MZ4LB3T8HALS-00003
-#   - MZQLB3T8HALS-000AZ-001
-# num_subsystems: 1
-# num_vlans_per_port: 1
-# mtu_size: 9000
-### dss_target_mode valid values: [kv, kv_block_vm, kv_block_perf, block]
-# dss_target_mode: kv_block_perf
-# dss_target_enable_tcp: 0
-# dss_target_enable_rdma: 1
-# dss_target_conf_dir: /etc/dss
-# dss_target_conf_file: "{{ dss_target_conf_dir }}/nvmf.in.conf"
-# dss_log_dir: /var/log/dss
-
-### Minio Settings
-# minio_mc_alias: autominio
-# minio_access_key: minio
-# minio_secret_key: minio123
-# minio_port: 9000
-# minio_ec: 2
-# minio_nkv_timeout: 20
-# minio_nkv_sync: 1
-# minio_nkv_shared_sync_interval: 2
-# minio_enable_zero_copy_reader: 1
-# minio_ec_block_size: 2097152
-# minio_enable_no_lock_read: 1
-# minio_enable_no_read_verify: 1
-# minio_nkv_use_custom_reader: 1
-# minio_no_lock_write: 1
-# minio_opt_write: 1
-# minio_non_transactional_write: 1
-# minio_disable_meta_stat: 1
-# minio_on_kv: 1
-# minio_disable_ec: 1
-# minio_kv_max_size: 1048576
-# minio_nkv_shared: 1
-# minio_nkv_checksum: 1
-# minio_ulimit: 1048576
-
-### AI Benchmark Settings
+### AI Benchmark defaults
 # benchmark_objects: 1000
 # benchmark_clients: 20
 # benchmark_rate_limit: 0
@@ -111,72 +41,31 @@
 # benchmark_cap: 0GiB
 # benchmark_client_start_port: 7000
 # benchmark_bucket_prefix: benchmark-bucket-
+# deploy_dss_benchmark_ssh_key_name: id_rsa
+# deploy_dss_benchmark_httpd_port: 80
 
-### Stats / Graphite Server Settings
-# stats_proto: graphite
-# stats_ip: 0.0.0.0
-# stats_port: 2004
-
-### NKV-SDK Host Settings
-# dss_host_kvpair:
-
-### VLAN Settings
-# rocev2_vlans:
-#   - id: 31
-#     ipv4_prefix: 201.0.0
-#     ipv4_netmask: 255.0.0.0
-#     ipv6_prefix: fd81:7E55:15:D55:31
-#     ipv6_prefix_length: 80
-#   - id: 32
-#     ipv4_prefix: 203.0.0
-#     ipv4_netmask: 255.0.0.0
-#     ipv6_prefix: fd81:7E55:15:D55:32
-#     ipv6_prefix_length: 80
-# tcp_vlans:
-#   - id: 41
-#     ipv4_prefix: 202.0.0
-#     ipv4_netmask: 255.0.0.0
-#     ipv6_prefix: fd81:7E55:15:D55:41
-#     ipv6_prefix_length: 80
-#   - id: 42
-#     ipv4_prefix: 204.0.0
-#     ipv4_netmask: 255.0.0.0
-#     ipv6_prefix: fd81:7E55:15:D55:42
-#     ipv6_prefix_length: 80
-
-### UFM Settings
-# ufm_redfish_port: 5000
-# ufm_haproxy_health_port: 5001
-# ufm_zmq_subscriber_port: 6001
-# ufm_etcd_client_port: 2379
-# ufm_etcd_peer_port: 2380
-# ufm_etcd_token: etcd-token
-# ufm_service_file: /etc/systemd/system/ufm.service
-# ufm_etcd_service_file: /etc/systemd/system/ufm_etcd.service
-# ufm_install_packages:
-#   - ufm
-#   - ufmbroker
-# ufm_reset_dirs:
-#   - /var/lib/etcd
-
-### pip Settings
-# pip2_version: 20.3.4
-# pip3_version: 21.0.1
-
-### Client Library Setting
+### Client library defaults
 # client_library_init_time: 1
 
-### Datamover Settings
-### datamover_operation possible values: ['PUT', 'GET', 'LIST', 'DEL', 'TEST']
+### Cluster defaults
+# cluster_num: 0
+
+### Compaction defaults
+# start_compaction_timeout: 12000
+# start_compaction_delay: 15
+
+### Datamover defaults
 # datamover_operation: PUT
+# datamover_operation: GET
+# datamover_operation: LIST
+# datamover_operation: DEL
+# datamover_operation: TEST
 # datamover_dryrun: false
 # datamover_compaction: true
 # datamover_prefix: ''
 # datamover_debug: false
 # datamover_data_integrity: true
-# datamover_list_path: /var/log/dss
-# datamover_get_path: "{{ ansible_env.HOME }}/datamover"
-# datamover_conf_dir: /etc/dss/datamover
+# datamover_put_retries: 5
 # datamover_master_workers: 5
 # datamover_master_max_index_size: 500
 # datamover_master_size: 1GB
@@ -201,11 +90,180 @@
 # datamover_client_lib: dss_client
 # datamover_logging_path: /var/log/dss
 # datamover_logging_level: INFO
+# datamover_gcc_version: 5.1
 # datamover_index_data_queue_size: 50000
 
-### Coredump Settings
-# coredump_compress_dir: /etc/dss
-# coredump_dir: /var/crash
+### EPEL defaults
+# skip_epel: false
 
-### Ansible log path (console output)
+### GCC defaults
+# gcc_setenv: /usr/local/bin/setenv-for-gcc510.sh
+# gcc_restore: /usr/local/bin/restore-default-paths-gcc510.sh
+
+### Host defaults
+# dss_host_kvpair:
+# start_dss_host_port: 1024
+# start_dss_host_qpairs: 32
+# start_dss_host_mem_align: 4
+
+### Infiniband defaults
+# infiniband_driver: ofed
+
+### KVSSD defaults
+# kvssd_models:
+#   - SAMSUNG MZQLB3T8HALS-000AZ
+#   - SAMSUNG MZQLB3T8HALS-00007
+#   - MZ4LB3T8HALS-00003
+#   - MZ4LB3T8HALS-00003-001
+#   - SAMSUNG MZ4LB3T8HALS-00003
+#   - MZQLB3T8HALS-000AZ-001
+
+### nvme-cli defaults
+# deploy_nvme_cli_version: 1.8.1
+# deploy_nvme_cli_url: http://mirror.centos.org/centos/7/os/x86_64/Packages/nvme-cli-1.8.1-3.el7.x86_64.rpm
+
+### OFED defaults
+# mlnx_tune_profile: HIGH_THROUGHPUT
+
+### MinIO defaults
+# minio_mc_alias: autominio
+# minio_access_key: minio
+# minio_secret_key: minio123
+# minio_port: 9000
+# minio_ec: 2
+# minio_nkv_timeout: 20
+# minio_nkv_sync: 1
+# minio_nkv_shared_sync_interval: 2
+# minio_enable_zero_copy_reader: 1
+# minio_ec_block_size: 2097152
+# minio_enable_no_lock_read: 1
+# minio_enable_no_read_verify: 1
+# minio_nkv_use_custom_reader: 1
+# minio_no_lock_write: 1
+# minio_opt_write: 1
+# minio_non_transactional_write: 1
+# minio_disable_meta_stat: 1
+# minio_on_kv: 1
+# minio_disable_ec: 1
+# minio_kv_max_size: 1048576
+# minio_nkv_shared: 1
+# minio_nkv_checksum: 1
+# minio_ulimit: 1048576
+
+### Path defaults
 # ansible_log_path: ~/.tess_ansible.log
+# artifacts_dir: "{{ inventory_dir }}/artifacts"
+# aws_sdk_cpp_staging_dir: /tmp/aws-sdk-cpp
+# dss_dir: /usr/dss
+# target_conf_dir: /etc/dss
+# ai_benchmark_dir: "{{ dss_dir }}/nkv-benchmark"
+# client_library_dir: "{{ dss_dir }}/client-library"
+# coredump_dir: /var/crash
+# datamover_conf_dir: "{{ target_conf_dir }}/datamover"
+# datamover_dir: "{{ dss_dir }}/nkv-datamover"
+# datamover_get_path: "{{ ansible_env.HOME }}/datamover"
+# deploy_aws_sdk_cpp_staging_dir: /tmp
+# deploy_gcc_staging_dir: /tmp
+# deploy_kernel_staging_dir: /tmp/kernel_rpms
+# deploy_nvme_cli_staging_dir: /tmp/nvme-cli
+# deploy_ofed_staging_dir: /tmp/ofed
+# dss_agent_config_file_dir: /etc/nkv-agent
+# dss_log_dir: /var/log/dss
+# datamover_list_path: "{{ dss_log_dir }}"
+# local_coredump_dir: /tmp/dss_coredumps
+# minio_dir: "{{ dss_dir }}/nkv-minio"
+# nkv_agent_conf_dir: /etc/nkv-agent
+# nkv_agent_dir: /usr/share/nkvagent
+# kv_cli_location: "{{ nkv_agent_dir }}/kv-cli.py"
+# nkv_agent_log_dir: /var/log/nkv-agent
+# nkv_agent_tmp_dir: /tmp/dss
+# dss_subsystem_script_temp_file: "{{ nkv_agent_tmp_dir }}/subsystem_store.py"
+# nkv_sdk_dir: "{{ dss_dir }}/nkv-sdk"
+# nkv_sdk_bin_dir: "{{ nkv_sdk_dir }}/bin"
+# nkv_sdk_conf_dir: "{{ nkv_sdk_dir }}/conf"
+# nkv_sdk_lib_dir: "{{ nkv_sdk_dir }}/lib"
+# start_dss_agent_subsystem_log: "{{ dss_log_dir }}/subsystem_store.log"
+# target_dir: "{{ dss_dir }}/nkv-target"
+# target_bin_dir: "{{ target_dir }}/bin"
+# target_script_dir: "{{ target_dir }}/scripts"
+# upgrade_kvssd_firmware_staging_dir: /tmp/kvssd_fw
+# spdk_setup_script: "{{ target_script_dir }}/setup.sh"
+# target_conf_file: "{{ target_conf_dir }}/nvmf.in.conf"
+# ufm_staging_dir: /tmp
+
+### PIP defaults
+# pip2_version: 20.3.4
+# pip3_version: 21.0.1
+
+### Reboot defaults
+# reboot_timeout: 3600
+
+### Stats server defaults
+# stats_proto: graphite
+# stats_ip: 0.0.0.0
+# stats_port: 2004
+
+### Support bundle defaults
+# coredump_only: false
+# coredump_suffix_name: support_bundle
+
+### Target defaults
+# target_fw_version: ETA51KCB
+# num_subsystems: 1
+# dss_target_mode: kv
+# dss_target_mode: kv_block_vm
+# dss_target_mode: kv_block_perf
+# dss_target_mode: block
+# dss_target_enable_tcp: 0
+# dss_target_enable_rdma: 1
+
+### Tuned defaults
+# tuned_profile: throughput-performance
+
+### UFM defaults
+# ufm_redfish_port: 5000
+# ufm_haproxy_health_port: 5001
+# ufm_zmq_subscriber_port: 6001
+# ufm_etcd_client_port: 2379
+# ufm_etcd_peer_port: 2380
+# ufm_etcd_rpm_url: http://mirror.centos.org/centos/7/extras/x86_64/Packages/etcd-3.3.11-2.el7.centos.x86_64.rpm
+
+### Validate CentOS defaults
+# supported_distributions:
+#   - '7.4'
+#   - '7.5'
+#   - '7.6'
+#   - '7.7'
+#   - '7.8'
+#   - '7.9'
+#   - '8'
+
+### VLAN defaults
+# rocev2_vlans:
+#   - id: 31
+#     ipv4_prefix: 201.0.0
+#     ipv4_netmask: 255.0.0.0
+#     ipv6_prefix: fd81:7E55:15:D55:31
+#     ipv6_prefix_length: 80
+#   - id: 32
+#     ipv4_prefix: 203.0.0
+#     ipv4_netmask: 255.0.0.0
+#     ipv6_prefix: fd81:7E55:15:D55:32
+#     ipv6_prefix_length: 80
+# tcp_vlans:
+#   - id: 41
+#     ipv4_prefix: 202.0.0
+#     ipv4_netmask: 255.0.0.0
+#     ipv6_prefix: fd81:7E55:15:D55:41
+#     ipv6_prefix_length: 80
+#   - id: 42
+#     ipv4_prefix: 204.0.0
+#     ipv4_netmask: 255.0.0.0
+#     ipv6_prefix: fd81:7E55:15:D55:42
+#     ipv6_prefix_length: 80
+# num_vlans_per_port: 1
+# mtu_size: 9000
+# device_type: netdev
+# device_type: ibdev
+# device_type: netdev_child
+# vlan_list: "{{ rocev2_vlans + tcp_vlans }}"

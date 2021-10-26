@@ -33,7 +33,7 @@
 - name: Copy UFM RPMs to CentOS Fabric Manager Hosts
   copy:
     src: "{{ item }}"
-    dest: "{{ ufm_devtest_staging_dir }}"
+    dest: "{{ ufm_staging_dir }}"
     mode: 0644
   loop:
     - "{{ ufm_rpm_file }}"
@@ -43,12 +43,12 @@
 
 - name: Install UFM RPMs
   yum:
-    name: "{{ ufm_devtest_staging_dir }}/{{ item | basename }}"
+    name: "{{ ufm_staging_dir }}/{{ item | basename }}"
   register: ufm_rpm_status
   become: true
   loop:
     - "{{ ufm_rpm_file }}"
     - "{{ ufmbroker_rpm_file }}"
   loop_control:
-    label: "{{ ufm_devtest_staging_dir }}/{{ item | basename }}"
+    label: "{{ ufm_staging_dir }}/{{ item | basename }}"
   failed_when: "'scriptlet failure' in ufm_rpm_status.msg"

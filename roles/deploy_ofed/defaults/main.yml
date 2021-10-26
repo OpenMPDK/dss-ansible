@@ -30,4 +30,8 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Path defaults
+deploy_ofed_staging_dir: /tmp/ofed
+
+### OFED defaults
 mlnx_tune_profile: HIGH_THROUGHPUT

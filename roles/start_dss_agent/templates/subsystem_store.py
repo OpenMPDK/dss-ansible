@@ -4,7 +4,7 @@ import argparse
 import logging
 
 kv_cli_path = "{{ kv_cli_location }}"
-default_config_file = "{{ dss_target_conf_file }}"
+default_config_file = "{{ target_conf_file }}"
 
 logging.basicConfig(format='%(asctime)s %(message)s',
                     filename="{{ start_dss_agent_subsystem_log }}",

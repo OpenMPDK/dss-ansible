@@ -30,9 +30,19 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-cluster_num: 0
+### Path defaults
+dss_dir: /usr/dss
+minio_dir: "{{ dss_dir }}/nkv-minio"
+target_conf_dir: /etc/dss
+
+### MinIO defaults
 minio_port: 9000
 minio_access_key: minio
 minio_secret_key: minio123
-dss_target_conf_dir: /etc/dss
+dss_bucket_name: dss
+
+### Cluster defaults
+cluster_num: 0
+
+### Client library defaults
 client_library_init_time: 1

@@ -51,7 +51,7 @@
     nohup ./minio_startup_{{ tcp_alias }}.sh >
     {{ dss_log_dir }}/nkv-minio_{{ tcp_alias }}.log 2>&1 &
   args:
-    chdir: "{{ start_dss_minio_host_bin_dir }}"
+    chdir: "{{ nkv_sdk_bin_dir }}"
   loop: "{{ tcp_alias_list }}"
   loop_control:
     label: "{{ tcp_alias }}"

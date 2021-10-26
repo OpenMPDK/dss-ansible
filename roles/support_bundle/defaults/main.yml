@@ -30,14 +30,21 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-coredump_only: false
-coredump_suffix_name: support_bundle
+### Path defaults
+dss_dir: /usr/dss
 coredump_dir: /var/crash
 local_coredump_dir: /tmp/dss_coredumps
 dss_log_dir: /var/log/dss
-dss_target_conf_dir: /etc/dss
-minio_conf_path: /usr/dss/nkv-sdk/conf
-minio_host_bin_dir: /usr/dss/nkv-sdk/bin
-target_bin_dir: /usr/dss/nkv-target/bin
-spdk_setup_script: /usr/dss/nkv-target/scripts/setup.sh
+target_conf_dir: /etc/dss
+nkv_sdk_dir: "{{ dss_dir}}/nkv_sdk"
+nkv_sdk_conf_dir: "{{ nkv_sdk_dir }}/conf"
+nkv_sdk_bin_dir: "{{ nkv_sdk_dir}}/bin"
+target_dir: "{{ dss_dir }}/nkv-target"
+target_bin_dir: "{{ target_dir }}/bin"
+target_script_dir: "{{ target_dir }}/scripts"
+spdk_setup_script: "{{ target_script_dir }}/setup.sh"
 ansible_log_path: ~/.tess_ansible.log
+
+### Support bundle defaults
+coredump_only: false
+coredump_suffix_name: support_bundle

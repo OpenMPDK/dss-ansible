@@ -43,7 +43,7 @@
 
 - name: Identify host tarball
   find:
-    path: "{{ deploy_dss_minio_path }}"
+    path: "{{ artifacts_dir }}"
     patterns: 'dss-minio-bin-*.tgz'
   delegate_to: localhost
   run_once: true
@@ -52,11 +52,11 @@
 - name: Assert minio tarball found
   assert:
     that: minio_tgz.files | length > 0
-    fail_msg: "No minio tarball found. Please download tarball to {{ deploy_dss_minio_path }}"
+    fail_msg: "No minio tarball found. Please download tarball to {{ artifacts_dir }}"
 
 - name: Create minio destination path
   file:
-    path: "{{ deploy_dss_minio_dest_dir }}"
+    path: "{{ minio_dir }}"
     state: directory
     mode: 0755
   become: true
@@ -64,7 +64,7 @@
 - name: Deploy minio from tarball
   unarchive:
     src: "{{ (minio_tgz.files | sort(attribute='ctime', reverse=true) | first).path }}"
-    dest: "{{ deploy_dss_minio_dest_dir }}"
+    dest: "{{ minio_dir }}"
     owner: root
     group: root
     mode: 0555
@@ -72,8 +72,8 @@
 
 - name: Create minio symlink to host bin dir
   file:
-    src: "{{ deploy_dss_minio_dest_dir }}/minio"
-    dest: "{{ deploy_dss_minio_host_bin_dir }}/minio"
+    src: "{{ minio_dir }}/minio"
+    dest: "{{ nkv_sdk_bin_dir }}/minio"
     state: link
   when:
     - inventory_hostname in groups['servers'] | d([]) or inventory_hostname in groups['hosts'] | d([])

@@ -64,7 +64,7 @@
   when: inventory_hostname in host_hostnames
 
 - name: Read local DSS conf
-  command: "cat {{ dss_target_conf_dir }}/client_library_conf.json"
+  command: "cat {{ target_conf_dir }}/client_library_conf.json"
   register: local_dss_conf
   run_once: true
   delegate_to: "{{ host_hostnames[0] }}"

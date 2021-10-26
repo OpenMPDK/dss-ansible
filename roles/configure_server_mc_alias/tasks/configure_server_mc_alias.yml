@@ -32,7 +32,7 @@
 
 - name: Stat DSS Minio path
   stat:
-    path: "{{ configure_mc_alias_dir }}"
+    path: "{{ minio_dir }}"
   register: mc_alias_path
 
 - name: Assert DSS Minio path exists
@@ -41,7 +41,7 @@
     fail_msg: DSS Minio is not installed. Execute 'deploy_dss_software.yml' playbook first.
 
 - name: List local hosts with mc
-  command: "{{ configure_mc_alias_dir }}/mc config host list {{ local_mc_alias }}"
+  command: "{{ minio_dir }}/mc config host list {{ local_mc_alias }}"
   loop: "{{ range(0, tcp_alias_list | length) | list }}"
   loop_control:
     label: "{{ tcp_alias }}"
@@ -55,7 +55,7 @@
 
 - name: Set local hosts with mc
   command: >
-    {{ configure_mc_alias_dir }}/mc config host
+    {{ minio_dir }}/mc config host
     add {{ local_mc_alias }} http://{{ tcp_alias }}:{{ minio_port }}
     {{ minio_access_key }} {{ minio_secret_key }}
   loop: "{{ range(0, mc_list_local_hosts.results | length) | list }}"

@@ -30,4 +30,9 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Path defaults
+artifacts_dir: "{{ inventory_dir }}/artifacts"
+deploy_kernel_staging_dir: /tmp/kernel_rpms
+
+### Reboot defaults
 reboot_timeout: 3600

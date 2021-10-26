@@ -30,14 +30,25 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Path defaults
+dss_dir: /usr/dss
+target_dir: "{{ dss_dir }}/nkv-target"
+target_conf_dir: /etc/dss
+target_conf_file: "{{ target_conf_dir }}/nvmf.in.conf"
+dss_log_dir: /var/log/dss
+
+### GCC defaults
+gcc_setenv: /usr/local/bin/setenv-for-gcc510.sh
+gcc_restore: /usr/local/bin/restore-default-paths-gcc510.sh
+
+### Target defaults
 ### dss_target_mode valid values: [kv, kv_block_vm, kv_block_perf, block]
 dss_target_mode: kv_block_perf
-dss_log_dir: /var/log/dss
 dss_target_enable_tcp: 0
 dss_target_enable_rdma: 1
-dss_target_conf_dir: /etc/dss
-dss_target_conf_file: "{{ dss_target_conf_dir }}/nvmf.in.conf"
 num_subsystems: 1
+
+### VLAN defaults
 rocev2_vlans:
   - id: 31
     ipv4_prefix: 201.0.0

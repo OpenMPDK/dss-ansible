@@ -36,8 +36,8 @@
   changed_when: false
   failed_when: false
   loop:
-    - "{{ deploy_datamover_dest_dir }}/master_application.py"
-    - "{{ deploy_datamover_dest_dir }}/client_application.py"
+    - "{{ datamover_dir }}/master_application.py"
+    - "{{ datamover_dir }}/client_application.py"
     - master_application.py
     - client_application.py
 

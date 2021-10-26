@@ -113,10 +113,10 @@
 
 - name: Delete RPM files from Fabric Mananger Hosts
   file:
-    path: "{{ ufm_devtest_staging_dir }}/{{ item | basename }}"
+    path: "{{ ufm_staging_dir }}/{{ item | basename }}"
     state: absent
   loop:
     - "{{ ufm_rpm_file }}"
     - "{{ ufmbroker_rpm_file }}"
   loop_control:
-    label: "{{ ufm_devtest_staging_dir }}/{{ item | basename }}"
+    label: "{{ ufm_staging_dir }}/{{ item | basename }}"

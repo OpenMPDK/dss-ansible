@@ -30,8 +30,17 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Path defaults
+dss_dir: /usr/dss
+target_dir: "{{ dss_dir }}/nkv-target"
+target_script_dir: "{{ target_dir }}/scripts"
+target_conf_dir: /etc/dss
+target_conf_file: "{{ target_conf_dir }}/nvmf.in.conf"
+
+### Target defaults
 # dss_target_mode valid values: [kv, kv_block_vm, kv_block_perf, block]
 dss_target_mode: kv_block_perf
-dss_target_conf_dir: /etc/dss
+
+### Compaction defaults
 start_compaction_timeout: 12000
 start_compaction_delay: 15

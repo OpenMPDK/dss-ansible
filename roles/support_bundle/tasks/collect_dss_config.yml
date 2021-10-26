@@ -32,7 +32,7 @@
 
 - name: Find DSS config files
   find:
-    paths: "{{ dss_target_conf_dir }}"
+    paths: "{{ target_conf_dir }}"
     recurse: true
   register: dss_config
 

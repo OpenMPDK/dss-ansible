@@ -37,7 +37,7 @@
 
 - name: Stat DSS Host path
   stat:
-    path: "{{ start_dss_host_dir }}"
+    path: "{{ nkv_sdk_dir }}"
   register: dss_host_path
   when: inventory_hostname in host_hostnames
 
@@ -49,7 +49,7 @@
 
 - name: Stat KV kernel drivers
   stat:
-    path: "{{ start_dss_host_dir }}/openmpdk_driver/kernel_v5.1_nvmf/{{ item }}"
+    path: "{{ nkv_sdk_dir }}/openmpdk_driver/kernel_v5.1_nvmf/{{ item }}"
   register: kv_kernel_drivers
   loop:
     - nvme-core.ko
@@ -73,7 +73,7 @@
 - name: Configure Driver
   command: /usr/bin/python2 ./dss_host.py config_driver
   args:
-    chdir: "{{ start_dss_host_dir }}/bin"
+    chdir: "{{ nkv_sdk_bin_dir }}"
   when:
     - inventory_hostname in host_hostnames
     - missing_drivers is defined

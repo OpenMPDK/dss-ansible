@@ -30,6 +30,7 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### VLAN defaults
 device_type: netdev
 # device_type: ibdev
 # device_type: netdev_child

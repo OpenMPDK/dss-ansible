@@ -32,11 +32,11 @@
 
 set -e
 
-source {{ start_dss_target_gcc_setenv }}
+source {{ gcc_setenv }}
 {% for pcie_addr in pcie_addrs.stdout_lines -%}
     {% set sn_regex = '^.+traddr:[^"]+" "([^"]+)"$' -%}
-    ./mkfs_blobfs {{ dss_target_conf_dir }}/blobfs.mkfs.in.{{ loop.index0 }}.conf "{{ pcie_addr | regex_replace(sn_regex, '\\1') }}n1"{% if ansible_virtualization_role == "host" %} &{% endif %}
+    ./mkfs_blobfs {{ target_conf_dir }}/blobfs.mkfs.in.{{ loop.index0 }}.conf "{{ pcie_addr | regex_replace(sn_regex, '\\1') }}n1"{% if ansible_virtualization_role == "host" %} &{% endif %}
 
 {% endfor %}
 wait
-source {{ start_dss_target_gcc_restore_setenv }}
+source {{ gcc_restore }}
