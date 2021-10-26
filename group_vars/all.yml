@@ -30,19 +30,87 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-### AI Benchmark defaults
-# benchmark_objects: 1000
-# benchmark_clients: 20
-# benchmark_rate_limit: 0
-# benchmark_software_rate_limit: 250MiB
-# benchmark_ustat_profiles: ''
-# benchmark_duration: 120s
-# benchmark_concurrent: 1
-# benchmark_cap: 0GiB
-# benchmark_client_start_port: 7000
-# benchmark_bucket_prefix: benchmark-bucket-
-# deploy_dss_benchmark_ssh_key_name: id_rsa
-# deploy_dss_benchmark_httpd_port: 80
+### Path defaults
+# ansible_log_path: ~/.tess_ansible.log
+# artifacts_dir: "{{ inventory_dir }}/artifacts"
+# aws_sdk_cpp_staging_dir: /tmp/aws-sdk-cpp
+# dss_dir: /usr/dss
+# target_conf_dir: /etc/dss
+# ai_benchmark_dir: "{{ dss_dir }}/nkv-benchmark"
+# client_library_dir: "{{ dss_dir }}/client-library"
+# coredump_dir: /var/crash
+# datamover_conf_dir: "{{ target_conf_dir }}/datamover"
+# datamover_dir: "{{ dss_dir }}/nkv-datamover"
+# datamover_get_path: "{{ ansible_env.HOME }}/datamover"
+# deploy_aws_sdk_cpp_staging_dir: /tmp
+# deploy_gcc_staging_dir: /tmp
+# deploy_kernel_staging_dir: /tmp/kernel_rpms
+# deploy_nvme_cli_staging_dir: /tmp/nvme-cli
+# deploy_ofed_staging_dir: /tmp/ofed
+# dss_agent_config_file_dir: /etc/nkv-agent
+# dss_log_dir: /var/log/dss
+# datamover_list_path: "{{ dss_log_dir }}"
+# local_coredump_dir: /tmp/dss_coredumps
+# minio_dir: "{{ dss_dir }}/nkv-minio"
+# nkv_agent_conf_dir: /etc/nkv-agent
+# nkv_agent_dir: /usr/share/nkvagent
+# kv_cli_location: "{{ nkv_agent_dir }}/kv-cli.py"
+# nkv_agent_log_dir: /var/log/nkv-agent
+# nkv_agent_tmp_dir: /tmp/dss
+# dss_subsystem_script_temp_file: "{{ nkv_agent_tmp_dir }}/subsystem_store.py"
+# nkv_sdk_dir: "{{ dss_dir }}/nkv-sdk"
+# nkv_sdk_bin_dir: "{{ nkv_sdk_dir }}/bin"
+# nkv_sdk_conf_dir: "{{ nkv_sdk_dir }}/conf"
+# nkv_sdk_lib_dir: "{{ nkv_sdk_dir }}/lib"
+# start_dss_agent_subsystem_log: "{{ dss_log_dir }}/subsystem_store.log"
+# target_dir: "{{ dss_dir }}/nkv-target"
+# target_bin_dir: "{{ target_dir }}/bin"
+# target_script_dir: "{{ target_dir }}/scripts"
+# upgrade_kvssd_firmware_staging_dir: /tmp/kvssd_fw
+# spdk_setup_script: "{{ target_script_dir }}/setup.sh"
+# target_conf_file: "{{ target_conf_dir }}/nvmf.in.conf"
+# ufm_staging_dir: /tmp
+
+### Target defaults
+# target_fw_version: ETA51KCB
+# num_subsystems: 1
+# dss_target_mode: kv
+# dss_target_mode: kv_block_vm
+# dss_target_mode: kv_block_perf
+# dss_target_mode: block
+# dss_target_enable_tcp: 0
+# dss_target_enable_rdma: 1
+
+### Host defaults
+# dss_host_kvpair:
+# start_dss_host_port: 1024
+# start_dss_host_qpairs: 32
+# start_dss_host_mem_align: 4
+
+### MinIO defaults
+# minio_mc_alias: autominio
+# minio_access_key: minio
+# minio_secret_key: minio123
+# minio_port: 9000
+# minio_ec: 2
+# minio_nkv_timeout: 20
+# minio_nkv_sync: 1
+# minio_nkv_shared_sync_interval: 2
+# minio_enable_zero_copy_reader: 1
+# minio_ec_block_size: 2097152
+# minio_enable_no_lock_read: 1
+# minio_enable_no_read_verify: 1
+# minio_nkv_use_custom_reader: 1
+# minio_no_lock_write: 1
+# minio_opt_write: 1
+# minio_non_transactional_write: 1
+# minio_disable_meta_stat: 1
+# minio_on_kv: 1
+# minio_disable_ec: 1
+# minio_kv_max_size: 1048576
+# minio_nkv_shared: 1
+# minio_nkv_checksum: 1
+# minio_ulimit: 1048576
 
 ### Client library defaults
 # client_library_init_time: 1
@@ -100,23 +168,8 @@
 # gcc_setenv: /usr/local/bin/setenv-for-gcc510.sh
 # gcc_restore: /usr/local/bin/restore-default-paths-gcc510.sh
 
-### Host defaults
-# dss_host_kvpair:
-# start_dss_host_port: 1024
-# start_dss_host_qpairs: 32
-# start_dss_host_mem_align: 4
-
 ### Infiniband defaults
 # infiniband_driver: ofed
-
-### KVSSD defaults
-# kvssd_models:
-#   - SAMSUNG MZQLB3T8HALS-000AZ
-#   - SAMSUNG MZQLB3T8HALS-00007
-#   - MZ4LB3T8HALS-00003
-#   - MZ4LB3T8HALS-00003-001
-#   - SAMSUNG MZ4LB3T8HALS-00003
-#   - MZQLB3T8HALS-000AZ-001
 
 ### nvme-cli defaults
 # deploy_nvme_cli_version: 1.8.1
@@ -125,71 +178,9 @@
 ### OFED defaults
 # mlnx_tune_profile: HIGH_THROUGHPUT
 
-### MinIO defaults
-# minio_mc_alias: autominio
-# minio_access_key: minio
-# minio_secret_key: minio123
-# minio_port: 9000
-# minio_ec: 2
-# minio_nkv_timeout: 20
-# minio_nkv_sync: 1
-# minio_nkv_shared_sync_interval: 2
-# minio_enable_zero_copy_reader: 1
-# minio_ec_block_size: 2097152
-# minio_enable_no_lock_read: 1
-# minio_enable_no_read_verify: 1
-# minio_nkv_use_custom_reader: 1
-# minio_no_lock_write: 1
-# minio_opt_write: 1
-# minio_non_transactional_write: 1
-# minio_disable_meta_stat: 1
-# minio_on_kv: 1
-# minio_disable_ec: 1
-# minio_kv_max_size: 1048576
-# minio_nkv_shared: 1
-# minio_nkv_checksum: 1
-# minio_ulimit: 1048576
-
-### Path defaults
-# ansible_log_path: ~/.tess_ansible.log
-# artifacts_dir: "{{ inventory_dir }}/artifacts"
-# aws_sdk_cpp_staging_dir: /tmp/aws-sdk-cpp
-# dss_dir: /usr/dss
-# target_conf_dir: /etc/dss
-# ai_benchmark_dir: "{{ dss_dir }}/nkv-benchmark"
-# client_library_dir: "{{ dss_dir }}/client-library"
-# coredump_dir: /var/crash
-# datamover_conf_dir: "{{ target_conf_dir }}/datamover"
-# datamover_dir: "{{ dss_dir }}/nkv-datamover"
-# datamover_get_path: "{{ ansible_env.HOME }}/datamover"
-# deploy_aws_sdk_cpp_staging_dir: /tmp
-# deploy_gcc_staging_dir: /tmp
-# deploy_kernel_staging_dir: /tmp/kernel_rpms
-# deploy_nvme_cli_staging_dir: /tmp/nvme-cli
-# deploy_ofed_staging_dir: /tmp/ofed
-# dss_agent_config_file_dir: /etc/nkv-agent
-# dss_log_dir: /var/log/dss
-# datamover_list_path: "{{ dss_log_dir }}"
-# local_coredump_dir: /tmp/dss_coredumps
-# minio_dir: "{{ dss_dir }}/nkv-minio"
-# nkv_agent_conf_dir: /etc/nkv-agent
-# nkv_agent_dir: /usr/share/nkvagent
-# kv_cli_location: "{{ nkv_agent_dir }}/kv-cli.py"
-# nkv_agent_log_dir: /var/log/nkv-agent
-# nkv_agent_tmp_dir: /tmp/dss
-# dss_subsystem_script_temp_file: "{{ nkv_agent_tmp_dir }}/subsystem_store.py"
-# nkv_sdk_dir: "{{ dss_dir }}/nkv-sdk"
-# nkv_sdk_bin_dir: "{{ nkv_sdk_dir }}/bin"
-# nkv_sdk_conf_dir: "{{ nkv_sdk_dir }}/conf"
-# nkv_sdk_lib_dir: "{{ nkv_sdk_dir }}/lib"
-# start_dss_agent_subsystem_log: "{{ dss_log_dir }}/subsystem_store.log"
-# target_dir: "{{ dss_dir }}/nkv-target"
-# target_bin_dir: "{{ target_dir }}/bin"
-# target_script_dir: "{{ target_dir }}/scripts"
-# upgrade_kvssd_firmware_staging_dir: /tmp/kvssd_fw
-# spdk_setup_script: "{{ target_script_dir }}/setup.sh"
-# target_conf_file: "{{ target_conf_dir }}/nvmf.in.conf"
-# ufm_staging_dir: /tmp
+### Support bundle defaults
+# coredump_only: false
+# coredump_suffix_name: support_bundle
 
 ### PIP defaults
 # pip2_version: 20.3.4
@@ -203,30 +194,8 @@
 # stats_ip: 0.0.0.0
 # stats_port: 2004
 
-### Support bundle defaults
-# coredump_only: false
-# coredump_suffix_name: support_bundle
-
-### Target defaults
-# target_fw_version: ETA51KCB
-# num_subsystems: 1
-# dss_target_mode: kv
-# dss_target_mode: kv_block_vm
-# dss_target_mode: kv_block_perf
-# dss_target_mode: block
-# dss_target_enable_tcp: 0
-# dss_target_enable_rdma: 1
-
 ### Tuned defaults
 # tuned_profile: throughput-performance
-
-### UFM defaults
-# ufm_redfish_port: 5000
-# ufm_haproxy_health_port: 5001
-# ufm_zmq_subscriber_port: 6001
-# ufm_etcd_client_port: 2379
-# ufm_etcd_peer_port: 2380
-# ufm_etcd_rpm_url: http://mirror.centos.org/centos/7/extras/x86_64/Packages/etcd-3.3.11-2.el7.centos.x86_64.rpm
 
 ### Validate CentOS defaults
 # supported_distributions:
@@ -237,6 +206,23 @@
 #   - '7.8'
 #   - '7.9'
 #   - '8'
+
+### KVSSD defaults
+# kvssd_models:
+#   - SAMSUNG MZQLB3T8HALS-000AZ
+#   - SAMSUNG MZQLB3T8HALS-00007
+#   - MZ4LB3T8HALS-00003
+#   - MZ4LB3T8HALS-00003-001
+#   - SAMSUNG MZ4LB3T8HALS-00003
+#   - MZQLB3T8HALS-000AZ-001
+
+### UFM defaults
+# ufm_redfish_port: 5000
+# ufm_haproxy_health_port: 5001
+# ufm_zmq_subscriber_port: 6001
+# ufm_etcd_client_port: 2379
+# ufm_etcd_peer_port: 2380
+# ufm_etcd_rpm_url: http://mirror.centos.org/centos/7/extras/x86_64/Packages/etcd-3.3.11-2.el7.centos.x86_64.rpm
 
 ### VLAN defaults
 # rocev2_vlans:
@@ -267,3 +253,17 @@
 # device_type: ibdev
 # device_type: netdev_child
 # vlan_list: "{{ rocev2_vlans + tcp_vlans }}"
+
+### AI Benchmark defaults
+# benchmark_objects: 1000
+# benchmark_clients: 20
+# benchmark_rate_limit: 0
+# benchmark_software_rate_limit: 250MiB
+# benchmark_ustat_profiles: ''
+# benchmark_duration: 120s
+# benchmark_concurrent: 1
+# benchmark_cap: 0GiB
+# benchmark_client_start_port: 7000
+# benchmark_bucket_prefix: benchmark-bucket-
+# deploy_dss_benchmark_ssh_key_name: id_rsa
+# deploy_dss_benchmark_httpd_port: 80
