@@ -31,23 +31,19 @@
 ---
 
 - name: Get Subsystems NQNs
-  command: |
-    grep -oP '^  NQN \Knqn\..+' {{ target_conf_file }}
-  register: nqn_list
-  become: true
-  changed_when: false
-  when: dss_target_mode is search('kv_block')
+  include_role:
+    name: get_subsystem_nqns
 
 - name: Start compaction
   command: "{{ target_script_dir }}/dss_rpc.py -s /var/run/spdk.sock rdb_compact -n {{ item }}"
-  loop: "{{ nqn_list.stdout_lines }}"
+  loop: "{{ subsystem_nqns }}"
   become: true
   when: dss_target_mode is search('kv_block')
 
 - name: Check compaction status
   command: "{{ target_script_dir }}/dss_rpc.py -s /var/run/spdk.sock rdb_compact --get_status -n {{ item }}"
   register: compaction_status
-  loop: "{{ nqn_list.stdout_lines }}"
+  loop: "{{ subsystem_nqns }}"
   until: >
     compaction_status.rc !=0 or
     compaction_status.stdout is search('IDLE')
