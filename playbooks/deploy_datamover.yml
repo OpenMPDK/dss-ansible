@@ -76,6 +76,22 @@
   roles:
     - create_client_library_conf
 
+- name: Get list of subsystem NQNs
+  hosts:
+    - servers
+    - targets
+  gather_facts: false
+  roles:
+    - get_subsystem_nqns
+
+- name: Deploy datamover source
+  hosts:
+    - clients
+    - servers
+    - targets
+  roles:
+    - deploy_datamover
+
 - name: Deploy Data Mover
   hosts: clients
   gather_facts: false
@@ -83,4 +99,4 @@
     - deploy_gcc
     - deploy_aws_sdk_cpp
     - deploy_client_library
-    - deploy_datamover
+    - deploy_datamover_deps

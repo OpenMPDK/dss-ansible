@@ -30,29 +30,58 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Get Subsystems NQNs
+- name: Install epel-release repo
   include_role:
-    name: get_subsystem_nqns
+    name: deploy_epel
 
-- name: Start compaction
-  command: "{{ target_script_dir }}/dss_rpc.py -s /var/run/spdk.sock rdb_compact -n {{ item }}"
-  loop: "{{ subsystem_nqns }}"
+- name: Install datamover yum dependencies
+  yum:
+    name:
+      - nfs-utils
+      - libnfsidmap
+      - libcap-devel
   become: true
-  when: dss_target_mode is search('kv_block')
 
-- name: Check compaction status
-  command: "{{ target_script_dir }}/dss_rpc.py -s /var/run/spdk.sock rdb_compact --get_status -n {{ item }}"
-  register: compaction_status
-  loop: "{{ subsystem_nqns }}"
-  until: >
-    compaction_status.rc !=0 or
-    compaction_status.stdout is search('IDLE')
+- name: Install pip3
+  yum:
+    name:
+      - python3-pip
+      - python{% if ansible_distribution_version == '8' %}3{% endif %}-setuptools
+  become: true
+
+- name: Identify pip3 executable
+  shell: which pip3 pip-3 | grep 'bin/pip' | head -n 1
+  register: pip3_path
   changed_when: false
-  failed_when: >
-    compaction_status.rc !=0 or
-    (compaction_status.stdout is not search('IDLE') and
-    compaction_status.stdout is not search('IN PROGRESS'))
-  retries: "{{ (start_compaction_timeout | int / start_compaction_delay | int) | int }}"
-  delay: "{{ start_compaction_delay }}"
+  failed_when: false
+
+- name: Assert pip_path is found
+  assert:
+    that: pip3_path.stdout != ''
+    msg: "pip3 is not installed"
+
+- name: Upgrade pip
+  pip:
+    name: "pip=={{ pip3_version }}"
+    executable: "{{ pip3_path.stdout }}"
   become: true
-  when: dss_target_mode is search('kv_block')
+
+- name: Install python dependencies from requirements.txt
+  pip:
+    requirements: "{{ datamover_dir }}/requirements.txt"
+    executable: "{{ pip3_path.stdout }}"
+  register: benchmark_requirements
+  become: true
+
+- name: Create datamover config file
+  include_role:
+    name: create_datamover_conf
+
+- name: Create log dir
+  file:
+    path: "{{ dss_log_dir }}"
+    state: directory
+    mode: 0755
+    owner: "{{ ansible_effective_user_id }}"
+    group: "{{ ansible_effective_group_id }}"
+  become: true

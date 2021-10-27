@@ -141,6 +141,14 @@
   roles:
     - create_client_library_conf
 
+- name: Get list of subsystem NQNs
+  hosts:
+    - servers
+    - targets
+  gather_facts: false
+  roles:
+    - get_subsystem_nqns
+
 - name: Start Datamover
   hosts: clients
   gather_facts: false
