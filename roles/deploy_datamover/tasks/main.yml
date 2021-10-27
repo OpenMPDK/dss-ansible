@@ -30,25 +30,6 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Install epel-release repo
-  include_role:
-    name: deploy_epel
-
-- name: Install datamover yum dependencies
-  yum:
-    name:
-      - nfs-utils
-      - libnfsidmap
-      - libcap-devel
-  become: true
-
-- name: Install pip3
-  yum:
-    name:
-      - python3-pip
-      - python{% if ansible_distribution_version == '8' %}3{% endif %}-setuptools
-  become: true
-
 - name: Identify datamover tarball
   find:
     path: "{{ artifacts_dir }}"
@@ -78,41 +59,4 @@
     owner: root
     group: root
     mode: 0555
-  become: true
-
-- name: Identify pip3 executable
-  shell: which pip3 pip-3 | grep 'bin/pip' | head -n 1
-  register: pip3_path
-  changed_when: false
-  failed_when: false
-
-- name: Assert pip_path is found
-  assert:
-    that: pip3_path.stdout != ''
-    msg: "pip3 is not installed"
-
-- name: Upgrade pip
-  pip:
-    name: "pip=={{ pip3_version }}"
-    executable: "{{ pip3_path.stdout }}"
-  become: true
-
-- name: Install python dependencies from requirements.txt
-  pip:
-    requirements: "{{ datamover_dir }}/requirements.txt"
-    executable: "{{ pip3_path.stdout }}"
-  register: benchmark_requirements
-  become: true
-
-- name: Create datamover config file
-  include_role:
-    name: create_datamover_conf
-
-- name: Create log dir
-  file:
-    path: "{{ dss_log_dir }}"
-    state: directory
-    mode: 0755
-    owner: "{{ ansible_effective_user_id }}"
-    group: "{{ ansible_effective_group_id }}"
   become: true
