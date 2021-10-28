@@ -74,15 +74,18 @@
       --sl={{ ib_read_bw_sl }}
       --port={{ ib_read_bw_port }}
       --report_gbits
+  when: inventory_hostname != server_hostname
 
 - name: Print ib_read_bw server command
   debug:
     var: ib_read_bw_server_command
   delegate_to: "{{ server_hostname }}"
+  when: inventory_hostname != server_hostname
 
 - name: print ib_read_bw client command
   debug:
     var: ib_read_bw_client_command
+  when: inventory_hostname != server_hostname
 
 - name: ib_read_bw server from {{ server_hostname }} - {{ server_ip_address }}
   command: "{{ ib_read_bw_server_command }}"
@@ -91,16 +94,18 @@
   poll: 0
   become: true
   delegate_to: "{{ server_hostname }}"
+  when: inventory_hostname != server_hostname
 
 - name: ib_read_bw client to {{ server_hostname }} - {{ server_ip_address }}, {{ ib_read_bw_duration }} seconds
   command: "{{ ib_read_bw_client_command }}"
   changed_when: false
   register: ib_results
   become: true
+  when: inventory_hostname != server_hostname
 
 - name: Set cumulative_bw var
   set_fact:
-    cumulative_bw: "{{ (cumulative_bw | int) + (bw_avg | int) }}"
+    cumulative_bw: "{{ (cumulative_bw | float) + (bw_avg | float) }}"
   loop: "{{ ansible_play_hosts }}"
   loop_control:
     loop_var: client_hostname
@@ -108,11 +113,12 @@
     result_regex: '([\d]+)\s+([\d]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)'
     bw_avg: "{{ hostvars[client_hostname].ib_results.stdout | regex_search(result_regex, '\\4') | first }}"
   run_once: true
+  when: client_hostname != server_hostname
 
 - name: Collect ib_read_bw results for server {{ server_hostname }} - {{ server_ip_address }}
   set_fact:
     combined_ib_results: "{{ combined_ib_results | default([]) +
-                          [{'bw_avg': cumulative_bw | float,
+                          [{'bw_avg': '%0.2f' % cumulative_bw | float,
                             'server_hostname': server_hostname,
                             'server_ip': server_ip_address,
                             'server_linkspeed': server_linkspeed | int,
