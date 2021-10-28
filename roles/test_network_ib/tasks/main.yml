@@ -30,6 +30,11 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Assert more than one host
+  assert:
+    that: ansible_play_hosts | length > 1
+    msg: Can only test ib_read_bw with more than 1 target
+
 - name: Get ib_read_bw versions
   command: ib_read_bw --version
   changed_when: false
