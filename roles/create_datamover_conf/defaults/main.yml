@@ -68,6 +68,7 @@ datamover_client_lib: dss_client
 datamover_logging_level: INFO
 datamover_gcc_version: 5.1
 datamover_index_data_queue_size: 50000
+datamover_awslib_log_debug: 0
 
 ### GCC defaults
 gcc_setenv: /usr/local/bin/setenv-for-gcc510.sh
