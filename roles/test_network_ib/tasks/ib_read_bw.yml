@@ -1,0 +1,121 @@
+#  BSD LICENSE
+#
+#  Copyright (c) 2021 Samsung Electronics Co., Ltd.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in
+#      the documentation and/or other materials provided with the
+#      distribution.
+#    * Neither the name of Samsung Electronics Co., Ltd. nor the names of
+#      its contributors may be used to endorse or promote products derived
+#      from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---
+
+- name: Set ib_read_bw_port and cumulative_bw vars
+  set_fact:
+    cumulative_bw: 0
+    ib_read_bw_port: |-
+      {%- for host in ansible_play_hosts -%}
+        {%- if inventory_hostname == host -%}
+          {{ ib_read_bw_starting_port + loop.index0 }}
+        {%- endif -%}
+      {%- endfor -%}
+
+- name: Set server linkspeed
+  set_fact:
+    server_linkspeed: "{{ lookup('vars', server_ans_netdev).speed }}"
+  vars:
+    server_ans_netdev: "ansible_{{ server_netdev | replace('-', '_') }}"
+  delegate_to: "{{ server_hostname }}"
+  run_once: true
+
+- name: Set client_ib_device var
+  set_fact:
+    client_ib_device: "{{ ib_devices | selectattr('vlan_index', 'equalto', server_vlan_index) | list | first }}"
+
+- name: Set ib_read_bw_server_command and ib_read_bw_client_command vars
+  set_fact:
+    ib_read_bw_server_command: >-
+      ib_read_bw
+      --ib-dev={{ server_ibdev }}
+      --gid-index={{ server_gid_index }}
+      --qp={{ ib_read_bw_qp }}
+      --size={{ ib_read_bw_size }}
+      --sl={{ ib_read_bw_sl }}
+      --port={{ ib_read_bw_port }}
+      --report_gbits
+    ib_read_bw_client_command: >-
+      ib_read_bw
+      {{ server_ip_address }}
+      --ib-dev={{ client_ib_device.ibdev }}
+      --gid-index={{ client_ib_device.gid_index }}
+      --qp={{ ib_read_bw_qp }}
+      --size={{ ib_read_bw_size }}
+      --duration={{ ib_read_bw_duration }}
+      --sl={{ ib_read_bw_sl }}
+      --port={{ ib_read_bw_port }}
+      --report_gbits
+
+- name: Print ib_read_bw server command
+  debug:
+    var: ib_read_bw_server_command
+  delegate_to: "{{ server_hostname }}"
+
+- name: print ib_read_bw client command
+  debug:
+    var: ib_read_bw_client_command
+
+- name: ib_read_bw server from {{ server_hostname }} - {{ server_ip_address }}
+  command: "{{ ib_read_bw_server_command }}"
+  changed_when: false
+  async: "{{ ib_read_bw_duration | int + 10 }}"
+  poll: 0
+  become: true
+  delegate_to: "{{ server_hostname }}"
+
+- name: ib_read_bw client to {{ server_hostname }} - {{ server_ip_address }}, {{ ib_read_bw_duration }} seconds
+  command: "{{ ib_read_bw_client_command }}"
+  changed_when: false
+  register: ib_results
+  become: true
+
+- name: Set cumulative_bw var
+  set_fact:
+    cumulative_bw: "{{ (cumulative_bw | int) + (bw_avg | int) }}"
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    loop_var: client_hostname
+  vars:
+    result_regex: '([\d]+)\s+([\d]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)'
+    bw_avg: "{{ hostvars[client_hostname].ib_results.stdout | regex_search(result_regex, '\\4') | first }}"
+  run_once: true
+
+- name: Collect ib_read_bw results for server {{ server_hostname }} - {{ server_ip_address }}
+  set_fact:
+    combined_ib_results: "{{ combined_ib_results | default([]) +
+                          [{'bw_avg': cumulative_bw | float,
+                            'server_hostname': server_hostname,
+                            'server_ip': server_ip_address,
+                            'server_linkspeed': server_linkspeed | int,
+                            'vlan_index': server_vlan_index | int}] }}"
+  vars:
+  run_once: true

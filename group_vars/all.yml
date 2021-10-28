@@ -161,6 +161,13 @@
 # datamover_gcc_version: 5.1
 # datamover_index_data_queue_size: 50000
 
+### ib_read_bw defaults
+# ib_read_bw_starting_port: 18515
+# ib_read_bw_duration: 10
+# ib_read_bw_size: 1048576
+# ib_read_bw_qp: 1
+# ib_read_bw_sl: 3
+
 ### EPEL defaults
 # skip_epel: false
 

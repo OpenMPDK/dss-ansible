@@ -117,8 +117,8 @@
     loop_var: host
   run_once: true
 
-- name: Iterate ib_read_bw servers
-  include_tasks: ib_read_bw_server.yml
+- name: Iterate ib_read_bw permutations
+  include_tasks: ib_read_bw.yml
   vars:
     server_vlan_index: "{{ server_ib_device.vlan_index }}"
     server_ibdev: "{{ server_ib_device.ibdev }}"
@@ -136,8 +136,9 @@
     fail_msg: "Expected bw: {{ min_linkspeed }}. Actual bw: {{ ib_result.bw_avg }}"
     quiet: true
   vars:
-    min_linkspeed: "{{ [ib_result.server_linkspeed, ib_result.client_linkspeed] | min | float * 0.0009 }}"
+    min_linkspeed: "{{ ib_result.server_linkspeed | float * 0.0009 }}"
   loop: "{{ combined_ib_results }}"
   loop_control:
     loop_var: ib_result
+  run_once: true
   ignore_errors: true

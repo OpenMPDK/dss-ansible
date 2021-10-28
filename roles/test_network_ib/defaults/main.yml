@@ -30,6 +30,13 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### ib_read_bw defaults
+ib_read_bw_starting_port: 18515
+ib_read_bw_duration: 10
+ib_read_bw_size: 1048576
+ib_read_bw_qp: 1
+ib_read_bw_sl: 3
+
 ### VLAN defaults
 rocev2_vlans:
   - id: 31
