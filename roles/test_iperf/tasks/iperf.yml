@@ -1,0 +1,109 @@
+#  BSD LICENSE
+#
+#  Copyright (c) 2021 Samsung Electronics Co., Ltd.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in
+#      the documentation and/or other materials provided with the
+#      distribution.
+#    * Neither the name of Samsung Electronics Co., Ltd. nor the names of
+#      its contributors may be used to endorse or promote products derived
+#      from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---
+
+- name: Set iperf_port and cumulative_bw vars
+  set_fact:
+    cumulative_bw: 0
+    iperf_port: |-
+      {%- for host in ansible_play_hosts -%}
+        {%- if inventory_hostname == host -%}
+          {{ iperf_starting_port + loop.index0 }}
+        {%- endif -%}
+      {%- endfor -%}
+
+- name: Set iperf_server_command and iperf_client_command vars
+  set_fact:
+    iperf_server_command: >-
+      iperf{% if ansible_distribution_version == '8' %}3{% endif %}
+      --server
+      --parallel {{ iperf_parallel }}
+      --port {{ iperf_port }}
+    iperf_client_command: >-
+      iperf{% if ansible_distribution_version == '8' %}3{% endif %}
+      --client
+      {{ server_ip_address }}
+      --parallel {{ iperf_parallel }}
+      --port {{ iperf_port }}
+      --time {{ iperf_duration }}
+  when: inventory_hostname != server_hostname
+
+- name: Print iperf server command
+  debug:
+    var: iperf_server_command
+  delegate_to: "{{ server_hostname }}"
+  when: inventory_hostname != server_hostname
+
+- name: Print iperf client command
+  debug:
+    var: iperf_client_command
+  when: inventory_hostname != server_hostname
+
+- name: iperf server from {{ server_hostname }} - {{ server_ip_address }}
+  command: "{{ iperf_server_command }}"
+  changed_when: false
+  async: "{{ iperf_duration | int + 10 }}"
+  poll: 0
+  become: true
+  delegate_to: "{{ server_hostname }}"
+  when: inventory_hostname != server_hostname
+
+- name: iperf client to {{ server_hostname }} - {{ server_ip_address }}, {{ iperf_duration }} seconds
+  command: "{{ iperf_client_command }}"
+  changed_when: false
+  register: iperf_results
+  become: true
+  when: inventory_hostname != server_hostname
+
+- name: Set cumulative_bw var
+  set_fact:
+    cumulative_bw: "{{ (cumulative_bw | float) + (bw_avg | float) }}"
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    loop_var: client_hostname
+  vars:
+    result_regex: '\[SUM\]\s+[^\s]+\s+sec\s+[^\s]+\s+(G|M)Bytes\s+(([^\s]+)\sG|([^\s]+)\sM)bits\/sec'
+    gb_avg: "{{ hostvars[client_hostname].iperf_results.stdout | regex_search(result_regex, '\\3') | d(['0']) | first }}"
+    mb_avg: "{{ hostvars[client_hostname].iperf_results.stdout | regex_search(result_regex, '\\4') | d(['0']) | first }}"
+    bw_avg: "{%- if gb_avg %}{{ gb_avg }}{% endif %}{%- if mb_avg %}{{ mb_avg | float / 1000 }}{% endif %}"
+  run_once: true
+  when: client_hostname != server_hostname
+
+- name: Collect iperf results for server {{ server_hostname }} - {{ server_ip_address }}
+  set_fact:
+    combined_iperf_results: "{{ combined_iperf_results | default([]) +
+                          [{'bw_avg': '%0.2f' % cumulative_bw | float,
+                            'server_hostname': server_hostname,
+                            'server_ip': server_ip_address,
+                            'server_linkspeed': server_linkspeed | int,
+                            'vlan_index': server_vlan_index | int}] }}"
+  vars:
+  run_once: true

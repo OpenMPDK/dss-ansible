@@ -1,0 +1,114 @@
+#  BSD LICENSE
+#
+#  Copyright (c) 2021 Samsung Electronics Co., Ltd.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in
+#      the documentation and/or other materials provided with the
+#      distribution.
+#    * Neither the name of Samsung Electronics Co., Ltd. nor the names of
+#      its contributors may be used to endorse or promote products derived
+#      from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---
+
+- name: Assert more than one host
+  assert:
+    that: ansible_play_hosts | length > 1
+    msg: Can only test iperf with more than 1 target
+
+- name: Get iperf versions
+  command: iperf{% if ansible_distribution_version == '8' %}3{% endif %} --version
+  changed_when: false
+  failed_when: false
+  register: iperf_version
+
+- name: Assert iperf installed
+  assert:
+    that: iperf_version.stdout is defined
+    msg: iperf is not installed. Install 'iperf{% if ansible_distribution_version == '8' %}3{% endif %}' RPM.
+
+- name: Get RoCEv2 IP Address
+  include_role:
+    name: get_vlan_ips
+  vars:
+    vlan_list: "{{ rocev2_vlans }}"
+  when: rocev2_ip_list is not defined
+
+- name: Set rocev2_ip_list var if IP's auto-discovered
+  set_fact:
+    rocev2_ip_list: "{{ vlan_ip_list }}"
+  when: rocev2_ip_list is not defined
+
+- name: Assert that IP's are defined
+  assert:
+    that: rocev2_ip_list | length > 0
+    fail_msg: |
+      No IPs configured on any Mellanox adapter.
+      Please configure at least one IP to test ping.
+
+- name: Set net_devices var
+  set_fact:
+    net_devices: "{{ net_devices | default([]) +
+                [{'ip_address': ip_address,
+                  'linkspeed': linkspeed,
+                  'vlan_index': vlan_index,
+                  'hostname': inventory_hostname }] }}"
+  loop: "{{ rocev2_ip_list }}"
+  loop_control:
+    loop_var: ip_address
+    extended: true
+  vars:
+    vlan_index: "{{ ansible_loop.index0 }}"
+    speed_query: "[?value.ipv4.address=='{{ ip_address }}'].value.speed | [0]"
+    linkspeed: "{{ ansible_facts | dict2items | json_query(speed_query) }}"
+
+- name: Set combined_net_devices var
+  set_fact:
+    combined_net_devices: "{{ combined_net_devices | default([]) }} + {{ hostvars[host].net_devices }}"
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    loop_var: host
+  run_once: true
+
+- name: Iterate iperf permutations
+  include_tasks: iperf.yml
+  vars:
+    server_vlan_index: "{{ server_net_device.vlan_index }}"
+    server_hostname: "{{ server_net_device.hostname }}"
+    server_ip_address: "{{ server_net_device.ip_address }}"
+    server_linkspeed: "{{ server_net_device.linkspeed }}"
+  loop: "{{ combined_net_devices }}"
+  loop_control:
+    loop_var: server_net_device
+
+- name: Assert iperf bw_avg is > 90% of link speed
+  assert:
+    that: iperf_result.bw_avg | float >= min_linkspeed | float
+    fail_msg: "Expected bw: {{ min_linkspeed }}. Actual bw: {{ iperf_result.bw_avg }}"
+    quiet: true
+  vars:
+    min_linkspeed: "{{ iperf_result.server_linkspeed | float * 0.0009 }}"
+  loop: "{{ combined_iperf_results }}"
+  loop_control:
+    loop_var: iperf_result
+  run_once: true
+  ignore_errors: true
