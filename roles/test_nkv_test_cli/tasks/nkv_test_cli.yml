@@ -43,11 +43,19 @@
     nkv_test_cli_command: >-
       /usr/bin/python2 {{ nkv_sdk_bin_dir }}/dss_host.py
       verify_nkv_cli
-      -c nkv_config_{{ vlan.ip }}.json
-      -a {{ vlan.ipv4_prefix }}
-      -m {{ vlan.numa }}
-      -o {{ operation }}
-      {% if ansible_virtualization_role == 'guest' %}-n 100{% endif %}
+      --conf nkv_config_{{ vlan.ip }}.json
+      --addr {{ vlan.ipv4_prefix }}
+      --numa {{ vlan.numa }}
+      --workload {{ operation }}
+      --keysize {{ nkv_test_cli_keysize }}
+      --valsize {{ nkv_test_cli_valsize }}
+      --threads {{ nkv_test_cli_threads }}
+      --numobj
+      {% if ansible_virtualization_role == 'guest' -%}
+        {{ nkv_test_cli_vm_objects }}
+      {% else -%}
+        {{ nkv_test_cli_objects }}
+      {% endif %}
   async: 300
   poll: 0
   register: nkv_test_cli_async
@@ -76,14 +84,14 @@
     loop_var: async_result
     label: "{{ async_result.cmd | join(' ') }}"
 
-- name: Initialize bandwidth vars
+- name: Initialize throughput vars
   set_fact:
-    bandwidth: 0
-    combined_bandwidth: 0
+    throughput: 0
+    combined_throughput: 0
 
-- name: Set bandwidth
+- name: Set throughput
   set_fact:
-    bandwidth: "{{ (bandwidth | float) + (async_result.stdout | regex_search(nkv_re, '\\1') | first | float) }}"
+    throughput: "{{ (throughput | float) + (async_result.stdout | regex_search(nkv_re, '\\1') | first | float) }}"
   vars:
     nkv_re: >-
       BW = ([^ ]+) GB/s
@@ -92,9 +100,9 @@
     loop_var: async_result
     label: "{{ async_result.cmd | join(' ') }}"
 
-- name: Set combined_bandwidth
+- name: Set combined_throughput
   set_fact:
-    combined_bandwidth: "{{ (combined_bandwidth | float) + (hostvars[host].bandwidth | float) }}"
+    combined_throughput: "{{ (combined_throughput | float) + (hostvars[host].throughput | float) }}"
   loop: "{{ host_hostnames }}"
   loop_control:
     loop_var: host

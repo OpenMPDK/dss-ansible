@@ -35,6 +35,13 @@ dss_dir: /usr/dss
 nkv_sdk_dir: "{{ dss_dir }}/nkv-sdk"
 nkv_sdk_bin_dir: "{{ nkv_sdk_dir }}/bin"
 
+### nkv_test_cli defaults
+nkv_test_cli_keysize: 60
+nkv_test_cli_valsize: 1048576
+nkv_test_cli_threads: 128
+nkv_test_cli_objects: 2000
+nkv_test_cli_vm_objects: 100
+
 ### VLAN defaults
 rocev2_vlans:
   - id: 31

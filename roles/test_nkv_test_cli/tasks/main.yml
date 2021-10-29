@@ -45,9 +45,9 @@
     operation: "{{ test_nkv_test_cli_put }}"
   when: inventory_hostname in host_hostnames
 
-- name: Set put_bandwidth
+- name: Set put_throughput
   set_fact:
-    put_bandwidth: "{{ combined_bandwidth }}"
+    put_throughput: "{{ combined_throughput }}"
   when: inventory_hostname in host_hostnames
 
 - name: Start Compaction
@@ -63,9 +63,9 @@
     operation: "{{ test_nkv_test_cli_get }}"
   when: inventory_hostname in host_hostnames
 
-- name: Set get_bandwidth
+- name: Set get_throughput
   set_fact:
-    get_bandwidth: "{{ combined_bandwidth }}"
+    get_throughput: "{{ combined_throughput }}"
   when: inventory_hostname in host_hostnames
 
 - name: Execute nkv_test_cli delete
@@ -74,10 +74,10 @@
     operation: "{{ test_nkv_test_cli_delete }}"
   when: inventory_hostname in host_hostnames
 
-- name: Print bandwidth
+- name: Print throughput
   debug:
     msg: |
-      Put bandwidth:    {{ '%0.2f' | format(put_bandwidth | float) }} GB/s
-      Get bandwidth:    {{ '%0.2f' | format(get_bandwidth | float) }} GB/s
+      Put throughput:    {{ '%0.2f' | format(put_throughput | float) }} GB/s
+      Get throughput:    {{ '%0.2f' | format(get_throughput | float) }} GB/s
   run_once: true
   when: inventory_hostname in host_hostnames
