@@ -32,42 +32,28 @@
 
 ### Playbook Documentation ###
 #
-# #### playbooks/test_network.yml
+# #### playbooks/test_iperf.yml
 #
-# Execute this playbook to perform a basic set of network tests across all hosts.
-# All hosts will ping each other across TCP IP's, and RoCEv2 IPs.
-# An ib_read_bw test will then run, and assert that measured throughput is at least 90% of link speed.
-
+# Execute this playbook to perform iperf tests across `[targets]`, `[servers]`, and `[hosts]`.
+# Each endpoint will execute multiple instances of iperf server per RoCEv2 IP.
+# All remote clients will spawn an instance of iperf and record cumulative throughput for each run.
+# At the end of the test, it is asserted that throughput is at least 90% of link speed.
+#
+# iperf can be tuned by configuring the following vars (default values shown):
+# 
+# `iperf_starting_port`: `5001` - Starting port number of each incremented iperf server instance
+# `iperf_parallel`: `20`        - Number of parallel threads of each iperf client instance
+# `iperf_duration`: `10`        - Duration of each iperf test, in seconds
 
 - name: Validate ansible versions and dependencies
   hosts: localhost
   roles:
     - validate_ansible
 
-- name: Test Ping RoCEv2
-  hosts:
-    - servers
-    - targets
-    - hosts
-  vars:
-    test_vlans: rocev2
-  roles:
-    - test_network_ping
-
-- name: Test Ping TCP
-  hosts:
-    - clients
-    - servers
-    - hosts
-  vars:
-    test_vlans: tcp
-  roles:
-    - test_network_ping
-
-- name: Test ib_read_bw RoCEv2
+- name: Test iperf
   hosts:
     - servers
     - targets
     - hosts
   roles:
-    - test_network_ib
+    - test_iperf

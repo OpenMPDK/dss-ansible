@@ -1,0 +1,61 @@
+#  BSD LICENSE
+#
+#  Copyright (c) 2021 Samsung Electronics Co., Ltd.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in
+#        the documentation and/or other materials provided with the
+#        distribution.
+#      * Neither the name of Samsung Electronics Co., Ltd. nor the names of
+#        its contributors may be used to endorse or promote products derived
+#        from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---
+
+### Playbook Documentation ###
+#
+# #### playbooks/test_ib_read_bw.yml
+#
+# Execute this playbook to perform ib_read_bw tests across `[targets]`, `[servers]`, and `[hosts]`.
+# Each endpoint will execute multiple instances of ib_read_bw server per RoCEv2 IP.
+# All remote clients will spawn an instance of ib_read_bw and record cumulative throughput for each run.
+# At the end of the test, it is asserted that throughput is at least 90% of link speed.
+#
+# ib_read_bw can be tuned by configuring the following vars (default values shown):
+# 
+# `ib_read_bw_starting_port`: `18515` - Starting port number of each incremented server instance
+# `ib_read_bw_duration`: `10`         - Duration of each test, in seconds
+# `ib_read_bw_size`: `1048576`        - Size of each message in bytes
+# `ib_read_bw_qp`: `1`                - Number of queue pairs
+# `ib_read_bw_sl`: `3`                - Infiniband service level
+
+- name: Validate ansible versions and dependencies
+  hosts: localhost
+  roles:
+    - validate_ansible
+
+- name: Test ib_read_bw RoCEv2
+  hosts:
+    - servers
+    - targets
+    - hosts
+  roles:
+    - test_ib_read_bw
