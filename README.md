@@ -675,17 +675,58 @@ set the `coredump_only` var to `true`. Example:
 
     ansible-playbook -i <your_inventory> playbooks/support_bundle.yml -e 'local_coredump_dir=~/tess_support/,coredump_only=true'
 
-#### playbooks/test_network.yml
+#### playbooks/test_ib_read_bw.yml
 
-Execute this playbook to perform a basic set of network tests across all hosts.
-All hosts will ping each other across TCP IP's, and RoCEv2 IPs.
-An ib_read_bw test will then run, and assert that measured throughput is at least 90% of link speed.
+Execute this playbook to perform ib_read_bw tests across `[targets]`, `[servers]`, and `[hosts]`.
+Each endpoint will execute multiple instances of ib_read_bw server per RoCEv2 IP.
+All remote clients will spawn an instance of ib_read_bw and record cumulative throughput for each run.
+At the end of the test, it is asserted that throughput is at least 90% of link speed.
+
+ib_read_bw can be tuned by configuring the following vars (default values shown):
+
+`ib_read_bw_starting_port`: `18515` - Starting port number of each incremented server instance
+`ib_read_bw_duration`: `10`         - Duration of each test, in seconds
+`ib_read_bw_size`: `1048576`        - Size of each message in bytes
+`ib_read_bw_qp`: `1`                - Number of queue pairs
+`ib_read_bw_sl`: `3`                - Infiniband service level
+
+#### playbooks/test_iperf.yml
+
+Execute this playbook to perform iperf tests across `[targets]`, `[servers]`, and `[hosts]`.
+Each endpoint will execute multiple instances of iperf server per RoCEv2 IP.
+All remote clients will spawn an instance of iperf and record cumulative throughput for each run.
+At the end of the test, it is asserted that throughput is at least 90% of link speed.
+
+iperf can be tuned by configuring the following vars (default values shown):
+
+`iperf_starting_port`: `5001` - Starting port number of each incremented iperf server instance
+`iperf_parallel`: `20`        - Number of parallel threads of each iperf client instance
+`iperf_duration`: `10`        - Duration of each iperf test, in seconds
 
 #### playbooks/test_nkv_test_cli.yml
 
-NOTE: For internal Samsung / DSS use! Unsupported!
-
 Perform a basic nkv_test_cli test and report observed bandwidth.
+This playbook will execute a suite of nkv_test_cli tests in order:
+
+1. Put
+2. Run compaction
+3. Get
+4. Delete
+
+Upon test complection, throughput is reported for PUT and GET.
+
+nkv_test_cli can be tuned by configuring the following vars (default values shown):
+
+`nkv_test_cli_keysize`: `60`        - Key size in bytes. Max size = 255
+`nkv_test_cli_valsize`: `1048576`   - Value size in bytes. Max size = 1048576
+`nkv_test_cli_threads`: `128`       - Number of threads
+`nkv_test_cli_objects`: `2000`      - Number of objects for each thread (total objects = objects x threads)
+`nkv_test_cli_vm_objects`: `100`    - Number of objects if host is a VM (default reduced due to lower throughput)
+
+#### playbooks/test_ping.yml
+
+Execute this playbook to perform a basic set of ping tests across all hosts.
+All hosts will ping each other across TCP and RoCEv2 IPs.
 
 #### playbooks/upgrade_dss_software.yml
 
