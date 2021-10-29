@@ -705,7 +705,7 @@ iperf can be tuned by configuring the following vars (default values shown):
 
 #### playbooks/test_nkv_test_cli.yml
 
-Perform a basic nkv_test_cli test and report observed bandwidth.
+Perform a basic nkv_test_cli test and report observed throughput.
 This playbook will execute a suite of nkv_test_cli tests in order:
 
 1. Put
