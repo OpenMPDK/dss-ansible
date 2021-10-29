@@ -34,9 +34,23 @@
 #
 # #### playbooks/test_nkv_test_cli.yml
 #
-# NOTE: For internal Samsung / DSS use! Unsupported!
-#
 # Perform a basic nkv_test_cli test and report observed bandwidth.
+# This playbook will execute a suite of nkv_test_cli tests in order:
+#
+# 1. Put
+# 2. Run compaction
+# 3. Get
+# 4. Delete
+#
+# Upon test complection, throughput is reported for PUT and GET.
+#
+# nkv_test_cli can be tuned by configuring the following vars (default values shown):
+# 
+# `nkv_test_cli_keysize`: `60`        - Key size in bytes. Max size = 255
+# `nkv_test_cli_valsize`: `1048576`   - Value size in bytes. Max size = 1048576
+# `nkv_test_cli_threads`: `128`       - Number of threads
+# `nkv_test_cli_objects`: `2000`      - Number of objects for each thread (total objects = objects x threads)
+# `nkv_test_cli_vm_objects`: `100`    - Number of objects if host is a VM (default reduced due to lower throughput)
 
 - name: Validate ansible versions and dependencies
   hosts: localhost
