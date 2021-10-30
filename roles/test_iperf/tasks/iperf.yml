@@ -30,9 +30,9 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Set iperf_port and cumulative_bw vars
+- name: Set iperf_port and cumulative_tp vars
   set_fact:
-    cumulative_bw: 0
+    cumulative_tp: 0
     iperf_port: |-
       {%- for host in ansible_play_hosts -%}
         {%- if inventory_hostname == host -%}
@@ -45,7 +45,11 @@
     iperf_server_command: >-
       iperf{% if ansible_distribution_version == '8' %}3{% endif %}
       --server
-      --parallel {{ iperf_parallel }}
+      {% if ansible_distribution_version == '8' -%}
+        --one-off
+      {%- else -%}
+        --time {{ iperf_duration + 2 }}
+      {%- endif %}
       --port {{ iperf_port }}
     iperf_client_command: >-
       iperf{% if ansible_distribution_version == '8' %}3{% endif %}
@@ -54,6 +58,7 @@
       --parallel {{ iperf_parallel }}
       --port {{ iperf_port }}
       --time {{ iperf_duration }}
+      --format M
   when: inventory_hostname != server_hostname
 
 - name: Print iperf server command
@@ -83,24 +88,23 @@
   become: true
   when: inventory_hostname != server_hostname
 
-- name: Set cumulative_bw var
+- name: Set cumulative_tp var
   set_fact:
-    cumulative_bw: "{{ (cumulative_bw | float) + (bw_avg | float) }}"
+    cumulative_tp: "{{ (cumulative_tp | float) + (throughput | float) }}"
   loop: "{{ ansible_play_hosts }}"
   loop_control:
     loop_var: client_hostname
   vars:
-    result_regex: '\[SUM\]\s+[^\s]+\s+sec\s+[^\s]+\s+(G|M)Bytes\s+(([^\s]+)\sG|([^\s]+)\sM)bits\/sec'
-    gb_avg: "{{ hostvars[client_hostname].iperf_results.stdout | regex_search(result_regex, '\\3') | d(['0']) | first }}"
-    mb_avg: "{{ hostvars[client_hostname].iperf_results.stdout | regex_search(result_regex, '\\4') | d(['0']) | first }}"
-    bw_avg: "{%- if gb_avg %}{{ gb_avg }}{% endif %}{%- if mb_avg %}{{ mb_avg | float / 1000 }}{% endif %}"
+    result_regex: '\[SUM\]\s+[^\s]+\s+sec\s+[^\s]+\s+(G|M)Bytes\s+([^\s]+) MBytes\/sec(?!.+sender)'
+    mbytes: "{{ hostvars[client_hostname].iperf_results.stdout | regex_search(result_regex, '\\2') | d(['0']) | last }}"
+    throughput: "{%- if mbytes %}{{ mbytes | float * 0.008 }}{% endif %}"
   run_once: true
   when: client_hostname != server_hostname
 
 - name: Collect iperf results for server {{ server_hostname }} - {{ server_ip_address }}
   set_fact:
     combined_iperf_results: "{{ combined_iperf_results | default([]) +
-                          [{'bw_avg': '%0.2f' % cumulative_bw | float,
+                          [{'throughput': '%0.2f' % cumulative_tp | float,
                             'server_hostname': server_hostname,
                             'server_ip': server_ip_address,
                             'server_linkspeed': server_linkspeed | int,
