@@ -100,10 +100,10 @@
   loop_control:
     loop_var: server_net_device
 
-- name: Assert iperf bw_avg is > 90% of link speed
+- name: Assert iperf throughput is > 90% of link speed
   assert:
-    that: iperf_result.bw_avg | float >= min_linkspeed | float
-    fail_msg: "Expected bw: {{ min_linkspeed }}. Actual bw: {{ iperf_result.bw_avg }}"
+    that: iperf_result.throughput | float >= min_linkspeed | float
+    fail_msg: "Expected bandwidth: {{ min_linkspeed }}. Actual throughput: {{ iperf_result.throughput }}"
     quiet: true
   vars:
     min_linkspeed: "{{ iperf_result.server_linkspeed | float * 0.0009 }}"
