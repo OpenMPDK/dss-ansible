@@ -32,35 +32,32 @@
 
 ### Playbook Documentation ###
 #
-# #### playbooks/test_nkv_test_cli.yml
+# #### playbooks/test_ping.yml
 #
-# Perform a basic nkv_test_cli test and report observed throughput.
-# This playbook will execute a suite of nkv_test_cli tests in order:
-#
-# 1. Put
-# 2. Run compaction
-# 3. Get
-# 4. Delete
-#
-# Upon test complection, throughput is reported for PUT and GET.
-#
-# nkv_test_cli can be tuned by configuring the following vars (default values shown):
-# 
-# `nkv_test_cli_keysize`: `60`        - Key size in bytes. Max size = 255
-# `nkv_test_cli_valsize`: `1048576`   - Value size in bytes. Max size = 1048576
-# `nkv_test_cli_threads`: `128`       - Number of threads
-# `nkv_test_cli_objects`: `2000`      - Number of objects for each thread (total objects = objects x threads)
-# `nkv_test_cli_vm_objects`: `100`    - Number of objects if host is a VM (default reduced due to lower throughput)
+# Execute this playbook to perform a basic set of ping tests across all hosts.
+# All hosts will ping each other across TCP and RoCEv2 IPs.
 
 - name: Validate ansible versions and dependencies
   hosts: localhost
   roles:
     - validate_ansible
 
-- name: Test nkv_test_cli
+- name: Test Ping RoCEv2
   hosts:
     - servers
-    - hosts
     - targets
+    - hosts
+  vars:
+    test_vlans: rocev2
   roles:
-    - test_nkv_test_cli
+    - test_ping
+
+- name: Test Ping TCP
+  hosts:
+    - clients
+    - servers
+    - hosts
+  vars:
+    test_vlans: tcp
+  roles:
+    - test_ping

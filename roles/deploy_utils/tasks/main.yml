@@ -30,9 +30,14 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Install epel-release repo
+  include_role:
+    name: deploy_epel
+
 - name: Install utils
   yum:
     name:
       - net-tools
       - pciutils
+      - "iperf{% if ansible_distribution_version == '8' %}3{% endif %}"
   become: true

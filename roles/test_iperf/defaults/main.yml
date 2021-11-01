@@ -30,17 +30,10 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-### Path defaults
-dss_dir: /usr/dss
-nkv_sdk_dir: "{{ dss_dir }}/nkv-sdk"
-nkv_sdk_bin_dir: "{{ nkv_sdk_dir }}/bin"
-
-### nkv_test_cli defaults
-nkv_test_cli_keysize: 60
-nkv_test_cli_valsize: 1048576
-nkv_test_cli_threads: 128
-nkv_test_cli_objects: 2000
-nkv_test_cli_vm_objects: 100
+### iperf defaults
+iperf_starting_port: 5001
+iperf_parallel: 20
+iperf_duration: 10
 
 ### VLAN defaults
 rocev2_vlans:
@@ -65,6 +58,3 @@ tcp_vlans:
     ipv4_netmask: 255.0.0.0
     ipv6_prefix: fd81:7E55:15:D55:42
     ipv6_prefix_length: 80
-
-### Target defaults
-dss_target_mode: kv_block_perf
