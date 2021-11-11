@@ -1,0 +1,81 @@
+#  BSD LICENSE
+#
+#  Copyright (c) 2021 Samsung Electronics Co., Ltd.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in
+#        the documentation and/or other materials provided with the
+#        distribution.
+#      * Neither the name of Samsung Electronics Co., Ltd. nor the names of
+#        its contributors may be used to endorse or promote products derived
+#        from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---
+
+### Playbook Documentation ###
+#
+# #### playbooks/test_s3_benchmark.yml
+#
+# Perform a basic s3-benchmark test and report observed throughput.
+# This playbook will execute a suite of s3-benchmark tests in order:
+#
+# 1. Put
+# 2. Run compaction
+# 3. Get
+# 4. Delete
+# 5. Run compaction
+#
+# Upon test complection, throughput is reported for PUT and GET.
+#
+# s3-benchmark can be tuned by configuring the following vars (default values shown):
+# 
+# `s3_benchmark_bucket_prefix`: `s3-bucket-`    - Bucket prefix for s3-benchmark data
+# `s3_benchmark_num_objects`: `1000`            - Number of objects for each thread (total objects = objects x threads)
+# `s3_benchmark_num_objects_vm`: `100`          - Number of objects if host is a VM (default reduced due to lower throughput)
+# `s3_benchmark_object_size`: `1M`              - Size of each object
+# `s3_benchmark_num_threads`: `128`             - Number of threads
+# `s3_benchmark_duration`: `60`                 - s3-benchmark PUT test duration
+# `s3_benchmark_async_timeout`: `600`           - Async timeout in seconds (increase for larger dataset)
+# `s3_benchmark_async_retry_delay`: `5`         - Async retry delay in seconds
+# `s3_benchmark_max_instances_per_client`: `0`  - Max. number of s3-benchmark instances per client. 0 == no limit
+
+- name: Validate ansible versions and dependencies
+  hosts: localhost
+  roles:
+    - validate_ansible
+
+- name: Get TCP VLAN IP List
+  hosts:
+    - servers
+    - hosts
+    - clients
+    - ufm_hosts
+  roles:
+    - get_tcp_vlan_ip_list
+
+- name: Test s3_benchmark
+  hosts:
+    - servers
+    - hosts
+    - targets
+    - clients
+  roles:
+    - test_s3_benchmark
