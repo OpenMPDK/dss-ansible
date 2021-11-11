@@ -1,0 +1,117 @@
+#  BSD LICENSE
+#
+#  Copyright (c) 2021 Samsung Electronics Co., Ltd.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in
+#      the documentation and/or other materials provided with the
+#      distribution.
+#    * Neither the name of Samsung Electronics Co., Ltd. nor the names of
+#      its contributors may be used to endorse or promote products derived
+#      from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---
+
+- name: Set target/host group vars
+  set_fact:
+    target_hostnames: "{{ (groups['servers'] | d([]) + groups['targets'] | d([])) | unique }}"
+    host_hostnames: "{{ (groups['servers'] | d([]) + groups['hosts'] | d([])) | unique }}"
+    cluster_num_list: []
+
+- name: Assign host_index var
+  set_fact:
+    host_index: "{{ ansible_loop.index0 }}"
+  loop: "{{ host_hostnames }}"
+  loop_control:
+    extended: true
+    loop_var: host
+  when: inventory_hostname == host
+
+- name: Set vlan_random_hosts var
+  set_fact:
+    vlan_random_hosts: "{{ vlan_random_hosts | d([]) + [ host_hostnames | shuffle ] }}"
+  loop: "{{ tcp_ip_list }}"
+  run_once: true
+
+- name: Assign random_vlan_index var
+  set_fact:
+    random_vlan_index: >-
+      {{ random_vlan_index | d([]) }} +
+      [
+        {% for host in shuffled_hosts %}
+          {% if inventory_hostname == host %}
+            {{ loop.index0 }}
+          {% endif %}
+        {% endfor %}
+      ]
+  loop: "{{ range(0, tcp_ip_list | length) | list }}"
+  loop_control:
+    loop_var: vlan_index
+  vars:
+    shuffled_hosts: "{{ vlan_random_hosts[vlan_index] }}"
+
+- name: Set cluster_num_list var
+  set_fact:
+    cluster_num_list: "{{ cluster_num_list }} +
+      [
+        {% for host in ansible_play_hosts %}
+            '{{ hostvars[host].cluster_num | d(cluster_num) }}'{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ]"
+  run_once: true
+
+- name: Get all RoCEv2 IP Addresses
+  include_role:
+    name: get_vlan_ips
+  vars:
+    vlan_list: "{{ rocev2_vlans }}"
+  when: rocev2_ip_list is not defined
+
+- name: Set rocev2_ip_list var if IP's auto-discovered
+  set_fact:
+    rocev2_ip_list: "{{ vlan_ip_list }}"
+  when: rocev2_ip_list is not defined
+
+- name: Initialize cluster_mountpoints var
+  set_fact:
+    cluster_mountpoints: []
+
+- name: Collect mountpoints for each cluster
+  include_tasks: collect_cluster_mountpoints.yml
+  loop: "{{ cluster_num_list | unique }}"
+  loop_control:
+    loop_var: current_cluster_num
+  when: current_cluster_num | string == cluster_num | string
+
+- name: Initialize vars for cluster map
+  set_fact:
+    clusters: []
+    cluster_index: 0
+
+- name: Set clusters array
+  include_tasks: set_clusters.yml
+  loop: "{{ range(0, cluster_mountpoints | length) | list }}"
+  loop_control:
+    loop_var: current_cluster_count
+    label: "{{ current_cluster.cluster_num }}"
+  vars:
+    current_cluster: "{{ cluster_mountpoints[current_cluster_count] }}"
+  when: current_cluster.cluster_num | string == cluster_num | string
