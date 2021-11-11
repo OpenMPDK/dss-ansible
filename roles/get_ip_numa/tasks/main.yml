@@ -73,7 +73,3 @@
   loop_control:
     loop_var: vlan
     label: "{{ vlan.ip_address }}"
-
-- name: debug rocev2_numa_prefix_list
-  debug:
-    var: rocev2_numa_prefix_list
