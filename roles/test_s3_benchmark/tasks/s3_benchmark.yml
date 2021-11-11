@@ -1,0 +1,139 @@
+#  BSD LICENSE
+#
+#  Copyright (c) 2021 Samsung Electronics Co., Ltd.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in
+#      the documentation and/or other materials provided with the
+#      distribution.
+#    * Neither the name of Samsung Electronics Co., Ltd. nor the names of
+#      its contributors may be used to endorse or promote products derived
+#      from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---
+
+- name: Assert operation is valid
+  assert:
+    that: operation in ['PUT', 'GET', 'DEL']
+  run_once: true
+
+- name: Set operation_num var
+  set_fact:
+    operation_num: >-
+      {%- if operation == 'PUT' -%}
+        {{ s3_bench_put }}
+      {%- elif operation == 'GET' -%}
+        {{ s3_bench_get }}
+      {%- elif operation == 'DEL' -%}
+        {{ s3_bench_del }}
+      {%- endif -%}
+  run_once: true
+
+- name: "Execute s3-benchmark {{ operation }}"
+  command: "{{ s3_bench_command }}"
+  loop: "{{ assigned_endpoints }}"
+  loop_control:
+    loop_var: endpoint
+    label: "{{ s3_bench_command }}"
+  vars:
+    cluster_id: "{{ endpoint.id }}"
+    numa: "{{ adjacent_numa_list[endpoint.vlan_index].numa }}"
+    adjacent_numa: "{{ adjacent_numa_list[endpoint.vlan_index].adjacent_numa }}"
+    s3_bench_command: >-
+      {% if num_numa | int > 1 -%}
+      numactl -N {{ numa }} -m {{ adjacent_numa }}
+      {% endif -%}
+      {{ minio_dir }}/s3-benchmark
+      -a {{ minio_access_key }}
+      -s {{ minio_secret_key }}
+      -b {{ s3_benchmark_bucket_prefix }}{{ cluster_id }}
+      -u http://{{ endpoint.endpoint }}:{{ minio_port }}
+      -t {{ s3_benchmark_num_threads }}
+      -z {{ s3_benchmark_object_size }}
+      -{% if operation != 'GET' %}n{% else %}c{% endif %}
+      {% if ansible_virtualization_role == 'guest' -%}
+        {{ s3_benchmark_num_objects_vm }}
+      {% else -%}
+        {{ s3_benchmark_num_objects }}
+      {%- endif %}
+      -o {{ operation_num }}
+      -p vlan_index-{{ endpoint.vlan_index }}/{{ inventory_hostname }}/
+      {% if operation == 'GET' %}-d {{ s3_benchmark_duration }}{% endif %}
+  register: s3_benchmark_async
+  async: "{{ s3_benchmark_async_timeout }}"
+  poll: 0
+
+- name: "Check async s3-benchmark {{ operation }} command"
+  async_status:
+    jid: "{{ async_task.ansible_job_id }}"
+  register: async_results
+  until: async_results.finished
+  retries: "{{ (s3_benchmark_async_timeout / s3_benchmark_async_retry_delay) | int }}"
+  delay: "{{ s3_benchmark_async_retry_delay }}"
+  loop: "{{ s3_benchmark_async.results }}"
+  loop_control:
+    loop_var: async_task
+    label: "{{ async_task.endpoint.endpoint }}"
+
+- name: "Assert async s3-benchmark {{ operation }} completion"
+  assert:
+    that: async_result.finished != 0
+    fail_msg: "nkv_test_cli did not complete in time"
+    quiet: true
+  loop: "{{ async_results.results }}"
+  loop_control:
+    loop_var: async_result
+    label: "{{ async_result.cmd | join(' ') }}"
+
+- name: "Assert s3-benchmark {{ operation }} results valid"
+  assert:
+    that: async_result.stdout is regex(speed_re)
+    fail_msg: "Did not get valid s3-benchmark result"
+    quiet: true
+  vars:
+    speed_re: 'speed = ([\d.]+)(.B)\/sec'
+  loop: "{{ async_results.results }}"
+  loop_control:
+    loop_var: async_result
+    label: "{{ async_result.cmd | join(' ') }}"
+  when: operation != 'DEL'
+
+- name: set s3_speed var
+  set_fact:
+    s3_speed: >-
+      {%- set bps = { 'sum': 0 } -%}
+      {%- set speed_re = 'speed = ([\d.]+)(.B)\/sec' -%}
+      {%- for client in groups['clients'] -%}
+        {%- if hostvars[client].async_results is defined -%}
+          {%- set results_list = hostvars[client].async_results.results | map(attribute='stdout') | list -%}
+          {%- for result in results_list -%}
+            {%- if result is regex(speed_re) -%}
+              {%- set s3_speed = result | regex_search(speed_re, '\\1') | first -%}
+              {%- set s3_units = result | regex_search(speed_re, '\\2') | first -%}
+              {%- set bytes_per_second = (s3_speed + ' ' + s3_units) | human_to_bytes -%}
+              {%- if bps.update({ 'sum': bps.sum + bytes_per_second }) -%}{%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ bps.sum | human_readable }}/sec
+  run_once: true
+  when: operation != 'DEL'
