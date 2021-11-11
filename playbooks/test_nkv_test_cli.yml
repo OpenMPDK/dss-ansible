@@ -41,8 +41,9 @@
 # 2. Run compaction
 # 3. Get
 # 4. Delete
+# 5. Run compaction
 #
-# Upon test complection, throughput is reported for PUT and GET.
+# Upon test completion, throughput is reported for PUT and GET.
 #
 # nkv_test_cli can be tuned by configuring the following vars (default values shown):
 # 
