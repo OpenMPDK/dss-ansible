@@ -38,6 +38,13 @@
     included_hosts: []
     standalone_minio: false
 
+- name: Assert current_cluster_num is defined
+  assert:
+    that: current_cluster_num is defined
+    msg: |
+      current_cluster_num is not defined.
+      This role must be included in groups by cluster_num
+
 - name: Set included_targets var
   set_fact:
     included_targets: "{{ included_targets | default([]) + [ target ] }}"
