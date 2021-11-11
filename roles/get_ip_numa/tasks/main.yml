@@ -1,0 +1,79 @@
+#  BSD LICENSE
+#
+#  Copyright (c) 2021 Samsung Electronics Co., Ltd.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in
+#      the documentation and/or other materials provided with the
+#      distribution.
+#    * Neither the name of Samsung Electronics Co., Ltd. nor the names of
+#      its contributors may be used to endorse or promote products derived
+#      from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---
+
+- name: Get all RoCEv2 IP Addresses
+  include_role:
+    name: get_vlan_ips
+  vars:
+    vlan_list: "{{ rocev2_vlans }}"
+  when: rocev2_ip_list is not defined
+
+- name: Set rocev2_ip_list var if IP's auto-discovered
+  set_fact:
+    rocev2_ip_list: "{{ vlan_ip_list }}"
+  when: rocev2_ip_list is not defined
+
+- name: Get NUMA
+  command: "cat /sys/class/net/{{ interface }}/device/numa_node"
+  changed_when: false
+  loop: "{{ rocev2_ip_list }}"
+  loop_control:
+    loop_var: ip_address
+  vars:
+    ip_query: "[?value.ipv4.address=='{{ ip_address }}']"
+    interface_query: "{{ ip_query }}.key | [0]"
+    interface: "{{ ansible_facts | dict2items | json_query(interface_query) }}"
+  register: numa_node
+
+- name: Set rocev2_numa_prefix_list
+  set_fact:
+    rocev2_numa_prefix_list: >-
+      {{ rocev2_numa_prefix_list | default([]) +
+        [
+          {
+            'ipv4_prefix': ipv4_prefix,
+            'ip': vlan.ip_address,
+            'numa': numa
+          }
+        ]
+      }}
+  loop: "{{ numa_node.results }}"
+  vars:
+    numa: "{% if ansible_virtualization_role == 'guest' %}0{% else %}{{ vlan.stdout | int }}{% endif %}"
+    ipv4_prefix: "{{ vlan.ip_address.split('.')[0] }}.{{ vlan.ip_address.split('.')[1] }}.{{ vlan.ip_address.split('.')[2] }}"
+  loop_control:
+    loop_var: vlan
+    label: "{{ vlan.ip_address }}"
+
+- name: debug rocev2_numa_prefix_list
+  debug:
+    var: rocev2_numa_prefix_list
