@@ -41,3 +41,6 @@ kvssd_models:
   - MZ4LB3T8HALS-00003-001
   - SAMSUNG MZ4LB3T8HALS-00003
   - MZQLB3T8HALS-000AZ-001
+
+### Target defaults
+target_fw_version: ETA51KCB

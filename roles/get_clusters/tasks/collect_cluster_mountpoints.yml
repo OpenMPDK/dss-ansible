@@ -30,10 +30,24 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-### Path defaults
-target_conf_dir: /etc/dss
-target_conf_file: "{{ target_conf_dir }}/nvmf.in.conf"
+- name: Get Mountpoints
+  include_role:
+    name: get_mountpoints
 
-### Target defaults
-### dss_target_mode valid values: [kv, kv_block_vm, kv_block_perf, block]
-dss_target_mode: kv_block_perf
+- name: Append mountpoints to cluster_mountpoints
+  set_fact:
+    cluster_mountpoints: "{{ cluster_mountpoints }} +
+        [
+            {
+                'cluster_num': '{{ current_cluster_num }}',
+                'vlan_ip_map': {{ vlan_ip_map }},
+                'combined_vlan_ip_map': {{ combined_vlan_ip_map }},
+                'nvme_mountpoints': {{ nvme_mountpoints }},
+                'subsys_range': {{ subsys_range }},
+                'min_subsystem_list': {{ min_subsystem_list }},
+                'standalone_minio': {{ standalone_minio | d(false) }},
+                'host_index': {{ host_index }},
+                'random_vlan_index': {{ random_vlan_index}}
+            }
+        ]"
+  when: inventory_hostname in host_hostnames

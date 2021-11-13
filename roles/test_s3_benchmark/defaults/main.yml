@@ -31,9 +31,29 @@
 ---
 
 ### Path defaults
-target_conf_dir: /etc/dss
-target_conf_file: "{{ target_conf_dir }}/nvmf.in.conf"
+artifacts_dir: "{{ inventory_dir }}/artifacts"
+dss_dir: /usr/dss
+minio_dir: "{{ dss_dir }}/nkv-minio"
+
+### s3_benchmark defaults
+s3_benchmark_bucket_prefix: s3-bucket-
+s3_benchmark_num_objects: 1000
+s3_benchmark_num_objects_vm: 100
+s3_benchmark_object_size: 1M
+s3_benchmark_num_threads: 28
+s3_benchmark_duration: 60
+s3_benchmark_async_timeout: 600
+s3_benchmark_async_retry_delay: 5
+s3_benchmark_max_instances_per_client: 0
+s3_benchmark_strict_numa: true
+
+### MinIO defaults
+minio_port: 9000
+minio_access_key: minio
+minio_secret_key: minio123
+
+### Cluster defaults
+cluster_num: 0
 
 ### Target defaults
-### dss_target_mode valid values: [kv, kv_block_vm, kv_block_perf, block]
 dss_target_mode: kv_block_perf

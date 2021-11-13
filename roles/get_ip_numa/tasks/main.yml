@@ -30,10 +30,46 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-### Path defaults
-target_conf_dir: /etc/dss
-target_conf_file: "{{ target_conf_dir }}/nvmf.in.conf"
+- name: Get all RoCEv2 IP Addresses
+  include_role:
+    name: get_vlan_ips
+  vars:
+    vlan_list: "{{ rocev2_vlans }}"
+  when: rocev2_ip_list is not defined
 
-### Target defaults
-### dss_target_mode valid values: [kv, kv_block_vm, kv_block_perf, block]
-dss_target_mode: kv_block_perf
+- name: Set rocev2_ip_list var if IP's auto-discovered
+  set_fact:
+    rocev2_ip_list: "{{ vlan_ip_list }}"
+  when: rocev2_ip_list is not defined
+
+- name: Get NUMA
+  command: "cat /sys/class/net/{{ interface }}/device/numa_node"
+  changed_when: false
+  loop: "{{ rocev2_ip_list }}"
+  loop_control:
+    loop_var: ip_address
+  vars:
+    ip_query: "[?value.ipv4.address=='{{ ip_address }}']"
+    interface_query: "{{ ip_query }}.key | [0]"
+    interface: "{{ ansible_facts | dict2items | json_query(interface_query) }}"
+  register: numa_node
+
+- name: Set rocev2_numa_prefix_list
+  set_fact:
+    rocev2_numa_prefix_list: >-
+      {{ rocev2_numa_prefix_list | default([]) +
+        [
+          {
+            'ipv4_prefix': ipv4_prefix,
+            'ip': vlan.ip_address,
+            'numa': numa
+          }
+        ]
+      }}
+  loop: "{{ numa_node.results }}"
+  vars:
+    numa: "{% if ansible_virtualization_role == 'guest' %}0{% else %}{{ vlan.stdout | int }}{% endif %}"
+    ipv4_prefix: "{{ vlan.ip_address.split('.')[0] }}.{{ vlan.ip_address.split('.')[1] }}.{{ vlan.ip_address.split('.')[2] }}"
+  loop_control:
+    loop_var: vlan
+    label: "{{ vlan.ip_address }}"

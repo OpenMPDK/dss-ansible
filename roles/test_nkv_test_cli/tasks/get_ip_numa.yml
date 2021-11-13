@@ -64,7 +64,7 @@
   when: ip_route.stdout is regex(item)
 
 - name: Get NUMA
-  command: "cat /sys/class/net/{{ item.dev }}/device/numa_node"
+  command: "cat /sys/class/net/{{ item.dev.split('.')[0] }}/device/numa_node"
   changed_when: false
   loop: "{{ rocev2_dev_list }}"
   loop_control:

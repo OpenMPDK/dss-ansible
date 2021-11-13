@@ -74,6 +74,13 @@
     operation: "{{ test_nkv_test_cli_delete }}"
   when: inventory_hostname in host_hostnames
 
+- name: Start Compaction
+  include_role:
+    name: start_compaction
+  when:
+    - inventory_hostname in target_hostnames
+    - dss_target_mode is search('kv_block')
+
 - name: Print throughput
   debug:
     msg: |

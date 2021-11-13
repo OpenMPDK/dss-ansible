@@ -32,10 +32,10 @@
 
 ### Playbook Documentation ###
 #
-# #### playbooks/test_nkv_test_cli.yml
+# #### playbooks/test_s3_benchmark.yml
 #
-# Perform a basic nkv_test_cli test and report observed throughput.
-# This playbook will execute a suite of nkv_test_cli tests in order:
+# Perform a basic s3-benchmark test and report observed throughput.
+# This playbook will execute a suite of s3-benchmark tests in order:
 #
 # 1. Put
 # 2. Run compaction
@@ -43,25 +43,44 @@
 # 4. Delete
 # 5. Run compaction
 #
-# Upon test completion, throughput is reported for PUT and GET.
+# Upon test complection, throughput is reported for PUT and GET.
 #
-# nkv_test_cli can be tuned by configuring the following vars (default values shown):
+# A single s3-benchmark instance will be spawned on each client, one for each IP in `tcp_ip_list`.
+# Each s3-benchmark instance points to a random MinIO endpoint, of a corresponding VLAN index.
+# A Single MinIO endpoint can only be assigned to a single s3-benchmark instance.
+#
+# s3-benchmark can be tuned by configuring the following vars (default values shown):
 # 
-# `nkv_test_cli_keysize`: `60`        - Key size in bytes. Max size = 255
-# `nkv_test_cli_valsize`: `1048576`   - Value size in bytes. Max size = 1048576
-# `nkv_test_cli_threads`: `128`       - Number of threads
-# `nkv_test_cli_objects`: `2000`      - Number of objects for each thread (total objects = objects x threads)
-# `nkv_test_cli_vm_objects`: `100`    - Number of objects if host is a VM (default reduced due to lower throughput)
+# `s3_benchmark_bucket_prefix`: `s3-bucket-`    - Bucket prefix for s3-benchmark data
+# `s3_benchmark_num_objects`: `1000`            - Number of objects for each thread (total objects = objects x threads)
+# `s3_benchmark_num_objects_vm`: `100`          - Number of objects if host is a VM (default reduced due to lower throughput)
+# `s3_benchmark_object_size`: `1M`              - Size of each object
+# `s3_benchmark_num_threads`: `28`              - Number of threads
+# `s3_benchmark_duration`: `60`                 - s3-benchmark PUT test duration in seconds
+# `s3_benchmark_async_timeout`: `600`           - Async timeout in seconds (increase for larger dataset)
+# `s3_benchmark_async_retry_delay`: `5`         - Async retry delay in seconds
+# `s3_benchmark_max_instances_per_client`: `0`  - Max. number of s3-benchmark instances per client. 0 == no limit (limited by num. IPs in `tcp_ip_list`)
+# `s3_benchmark_strict_numa`: `true`            - Limit s3-benchmark instances to one-per-NUMA node on client, if multiple IPs in `tcp_ip_list` share same NUMA
 
 - name: Validate ansible versions and dependencies
   hosts: localhost
   roles:
     - validate_ansible
 
-- name: Test nkv_test_cli
+- name: Get TCP VLAN IP List
+  hosts:
+    - servers
+    - hosts
+    - clients
+    - ufm_hosts
+  roles:
+    - get_tcp_vlan_ip_list
+
+- name: Test s3_benchmark
   hosts:
     - servers
     - hosts
     - targets
+    - clients
   roles:
-    - test_nkv_test_cli
+    - test_s3_benchmark
