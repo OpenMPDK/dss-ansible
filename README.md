@@ -1,3 +1,36 @@
+<!--
+BSD LICENSE
+
+Copyright (c) 2021 Samsung Electronics Co., Ltd.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+* Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in
+the documentation and/or other materials provided with the
+distribution.
+* Neither the name of Samsung Electronics Co., Ltd. nor the names of
+its contributors may be used to endorse or promote products derived
+from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
 # TESS Deploy README.md
 
 ## Overview
@@ -712,8 +745,9 @@ This playbook will execute a suite of nkv_test_cli tests in order:
 2. Run compaction
 3. Get
 4. Delete
+5. Run compaction
 
-Upon test complection, throughput is reported for PUT and GET.
+Upon test completion, throughput is reported for PUT and GET.
 
 nkv_test_cli can be tuned by configuring the following vars (default values shown):
 
@@ -728,6 +762,36 @@ nkv_test_cli can be tuned by configuring the following vars (default values show
 Execute this playbook to perform a basic set of ping tests across all hosts.
 All hosts will ping each other across TCP and RoCEv2 IPs.
 
+#### playbooks/test_s3_benchmark.yml
+
+Perform a basic s3-benchmark test and report observed throughput.
+This playbook will execute a suite of s3-benchmark tests in order:
+
+1. Put
+2. Run compaction
+3. Get
+4. Delete
+5. Run compaction
+
+Upon test complection, throughput is reported for PUT and GET.
+
+A single s3-benchmark instance will be spawned on each client, one for each IP in `tcp_ip_list`.
+Each s3-benchmark instance points to a random MinIO endpoint, of a corresponding VLAN index.
+A Single MinIO endpoint can only be assigned to a single s3-benchmark instance.
+
+s3-benchmark can be tuned by configuring the following vars (default values shown):
+
+`s3_benchmark_bucket_prefix`: `s3-bucket-`    - Bucket prefix for s3-benchmark data
+`s3_benchmark_num_objects`: `1000`            - Number of objects for each thread (total objects = objects x threads)
+`s3_benchmark_num_objects_vm`: `100`          - Number of objects if host is a VM (default reduced due to lower throughput)
+`s3_benchmark_object_size`: `1M`              - Size of each object
+`s3_benchmark_num_threads`: `28`              - Number of threads
+`s3_benchmark_duration`: `60`                 - s3-benchmark PUT test duration in seconds
+`s3_benchmark_async_timeout`: `600`           - Async timeout in seconds (increase for larger dataset)
+`s3_benchmark_async_retry_delay`: `5`         - Async retry delay in seconds
+`s3_benchmark_max_instances_per_client`: `0`  - Max. number of s3-benchmark instances per client. 0 == no limit (limited by num. IPs in `tcp_ip_list`)
+`s3_benchmark_strict_numa`: `true`            - Limit s3-benchmark instances to one-per-NUMA node on client, if multiple IPs in `tcp_ip_list` share same NUMA
+
 #### playbooks/upgrade_dss_software.yml
 
 Execute this playbook to upgrade DSS software to all hosts in your inventory.
@@ -740,7 +804,6 @@ NOTE: For internal Samsung / DSS use! Unsupported!
 
 This playbook can be used to upgrade the firmware of PM983 SSDs. All other models not supported.
 In order to upgrade firmware, a valid firmware binary must be copied to the "artifacts" directory.
-Then the "target_fw_version" must be commented out in all vars / defaults files.
 
 ## Testing DSS Software Stack
 
