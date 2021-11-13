@@ -47,6 +47,12 @@
       {%- endif -%}
   run_once: true
 
+- name: Set start time
+  shell: "date '+%Y-%m-%d %H:%M:%S'"
+  register: start_time
+  changed_when: false
+  run_once: true
+
 - name: "Execute s3-benchmark {{ operation }}"
   command: "{{ s3_bench_command }}"
   loop: "{{ assigned_endpoints }}"
@@ -93,6 +99,17 @@
     loop_var: async_task
     label: "{{ async_task.endpoint.endpoint }}"
 
+- name: Set end time
+  shell: "date '+%Y-%m-%d %H:%M:%S'"
+  register: end_time
+  changed_when: false
+  run_once: true
+
+- name: Set test_seconds var
+  set_fact:
+    test_seconds: "{{ (end_time.stdout | to_datetime - start_time.stdout | to_datetime).total_seconds() }}"
+  run_once: true
+
 - name: "Assert async s3-benchmark {{ operation }} completion"
   assert:
     that: async_result.finished != 0
@@ -105,11 +122,11 @@
 
 - name: "Assert s3-benchmark {{ operation }} results valid"
   assert:
-    that: async_result.stdout is regex(speed_re)
+    that: async_result.stdout is regex(objects_re)
     fail_msg: "Did not get valid s3-benchmark result"
     quiet: true
   vars:
-    speed_re: 'speed = ([\d.]+)(.B)\/sec'
+    objects_re: 'objects = ([\d]+),'
   loop: "{{ async_results.results }}"
   loop_control:
     loop_var: async_result
@@ -119,21 +136,22 @@
 - name: set s3_speed var
   set_fact:
     s3_speed: >-
-      {%- set bps = { 'sum': 0 } -%}
-      {%- set speed_re = 'speed = ([\d.]+)(.B)\/sec' -%}
+      {%- set total_objects = {'value': 0} -%}
+      {%- set objects_re = 'objects = ([\d]+),' -%}
       {%- for client in groups['clients'] -%}
         {%- if hostvars[client].async_results is defined -%}
           {%- set results_list = hostvars[client].async_results.results | map(attribute='stdout') | list -%}
           {%- for result in results_list -%}
-            {%- if result is regex(speed_re) -%}
-              {%- set s3_speed = result | regex_search(speed_re, '\\1') | first -%}
-              {%- set s3_units = result | regex_search(speed_re, '\\2') | first -%}
-              {%- set bytes_per_second = (s3_speed + ' ' + s3_units) | human_to_bytes -%}
-              {%- if bps.update({ 'sum': bps.sum + bytes_per_second }) -%}{%- endif -%}
+            {%- if result is regex(objects_re) -%}
+              {%- set objects_transfered = result | regex_search(objects_re, '\\1') | first -%}
+              {%- if total_objects.update({ 'value': total_objects.value | int + objects_transfered | int }) -%}{%- endif -%}
             {%- endif -%}
           {%- endfor -%}
         {%- endif -%}
       {%- endfor -%}
-      {{ bps.sum | human_readable }}/sec
+      {%- set object_size = (s3_benchmark_object_size ~ 'B') | human_to_bytes -%}
+      {%- set total_test_bytes = total_objects.value * object_size -%}
+      {%- set s3_speed = total_test_bytes | int / test_seconds | int -%}
+      {{ s3_speed | human_readable }}/sec
   run_once: true
   when: operation != 'DEL'

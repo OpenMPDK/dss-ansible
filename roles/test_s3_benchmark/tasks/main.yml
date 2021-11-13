@@ -85,22 +85,61 @@
       ]
   run_once: true
 
-- name: Assign endpoints
+- name: Set all_assigned_endpoints var
   set_fact:
-    assigned_endpoints: >-
-      [
-        {% for vlan_id in range(tcp_ip_list | length) %}
-          {% if minio_endpoints | selectattr('random_host_index', 'equalto', ansible_loop.index0) | selectattr('vlan_index', 'equalto', vlan_id) | list | length > 0 %}
-            {{ minio_endpoints | selectattr('random_host_index', 'equalto', ansible_loop.index0) | selectattr('vlan_index', 'equalto', vlan_id) | first }}
-            {% if not loop.last and minio_endpoints | selectattr('random_host_index', 'equalto', ansible_loop.index0) | selectattr('vlan_index', 'equalto', vlan_id + 1) | list | length > 0 %},{% endif %}
-          {% endif %}
+    all_assigned_endpoints: >-
+      {%- set assigned_endpoints = [] -%}
+      {%- for minio_endpoint in minio_endpoints | shuffle -%}
+        {%- set assigned = {'value': false} -%}
+        {%- for client in groups['clients'] if not assigned.value -%}
+          {%- for interface in hostvars[client].adjacent_numa_list if not assigned.value -%}
+            {%- if (s3_benchmark_max_instances_per_client == 0 and num_assigned[client] < hostvars[client].adjacent_numa_list | length) or
+              (num_assigned[client] < s3_benchmark_max_instances_per_client) -%}
+              {%- if interface.vlan_index == minio_endpoint.vlan_index -%}
+                {%- if interface.numa not in assigned_numas[client] -%}
+                  {%- if assigned_endpoints.append(
+                    {
+                      'endpoint': minio_endpoint.endpoint,
+                      'vlan_index': minio_endpoint.vlan_index,
+                      'id': minio_endpoint.id,
+                      'client': client,
+                      'client_numa': interface.numa,
+                      'client_adjacent_numa': interface.adjacent_numa
+                    }
+                  ) -%}{%- endif -%}
+                  {%- if num_assigned.update({ client: num_assigned[client] + 1 }) -%}{%- endif -%}
+                  {%- if assigned.update({ 'value': true }) -%}{%- endif -%}
+                  {%- if s3_benchmark_strict_numa -%}
+                    {%- if assigned_numas.update({ client: assigned_numas[client] + [interface.numa] }) -%}{%- endif -%}
+                  {%- endif -%}
+                {%- endif -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endfor -%}
+      {%- endfor -%}
+      {%- set junk_assign = num_assigned -%}
+      {%- set junk_numa = assigned_numas -%}
+      {{ assigned_endpoints }}
+  vars:
+    num_assigned: >-
+      {
+        {% for client in groups['clients'] %}
+            '{{ client }}': 0{% if not loop.last %},{% endif %}
         {% endfor %}
-      ]
-  loop: "{{ groups['clients'] }}"
-  loop_control:
-    extended: true
-    loop_var: client
-  when: inventory_hostname == client
+      }
+    assigned_numas: >-
+      {
+        {% for client in groups['clients'] %}
+            '{{ client }}': []{% if not loop.last %},{% endif %}
+        {% endfor %}
+      }
+  run_once: true
+
+- name: Set assigned_endpoints var
+  set_fact:
+    assigned_endpoints: "{{ all_assigned_endpoints | selectattr('client', 'equalto', inventory_hostname) | list }}"
+  when: inventory_hostname in groups['clients']
 
 - name: Set num_s3_endpoints var
   set_fact:
