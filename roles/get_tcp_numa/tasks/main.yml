@@ -118,6 +118,21 @@
     min_socket_numa: "{{ numa_socket | selectattr('socket', 'equalto', socket_num | int) | map(attribute='numa') | list | first }}"
     max_socket_numa: "{{ numa_socket | selectattr('socket', 'equalto', socket_num | int) | map(attribute='numa') | list | last }}"
 
+- name: Assert all adapters are on separate NUMA nodes
+  assert:
+    that: num_adapters == num_adapters_with_unique_numa
+    msg: |
+      One or more adapters on the same NUMA node:
+      {% for interface in adjacent_numa_list %}
+        - interface: {{ interface.interface }}
+          NUMA: {{ interface.numa }}
+          adjacent NUMA: {{ interface.adjacent_numa }}
+      {% endfor %}
+  vars:
+    num_adapters_with_unique_numa: "{{ adjacent_numa_list | map(attribute='numa') | list | unique | length }}"
+    num_adapters: "{{ adjacent_numa_list | length }}"
+  ignore_errors: true
+
 - name: Assert optimal interleaved NUMA configuration
   assert:
     that: numa != adjacent_numa
