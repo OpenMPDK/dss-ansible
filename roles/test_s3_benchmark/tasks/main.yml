@@ -76,9 +76,7 @@
             {
               'endpoint': '{{ endpoint.ipv4 }}',
               'id': '{{ cluster.id }}',
-              'vlan_index': {{ endpoint.vlan_index }},
-              'host_index': {{ endpoint.host_index }},
-              'random_host_index': {{ endpoint.random_host_index + (index_scale.value * (groups['servers'] | length)) }}
+              'vlan_index': {{ endpoint.vlan_index }}
             }{% if not cluster_loop.last or not endpoint_loop.last %},{% endif %}
           {% endfor %}
         {% endfor %}

@@ -45,9 +45,7 @@
                 'nvme_mountpoints': {{ nvme_mountpoints }},
                 'subsys_range': {{ subsys_range }},
                 'min_subsystem_list': {{ min_subsystem_list }},
-                'standalone_minio': {{ standalone_minio | d(false) }},
-                'host_index': {{ host_index }},
-                'random_vlan_index': {{ random_vlan_index}}
+                'standalone_minio': {{ standalone_minio | d(false) }}
             }
         ]"
   when: inventory_hostname in host_hostnames
