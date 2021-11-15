@@ -40,7 +40,7 @@
 # At the end of the test, it is asserted that throughput is at least 90% of link speed.
 #
 # ib_read_bw can be tuned by configuring the following vars (default values shown):
-# 
+#
 # `ib_read_bw_starting_port`: `18515` - Starting port number of each incremented server instance
 # `ib_read_bw_duration`: `10`         - Duration of each test, in seconds
 # `ib_read_bw_size`: `1048576`        - Size of each message in bytes
