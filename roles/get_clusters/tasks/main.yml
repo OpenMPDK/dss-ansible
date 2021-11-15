@@ -36,38 +36,6 @@
     host_hostnames: "{{ (groups['servers'] | d([]) + groups['hosts'] | d([])) | unique }}"
     cluster_num_list: []
 
-- name: Assign host_index var
-  set_fact:
-    host_index: "{{ ansible_loop.index0 }}"
-  loop: "{{ host_hostnames }}"
-  loop_control:
-    extended: true
-    loop_var: host
-  when: inventory_hostname == host
-
-- name: Set vlan_random_hosts var
-  set_fact:
-    vlan_random_hosts: "{{ vlan_random_hosts | d([]) + [ host_hostnames | shuffle ] }}"
-  loop: "{{ tcp_ip_list }}"
-  run_once: true
-
-- name: Assign random_vlan_index var
-  set_fact:
-    random_vlan_index: >-
-      {{ random_vlan_index | d([]) }} +
-      [
-        {% for host in shuffled_hosts %}
-          {% if inventory_hostname == host %}
-            {{ loop.index0 }}
-          {% endif %}
-        {% endfor %}
-      ]
-  loop: "{{ range(0, tcp_ip_list | length) | list }}"
-  loop_control:
-    loop_var: vlan_index
-  vars:
-    shuffled_hosts: "{{ vlan_random_hosts[vlan_index] }}"
-
 - name: Set cluster_num_list var
   set_fact:
     cluster_num_list: "{{ cluster_num_list }} +

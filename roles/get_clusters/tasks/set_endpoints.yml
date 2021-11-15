@@ -12,9 +12,7 @@
           {
               'ipv4': '{{ current_cluster.vlan_ip_map[vlan].tcp_alias }}',
               'port': {{ minio_port }},
-              'vlan_index': {{ ansible_loop.index0 }},
-              'host_index': {{ current_cluster.host_index }},
-              'random_host_index': {{ current_cluster.random_vlan_index[vlan] }}
+              'vlan_index': {{ ansible_loop.index0 }}
           }
       ]"
   loop: "{{ range(0, current_cluster.vlan_ip_map | length) | list }}"
