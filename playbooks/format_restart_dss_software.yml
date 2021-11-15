@@ -55,6 +55,16 @@
   roles:
     - format_disks
 
+- name: Remove datamover index
+  hosts:
+    - servers
+    - targets
+    - hosts
+    - clients
+  gather_facts: false
+  roles:
+    - remove_datamover_index
+
 - name: Start DSS Software
   import_playbook: start_dss_software.yml
 
