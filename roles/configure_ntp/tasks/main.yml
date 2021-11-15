@@ -30,64 +30,28 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-### Playbook Documentation ###
-#
-# #### playbooks/configure_hosts.yml
-#
-# Execute this playbook to configure hosts prior to deploying DSS / TESS software.
-# This playbook will deploy custom kernel, install YUM / python dependencies, and deploy the Infiniband driver.
-#
-# To install OFED, set `infiniband_driver` host var to `ofed`.
-# To install the in-box Infiniband driver, set `infiniband_driver` host var to `inbox`.
-# Note that OFED is presently only supported on CentOS 7.4 - 7.8.
-# In-box driver will be installed on CentOS 7.9 or 8.
-# No other versions of CentOS are supported.
+- name: Install NTP packages
+  yum:
+    name:
+      - chrony
+      - tzdata
+  become: true
 
-- name: Validate ansible versions and dependencies
-  hosts: localhost
-  roles:
-    - validate_ansible
+- name: Set timezone
+  timezone:
+    name: "{{ ntp_timezone }}"
+  become: true
 
-- name: Validate CentOS hosts
-  hosts:
-    - clients
-    - servers
-    - targets
-    - hosts
-  roles:
-    - validate_centos
+- name: chronyd is started and enabled
+  service:
+    name: chronyd
+    state: started
+    enabled: true
+  when: ntp_enabled
 
-- name: Configure NTP
-  hosts:
-    - clients
-    - servers
-    - targets
-    - hosts
-  roles:
-    - configure_ntp
-
-- name: Deploy kernel on servers
-  hosts:
-    - servers
-    - hosts
-    - targets
-  roles:
-    - deploy_kernel
-    - check_iommu_off
-
-- name: Configure Hosts
-  hosts:
-    - clients
-    - servers
-    - targets
-    - hosts
-  roles:
-    - validate_centos
-    - configure_sysctl
-    - configure_firewalld
-    - configure_tuned
-    - deploy_utils
-    - deploy_nvme_cli
-    - deploy_infiniband
-    - configure_irq
-    - configure_lldpd
+- name: chronyd is stopped and disabled
+  service:
+    name: chronyd
+    state: stopped
+    enabled: false
+  when: not ntp_enabled
