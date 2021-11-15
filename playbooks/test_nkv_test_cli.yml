@@ -46,7 +46,7 @@
 # Upon test completion, throughput is reported for PUT and GET.
 #
 # nkv_test_cli can be tuned by configuring the following vars (default values shown):
-# 
+#
 # `nkv_test_cli_keysize`: `60`        - Key size in bytes. Max size = 255
 # `nkv_test_cli_valsize`: `1048576`   - Value size in bytes. Max size = 1048576
 # `nkv_test_cli_threads`: `128`       - Number of threads

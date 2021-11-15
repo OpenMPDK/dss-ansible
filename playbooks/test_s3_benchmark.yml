@@ -50,7 +50,7 @@
 # A Single MinIO endpoint can only be assigned to a single s3-benchmark instance.
 #
 # s3-benchmark can be tuned by configuring the following vars (default values shown):
-# 
+#
 # `s3_benchmark_bucket_prefix`: `s3-bucket-`    - Bucket prefix for s3-benchmark data
 # `s3_benchmark_num_objects`: `1000`            - Number of objects for each thread (total objects = objects x threads)
 # `s3_benchmark_num_objects_vm`: `100`          - Number of objects if host is a VM (default reduced due to lower throughput)

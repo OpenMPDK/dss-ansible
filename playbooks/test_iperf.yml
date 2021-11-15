@@ -40,7 +40,7 @@
 # At the end of the test, it is asserted that throughput is at least 90% of link speed.
 #
 # iperf can be tuned by configuring the following vars (default values shown):
-# 
+#
 # `iperf_starting_port`: `5001` - Starting port number of each incremented iperf server instance
 # `iperf_parallel`: `20`        - Number of parallel threads of each iperf client instance
 # `iperf_duration`: `10`        - Duration of each iperf test, in seconds

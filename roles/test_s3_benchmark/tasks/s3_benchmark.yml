@@ -48,7 +48,7 @@
   run_once: true
 
 - name: Set start time
-  shell: "date '+%Y-%m-%d %H:%M:%S'"
+  command: "date '+%Y-%m-%d %H:%M:%S'"
   register: start_time
   changed_when: false
   run_once: true
@@ -100,7 +100,7 @@
     label: "{{ async_task.endpoint.endpoint }}"
 
 - name: Set end time
-  shell: "date '+%Y-%m-%d %H:%M:%S'"
+  command: "date '+%Y-%m-%d %H:%M:%S'"
   register: end_time
   changed_when: false
   run_once: true
