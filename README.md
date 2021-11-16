@@ -779,6 +779,9 @@ A single s3-benchmark instance will be spawned on each client, one for each IP i
 Each s3-benchmark instance points to a random MinIO endpoint, of a corresponding VLAN index.
 A Single MinIO endpoint can only be assigned to a single s3-benchmark instance.
 
+Note that for accurate results, NTP must be configured.
+This can be done automatically with the `configure_hosts.yml` playbook.
+
 s3-benchmark can be tuned by configuring the following vars (default values shown):
 
 `s3_benchmark_bucket_prefix`: `s3-bucket-`    - Bucket prefix for s3-benchmark data
