@@ -47,12 +47,6 @@
       {%- endif -%}
   run_once: true
 
-- name: Set start time
-  command: "date '+%Y-%m-%d %H:%M:%S'"
-  register: start_time
-  changed_when: false
-  run_once: true
-
 - name: "Execute s3-benchmark {{ operation }}"
   command: "{{ s3_bench_command }}"
   loop: "{{ assigned_endpoints }}"
@@ -99,17 +93,6 @@
     loop_var: async_task
     label: "{{ async_task.endpoint.endpoint }}"
 
-- name: Set end time
-  command: "date '+%Y-%m-%d %H:%M:%S'"
-  register: end_time
-  changed_when: false
-  run_once: true
-
-- name: Set test_seconds var
-  set_fact:
-    test_seconds: "{{ (end_time.stdout | to_datetime - start_time.stdout | to_datetime).total_seconds() }}"
-  run_once: true
-
 - name: "Assert async s3-benchmark {{ operation }} completion"
   assert:
     that: async_result.finished != 0
@@ -131,6 +114,28 @@
   loop_control:
     loop_var: async_result
     label: "{{ async_result.cmd | join(' ') }}"
+  when: operation != 'DEL'
+
+- name: Set test_seconds var
+  set_fact:
+    test_seconds: >-
+      {%- set elapsed_time = {'start': '', 'end': ''} -%}
+      {%- for client in groups['clients'] -%}
+        {%- if hostvars[client].async_results is defined -%}
+          {%- for result in hostvars[client].async_results.results -%}
+            {%- set start_time = result.start.split('.')[0] -%}
+            {%- set end_time = result.end.split('.')[0] -%}
+            {%- if elapsed_time.start == '' or start_time | to_datetime < elapsed_time.start | to_datetime -%}
+              {%- if elapsed_time.update({ 'start': start_time }) -%}{%- endif -%}
+            {%- endif -%}
+            {%- if elapsed_time.end == '' or end_time | to_datetime > elapsed_time.end | to_datetime -%}
+              {%- if elapsed_time.update({ 'end': end_time }) -%}{%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ (elapsed_time.end | to_datetime - elapsed_time.start | to_datetime).total_seconds() }}
+  run_once: true
   when: operation != 'DEL'
 
 - name: set s3_speed var
