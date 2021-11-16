@@ -162,6 +162,10 @@
 # datamover_index_data_queue_size: 50000
 # datamover_awslib_log_debug: 0
 
+### NTP defaults
+# ntp_enabled: true
+# ntp_timezone: America/Los_Angeles
+
 ### s3_benchmark defaults
 # s3_benchmark_bucket_prefix: s3-bucket-
 # s3_benchmark_num_objects: 1000
