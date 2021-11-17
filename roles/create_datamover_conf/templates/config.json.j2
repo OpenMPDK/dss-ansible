@@ -1,5 +1,5 @@
 {
-  "tess_clients_hosts_or_ip_addresses":[
+  "clients_hosts_or_ip_addresses":[
     {%- for client in groups['clients'] -%}
             "{{ hostvars[client].tcp_alias_list[0].alias }}"{% if not loop.last %},{% endif -%}
     {% endfor -%}

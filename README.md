@@ -31,15 +31,15 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-# TESS Deploy README.md
+# DSS Deploy README.md
 
 ## Overview
 
-Ansible automation for configuration, deployment and orchestration of TESS software.
+Ansible automation for configuration, deployment and orchestration of DSS software.
 
 ### Ansible Host Setup
 
-On a linux host, on the same management network as all hosts in the TESS cluster, install the latest version of Ansible version 2.9 using python3.
+On a linux host, on the same management network as all hosts in the DSS cluster, install the latest version of Ansible version 2.9 using python3.
 Note that Ansible 2.10 or later is not yet supported.
 **Do not use a package-manager version of Ansible.**
 
@@ -57,7 +57,7 @@ Additionally, ensure that the following python modules are installed on the Ansi
 
 The above dependencies will be validated on runtime, and if not met, will fail assertion, preventing Ansible playbook execution.
 
-### TESS Host Setup
+### DSS Host Setup
 
 #### Add Ansible User
 
@@ -124,7 +124,7 @@ Please reference the official documentation:
 #### Example Inventory File
 
 Configure an Ansible inventory file for the cluster.
-Below is an example inventory file defining a cluster of 10 TESS VM hosts in the [servers] group, with one also in the [clients] group.
+Below is an example inventory file defining a cluster of 10 DSS VM hosts in the [servers] group, with one also in the [clients] group.
 
     [servers]
     msl-ssg-vm01.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::1']" rocev2_ip_list="['192.168.199.1']"
@@ -151,7 +151,7 @@ Below is an example inventory file defining a cluster of 10 TESS VM hosts in the
 Your inventory file should contain hosts in the following groups:
 
 * [servers]
-  * Hosts running the TESS collocated software stack:
+  * Hosts running the DSS collocated software stack:
     * Target
     * NVMe Driver
     * MinIO
@@ -189,7 +189,7 @@ If you wish to deploy either a collocated or disaggregated cluster without MinIO
 
 ##### Ansible User
 
-All hosts should have an `ansible_user` var defined, unless the user running the Ansible Playbooks on the Ansible Host is also the same username on your TESS hosts.
+All hosts should have an `ansible_user` var defined, unless the user running the Ansible Playbooks on the Ansible Host is also the same username on your DSS hosts.
 If all hosts in your inventory use the same username, you can achieve this by specifying a group var in your inventory:
 
     [all:vars]
@@ -205,7 +205,7 @@ The `ansible_user` var can also be defined as a host var in your inventory:
 
 All hosts in the [servers] and [clients] groups must have `tcp_ip_list` and `rocev2_ip_list` lists defined.
 
-`tcp_ip_list` represents a list of IPV4 addresses, IPV6 addresses, or resolvable hostnames to be used for front-end traffic in the TESS cluster.
+`tcp_ip_list` represents a list of IPV4 addresses, IPV6 addresses, or resolvable hostnames to be used for front-end traffic in the DSS cluster.
 This includes all MinIO client, AI Benchmark, S3 Benchmark, and Datamover traffic.
 All hosts in [servers] and [clients] groups must have a populated `tcp_ip_list` list var defined.  Please reference the above sample inventory for example.
 While not optimal, it is possible to use the same IPs defined in the `rocev2_ip_list` for `tcp_ip_list`.
@@ -216,8 +216,8 @@ If you have already created your own TCP aliases (in `/etc/hosts` or through DNS
 
 ##### Back End Traffic: `rocev2_ip_list` var
 
-`rocev2_ip_list` represents a list of IPV4 addresses only, to be used for back-end traffic on the TESS cluster.
-These IPs must support RoCEv2 protocol. The TESS target will fail to start unless it can bind to RoCEv2 for each IP.
+`rocev2_ip_list` represents a list of IPV4 addresses only, to be used for back-end traffic on the DSS cluster.
+These IPs must support RoCEv2 protocol. The DSS target will fail to start unless it can bind to RoCEv2 for each IP.
 All hosts in the [servers] group must have a populated `rocev2_ip_list` list var defined. Please reference the above sample inventory for example.
 All hosts in the [clients] group should have an empty list set for `rocev2_ip_list`, unless they also appear in the [servers] group.
 For stand-alone clients that do not appear in the [servers] group, you can achieve this by specifying a group var in your inventory:
@@ -297,7 +297,7 @@ This var can be specified as a group var in your inventory file:
 #### Target Firmware Version
 
 All hosts in the [servers] group must have a `target_fw_version` var defined.
-This var should contain a string representing the firmware version of the block NVMe SSDs you wish to use for the TESS datastore on each host.
+This var should contain a string representing the firmware version of the block NVMe SSDs you wish to use for the DSS datastore on each host.
 If more than one model of SSD is used, you may provide a space-separated list.
 This var may be defined as a group var in your inventory:
 
@@ -338,13 +338,13 @@ Note that MinIO EC limitations apply for each logical cluster in your inventory.
 
 #### Validate Inventory Connectivity
 
-Validate your inventory file, and the ansible host's connectivity to all hosts in your TESS cluster by executing an ad-hoc ansible ping command:
+Validate your inventory file, and the ansible host's connectivity to all hosts in your DSS cluster by executing an ad-hoc ansible ping command:
 
     ansible all -i your_inventory -m ping
 
 All hosts should return `SUCCESS`. If any hosts fail the ping command, validate that you can SSH to the failed host with its specified `ansible_user`, without using a password.
 
-## Configure Hosts and Deploy TESS Software Stack (Quick-Start)
+## Configure Hosts and Deploy DSS Software Stack (Quick-Start)
 
 ### Initial Host Configuration
 
@@ -362,9 +362,9 @@ Validate Network Settings (cross-ping all TCP and RoCEv2 endpoints, perform ib_r
   
     ansible-playbook -i your_inventory playbooks/test_network.yml
 
-### Deploy TESS Software Stack
+### Deploy DSS Software Stack
 
-Deploy TESS: Deploy and start TESS Software Stack:
+Deploy DSS: Deploy and start DSS Software Stack:
   
     ansible-playbook -i your_inventory playbooks/deploy_dss_software.yml
 
@@ -405,7 +405,7 @@ Note that if a bucket is re-created after executing cleanup, its child objects w
 
 #### playbooks/configure_hosts.yml
 
-Execute this playbook to configure hosts prior to deploying DSS / TESS software.
+Execute this playbook to configure hosts prior to deploying DSS software.
 This playbook will deploy custom kernel, install YUM / python dependencies, and deploy the Infiniband driver.
 
 To install OFED, set `infiniband_driver` host var to `ofed`.
@@ -701,12 +701,12 @@ as well as the following the following logs:
 The support bundle will be downloaded to a local path, defined by `local_coredump_dir` var.
 For example, to download support bundles from all hosts to your local home directory:
 
-    ansible-playbook -i <your_inventory> playbooks/support_bundle.yml -e 'local_coredump_dir=~/tess_support/'
+    ansible-playbook -i <your_inventory> playbooks/support_bundle.yml -e 'local_coredump_dir=~/dss_support/'
 
 By default, a support bundle will always be downloaded. To only generate a support bundle if a coredump is detected,
 set the `coredump_only` var to `true`. Example:
 
-    ansible-playbook -i <your_inventory> playbooks/support_bundle.yml -e 'local_coredump_dir=~/tess_support/,coredump_only=true'
+    ansible-playbook -i <your_inventory> playbooks/support_bundle.yml -e 'local_coredump_dir=~/dss_support/,coredump_only=true'
 
 #### playbooks/test_ib_read_bw.yml
 
