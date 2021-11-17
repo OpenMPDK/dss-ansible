@@ -231,7 +231,7 @@
 - name: Set hostname aliases in /etc/hosts
   blockinfile:
     path: /etc/hosts
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - TCP ALIASES FOR TESS"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - TCP ALIASES FOR DSS"
     block: |
       {% for host in hostnames_list %}
       {% for tcp_ip in hostvars[host].tcp_alias_list %}
@@ -246,20 +246,7 @@
 - name: Clear hostname aliases in /etc/hosts if aliases not needed
   blockinfile:
     path: /etc/hosts
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - TCP ALIASES FOR TESS"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - TCP ALIASES FOR DSS"
     block: ''
   when: not needs_aliases
-  become: true
-
-- name: Clear legacy alias blocks from /etc/hosts
-  blockinfile:
-    path: /etc/hosts
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ item }} TCP ALIASES FOR TESS"
-    block: ''
-  loop:
-    - SERVER
-    - CLIENT
-    - UFM
-    - HOST
-    - TARGET
   become: true

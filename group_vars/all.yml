@@ -31,7 +31,7 @@
 ---
 
 ### Path defaults
-# ansible_log_path: ~/.tess_ansible.log
+# ansible_log_path: ~/.dss_ansible.log
 # artifacts_dir: "{{ inventory_dir }}/artifacts"
 # aws_sdk_cpp_staging_dir: /tmp/aws-sdk-cpp
 # dss_dir: /usr/dss

@@ -34,7 +34,7 @@
 #
 # #### playbooks/configure_hosts.yml
 #
-# Execute this playbook to configure hosts prior to deploying DSS / TESS software.
+# Execute this playbook to configure hosts prior to deploying DSS software.
 # This playbook will deploy custom kernel, install YUM / python dependencies, and deploy the Infiniband driver.
 #
 # To install OFED, set `infiniband_driver` host var to `ofed`.
@@ -82,7 +82,6 @@
     - targets
     - hosts
   roles:
-    - validate_centos
     - configure_sysctl
     - configure_firewalld
     - configure_tuned

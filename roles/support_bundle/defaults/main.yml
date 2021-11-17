@@ -43,7 +43,7 @@ target_dir: "{{ dss_dir }}/nkv-target"
 target_bin_dir: "{{ target_dir }}/bin"
 target_script_dir: "{{ target_dir }}/scripts"
 spdk_setup_script: "{{ target_script_dir }}/setup.sh"
-ansible_log_path: ~/.tess_ansible.log
+ansible_log_path: ~/.dss_ansible.log
 
 ### Support bundle defaults
 coredump_only: false
