@@ -56,7 +56,7 @@
       {% else -%}
         {{ nkv_test_cli_objects }}
       {% endif %}
-  async: 300
+  async: "{{ nkv_test_cli_async_timeout }}"
   poll: 0
   register: nkv_test_cli_async
   become: true
@@ -66,8 +66,8 @@
     jid: "{{ async_task.ansible_job_id }}"
   register: async_results
   until: async_results.finished
-  retries: 60
-  delay: 5
+  retries: "{{ (nkv_test_cli_async_timeout / nkv_test_cli_async_retry_delay) | int }}"
+  delay: "{{ nkv_test_cli_async_retry_delay }}"
   loop: "{{ nkv_test_cli_async.results }}"
   loop_control:
     loop_var: async_task

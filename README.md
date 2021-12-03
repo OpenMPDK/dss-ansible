@@ -755,11 +755,13 @@ Upon test completion, throughput is reported for PUT and GET.
 
 nkv_test_cli can be tuned by configuring the following vars (default values shown):
 
-`nkv_test_cli_keysize`: `60`        - Key size in bytes. Max size = 255
-`nkv_test_cli_valsize`: `1048576`   - Value size in bytes. Max size = 1048576
-`nkv_test_cli_threads`: `128`       - Number of threads
-`nkv_test_cli_objects`: `2000`      - Number of objects for each thread (total objects = objects x threads)
-`nkv_test_cli_vm_objects`: `100`    - Number of objects if host is a VM (default reduced due to lower throughput)
+`nkv_test_cli_keysize`: `60`          - Key size in bytes. Max size = 255
+`nkv_test_cli_valsize`: `1048576`     - Value size in bytes. Max size = 1048576
+`nkv_test_cli_threads`: `128`         - Number of threads
+`nkv_test_cli_objects`: `2000`        - Number of objects for each thread (total objects = objects x threads)
+`nkv_test_cli_vm_objects`: `100`      - Number of objects if host is a VM (default reduced due to lower throughput)
+`nkv_test_cli_async_timeout`: `600`   - Async timeout in seconds (increase for larger dataset, or slow throughput)
+`nkv_test_cli_async_retry_delay`: `5` - Async retry delay in seconds
 
 #### playbooks/test_ping.yml
 
