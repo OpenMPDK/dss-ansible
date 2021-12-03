@@ -560,6 +560,10 @@ NOTE: For internal Samsung / DSS use! Unsupported!
 
 Execute this playbook to remove VLAN / IP configuration, which was previously configured with "configure_vlans" playbook.
 
+#### playbooks/restart_dss_minio.yml
+
+Execute this playbook to restart DSS MinIO on all hosts in your inventory.
+
 #### playbooks/restart_dss_software.yml
 
 Execute this playbook to restart DSS software to all hosts in your inventory.
@@ -807,6 +811,7 @@ NOTE: For internal Samsung / DSS use! Unsupported!
 
 This playbook can be used to upgrade the firmware of PM983 SSDs. All other models not supported.
 In order to upgrade firmware, a valid firmware binary must be copied to the "artifacts" directory.
+Then the "target_fw_version" must be commented out in all vars / defaults files.
 
 ## Testing DSS Software Stack
 
