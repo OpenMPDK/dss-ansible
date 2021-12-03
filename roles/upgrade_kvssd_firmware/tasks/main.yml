@@ -37,6 +37,8 @@
 
 - name: Query list of NVMe devices
   command: nvme list -o json
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   changed_when: false
   register: nvme_list
   become: true
@@ -76,6 +78,8 @@
 
 - name: Query post-upgrade list of NVMe devices
   command: nvme list -o json
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   changed_when: false
   register: post_nvme_list
   become: true

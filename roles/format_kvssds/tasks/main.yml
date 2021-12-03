@@ -37,6 +37,8 @@
 
 - name: Query list of NVMe devices
   command: nvme list -o json
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   changed_when: false
   register: nvme_list
   become: true
@@ -54,6 +56,8 @@
 
 - name: Format kvssd devices
   command: "nvme format {{ kvssd_device_path }} -s0 -n1"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   register: kvssd_format
   async: 300
   poll: 0
