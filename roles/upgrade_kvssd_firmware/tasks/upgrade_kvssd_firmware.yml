@@ -32,6 +32,8 @@
 
 - name: nvme fw-download
   command: "nvme fw-download {{ kvssd_device_path }} -f {{ kvssd_fw_bin }}"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   vars:
     kvssd_device_path: "{{ item | regex_replace('n\\d+$', '') }}"
     kvssd_fw_bin: "{{ upgrade_kvssd_firmware_staging_dir }}/{{ firmware_bin.files[0].path | basename }}"
@@ -42,6 +44,8 @@
 
 - name: nvme fw-activate
   command: "nvme fw-activate {{ kvssd_device_path }} -s 0 -a 1"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   register: fw_activate
   until:
     - '"Resource temporarily unavailable" not in fw_activate.stderr'
@@ -57,6 +61,8 @@
 
 - name: nvme reset
   command: "nvme reset {{ kvssd_device_path }}"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   register: nvme_reset
   async: 300
   poll: 0

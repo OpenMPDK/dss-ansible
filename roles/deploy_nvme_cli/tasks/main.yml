@@ -35,6 +35,8 @@
 
 - name: Check nvme-cli version post-install
   command: nvme --version
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   changed_when: false
   register: post_nvme_cli_version
 

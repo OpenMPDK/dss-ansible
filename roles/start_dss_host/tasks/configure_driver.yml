@@ -40,6 +40,8 @@
 
     - name: "NVMe list subsystems - pre config_driver #{{ config_num }}"
       command: nvme list-subsys
+      environment:
+        PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
       changed_when: false
       register: nvme_subsys
       become: true
@@ -59,6 +61,8 @@
 
     - name: "NVMe list subsystems - post config_driver #{{ config_num }}"
       command: nvme list-subsys
+      environment:
+        PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
       changed_when: false
       register: post_nvme_subsys
       become: true

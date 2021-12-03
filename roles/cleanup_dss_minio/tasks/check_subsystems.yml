@@ -67,6 +67,8 @@
 
 - name: NVMe list subsystems
   command: nvme list-subsys
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   changed_when: false
   register: nvme_subsys
   become: true
