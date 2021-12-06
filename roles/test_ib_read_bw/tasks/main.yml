@@ -79,6 +79,13 @@
       No IPs configured on any Mellanox adapter.
       Please configure at least one IP to test ping.
 
+- name: Copy show_gids script
+  copy:
+    src: show_gids.sh
+    dest: /usr/local/bin/show_gids
+    mode: 0755
+  become: true
+
 - name: Query show_gids
   command: show_gids
   environment:
@@ -87,11 +94,6 @@
   failed_when: false
   register: gids_list
   become: true
-
-- name: Assert show_gids installed
-  assert:
-    that: gids_list.stdout is defined
-    msg: show_gids is not installed. Run 'playbooks/configure_hosts.yml' playbook.
 
 - name: Set ib_devices var
   set_fact:
