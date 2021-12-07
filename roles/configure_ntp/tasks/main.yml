@@ -47,6 +47,7 @@
     name: chronyd
     state: started
     enabled: true
+  become: true
   when: ntp_enabled
 
 - name: chronyd is stopped and disabled
@@ -54,4 +55,5 @@
     name: chronyd
     state: stopped
     enabled: false
+  become: true
   when: not ntp_enabled
