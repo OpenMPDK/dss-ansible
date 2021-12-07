@@ -59,7 +59,7 @@
   vars:
     ipv4_prefix: "{{ item.split('.')[0] }}.{{ item.split('.')[1] }}.{{ item.split('.')[2] }}"
     dev_regex: >-
-       dev ([^ ]+) proto .+{{ item }} metric \d+
+      dev ([^ ]+) proto kernel scope link src {{ item }}
     device: "{{ ip_route.stdout | regex_search(dev_regex, '\\1') | first }}"
   when: ip_route.stdout is regex(item)
 
