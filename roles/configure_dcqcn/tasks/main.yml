@@ -36,19 +36,19 @@
   changed_when: false
   failed_when: false
 
+- name: Install Mellanox Tools
+  include_role:
+    name: deploy_mlnx_tools
+  when: which_mlxconfig.rc != 0
+
+- name: Get list of Mellanox ports
+  include_role:
+    name: get_mlnx_ports
+  when: mellanox_ports is not defined
+
 - name: Configure DCQCN for each device
   include_tasks: configure_dcqcn.yml
-  vars:
-    vlan_label: "{{ vlangroup.label }}"
-    configure_vlan_list: "{{ vlangroup.vlan_list }}"
-  loop:
-    - label: RoCEv2 VLANs
-      vlan_list: "{{ rocev2_vlans }}"
-    - label: TCP VLANs
-      vlan_list: "{{ tcp_vlans }}"
-  loop_control:
-    loop_var: vlangroup
-  when: which_mlxconfig.rc == 0
+  when: ansible_virtualization_role != 'guest'
 
 - name: Flush handlers
   meta: flush_handlers

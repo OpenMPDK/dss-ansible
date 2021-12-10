@@ -30,11 +30,8 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-### Reboot defaults
-reboot_timeout: 3600
-
-### DCQCN Defaults
-dcqcn_roce_cc_prio_mask_p1: 8
-dcqcn_cnp_dscp_p1: 48
-dcqcn_cnp_802p_prio_p1: 6
-dcqcn_pci_wr_ordering: 1
+### PCF defaults
+pfc_priority_list:
+  - 0
+  - 3
+  - 4

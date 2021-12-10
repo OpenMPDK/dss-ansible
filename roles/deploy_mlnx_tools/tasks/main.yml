@@ -1,0 +1,91 @@
+#  BSD LICENSE
+#
+#  Copyright (c) 2021 Samsung Electronics Co., Ltd.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in
+#      the documentation and/or other materials provided with the
+#      distribution.
+#    * Neither the name of Samsung Electronics Co., Ltd. nor the names of
+#      its contributors may be used to endorse or promote products derived
+#      from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---
+
+- name: Get name of local Mellanox Tools RPMs
+  find:
+    path: "{{ inventory_dir }}/artifacts/"
+    patterns: "{{ item }}-*.rpm"
+  delegate_to: localhost
+  run_once: true
+  loop: "{{ mlnx_tools_rpm_names }}"
+  register: mlnx_tools_rpms
+
+- name: Assert Mellanox Tools RPMs found
+  assert:
+    that: item.files[0].path is defined
+    msg: "Missing Mellanox Tools RPM. Ensure Mellanox Tools RPMs are located in `{{ inventory_dir }}/artifacts`: {{ mlnx_tools_rpm_names }}"
+    quiet: true
+  delegate_to: localhost
+  run_once: true
+  loop: "{{ mlnx_tools_rpms.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+
+- name: Identify most-recent version of Mellanox Tools RPMs in artifacts dir
+  set_fact:
+    mlnx_tools_rpm_filenames: "{{ mlnx_tools_rpm_filenames | d([]) + [ (item.files | sort(attribute='ctime', reverse=true) | first).path ] }}"
+  run_once: true
+  loop: "{{ mlnx_tools_rpms.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+
+- name: Verify Mellanox Tools RPMs are installed
+  shell: "rpm -qa | grep {{ item | basename | splitext | first }}"
+  args:
+    warn: false
+  register: mlnx_tools_rpm_qa
+  loop: "{{ mlnx_tools_rpm_filenames }}"
+  changed_when: false
+  failed_when: false
+
+- name: Set mlnx_tools_rpms_missing var
+  set_fact:
+    mlnx_tools_rpms_missing: >-
+      {%- set count = [] -%}
+      {%- for file in mlnx_tools_rpm_qa.results -%}
+        {%- if file.rc != 0 -%}
+          {%- if count.append(1) %}{% endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ count | length }}
+
+- name: Install Mellanox Tools
+  import_tasks: install_mellanox_tools.yml
+  when: mlnx_tools_rpms_missing | int > 0
+
+- name: Delete Mellanox Tools staging RPMs
+  file:
+    path: "{{ mlnx_tools_staging_dir }}/{{ item | basename }}"
+    state: absent
+  loop: "{{ mlnx_tools_rpm_filenames }}"
+  loop_control:
+    label: "{{ mlnx_tools_staging_dir }}/{{ item | basename }}"

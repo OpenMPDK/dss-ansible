@@ -30,11 +30,19 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-### Reboot defaults
-reboot_timeout: 3600
+- name: Copy Mellanox Tools RPMs
+  copy:
+    src: "{{ item }}"
+    dest: "{{ mlnx_tools_staging_dir }}"
+    mode: 0644
+  loop: "{{ mlnx_tools_rpm_filenames }}"
+  loop_control:
+    label: "{{ item }}"
 
-### DCQCN Defaults
-dcqcn_roce_cc_prio_mask_p1: 8
-dcqcn_cnp_dscp_p1: 48
-dcqcn_cnp_802p_prio_p1: 6
-dcqcn_pci_wr_ordering: 1
+- name: Install Mellanox Tools RPMs
+  yum:
+    name: "{{ mlnx_tools_staging_dir }}/{{ item | basename }}"
+  become: true
+  loop: "{{ mlnx_tools_rpm_filenames }}"
+  loop_control:
+    label: "{{ mlnx_tools_staging_dir }}/{{ item | basename }}"

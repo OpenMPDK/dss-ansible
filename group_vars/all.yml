@@ -112,6 +112,18 @@
 # minio_nkv_checksum: 1
 # minio_ulimit: 1048576
 
+### DCQCN Defaults
+# dcqcn_roce_cc_prio_mask_p1: 8
+# dcqcn_cnp_dscp_p1: 48
+# dcqcn_cnp_802p_prio_p1: 6
+# dcqcn_pci_wr_ordering: 1
+
+### PCF defaults
+# pfc_priority_list:
+#   - 0
+#   - 3
+#   - 4
+
 ### Client library defaults
 # client_library_init_time: 1
 

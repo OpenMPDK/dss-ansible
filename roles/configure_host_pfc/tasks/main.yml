@@ -30,11 +30,22 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-### Reboot defaults
-reboot_timeout: 3600
+- name: Check mlnx_qos exists
+  command: which mlnx_qos
+  register: which_mlnx_qos
+  changed_when: false
+  failed_when: false
 
-### DCQCN Defaults
-dcqcn_roce_cc_prio_mask_p1: 8
-dcqcn_cnp_dscp_p1: 48
-dcqcn_cnp_802p_prio_p1: 6
-dcqcn_pci_wr_ordering: 1
+- name: Install Mellanox Tools
+  include_role:
+    name: deploy_mlnx_tools
+  when: which_mlnx_qos.rc != 0
+
+- name: Get list of Mellanox ports
+  include_role:
+    name: get_mlnx_ports
+  when: mellanox_ports is not defined
+
+- name: Configure host PFC
+  include_tasks: configure_pfc.yml
+  when: ansible_virtualization_role != 'guest'
