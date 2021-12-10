@@ -90,3 +90,12 @@
     - deploy_infiniband
     - configure_irq
     - configure_lldpd
+
+- name: Configure congestion settings
+  hosts:
+    - servers
+    - targets
+    - hosts
+  roles:
+    - configure_dcqcn
+    - configure_host_pfc

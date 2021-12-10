@@ -60,6 +60,14 @@
   roles:
     - get_tcp_vlan_ip_list
 
+- name: Configure congestion settings
+  hosts:
+    - servers
+    - targets
+    - hosts
+  roles:
+    - configure_host_pfc
+
 - name: Start DSS Target
   hosts:
     - servers
