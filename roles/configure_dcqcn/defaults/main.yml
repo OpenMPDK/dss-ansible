@@ -33,26 +33,8 @@
 ### Reboot defaults
 reboot_timeout: 3600
 
-### VLAN defaults
-rocev2_vlans:
-  - id: 31
-    ipv4_prefix: 201.0.0
-    ipv4_netmask: 255.0.0.0
-    ipv6_prefix: fd81:7E55:15:D55:31
-    ipv6_prefix_length: 80
-  - id: 32
-    ipv4_prefix: 203.0.0
-    ipv4_netmask: 255.0.0.0
-    ipv6_prefix: fd81:7E55:15:D55:32
-    ipv6_prefix_length: 80
-tcp_vlans:
-  - id: 41
-    ipv4_prefix: 202.0.0
-    ipv4_netmask: 255.0.0.0
-    ipv6_prefix: fd81:7E55:15:D55:41
-    ipv6_prefix_length: 80
-  - id: 42
-    ipv4_prefix: 204.0.0
-    ipv4_netmask: 255.0.0.0
-    ipv6_prefix: fd81:7E55:15:D55:42
-    ipv6_prefix_length: 80
+### DCQCN Defaults
+dcqcn_roce_cc_prio_mask_p1: 8
+dcqcn_cnp_dscp_p1: 48
+dcqcn_cnp_802p_prio_p1: 6
+dcqcn_pci_wr_ordering: 1
