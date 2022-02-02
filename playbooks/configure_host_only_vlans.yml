@@ -43,16 +43,16 @@
 # The combination of these two vars will result in the desired host-side VLAN configuration.
 # 
 # Example vars for a host:
-#     rocev2_ip_list="['192.168.1.1']"
-#     rocev2_vlan_interfaces="[{'interface': 'ens224', 'vlan_id': 31}]"
+#     rocev2_ip_list=['192.168.1.1']
+#     rocev2_vlan_interfaces=[{'interface': 'ens224', 'vlan_id': 31}]
 #
 # The above configuration for a host will result in interface `ens224` being configured with a child VLAN `ens224.31`, tagged with VLAN ID 31.
 # Note that the `rocev2_ip_list` and `rocev2_vlan_interfaces` lists must contain an equal number of elements.
 #
 # Note that multiple VLANs may be configured on a single physical interface. Simply list the additional VLAN with repeating `interface` key.
 # Example:
-#     rocev2_ip_list="['192.168.1.1', '192.168.1.2']"
-#     rocev2_vlan_interfaces="[{'interface': 'ens224', 'vlan_id': 31}, {'interface': 'ens224', 'vlan_id': 32}]"
+#     rocev2_ip_list=['192.168.1.1', '192.168.1.2']
+#     rocev2_vlan_interfaces=[{'interface': 'ens224', 'vlan_id': 31}, {'interface': 'ens224', 'vlan_id': 32}]
 #
 # Note that if all hosts intend to use the same interface names for all respective VLAN IDs, the `rocev2_vlan_interfaces` var may be defined
 # a single time as a group var, rather than for every host in inventory.
