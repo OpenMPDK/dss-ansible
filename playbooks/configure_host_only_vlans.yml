@@ -41,7 +41,7 @@
 #
 # Hosts that are configured with this playbook need to have both "rocev2_ip_list" list and "rocev2_vlan_interfaces" list of dictionaries defined in inventory.
 # The combination of these two vars will result in the desired host-side VLAN configuration.
-# 
+#
 # Example vars for a host:
 #     rocev2_ip_list=['192.168.1.1']
 #     rocev2_vlan_interfaces=[{'interface': 'ens224', 'vlan_id': 31}]
