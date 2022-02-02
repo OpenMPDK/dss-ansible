@@ -28,14 +28,23 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-- name: Assert RoCEv2 VLAN Interfaces are valid
+- name: Assert valid rocev2_vlan_interfaces var
+  assert:
+    that:
+      - rocev2_vlan_interfaces is defined
+      - rocev2_vlan_interfaces is not mapping
+      - rocev2_vlan_interfaces is iterable
+      - rocev2_vlan_interfaces is not string
+    msg: Cannot configure vlans. Check value of `rocev2_vlan_interfaces` var.
+
+- name: Assert RoCEv2 VLAN Interfaces are present on host
   assert:
     that: matching_interfaces | length > 0
-    msg: "{{ item }} is not a valid interface on this host. Please check `rocev2_vlan_interfaces` var"
+    msg: "{{ item.interface }} is not a valid interface on this host. Please check `rocev2_vlan_interfaces` var"
   loop: "{{ rocev2_vlan_interfaces }}"
   vars:
-    all_interfaces: "{{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | map(attribute='value') | list }}"
-    matching_interfaces: "{{ all_interfaces | selectattr('device', 'contains', item) | list }}"
+    all_interfaces: "{{ ansible_facts | dict2items | selectattr('value.device', 'defined') | map(attribute='value') | list }}"
+    matching_interfaces: "{{ all_interfaces | selectattr('device', 'equalto', item.interface ) | list }}"
 
 - name: Assert RoCEv2 VLAN IP addresses are defined
   assert:
@@ -71,7 +80,7 @@
 - name: Configure parent adapters
   template:
     src: parent_ifcfg.j2
-    dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}"
+    dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.interface }}"
     mode: 0644
   loop: "{{ rocev2_vlan_interfaces }}"
   notify:
@@ -82,18 +91,36 @@
 - name: Configure VLAN child adapters
   template:
     src: vlan_ifcfg.j2
-    dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}.{{ vlan }}"
+    dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.interface }}.{{ item.vlan_id }}"
     mode: 0644
   loop: "{{ rocev2_vlan_interfaces }}"
   loop_control:
-    label: "{{ item }}: {{ vlan }}"
+    label: "{{ item.interface }}: {{ item.vlan_id }}"
     extended: true
   vars:
-    vlan: "{{ rocev2_starting_vlan_id + ansible_loop.index0 }}"
-    priority: "{{ (vlan | string)[0] }}"
-    vlan_device: "ansible_{{ item | replace('-', '_') }}"
+    priority: "{{ (item.vlan_id | string)[0] }}"
+    vlan_device: "ansible_{{ item.interface | replace('-', '_') }}"
     mac_address: "{{ lookup('vars', vlan_device).macaddress }}"
     ipv4_address: "{{ rocev2_ip_list[ansible_loop.index0] }}"
+  notify:
+    - Restart network service
+    - Reload facts
+  become: true
+
+- name: Remove non-confirming VLAN configurations
+  file:
+    path: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}"
+    state: absent
+  loop: "{{ ansible_interfaces }}"
+  vars:
+    interface_re: '([^.]+)\.(.+)'
+    found_interface: "{{ item | regex_search(interface_re, '\\1') | first }}"
+    found_vlan: "{{ item | regex_search(interface_re, '\\2') | first }}"
+    matching_interfaces: "{{ rocev2_vlan_interfaces | selectattr('interface', 'equalto', found_interface) | list }}"
+    conforming_interfaces: "{{ matching_interfaces | selectattr('vlan_id', 'equalto', found_vlan | int ) | list }}"
+  when:
+    - item is regex(interface_re)
+    - conforming_interfaces | length == 0
   notify:
     - Restart network service
     - Reload facts
