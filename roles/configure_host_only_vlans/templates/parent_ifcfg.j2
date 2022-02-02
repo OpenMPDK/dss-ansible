@@ -30,6 +30,6 @@
 
 TYPE=Ethernet
 BOOTPROTO=none
-DEVICE={{ item }}
+DEVICE={{ item.interface }}
 ONBOOT=yes
-MTU=9000
+MTU={{ mtu_size}}

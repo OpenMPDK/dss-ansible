@@ -30,18 +30,18 @@
 
 TYPE=Vlan
 VLAN=yes
-VLAN_ID={{ vlan }}
-DEVICE={{ item }}.{{ vlan }}
-PHYSDEV={{ item }}
+VLAN_ID={{ item.vlan_id }}
+DEVICE={{ item.interface }}.{{ item.vlan_id }}
+PHYSDEV={{ item.interface }}
 REORDER_HDR=0
-VLAN_EGRESS_PRIORITY_MAP=0:{{ priority }},{{ priority }}:{{ priority }}
+VLAN_EGRESS_PRIORITY_MAP=0:{{ priority }}{% if vlan_egress_prio_map_second_tuple %},{{ priority }}:{{ priority }}{% endif +%}
 VLAN_INGRESS_PRIORITY_MAP={{ priority }}:{{ priority }}
 PROXY_METHOD=none
 BROWSER_ONLY=no
 BOOTPROTO=none
 DEFROUTE=yes
 IPV4_FAILURE_FATAL=no
-NAME={{ item }}.{{ vlan }}
+NAME={{ item.interface }}.{{ item.vlan_id }}
 ONBOOT=yes
 IPADDR={{ ipv4_address }}
 NETMASK={{ rocev2_netmask }}
