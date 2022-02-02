@@ -7,7 +7,7 @@
 # modification, are permitted (subject to the limitations in the disclaimer
 # below) provided that the following conditions are met:
 #
-# * Redistributions of source code must retain the above copyright notice, 
+# * Redistributions of source code must retain the above copyright notice,
 #   this list of conditions and the following disclaimer.
 # * Redistributions in binary form must reproduce the above copyright notice,
 #   this list of conditions and the following disclaimer in the documentation
@@ -56,6 +56,13 @@
 #
 # Note that if all hosts intend to use the same interface names for all respective VLAN IDs, the `rocev2_vlan_interfaces` var may be defined
 # a single time as a group var, rather than for every host in inventory.
+#
+# VLANs can be tuned by configuring the following vars (default values shown):
+#
+# `mtu_size`: `9000`                        - MTU Size of parent and child adapters
+# `rocev2_vlan_interfaces`: `[]`            - List of VLAN interfaces to configure. Must contain dicts with keys `interface` and `vlan_id`
+# `rocev2_netmask`: `255.255.255.0`         - Netmask of VLAN interfaces
+# `vlan_egress_prio_map_second_tuple`: true - Enable / Disable the second tuple of VLAN_EGRESS_PRIO_MAP (use `True` and `False` if defined in inventory)
 
 - name: Validate ansible versions and dependencies
   hosts: localhost
