@@ -31,5 +31,5 @@
 # VLAN Defaults
 mtu_size: 9000
 rocev2_vlan_interfaces: []
-rocev2_starting_vlan_id: 31
 rocev2_netmask: 255.255.255.0
+vlan_egress_prio_map_second_tuple: false
