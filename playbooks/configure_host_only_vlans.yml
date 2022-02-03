@@ -63,6 +63,15 @@
 # `rocev2_vlan_interfaces`: `[]`            - List of VLAN interfaces to configure. Must contain dicts with keys `interface` and `vlan_id`
 # `rocev2_netmask`: `255.255.255.0`         - Netmask of VLAN interfaces
 # `vlan_egress_prio_map_second_tuple`: true - Enable / Disable the second tuple of VLAN_EGRESS_PRIO_MAP (use `True` and `False` if defined in inventory)
+#
+# The logic for VLAN_EGRESS/INGRESS_PRIO_MAP is as follows:
+# "Priority" is determined by the first digit of the VLAN ID.
+# For example, a VLAN ID "31" will have a "priority" of 3.
+# This will result in the following settings in the ifcfg script for the configured child VLAN interface:
+#   VLAN_EGRESS_PRIO_MAP setting=0:3,3:3
+#   VLAN_INGRESS_PRIORITY_MAP=3:3
+# If the `vlan_egress_prio_map_second_tuple` var is set to `false`, then only the first tuple of VLAN_EGRESS_PRIO_MAP will be configured:
+#   VLAN_EGRESS_PRIO_MAP setting=0:3
 
 - name: Validate ansible versions and dependencies
   hosts: localhost
