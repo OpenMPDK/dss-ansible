@@ -36,7 +36,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Ansible automation for configuration, deployment and orchestration of DSS software.
 
-### Ansible Host Setup
+### Ansible Host Setup
 
 On a linux host, on the same management network as all hosts in the DSS cluster, install the latest version of Ansible version 2.9 using python3.
 Note that Ansible 2.10 or later is not yet supported.
@@ -401,6 +401,48 @@ This will effectively remove any metadata at the root level of the object store.
 
 Note that this will create the appearance of a reformated object store, but space will not be reclaimed.
 Note that if a bucket is re-created after executing cleanup, its child objects will become accessible again.
+
+#### playbooks/configure_host_only_vlans.yml
+
+NOTE: For internal Samsung / DSS use! Unsupported!
+
+Execute this playbook to automatically configure host-side-only VLANs.
+
+This playbook will configure host-side RoCEv2 VLANs. VLANs will need to be manually tagged on the switch
+
+Hosts that are configured with this playbook need to have both "rocev2_ip_list" list and "rocev2_vlan_interfaces" list of dictionaries defined in inventory.
+The combination of these two vars will result in the desired host-side VLAN configuration.
+
+Example vars for a host:
+    rocev2_ip_list=['192.168.1.1']
+    rocev2_vlan_interfaces=[{'interface': 'ens224', 'vlan_id': 31}]
+
+The above configuration for a host will result in interface `ens224` being configured with a child VLAN `ens224.31`, tagged with VLAN ID 31.
+Note that the `rocev2_ip_list` and `rocev2_vlan_interfaces` lists must contain an equal number of elements.
+
+Note that multiple VLANs may be configured on a single physical interface. Simply list the additional VLAN with repeating `interface` key.
+Example:
+    rocev2_ip_list=['192.168.1.1', '192.168.1.2']
+    rocev2_vlan_interfaces=[{'interface': 'ens224', 'vlan_id': 31}, {'interface': 'ens224', 'vlan_id': 32}]
+
+Note that if all hosts intend to use the same interface names for all respective VLAN IDs, the `rocev2_vlan_interfaces` var may be defined
+a single time as a group var, rather than for every host in inventory.
+
+VLANs can be tuned by configuring the following vars (default values shown):
+
+`mtu_size`: `9000`                        - MTU Size of parent and child adapters
+`rocev2_vlan_interfaces`: `[]`            - List of VLAN interfaces to configure. Must contain dicts with keys `interface` and `vlan_id`
+`rocev2_netmask`: `255.255.255.0`         - Netmask of VLAN interfaces
+`vlan_egress_prio_map_second_tuple`: true - Enable / Disable the second tuple of VLAN_EGRESS_PRIO_MAP (use `True` and `False` if defined in inventory)
+
+The logic for VLAN_EGRESS/INGRESS_PRIO_MAP is as follows:
+"Priority" is determined by the first digit of the VLAN ID.
+For example, a VLAN ID "31" will have a "priority" of 3.
+This will result in the following settings in the ifcfg script for the configured child VLAN interface:
+  VLAN_EGRESS_PRIO_MAP setting=0:3,3:3
+  VLAN_INGRESS_PRIORITY_MAP=3:3
+If the `vlan_egress_prio_map_second_tuple` var is set to `false`, then only the first tuple of VLAN_EGRESS_PRIO_MAP will be configured:
+  VLAN_EGRESS_PRIO_MAP setting=0:3
 
 #### playbooks/configure_hosts.yml
 

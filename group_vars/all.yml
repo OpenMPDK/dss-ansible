@@ -302,6 +302,9 @@
 # device_type: ibdev
 # device_type: netdev_child
 # vlan_list: "{{ rocev2_vlans + tcp_vlans }}"
+# rocev2_vlan_interfaces: []
+# rocev2_netmask: 255.255.255.0
+# vlan_egress_prio_map_second_tuple: false
 
 ### AI Benchmark defaults
 # benchmark_objects: 1000
