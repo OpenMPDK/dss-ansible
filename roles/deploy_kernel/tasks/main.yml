@@ -29,7 +29,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Identify target kernel version
+- name: Identify host kernel version
   find:
     path: "{{ artifacts_dir }}"
     patterns: 'kernel-*.rpm'
@@ -53,9 +53,9 @@
     success_msg: "Found kernel RPMs"
   run_once: true
 
-- name: Set target_kernel_version variable
+- name: Set host_kernel_version variable
   set_fact:
-    target_kernel_version: >-
+    host_kernel_version: >-
       {%- set kernel_re = 'kernel-(?!devel)(?!headers)(.+)-.+' -%}
       {%- for file in kernel_version.files -%}
         {%- if file.path is regex(kernel_re) -%}
@@ -63,9 +63,9 @@
         {%- endif -%}
       {%- endfor -%}
 
-- name: Assert target_kernel_version is defined
+- name: Assert host_kernel_version is defined
   assert:
-    that: target_kernel_version is defined
+    that: host_kernel_version is defined
 
 - name: Set GRUB Commandline Options
   import_tasks: set_grub_cmdline.yml
@@ -74,14 +74,14 @@
   import_tasks: deploy_kernel.yml
   when:
     - inventory_hostname in (groups['servers'] | d([]) + groups['hosts'] | d([]))
-    - ansible_kernel is version (target_kernel_version, '!=')
+    - ansible_kernel is version (host_kernel_version, '!=')
 
 - name: Flush handlers
   meta: flush_handlers
 
-- name: Assert target kernel version
+- name: Assert host kernel version
   assert:
-    that: ansible_kernel is version (target_kernel_version, '==')
-    fail_msg: "Expected kernel version {{ target_kernel_version }} but found {{ ansible_kernel }}"
-    success_msg: "Detected target kernel version {{ target_kernel_version }}"
+    that: ansible_kernel is version (host_kernel_version, '==')
+    fail_msg: "Expected kernel version {{ host_kernel_version }} but found {{ ansible_kernel }}"
+    success_msg: "Detected host kernel version {{ host_kernel_version }}"
   when: inventory_hostname in (groups['servers'] | d([]) + groups['hosts'] | d([]))
