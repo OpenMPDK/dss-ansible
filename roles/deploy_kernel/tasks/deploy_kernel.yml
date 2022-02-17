@@ -53,7 +53,7 @@
     label: "{{ item.path | basename }}"
 
 - name: Set default grub
-  command: "grub2-set-default 'CentOS {{ dist_string }} ({{ target_kernel_version }}) {{ major_dist_ver }}{{ core_string }}'"
+  command: "grub2-set-default 'CentOS {{ dist_string }} ({{ host_kernel_version }}) {{ major_dist_ver }}{{ core_string }}'"
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   vars:

@@ -88,7 +88,7 @@
 - name: Assert TCP IPs are found
   assert:
     that: tcp_adapter_list | length > 0
-    msg: No TCP IPs configured on host. Configure `tcp_ip_list` var for host. See README.md for details.
+    msg: No TCP IPs configured on host. Configure `tcp_ip_list` var for host or configure VLANs. See README.md for details.
 
 - name: Set combined_family_list var
   set_fact:
