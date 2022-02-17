@@ -84,3 +84,4 @@
     that: ansible_kernel is version (target_kernel_version, '==')
     fail_msg: "Expected kernel version {{ target_kernel_version }} but found {{ ansible_kernel }}"
     success_msg: "Detected target kernel version {{ target_kernel_version }}"
+  when: inventory_hostname in (groups['servers'] | d([]) + groups['hosts'] | d([]))
