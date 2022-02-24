@@ -65,6 +65,7 @@
 - name: Install aws-sdk-cpp RPM
   yum:
     name: "{{ deploy_aws_sdk_cpp_staging_dir }}/{{ aws_sdk_cpp_rpm_file | basename }}"
+    disable_gpg_check: true
   become: true
   when: aws_sdk_cpp_rpm_qa.rc != 0
 

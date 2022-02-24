@@ -56,6 +56,8 @@
   when: >
     not format_disks_out_file.stat.exists or
     pre_format_disks.stdout is search('Failed to initialize filesystem') or
+    pre_format_disks.stdout is search('error while loading shared libraries') or
+    pre_format_disks.stdout is not search('Initializing filesystem on bdev') or
     create_format_disks_template.changed or
     create_blobfs_conf.changed
   become: true

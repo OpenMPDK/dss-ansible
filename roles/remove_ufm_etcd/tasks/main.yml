@@ -39,4 +39,5 @@
   yum:
     name: "{{ ufm_install_packages }}"
     state: absent
+    disable_gpg_check: true
   become: true

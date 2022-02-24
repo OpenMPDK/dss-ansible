@@ -34,4 +34,5 @@
   yum:
     name: "{{ infiniband_rpm_urls }}"
     state: present
+    disable_gpg_check: true
   become: true

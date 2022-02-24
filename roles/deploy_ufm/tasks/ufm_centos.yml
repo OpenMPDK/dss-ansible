@@ -43,6 +43,7 @@
 - name: Install UFM RPMs
   yum:
     name: "{{ ufm_staging_dir }}/{{ item | basename }}"
+    disable_gpg_check: true
   register: ufm_rpm_status
   become: true
   loop:

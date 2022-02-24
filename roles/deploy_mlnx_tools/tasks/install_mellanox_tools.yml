@@ -41,6 +41,7 @@
 - name: Install Mellanox Tools RPMs
   yum:
     name: "{{ mlnx_tools_staging_dir }}/{{ item | basename }}"
+    disable_gpg_check: true
   become: true
   loop: "{{ mlnx_tools_rpm_filenames }}"
   loop_control:
