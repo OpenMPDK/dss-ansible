@@ -47,4 +47,5 @@
   yum:
     name: "{{ ufm_etcd_rpm_url }}"
     state: present
+    disable_gpg_check: true
   become: true

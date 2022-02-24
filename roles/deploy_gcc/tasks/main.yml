@@ -65,6 +65,7 @@
 - name: Install GCC RPM
   yum:
     name: "{{ deploy_gcc_staging_dir }}/{{ gcc_rpm_file | basename }}"
+    disable_gpg_check: true
   become: true
   when: gcc_rpm_qa.rc != 0
 

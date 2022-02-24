@@ -39,4 +39,6 @@
       - net-tools
       - pciutils
       - "iperf{% if ansible_distribution_version == '8' %}3{% endif %}"
+      - "python{% if ansible_distribution_version == '8' %}2{% endif %}"
+      - python3
   become: true

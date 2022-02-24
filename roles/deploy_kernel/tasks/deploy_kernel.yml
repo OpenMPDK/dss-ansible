@@ -47,6 +47,7 @@
 - name: Install Kernel RPMs
   yum:
     name: "{{ deploy_kernel_staging_dir }}/{{ item.path | basename }}"
+    disable_gpg_check: true
   become: true
   loop: "{{ kernel_rpms.files }}"
   loop_control:

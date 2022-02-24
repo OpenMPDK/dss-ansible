@@ -44,6 +44,7 @@
     - python3
     - sysstat
     - Judy
+    - "{% if ansible_distribution_version == '8' %}compat-openssl10{% else %}openssl-libs{% endif %}"
   become: true
 
 - name: Identify pip2 executable
