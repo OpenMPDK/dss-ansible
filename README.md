@@ -385,14 +385,6 @@ Execute this playbook to terminate the datamover accross all [clients].
 
 This playbook will terminate all instances of datamover client and master application.
 
-#### playbooks/cleanup_dss_ai_benchmark.yml
-
-NOTE: For internal Samsung / DSS use! Unsupported!
-
-Execute this playbook in the event that "start_dss_ai_benchmark" has failed.
-This playbook will terminate stuck warp processes.
-Additionally, kernel packet pacing will be removed from each server.
-
 #### playbooks/cleanup_dss_minio.yml
 
 Execute this playbook to cleanup MinIO object store metadata.
@@ -521,18 +513,6 @@ It is critical to specify the correct values for your NFS shares for the `datamo
 
 Re-running this playbook will update the datamover configuration across all hosts in your inventory.
 
-#### playbooks/deploy_dss_ai_benchmark.yml
-
-NOTE: For internal Samsung / DSS use! Unsupported!
-NOTE: IPV6 not supported
-
-Execute this playbook to deploy the DSS AI Benchmark software.
-This playbook will also create configuration files for client library and datamover, based on hosts that appear in your inventory.
-Please review "Datamover Settings" under "group_vars/all.yml" if you wish to adjust the default settings of the datamover.
-Uncomment vars with new values, or add them to your inventory file.
-
-Re-running this playbook will update the datamover configuration across all hosts in your inventory.
-
 #### playbooks/deploy_dss_software.yml
 
 Execute this playbook to deploy DSS software to all hosts in your inventory.
@@ -562,25 +542,11 @@ This playbook is effectively identical to running "stop_dss_software", then "sta
 Additionally, KVSSDs (with KV firmware) will be formated cleanly.
 SSDs (with block firmware) will be re-formated with mkfs_blobfs.
 
-#### playbooks/redeploy_dss_ai_benchmark.yml
-
-NOTE: For internal Samsung / DSS use! Unsupported!
-NOTE: IPV6 not supported
-
-Execute this playbook to redeploy the DSS AI Benchmark software.
-This is effectively the same as executing "remove_dss_ai_benchmark" then "deploy_dss_ai_benchmark" playbooks.
-
 #### playbooks/redeploy_dss_software.yml
 
 Execute this playbook to redeploy DSS software to all hosts in your inventory.
 This playbook is effective the same as executing "stop_dss_software", "remove_dss_software", then "deploy_dss_software".
 Data present across back-end storage will persist after redeploy.
-
-#### playbooks/remove_dss_ai_benchmark.yml
-
-NOTE: For internal Samsung / DSS use! Unsupported!
-
-Execute this playbook to remove the DSS AI Benchmark software.
 
 #### playbooks/remove_dss_software.yml
 
@@ -700,16 +666,6 @@ Datamover TEST examples (Data integrity):
 
 For additional documentation, please consult the datamover README.md file, located on all [clients]:
 > /usr/dss/nkv-datamover/README.md
-
-#### playbooks/start_dss_ai_benchmark.yml
-
-NOTE: For internal Samsung / DSS use! Unsupported!
-NOTE: IPV6 not supported
-
-Execute this playbook to start the DSS AI Benchmark software.
-This playbook will also create configuration files for client library and datamover, based on hosts that appear in your inventory.
-Please review "Datamover Settings" under "group_vars/all.yml" if you wish to adjust the default settings of the datamover.
-Uncomment vars with new values, or add them to your inventory file.
 
 #### playbooks/start_dss_software.yml
 
