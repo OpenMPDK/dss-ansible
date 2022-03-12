@@ -36,6 +36,16 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Ansible automation for configuration, deployment and orchestration of DSS software.
 
+### DSS Cluster Considerations
+
+Presently, DSS is supported and tested on CentOS 7.4 through 7.9.
+
+Additionally, DSS has been tested on CentOS Stream 8.
+
+However, the presently tested "optimal" configuration requires CentOS 7.8 on all deployed hosts in the DSS cluster.
+
+It is not posible to deploy to other Linux distributions at this time.
+
 ### Ansible Host Setup
 
 On a linux host, on the same management network as all hosts in the DSS cluster, install the latest version of Ansible version 2.9 using python3.
