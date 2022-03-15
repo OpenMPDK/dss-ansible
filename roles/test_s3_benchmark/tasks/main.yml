@@ -34,6 +34,11 @@
     target_hostnames: "{{ (groups['servers'] | d([]) + groups['targets'] | d([])) | unique }}"
     host_hostnames: "{{ (groups['servers'] | d([]) + groups['hosts'] | d([])) | unique }}"
 
+- name: Install numactl
+  yum:
+    name: numactl
+  become: present
+
 - name: Stat DSS Minio path
   stat:
     path: "{{ minio_dir }}"
