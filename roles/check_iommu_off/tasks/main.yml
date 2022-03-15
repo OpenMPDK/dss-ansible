@@ -31,11 +31,12 @@
 
 - name: Find IOMMU groups
   find:
-    name: Identify datamover tarball
     path: /sys/kernel/iommu_groups
+    file_type: directory
+    recurse: no
   register: iommu_groups
 
 - name: Assert IOMMU off
   assert:
-    that: iommu_groups.files | length == 0
+    that: iommu_groups.matched == 0
     msg: IOMMU is enabled. Please disable IOMMU to use DSS software.
