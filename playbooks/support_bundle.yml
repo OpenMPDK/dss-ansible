@@ -61,5 +61,6 @@
     - servers
     - targets
     - hosts
+    - clients
   roles:
     - support_bundle
