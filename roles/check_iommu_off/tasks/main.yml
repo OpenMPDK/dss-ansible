@@ -33,7 +33,7 @@
   find:
     path: /sys/kernel/iommu_groups
     file_type: directory
-    recurse: no
+    recurse: false
   register: iommu_groups
 
 - name: Assert IOMMU off
