@@ -431,10 +431,12 @@ a single time as a group var, rather than for every host in inventory.
 
 VLANs can be tuned by configuring the following vars (default values shown):
 
-`mtu_size`: `9000`                        - MTU Size of parent and child adapters
-`rocev2_vlan_interfaces`: `[]`            - List of VLAN interfaces to configure. Must contain dicts with keys `interface` and `vlan_id`
-`rocev2_netmask`: `255.255.255.0`         - Netmask of VLAN interfaces
-`vlan_egress_prio_map_second_tuple`: true - Enable / Disable the second tuple of VLAN_EGRESS_PRIO_MAP (use `True` and `False` if defined in inventory)
+| Var name                          | Default       | Description                                                                                                |
+| --------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------- |
+| mtu_size                          | 9000          | MTU Size of parent and child adapters                                                                      |
+| rocev2_vlan_interfaces            | []            | List of VLAN interfaces to configure. Must contain dicts with keys `interface` and `vlan_id`               |
+| rocev2_netmask                    | 255.255.255.0 | Netmask of VLAN interfaces                                                                                 |
+| vlan_egress_prio_map_second_tuple | true          | Enable / Disable the second tuple of VLAN_EGRESS_PRIO_MAP (use `True` and `False` if defined in inventory) |
 
 The logic for VLAN_EGRESS/INGRESS_PRIO_MAP is as follows:
 "Priority" is determined by the first digit of the VLAN ID.
@@ -720,11 +722,13 @@ At the end of the test, it is asserted that throughput is at least 90% of link s
 
 ib_read_bw can be tuned by configuring the following vars (default values shown):
 
-`ib_read_bw_starting_port`: `18515` - Starting port number of each incremented server instance
-`ib_read_bw_duration`: `10`         - Duration of each test, in seconds
-`ib_read_bw_size`: `1048576`        - Size of each message in bytes
-`ib_read_bw_qp`: `1`                - Number of queue pairs
-`ib_read_bw_sl`: `3`                - Infiniband service level
+| Var name                  | Default   | Description                                              |
+| ------------------------- | --------- | -------------------------------------------------------- |
+| ib_read_bw_starting_port  | 18515     | Starting port number of each incremented server instance |
+| ib_read_bw_duration       | 10        | Duration of each test, in seconds                        |
+| ib_read_bw_size           | 1048576   | Size of each message in bytes                            |
+| ib_read_bw_qp             | 1         | Number of queue pairs                                    |
+| ib_read_bw_sl             | 3         | Infiniband service level                                 |
 
 #### playbooks/test_iperf.yml
 
@@ -735,9 +739,11 @@ At the end of the test, it is asserted that throughput is at least 90% of link s
 
 iperf can be tuned by configuring the following vars (default values shown):
 
-`iperf_starting_port`: `5001` - Starting port number of each incremented iperf server instance
-`iperf_parallel`: `20`        - Number of parallel threads of each iperf client instance
-`iperf_duration`: `10`        - Duration of each iperf test, in seconds
+| Var name            | Default | Description                                                    |
+| ------------------- | ------- | -------------------------------------------------------------- |
+| iperf_starting_port | 5001    | Starting port number of each incremented iperf server instance |
+| iperf_parallel      | 20      | Number of parallel threads of each iperf client instance       |
+| iperf_duration      | 10      | Duration of each iperf test, in seconds                        |
 
 #### playbooks/test_nkv_test_cli.yml
 
@@ -754,13 +760,15 @@ Upon test completion, throughput is reported for PUT and GET.
 
 nkv_test_cli can be tuned by configuring the following vars (default values shown):
 
-`nkv_test_cli_keysize`: `60`          - Key size in bytes. Max size = 255
-`nkv_test_cli_valsize`: `1048576`     - Value size in bytes. Max size = 1048576
-`nkv_test_cli_threads`: `128`         - Number of threads
-`nkv_test_cli_objects`: `2000`        - Number of objects for each thread (total objects = objects x threads)
-`nkv_test_cli_vm_objects`: `100`      - Number of objects if host is a VM (default reduced due to lower throughput)
-`nkv_test_cli_async_timeout`: `600`   - Async timeout in seconds (increase for larger dataset, or slow throughput)
-`nkv_test_cli_async_retry_delay`: `5` - Async retry delay in seconds
+| Var name                       | Default | Description                                                                 |
+| ------------------------------ | ------- | --------------------------------------------------------------------------- |
+| nkv_test_cli_keysize           | 60      | Key size in bytes. Max size = 255                                           |
+| nkv_test_cli_valsize           | 1048576 | Value size in bytes. Max size = 1048576                                     |
+| nkv_test_cli_threads           | 128     | Number of threads                                                           |
+| nkv_test_cli_objects           | 2000    | Number of objects for each thread (total objects = objects x threads)       |
+| nkv_test_cli_vm_objects        | 100     | Number of objects if host is a VM (default reduced due to lower throughput) |
+| nkv_test_cli_async_timeout     | 600     | Async timeout in seconds (increase for larger dataset, or slow throughput)  |
+| nkv_test_cli_async_retry_delay | 5       | Async retry delay in seconds                                                |
 
 #### playbooks/test_ping.yml
 
@@ -789,16 +797,18 @@ This can be done automatically with the `configure_hosts.yml` playbook.
 
 s3-benchmark can be tuned by configuring the following vars (default values shown):
 
-`s3_benchmark_bucket_prefix`: `s3-bucket-`    - Bucket prefix for s3-benchmark data
-`s3_benchmark_num_objects`: `1000`            - Number of objects for each thread (total objects = objects x threads)
-`s3_benchmark_num_objects_vm`: `100`          - Number of objects if host is a VM (default reduced due to lower throughput)
-`s3_benchmark_object_size`: `1M`              - Size of each object
-`s3_benchmark_num_threads`: `28`              - Number of threads
-`s3_benchmark_duration`: `60`                 - s3-benchmark PUT test duration in seconds
-`s3_benchmark_async_timeout`: `600`           - Async timeout in seconds (increase for larger dataset)
-`s3_benchmark_async_retry_delay`: `5`         - Async retry delay in seconds
-`s3_benchmark_max_instances_per_client`: `0`  - Max. number of s3-benchmark instances per client. 0 == no limit (limited by num. IPs in `tcp_ip_list`)
-`s3_benchmark_strict_numa`: `true`            - Limit s3-benchmark instances to one-per-NUMA node on client, if multiple IPs in `tcp_ip_list` share same NUMA
+| Var name                              | Default   | Description                                                                                                  |
+| ------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------- |
+| s3_benchmark_bucket_prefix            | s3-bucket- | Bucket prefix for s3-benchmark data                                                                         |
+| s3_benchmark_num_objects              | 1000       | Number of objects for each thread (total objects = objects x threads)                                       |
+| s3_benchmark_num_objects_vm           | 100        | Number of objects if host is a VM (default reduced due to lower throughput)                                 |
+| s3_benchmark_object_size              | 1M         | Size of each object                                                                                         |
+| s3_benchmark_num_threads              | 28         | Number of threads                                                                                           |
+| s3_benchmark_duration                 | 60         | s3-benchmark PUT test duration in seconds                                                                   |
+| s3_benchmark_async_timeout            | 600        | Async timeout in seconds (increase for larger dataset)                                                      |
+| s3_benchmark_async_retry_delay        | 5          | Async retry delay in seconds                                                                                |
+| s3_benchmark_max_instances_per_client | 0          | Max. number of s3-benchmark instances per client. 0 == no limit (limited by num. IPs in tcp_ip_list)        |
+| s3_benchmark_strict_numa              | true       | Limit s3-benchmark instances to one-per-NUMA node on client, if multiple IPs in tcp_ip_list share same NUMA |
 
 #### playbooks/upgrade_dss_software.yml
 
