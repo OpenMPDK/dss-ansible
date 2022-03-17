@@ -136,19 +136,19 @@ Configure an Ansible inventory file for the cluster.
 Below is an example inventory file defining a cluster of 10 DSS VM hosts in the [servers] group, with one also in the [clients] group.
 
     [servers]
-    msl-ssg-vm01.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::1']" rocev2_ip_list="['192.168.199.1']"
-    msl-ssg-vm02.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::2']" rocev2_ip_list="['192.168.199.2']"
-    msl-ssg-vm03.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::3']" rocev2_ip_list="['192.168.199.3']"
-    msl-ssg-vm04.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::4']" rocev2_ip_list="['192.168.199.4']"
-    msl-ssg-vm05.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::5']" rocev2_ip_list="['192.168.199.5']"
-    msl-ssg-vm06.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::6']" rocev2_ip_list="['192.168.199.6']"
-    msl-ssg-vm07.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::7']" rocev2_ip_list="['192.168.199.7']"
-    msl-ssg-vm08.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::8']" rocev2_ip_list="['192.168.199.8']"
-    msl-ssg-vm09.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::9']" rocev2_ip_list="['192.168.199.9']"
-    msl-ssg-vm10.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::10']" rocev2_ip_list="['192.168.199.10']"
+    server-vm01.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::1']" rocev2_ip_list="['192.168.199.1']"
+    server-vm02.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::2']" rocev2_ip_list="['192.168.199.2']"
+    server-vm03.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::3']" rocev2_ip_list="['192.168.199.3']"
+    server-vm04.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::4']" rocev2_ip_list="['192.168.199.4']"
+    server-vm05.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::5']" rocev2_ip_list="['192.168.199.5']"
+    server-vm06.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::6']" rocev2_ip_list="['192.168.199.6']"
+    server-vm07.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::7']" rocev2_ip_list="['192.168.199.7']"
+    server-vm08.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::8']" rocev2_ip_list="['192.168.199.8']"
+    server-vm09.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::9']" rocev2_ip_list="['192.168.199.9']"
+    server-vm10.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::10']" rocev2_ip_list="['192.168.199.10']"
 
     [clients]
-    msl-ssg-vm11.msl.lab
+    server-vm11.domain.com
 
     [all:vars]
     ansible_user=ansible
@@ -207,8 +207,8 @@ If all hosts in your inventory use the same username, you can achieve this by sp
 The `ansible_user` var can also be defined as a host var in your inventory:
 
     [servers]
-    msl-ssg-vm01.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::1']" rocev2_ip_list="['192.168.199.1']" ansible_user=foo
-    msl-ssg-vm02.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::2']" rocev2_ip_list="['192.168.199.2']" ansible_user=bar
+    server-vm01.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::1']" rocev2_ip_list="['192.168.199.1']" ansible_user=foo
+    server-vm02.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::2']" rocev2_ip_list="['192.168.199.2']" ansible_user=bar
 
 ##### Front End Traffic: `tcp_ip_list` var
 
@@ -330,18 +330,18 @@ Hosts with a matching `cluster_num` string value will be grouped together as a s
 Example [servers] group with 3 logical clusters defined:
 
     [servers]
-    msl-ssg-vm01.msl.lab tcp_ip_list="['msl-ssg-vm1-v6.msl.lab']" rocev2_ip_list="['192.168.200.1']" cluster_num=0
-    msl-ssg-vm02.msl.lab tcp_ip_list="['msl-ssg-vm2-v6.msl.lab']" rocev2_ip_list="['192.168.200.2']" cluster_num=0
-    msl-ssg-vm03.msl.lab tcp_ip_list="['msl-ssg-vm3-v6.msl.lab']" rocev2_ip_list="['192.168.200.3']" cluster_num=0
-    msl-ssg-vm04.msl.lab tcp_ip_list="['msl-ssg-vm4-v6.msl.lab']" rocev2_ip_list="['192.168.200.4']" cluster_num=0
-    msl-ssg-vm05.msl.lab tcp_ip_list="['msl-ssg-vm5-v6.msl.lab']" rocev2_ip_list="['192.168.200.5']" cluster_num=two
-    msl-ssg-vm06.msl.lab tcp_ip_list="['msl-ssg-vm6-v6.msl.lab']" rocev2_ip_list="['192.168.200.6']" cluster_num=two
-    msl-ssg-vm07.msl.lab tcp_ip_list="['msl-ssg-vm7-v6.msl.lab']" rocev2_ip_list="['192.168.200.7']" cluster_num=two
-    msl-ssg-vm08.msl.lab tcp_ip_list="['msl-ssg-vm8-v6.msl.lab']" rocev2_ip_list="['192.168.200.8']" cluster_num=two
-    msl-ssg-vm09.msl.lab tcp_ip_list="['msl-ssg-vm9-v6.msl.lab']" rocev2_ip_list="['192.168.200.9']" cluster_num="third cluster"
-    msl-ssg-vm10.msl.lab tcp_ip_list="['msl-ssg-vm10-v6.msl.lab']" rocev2_ip_list="['192.168.200.10']" cluster_num="third cluster"
-    msl-ssg-vm11.msl.lab tcp_ip_list="['msl-ssg-vm11-v6.msl.lab']" rocev2_ip_list="['192.168.200.11']" cluster_num="third cluster"
-    msl-ssg-vm12.msl.lab tcp_ip_list="['msl-ssg-vm12-v6.msl.lab']" rocev2_ip_list="['192.168.200.12']" cluster_num="third cluster"
+    server-vm01.domain.com tcp_ip_list="['server-vm1-v6.domain.com']" rocev2_ip_list="['192.168.200.1']" cluster_num=0
+    server-vm02.domain.com tcp_ip_list="['server-vm2-v6.domain.com']" rocev2_ip_list="['192.168.200.2']" cluster_num=0
+    server-vm03.domain.com tcp_ip_list="['server-vm3-v6.domain.com']" rocev2_ip_list="['192.168.200.3']" cluster_num=0
+    server-vm04.domain.com tcp_ip_list="['server-vm4-v6.domain.com']" rocev2_ip_list="['192.168.200.4']" cluster_num=0
+    server-vm05.domain.com tcp_ip_list="['server-vm5-v6.domain.com']" rocev2_ip_list="['192.168.200.5']" cluster_num=two
+    server-vm06.domain.com tcp_ip_list="['server-vm6-v6.domain.com']" rocev2_ip_list="['192.168.200.6']" cluster_num=two
+    server-vm07.domain.com tcp_ip_list="['server-vm7-v6.domain.com']" rocev2_ip_list="['192.168.200.7']" cluster_num=two
+    server-vm08.domain.com tcp_ip_list="['server-vm8-v6.domain.com']" rocev2_ip_list="['192.168.200.8']" cluster_num=two
+    server-vm09.domain.com tcp_ip_list="['server-vm9-v6.domain.com']" rocev2_ip_list="['192.168.200.9']" cluster_num="third cluster"
+    server-vm10.domain.com tcp_ip_list="['server-vm10-v6.domain.com']" rocev2_ip_list="['192.168.200.10']" cluster_num="third cluster"
+    server-vm11.domain.com tcp_ip_list="['server-vm11-v6.domain.com']" rocev2_ip_list="['192.168.200.11']" cluster_num="third cluster"
+    server-vm12.domain.com tcp_ip_list="['server-vm12-v6.domain.com']" rocev2_ip_list="['192.168.200.12']" cluster_num="third cluster"
 
 Note that MinIO EC limitations apply for each logical cluster in your inventory.
 
@@ -879,7 +879,7 @@ Compaction reduces the dataset footprint on back-end storage and ensures optimal
 
 Command:
 
-    [ansible@msl-ssg-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 1
+    [ansible@server-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 1
 
 Output:
 
@@ -897,7 +897,7 @@ Command:
 
 Command:
 
-    [ansible@msl-ssg-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 2
+    [ansible@server-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 2
 
 Output:
 
@@ -909,7 +909,7 @@ Output:
 
 Command:
 
-    [ansible@msl-ssg-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 3
+    [ansible@server-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 3
 
 Output:
 
@@ -936,14 +936,14 @@ To view the configuration details, use:
 Example local mc aliases:
 
     local_msl_ssg_vm01_tcp_0
-      URL       : http://msl-ssg-vm01-tcp-0:9000
+      URL       : http://server-vm01-tcp-0:9000
       AccessKey : minio
       SecretKey : minio123
       API       : s3v4
       Lookup    : auto
 
-    local_msl_ssg_vm1_v6_msl_lab
-      URL       : http://msl-ssg-vm1-v6.msl.lab:9000
+    local_msl_ssg_vm1_v6_domain.com
+      URL       : http://server-vm1-v6.domain.com:9000
       AccessKey : minio
       SecretKey : minio123
       API       : s3v4
