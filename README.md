@@ -136,19 +136,19 @@ Configure an Ansible inventory file for the cluster.
 Below is an example inventory file defining a cluster of 10 DSS VM hosts in the [servers] group, with one also in the [clients] group.
 
     [servers]
-    msl-ssg-vm01.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::1']" rocev2_ip_list="['192.168.199.1']"
-    msl-ssg-vm02.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::2']" rocev2_ip_list="['192.168.199.2']"
-    msl-ssg-vm03.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::3']" rocev2_ip_list="['192.168.199.3']"
-    msl-ssg-vm04.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::4']" rocev2_ip_list="['192.168.199.4']"
-    msl-ssg-vm05.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::5']" rocev2_ip_list="['192.168.199.5']"
-    msl-ssg-vm06.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::6']" rocev2_ip_list="['192.168.199.6']"
-    msl-ssg-vm07.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::7']" rocev2_ip_list="['192.168.199.7']"
-    msl-ssg-vm08.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::8']" rocev2_ip_list="['192.168.199.8']"
-    msl-ssg-vm09.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::9']" rocev2_ip_list="['192.168.199.9']"
-    msl-ssg-vm10.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::10']" rocev2_ip_list="['192.168.199.10']"
+    server-vm01.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::1']" rocev2_ip_list="['192.168.199.1']"
+    server-vm02.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::2']" rocev2_ip_list="['192.168.199.2']"
+    server-vm03.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::3']" rocev2_ip_list="['192.168.199.3']"
+    server-vm04.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::4']" rocev2_ip_list="['192.168.199.4']"
+    server-vm05.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::5']" rocev2_ip_list="['192.168.199.5']"
+    server-vm06.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::6']" rocev2_ip_list="['192.168.199.6']"
+    server-vm07.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::7']" rocev2_ip_list="['192.168.199.7']"
+    server-vm08.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::8']" rocev2_ip_list="['192.168.199.8']"
+    server-vm09.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::9']" rocev2_ip_list="['192.168.199.9']"
+    server-vm10.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::10']" rocev2_ip_list="['192.168.199.10']"
 
     [clients]
-    msl-ssg-vm11.msl.lab
+    server-vm11.domain.com
 
     [all:vars]
     ansible_user=ansible
@@ -166,7 +166,6 @@ Your inventory file should contain hosts in the following groups:
     * MinIO
 * [clients]
   * Hosts running client software (can also be members of [servers] group)
-    * AI Benchmark
     * S3 Benchmark
     * Datamover / Client Library
 * [ufm_hosts]
@@ -207,15 +206,15 @@ If all hosts in your inventory use the same username, you can achieve this by sp
 The `ansible_user` var can also be defined as a host var in your inventory:
 
     [servers]
-    msl-ssg-vm01.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::1']" rocev2_ip_list="['192.168.199.1']" ansible_user=foo
-    msl-ssg-vm02.msl.lab tcp_ip_list="['fd81:dead:beef:cafe:ff::2']" rocev2_ip_list="['192.168.199.2']" ansible_user=bar
+    server-vm01.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::1']" rocev2_ip_list="['192.168.199.1']" ansible_user=foo
+    server-vm02.domain.com tcp_ip_list="['fd81:dead:beef:cafe:ff::2']" rocev2_ip_list="['192.168.199.2']" ansible_user=bar
 
 ##### Front End Traffic: `tcp_ip_list` var
 
 All hosts in the [servers] and [clients] groups must have `tcp_ip_list` and `rocev2_ip_list` lists defined.
 
 `tcp_ip_list` represents a list of IPV4 addresses, IPV6 addresses, or resolvable hostnames to be used for front-end traffic in the DSS cluster.
-This includes all MinIO client, AI Benchmark, S3 Benchmark, and Datamover traffic.
+This includes all MinIO client, S3 Benchmark, and Datamover traffic.
 All hosts in [servers] and [clients] groups must have a populated `tcp_ip_list` list var defined.  Please reference the above sample inventory for example.
 While not optimal, it is possible to use the same IPs defined in the `rocev2_ip_list` for `tcp_ip_list`.
 If IP addresses rather than hostnames are provided, Ansible will assign a TCP Alias for each provided IP in `tcp_ip_list`.
@@ -330,18 +329,18 @@ Hosts with a matching `cluster_num` string value will be grouped together as a s
 Example [servers] group with 3 logical clusters defined:
 
     [servers]
-    msl-ssg-vm01.msl.lab tcp_ip_list="['msl-ssg-vm1-v6.msl.lab']" rocev2_ip_list="['192.168.200.1']" cluster_num=0
-    msl-ssg-vm02.msl.lab tcp_ip_list="['msl-ssg-vm2-v6.msl.lab']" rocev2_ip_list="['192.168.200.2']" cluster_num=0
-    msl-ssg-vm03.msl.lab tcp_ip_list="['msl-ssg-vm3-v6.msl.lab']" rocev2_ip_list="['192.168.200.3']" cluster_num=0
-    msl-ssg-vm04.msl.lab tcp_ip_list="['msl-ssg-vm4-v6.msl.lab']" rocev2_ip_list="['192.168.200.4']" cluster_num=0
-    msl-ssg-vm05.msl.lab tcp_ip_list="['msl-ssg-vm5-v6.msl.lab']" rocev2_ip_list="['192.168.200.5']" cluster_num=two
-    msl-ssg-vm06.msl.lab tcp_ip_list="['msl-ssg-vm6-v6.msl.lab']" rocev2_ip_list="['192.168.200.6']" cluster_num=two
-    msl-ssg-vm07.msl.lab tcp_ip_list="['msl-ssg-vm7-v6.msl.lab']" rocev2_ip_list="['192.168.200.7']" cluster_num=two
-    msl-ssg-vm08.msl.lab tcp_ip_list="['msl-ssg-vm8-v6.msl.lab']" rocev2_ip_list="['192.168.200.8']" cluster_num=two
-    msl-ssg-vm09.msl.lab tcp_ip_list="['msl-ssg-vm9-v6.msl.lab']" rocev2_ip_list="['192.168.200.9']" cluster_num="third cluster"
-    msl-ssg-vm10.msl.lab tcp_ip_list="['msl-ssg-vm10-v6.msl.lab']" rocev2_ip_list="['192.168.200.10']" cluster_num="third cluster"
-    msl-ssg-vm11.msl.lab tcp_ip_list="['msl-ssg-vm11-v6.msl.lab']" rocev2_ip_list="['192.168.200.11']" cluster_num="third cluster"
-    msl-ssg-vm12.msl.lab tcp_ip_list="['msl-ssg-vm12-v6.msl.lab']" rocev2_ip_list="['192.168.200.12']" cluster_num="third cluster"
+    server-vm01.domain.com tcp_ip_list="['server-vm1-v6.domain.com']" rocev2_ip_list="['192.168.200.1']" cluster_num=0
+    server-vm02.domain.com tcp_ip_list="['server-vm2-v6.domain.com']" rocev2_ip_list="['192.168.200.2']" cluster_num=0
+    server-vm03.domain.com tcp_ip_list="['server-vm3-v6.domain.com']" rocev2_ip_list="['192.168.200.3']" cluster_num=0
+    server-vm04.domain.com tcp_ip_list="['server-vm4-v6.domain.com']" rocev2_ip_list="['192.168.200.4']" cluster_num=0
+    server-vm05.domain.com tcp_ip_list="['server-vm5-v6.domain.com']" rocev2_ip_list="['192.168.200.5']" cluster_num=two
+    server-vm06.domain.com tcp_ip_list="['server-vm6-v6.domain.com']" rocev2_ip_list="['192.168.200.6']" cluster_num=two
+    server-vm07.domain.com tcp_ip_list="['server-vm7-v6.domain.com']" rocev2_ip_list="['192.168.200.7']" cluster_num=two
+    server-vm08.domain.com tcp_ip_list="['server-vm8-v6.domain.com']" rocev2_ip_list="['192.168.200.8']" cluster_num=two
+    server-vm09.domain.com tcp_ip_list="['server-vm9-v6.domain.com']" rocev2_ip_list="['192.168.200.9']" cluster_num="third cluster"
+    server-vm10.domain.com tcp_ip_list="['server-vm10-v6.domain.com']" rocev2_ip_list="['192.168.200.10']" cluster_num="third cluster"
+    server-vm11.domain.com tcp_ip_list="['server-vm11-v6.domain.com']" rocev2_ip_list="['192.168.200.11']" cluster_num="third cluster"
+    server-vm12.domain.com tcp_ip_list="['server-vm12-v6.domain.com']" rocev2_ip_list="['192.168.200.12']" cluster_num="third cluster"
 
 Note that MinIO EC limitations apply for each logical cluster in your inventory.
 
@@ -432,10 +431,12 @@ a single time as a group var, rather than for every host in inventory.
 
 VLANs can be tuned by configuring the following vars (default values shown):
 
-`mtu_size`: `9000`                        - MTU Size of parent and child adapters
-`rocev2_vlan_interfaces`: `[]`            - List of VLAN interfaces to configure. Must contain dicts with keys `interface` and `vlan_id`
-`rocev2_netmask`: `255.255.255.0`         - Netmask of VLAN interfaces
-`vlan_egress_prio_map_second_tuple`: true - Enable / Disable the second tuple of VLAN_EGRESS_PRIO_MAP (use `True` and `False` if defined in inventory)
+| Var name                          | Default       | Description                                                                                                |
+| --------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------- |
+| mtu_size                          | 9000          | MTU Size of parent and child adapters                                                                      |
+| rocev2_vlan_interfaces            | []            | List of VLAN interfaces to configure. Must contain dicts with keys `interface` and `vlan_id`               |
+| rocev2_netmask                    | 255.255.255.0 | Netmask of VLAN interfaces                                                                                 |
+| vlan_egress_prio_map_second_tuple | true          | Enable / Disable the second tuple of VLAN_EGRESS_PRIO_MAP (use `True` and `False` if defined in inventory) |
 
 The logic for VLAN_EGRESS/INGRESS_PRIO_MAP is as follows:
 "Priority" is determined by the first digit of the VLAN ID.
@@ -563,13 +564,6 @@ Data present across back-end storage will persist after redeploy.
 Execute this playbook to remove DSS software to all hosts in your inventory.
 This playbook is effective the same as executing "stop_dss_software" and "remove_dss_software"
 Data present across back-end storage will persist after removing DSS software.
-
-#### playbooks/remove_packet_pacing.yml
-
-NOTE: For internal Samsung / DSS use! Unsupported!
-
-Execute this playbook to remove packet pacing from [servers] / [targets].
-This can be used to cleanup DSS AI Benchmark.
 
 #### playbooks/remove_vlans.yml
 
@@ -728,11 +722,13 @@ At the end of the test, it is asserted that throughput is at least 90% of link s
 
 ib_read_bw can be tuned by configuring the following vars (default values shown):
 
-`ib_read_bw_starting_port`: `18515` - Starting port number of each incremented server instance
-`ib_read_bw_duration`: `10`         - Duration of each test, in seconds
-`ib_read_bw_size`: `1048576`        - Size of each message in bytes
-`ib_read_bw_qp`: `1`                - Number of queue pairs
-`ib_read_bw_sl`: `3`                - Infiniband service level
+| Var name                  | Default   | Description                                              |
+| ------------------------- | --------- | -------------------------------------------------------- |
+| ib_read_bw_starting_port  | 18515     | Starting port number of each incremented server instance |
+| ib_read_bw_duration       | 10        | Duration of each test, in seconds                        |
+| ib_read_bw_size           | 1048576   | Size of each message in bytes                            |
+| ib_read_bw_qp             | 1         | Number of queue pairs                                    |
+| ib_read_bw_sl             | 3         | Infiniband service level                                 |
 
 #### playbooks/test_iperf.yml
 
@@ -743,9 +739,11 @@ At the end of the test, it is asserted that throughput is at least 90% of link s
 
 iperf can be tuned by configuring the following vars (default values shown):
 
-`iperf_starting_port`: `5001` - Starting port number of each incremented iperf server instance
-`iperf_parallel`: `20`        - Number of parallel threads of each iperf client instance
-`iperf_duration`: `10`        - Duration of each iperf test, in seconds
+| Var name            | Default | Description                                                    |
+| ------------------- | ------- | -------------------------------------------------------------- |
+| iperf_starting_port | 5001    | Starting port number of each incremented iperf server instance |
+| iperf_parallel      | 20      | Number of parallel threads of each iperf client instance       |
+| iperf_duration      | 10      | Duration of each iperf test, in seconds                        |
 
 #### playbooks/test_nkv_test_cli.yml
 
@@ -762,13 +760,15 @@ Upon test completion, throughput is reported for PUT and GET.
 
 nkv_test_cli can be tuned by configuring the following vars (default values shown):
 
-`nkv_test_cli_keysize`: `60`          - Key size in bytes. Max size = 255
-`nkv_test_cli_valsize`: `1048576`     - Value size in bytes. Max size = 1048576
-`nkv_test_cli_threads`: `128`         - Number of threads
-`nkv_test_cli_objects`: `2000`        - Number of objects for each thread (total objects = objects x threads)
-`nkv_test_cli_vm_objects`: `100`      - Number of objects if host is a VM (default reduced due to lower throughput)
-`nkv_test_cli_async_timeout`: `600`   - Async timeout in seconds (increase for larger dataset, or slow throughput)
-`nkv_test_cli_async_retry_delay`: `5` - Async retry delay in seconds
+| Var name                       | Default | Description                                                                 |
+| ------------------------------ | ------- | --------------------------------------------------------------------------- |
+| nkv_test_cli_keysize           | 60      | Key size in bytes. Max size = 255                                           |
+| nkv_test_cli_valsize           | 1048576 | Value size in bytes. Max size = 1048576                                     |
+| nkv_test_cli_threads           | 128     | Number of threads                                                           |
+| nkv_test_cli_objects           | 2000    | Number of objects for each thread (total objects = objects x threads)       |
+| nkv_test_cli_vm_objects        | 100     | Number of objects if host is a VM (default reduced due to lower throughput) |
+| nkv_test_cli_async_timeout     | 600     | Async timeout in seconds (increase for larger dataset, or slow throughput)  |
+| nkv_test_cli_async_retry_delay | 5       | Async retry delay in seconds                                                |
 
 #### playbooks/test_ping.yml
 
@@ -797,16 +797,18 @@ This can be done automatically with the `configure_hosts.yml` playbook.
 
 s3-benchmark can be tuned by configuring the following vars (default values shown):
 
-`s3_benchmark_bucket_prefix`: `s3-bucket-`    - Bucket prefix for s3-benchmark data
-`s3_benchmark_num_objects`: `1000`            - Number of objects for each thread (total objects = objects x threads)
-`s3_benchmark_num_objects_vm`: `100`          - Number of objects if host is a VM (default reduced due to lower throughput)
-`s3_benchmark_object_size`: `1M`              - Size of each object
-`s3_benchmark_num_threads`: `28`              - Number of threads
-`s3_benchmark_duration`: `60`                 - s3-benchmark PUT test duration in seconds
-`s3_benchmark_async_timeout`: `600`           - Async timeout in seconds (increase for larger dataset)
-`s3_benchmark_async_retry_delay`: `5`         - Async retry delay in seconds
-`s3_benchmark_max_instances_per_client`: `0`  - Max. number of s3-benchmark instances per client. 0 == no limit (limited by num. IPs in `tcp_ip_list`)
-`s3_benchmark_strict_numa`: `true`            - Limit s3-benchmark instances to one-per-NUMA node on client, if multiple IPs in `tcp_ip_list` share same NUMA
+| Var name                              | Default   | Description                                                                                                  |
+| ------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------- |
+| s3_benchmark_bucket_prefix            | s3-bucket- | Bucket prefix for s3-benchmark data                                                                         |
+| s3_benchmark_num_objects              | 1000       | Number of objects for each thread (total objects = objects x threads)                                       |
+| s3_benchmark_num_objects_vm           | 100        | Number of objects if host is a VM (default reduced due to lower throughput)                                 |
+| s3_benchmark_object_size              | 1M         | Size of each object                                                                                         |
+| s3_benchmark_num_threads              | 28         | Number of threads                                                                                           |
+| s3_benchmark_duration                 | 60         | s3-benchmark PUT test duration in seconds                                                                   |
+| s3_benchmark_async_timeout            | 600        | Async timeout in seconds (increase for larger dataset)                                                      |
+| s3_benchmark_async_retry_delay        | 5          | Async retry delay in seconds                                                                                |
+| s3_benchmark_max_instances_per_client | 0          | Max. number of s3-benchmark instances per client. 0 == no limit (limited by num. IPs in tcp_ip_list)        |
+| s3_benchmark_strict_numa              | true       | Limit s3-benchmark instances to one-per-NUMA node on client, if multiple IPs in tcp_ip_list share same NUMA |
 
 #### playbooks/upgrade_dss_software.yml
 
@@ -879,7 +881,7 @@ Compaction reduces the dataset footprint on back-end storage and ensures optimal
 
 Command:
 
-    [ansible@msl-ssg-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 1
+    [ansible@server-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 1
 
 Output:
 
@@ -897,7 +899,7 @@ Command:
 
 Command:
 
-    [ansible@msl-ssg-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 2
+    [ansible@server-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 2
 
 Output:
 
@@ -909,7 +911,7 @@ Output:
 
 Command:
 
-    [ansible@msl-ssg-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 3
+    [ansible@server-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 3
 
 Output:
 
@@ -936,14 +938,14 @@ To view the configuration details, use:
 Example local mc aliases:
 
     local_msl_ssg_vm01_tcp_0
-      URL       : http://msl-ssg-vm01-tcp-0:9000
+      URL       : http://server-vm01-tcp-0:9000
       AccessKey : minio
       SecretKey : minio123
       API       : s3v4
       Lookup    : auto
 
-    local_msl_ssg_vm1_v6_msl_lab
-      URL       : http://msl-ssg-vm1-v6.msl.lab:9000
+    local_msl_ssg_vm1_v6_domain.com
+      URL       : http://server-vm1-v6.domain.com:9000
       AccessKey : minio
       SecretKey : minio123
       API       : s3v4
