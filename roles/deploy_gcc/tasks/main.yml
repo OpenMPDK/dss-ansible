@@ -32,7 +32,7 @@
 - name: Identify GCC RPM
   find:
     path: "{{ artifacts_dir }}"
-    patterns: 'kewb-gcc*.rpm'
+    patterns: 'dss-gcc*.rpm'
   delegate_to: localhost
   run_once: true
   register: gcc_rpm
