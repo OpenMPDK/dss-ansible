@@ -166,7 +166,6 @@ Your inventory file should contain hosts in the following groups:
     * MinIO
 * [clients]
   * Hosts running client software (can also be members of [servers] group)
-    * AI Benchmark
     * S3 Benchmark
     * Datamover / Client Library
 * [ufm_hosts]
@@ -215,7 +214,7 @@ The `ansible_user` var can also be defined as a host var in your inventory:
 All hosts in the [servers] and [clients] groups must have `tcp_ip_list` and `rocev2_ip_list` lists defined.
 
 `tcp_ip_list` represents a list of IPV4 addresses, IPV6 addresses, or resolvable hostnames to be used for front-end traffic in the DSS cluster.
-This includes all MinIO client, AI Benchmark, S3 Benchmark, and Datamover traffic.
+This includes all MinIO client, S3 Benchmark, and Datamover traffic.
 All hosts in [servers] and [clients] groups must have a populated `tcp_ip_list` list var defined.  Please reference the above sample inventory for example.
 While not optimal, it is possible to use the same IPs defined in the `rocev2_ip_list` for `tcp_ip_list`.
 If IP addresses rather than hostnames are provided, Ansible will assign a TCP Alias for each provided IP in `tcp_ip_list`.
@@ -563,13 +562,6 @@ Data present across back-end storage will persist after redeploy.
 Execute this playbook to remove DSS software to all hosts in your inventory.
 This playbook is effective the same as executing "stop_dss_software" and "remove_dss_software"
 Data present across back-end storage will persist after removing DSS software.
-
-#### playbooks/remove_packet_pacing.yml
-
-NOTE: For internal Samsung / DSS use! Unsupported!
-
-Execute this playbook to remove packet pacing from [servers] / [targets].
-This can be used to cleanup DSS AI Benchmark.
 
 #### playbooks/remove_vlans.yml
 

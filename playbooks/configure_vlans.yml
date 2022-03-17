@@ -102,14 +102,6 @@
     - configure_host_vlans
     - configure_dcqcn
 
-- name: Remove packet pacing
-  hosts:
-    - servers
-    - targets
-  gather_facts: false
-  roles:
-    - remove_packet_pacing
-
 - name: Configure Onyx VLANs
   hosts: onyx
   connection: network_cli
