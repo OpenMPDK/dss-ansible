@@ -107,7 +107,10 @@
   failed_when: false
 
 - name: Start DSS target process
-  shell: source {{ gcc_setenv }} && nohup {{ nvmf_tgt_cmd }} > {{ dss_log_dir }}/nkv-target.log 2>&1 &
+  shell: >
+    source {{ gcc_setenv }} &&
+    LD_LIBRARY_PATH='{{ target_lib_dir }}' nohup {{ nvmf_tgt_cmd }} >
+    {{ dss_log_dir }}/nkv-target.log 2>&1 &
   args:
     chdir: "{{ target_dir }}/bin"
   when: nvmf_ps.rc != 0
