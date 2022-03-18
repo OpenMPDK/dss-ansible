@@ -63,6 +63,7 @@
 # nkv_sdk_lib_dir: "{{ nkv_sdk_dir }}/lib"
 # start_dss_agent_subsystem_log: "{{ dss_log_dir }}/subsystem_store.log"
 # target_dir: "{{ dss_dir }}/nkv-target"
+# target_lib_dir: "{{ target_dir }}/lib"
 # target_bin_dir: "{{ target_dir }}/bin"
 # target_script_dir: "{{ target_dir }}/scripts"
 # upgrade_kvssd_firmware_staging_dir: /tmp/kvssd_fw

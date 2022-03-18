@@ -32,6 +32,7 @@
 ### Path defaults
 dss_dir: /usr/dss
 target_dir: "{{ dss_dir }}/nkv-target"
+target_lib_dir: "{{ target_dir }}/lib"
 target_conf_dir: /etc/dss
 target_conf_file: "{{ target_conf_dir }}/nvmf.in.conf"
 dss_log_dir: /var/log/dss
