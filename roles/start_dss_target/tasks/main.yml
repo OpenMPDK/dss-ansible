@@ -93,9 +93,9 @@
 
 - name: Insert nohup into nvmf_tgt_cmd var
   set_fact:
-    nvmf_tgt_cmd: "{{ nvmf_tgt_cmd | regex_replace(nvmf_tgt_re, ' nohup \\1') }}"
+    nvmf_tgt_cmd: "{{ nvmf_tgt_cmd | regex_replace(nvmf_tgt_re, 'nohup \\1') }}"
   vars:
-    nvmf_tgt_re: '( .+nvmf_tgt)'
+    nvmf_tgt_re: '(\/.+nvmf_tgt)'
 
 - name: Set nvmf_tgt command if custom_coremask is defined
   set_fact:
