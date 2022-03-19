@@ -91,9 +91,17 @@
   vars:
     nvmf_tgt_re: 'Execute the following command to start the target application: (.+)'
 
-- name: Set hardcoded nvmf_tgt command if more than 128 cores
+- name: Insert nohup into nvmf_tgt_cmd var
+  set_fact:
+    nvmf_tgt_cmd: "{{ nvmf_tgt_cmd | regex_replace(nvmf_tgt_re, 'nohup \\1') }}"
+  vars:
+    nvmf_tgt_re: '(\/[^ ]+nvmf_tgt)'
+
+- name: Set nvmf_tgt command if custom_coremask is defined
   set_fact:
     nvmf_tgt_cmd: >-
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:{{ target_lib_dir }}
+      nohup
       {{ target_dir }}/bin/nvmf_tgt
       -c {{ target_conf_file }}
       -r /var/run/spdk.sock
@@ -107,7 +115,7 @@
   failed_when: false
 
 - name: Start DSS target process
-  shell: source {{ gcc_setenv }} && nohup {{ nvmf_tgt_cmd }} > {{ dss_log_dir }}/nkv-target.log 2>&1 &
+  shell: source {{ gcc_setenv }} && {{ nvmf_tgt_cmd }} > {{ dss_log_dir }}/nkv-target.log 2>&1 &
   args:
     chdir: "{{ target_dir }}/bin"
   when: nvmf_ps.rc != 0
