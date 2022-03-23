@@ -1,5 +1,2 @@
-# Artifacts
-artifacts/*
-
 # Internal testing inventory files
 inv_*.ini
