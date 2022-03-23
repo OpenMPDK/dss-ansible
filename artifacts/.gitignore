@@ -1,0 +1,5 @@
+# Artifacts
+*.bin
+*.rpm
+*.tgz
+*.tar.gz
