@@ -59,12 +59,10 @@
 #
 # VLANs can be tuned by configuring the following vars (default values shown):
 #
-# | Var name                          | Default       | Description                                                                                                |
-# | --------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------- |
-# | mtu_size                          | 9000          | MTU Size of parent and child adapters                                                                      |
-# | rocev2_vlan_interfaces            | []            | List of VLAN interfaces to configure. Must contain dicts with keys `interface` and `vlan_id`               |
-# | rocev2_netmask                    | 255.255.255.0 | Netmask of VLAN interfaces                                                                                 |
-# | vlan_egress_prio_map_second_tuple | true          | Enable / Disable the second tuple of VLAN_EGRESS_PRIO_MAP (use `True` and `False` if defined in inventory) |
+# * mtu_size - MTU Size of parent and child adapters (default 9000)
+# * rocev2_vlan_interfaces - List of VLAN interfaces to configure. Must contain dicts with keys `interface` and `vlan_id` (default [])
+# * rocev2_netmask - Netmask of VLAN interfaces (default "255.255.255.0")
+# * vlan_egress_prio_map_second_tuple - Enable / Disable the second tuple of VLAN_EGRESS_PRIO_MAP (default true)
 #
 # The logic for VLAN_EGRESS/INGRESS_PRIO_MAP is as follows:
 # "Priority" is determined by the first digit of the VLAN ID.
