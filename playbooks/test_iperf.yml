@@ -40,9 +40,11 @@
 #
 # iperf can be tuned by configuring the following vars (default values shown):
 #
-# `iperf_starting_port`: `5001` - Starting port number of each incremented iperf server instance
-# `iperf_parallel`: `20`        - Number of parallel threads of each iperf client instance
-# `iperf_duration`: `10`        - Duration of each iperf test, in seconds
+# | Var name            | Default | Description                                                    |
+# | ------------------- | ------- | -------------------------------------------------------------- |
+# | iperf_starting_port | 5001    | Starting port number of each incremented iperf server instance |
+# | iperf_parallel      | 20      | Number of parallel threads of each iperf client instance       |
+# | iperf_duration      | 10      | Duration of each iperf test, in seconds                        |
 
 - name: Validate ansible versions and dependencies
   hosts: localhost
