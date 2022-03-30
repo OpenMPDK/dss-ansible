@@ -631,6 +631,33 @@ Explanation of configurable vars:
 * datamover_get_path - Path to download objects during GET and TEST operations. For GET, path should be a shared mountpoint on all [clients] hosts
 * datamover_put_retries - Number of times to retry PUT operation if incomplete upload is detected
 
+Additional datamover vars:
+
+* datamover_client_user_id - Username datamover should use to communicate with other nodes in the cluster
+* datamover_client_password - Password datamover should use to communicate with other nodes in the cluster (leave blank for ssh key-based authentication)
+* datamover_conf_dir - Path to datamover configuration file
+* datamover_dir - Path to datamover installation files
+* datamover_list_path - Path to datamover list files logfile
+* datamover_debug - Enable / disable verbase datamover debug messaging in logs
+* datamover_data_integrity - Enable / disable data integrity check on get operation
+* datamover_master_workers - Number of datamover master application workers
+* datamover_master_max_index_size - Size of datamover master application index
+* datamover_master_size - Datamover master size
+* datamover_client_workers - Number of datamover client application workers
+* datamover_client_max_index_size - Size of datamover client application index
+* datamover_message_port_index - Datamover message port ID
+* datamover_message_port_status - Datamover message port status ID
+* datamover_nfs_shares - A list of NFS servers and shares containing the following keys:
+  * ip: An IP address of hostname of an NFS server
+  * shares: a list of NFS shares exported from the NFS IP
+* datamover_bucket - Datamover bucket name
+* datamover_client_lib - Datamover client library
+* datamover_logging_path - Path of datamover logs
+* datamover_logging_level - Datamover logging level
+* datamover_gcc_version - Datamover GCC version
+* datamover_index_data_queue_size - Number of entries in datamover index queue
+* datamover_awslib_log_debug - Enable or disable AWS lib debugging
+
 For example, to execute datamover GET operation to a writable, shared mount point across all [clients]:
 
     ansible-playbook -i <your_inventory> playbooks/start_datamover.yml -e 'datamover_operation=GET datamover_get_path=/path/to/share/'
