@@ -42,4 +42,3 @@
     chdir: "{{ datamover_dir }}"
   register: master_application
   run_once: true
-  become: true
