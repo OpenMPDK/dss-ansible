@@ -57,6 +57,8 @@ Note that Ansible 2.10 or later is not yet supported.
     python3 get-pip.py
     python3 -m pip install "ansible>=2.9,<2.10"
 
+note: If using Python 3.6, use the following get-pip URL instead: https://bootstrap.pypa.io/pip/3.6/get-pip.py
+
 Additionally, ensure that the following python modules are installed on the Ansible host:
 
     python3 -m pip install "netaddr>=0.8.0"
