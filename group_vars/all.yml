@@ -217,6 +217,9 @@
 ### GCC defaults
 # gcc_setenv: /usr/local/bin/setenv-for-gcc510.sh
 # gcc_restore: /usr/local/bin/restore-default-paths-gcc510.sh
+# gcc_rpm_name: dss-gcc510
+# gcc_remove_rpms:
+#   - kewb-gcc510
 
 ### Infiniband defaults
 # infiniband_driver: ofed

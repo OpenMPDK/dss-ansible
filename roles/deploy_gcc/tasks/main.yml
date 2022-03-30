@@ -32,7 +32,7 @@
 - name: Identify GCC RPM
   find:
     path: "{{ artifacts_dir }}"
-    patterns: 'dss-gcc*.rpm'
+    patterns: "{{ gcc_rpm_name }}-*.rpm"
   delegate_to: localhost
   run_once: true
   register: gcc_rpm
@@ -61,6 +61,12 @@
     dest: "{{ deploy_gcc_staging_dir }}"
     mode: 0644
   when: gcc_rpm_qa.rc != 0
+
+- name: Remove conflicting GCC RPMs if present
+  yum:
+    name: gcc_remove_rpms
+    state: absent
+  become: true
 
 - name: Install GCC RPM
   yum:

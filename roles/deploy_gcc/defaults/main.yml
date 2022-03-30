@@ -32,3 +32,8 @@
 ### Path defaults
 artifacts_dir: "{{ inventory_dir }}/artifacts"
 deploy_gcc_staging_dir: /tmp
+
+### GCC defaults
+gcc_rpm_name: dss-gcc510
+gcc_remove_rpms:
+  - kewb-gcc510
