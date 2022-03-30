@@ -40,11 +40,13 @@
 #
 # ib_read_bw can be tuned by configuring the following vars (default values shown):
 #
-# `ib_read_bw_starting_port`: `18515` - Starting port number of each incremented server instance
-# `ib_read_bw_duration`: `10`         - Duration of each test, in seconds
-# `ib_read_bw_size`: `1048576`        - Size of each message in bytes
-# `ib_read_bw_qp`: `1`                - Number of queue pairs
-# `ib_read_bw_sl`: `3`                - Infiniband service level
+# | Var name                  | Default   | Description                                              |
+# | ------------------------- | --------- | -------------------------------------------------------- |
+# | ib_read_bw_starting_port  | 18515     | Starting port number of each incremented server instance |
+# | ib_read_bw_duration       | 10        | Duration of each test, in seconds                        |
+# | ib_read_bw_size           | 1048576   | Size of each message in bytes                            |
+# | ib_read_bw_qp             | 1         | Number of queue pairs                                    |
+# | ib_read_bw_sl             | 3         | Infiniband service level                                 |
 
 - name: Validate ansible versions and dependencies
   hosts: localhost

@@ -47,8 +47,8 @@ datamover_master_max_index_size: 500
 datamover_master_size: 1GB
 datamover_client_workers: 5
 datamover_client_max_index_size: 500
-datamover_client_user_id: ansible
-datamover_client_password: ansible
+datamover_client_user_id: "{{ ansible_user_id }}"
+datamover_client_password: ''
 datamover_message_port_index: 4000
 datamover_message_port_status: 4001
 datamover_nfs_shares:

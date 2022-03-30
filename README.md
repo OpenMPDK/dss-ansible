@@ -431,12 +431,10 @@ a single time as a group var, rather than for every host in inventory.
 
 VLANs can be tuned by configuring the following vars (default values shown):
 
-| Var name                          | Default       | Description                                                                                                |
-| --------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------- |
-| mtu_size                          | 9000          | MTU Size of parent and child adapters                                                                      |
-| rocev2_vlan_interfaces            | []            | List of VLAN interfaces to configure. Must contain dicts with keys `interface` and `vlan_id`               |
-| rocev2_netmask                    | 255.255.255.0 | Netmask of VLAN interfaces                                                                                 |
-| vlan_egress_prio_map_second_tuple | true          | Enable / Disable the second tuple of VLAN_EGRESS_PRIO_MAP (use `True` and `False` if defined in inventory) |
+* mtu_size - MTU Size of parent and child adapters (default 9000)
+* rocev2_vlan_interfaces - List of VLAN interfaces to configure. Must contain dicts with keys `interface` and `vlan_id` (default [])
+* rocev2_netmask - Netmask of VLAN interfaces (default "255.255.255.0")
+* vlan_egress_prio_map_second_tuple - Enable / Disable the second tuple of VLAN_EGRESS_PRIO_MAP (default true)
 
 The logic for VLAN_EGRESS/INGRESS_PRIO_MAP is as follows:
 "Priority" is determined by the first digit of the VLAN ID.
@@ -631,6 +629,33 @@ Explanation of configurable vars:
 * datamover_get_path - Path to download objects during GET and TEST operations. For GET, path should be a shared mountpoint on all [clients] hosts
 * datamover_put_retries - Number of times to retry PUT operation if incomplete upload is detected
 
+Additional datamover vars:
+
+* datamover_client_user_id - Username datamover should use to communicate with other nodes in the cluster
+* datamover_client_password - Password datamover should use to communicate with other nodes in the cluster (leave blank for ssh key-based authentication)
+* datamover_conf_dir - Path to datamover configuration file
+* datamover_dir - Path to datamover installation files
+* datamover_list_path - Path to datamover list files logfile
+* datamover_debug - Enable / disable verbase datamover debug messaging in logs
+* datamover_data_integrity - Enable / disable data integrity check on get operation
+* datamover_master_workers - Number of datamover master application workers
+* datamover_master_max_index_size - Size of datamover master application index
+* datamover_master_size - Datamover master size
+* datamover_client_workers - Number of datamover client application workers
+* datamover_client_max_index_size - Size of datamover client application index
+* datamover_message_port_index - Datamover message port ID
+* datamover_message_port_status - Datamover message port status ID
+* datamover_nfs_shares - A list of NFS servers and shares containing the following keys:
+  * ip: An IP address of hostname of an NFS server
+  * shares: a list of NFS shares exported from the NFS IP
+* datamover_bucket - Datamover bucket name
+* datamover_client_lib - Datamover client library
+* datamover_logging_path - Path of datamover logs
+* datamover_logging_level - Datamover logging level
+* datamover_gcc_version - Datamover GCC version
+* datamover_index_data_queue_size - Number of entries in datamover index queue
+* datamover_awslib_log_debug - Enable or disable AWS lib debugging
+
 For example, to execute datamover GET operation to a writable, shared mount point across all [clients]:
 
     ansible-playbook -i <your_inventory> playbooks/start_datamover.yml -e 'datamover_operation=GET datamover_get_path=/path/to/share/'
@@ -797,18 +822,16 @@ This can be done automatically with the `configure_hosts.yml` playbook.
 
 s3-benchmark can be tuned by configuring the following vars (default values shown):
 
-| Var name                              | Default   | Description                                                                                                  |
-| ------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------- |
-| s3_benchmark_bucket_prefix            | s3-bucket- | Bucket prefix for s3-benchmark data                                                                         |
-| s3_benchmark_num_objects              | 1000       | Number of objects for each thread (total objects = objects x threads)                                       |
-| s3_benchmark_num_objects_vm           | 100        | Number of objects if host is a VM (default reduced due to lower throughput)                                 |
-| s3_benchmark_object_size              | 1M         | Size of each object                                                                                         |
-| s3_benchmark_num_threads              | 28         | Number of threads                                                                                           |
-| s3_benchmark_duration                 | 60         | s3-benchmark PUT test duration in seconds                                                                   |
-| s3_benchmark_async_timeout            | 600        | Async timeout in seconds (increase for larger dataset)                                                      |
-| s3_benchmark_async_retry_delay        | 5          | Async retry delay in seconds                                                                                |
-| s3_benchmark_max_instances_per_client | 0          | Max. number of s3-benchmark instances per client. 0 == no limit (limited by num. IPs in tcp_ip_list)        |
-| s3_benchmark_strict_numa              | true       | Limit s3-benchmark instances to one-per-NUMA node on client, if multiple IPs in tcp_ip_list share same NUMA |
+* s3_benchmark_bucket_prefix - Bucket prefix for s3-benchmark data (default "s3-bucket-")
+* s3_benchmark_num_objects - Number of objects for each thread (total objects = objects x threads) (default 1000)
+* s3_benchmark_num_objects_vm - Number of objects if host is a VM (for VMs with lower throughput) (default 100)
+* s3_benchmark_object_size - Size of each object (default "1M")
+* s3_benchmark_num_threads - Number of threads (default 28)
+* s3_benchmark_duration - s3-benchmark PUT test duration in seconds (default 60)
+* s3_benchmark_async_timeout - Async timeout in seconds (increase for larger dataset) (default 600)
+* s3_benchmark_async_retry_delay - Async retry delay in seconds (5)
+* s3_benchmark_max_instances_per_client - Max. number of s3-benchmark instances per client. 0 == no limit (limited by num. IPs in tcp_ip_list) (default 0)
+* s3_benchmark_strict_numa - Limit s3-benchmark instances to one-per-NUMA node on client, if multiple IPs in tcp_ip_list share same NUMA (default true)
 
 #### playbooks/upgrade_dss_software.yml
 
