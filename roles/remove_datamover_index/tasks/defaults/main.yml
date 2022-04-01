@@ -29,4 +29,5 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-datamover_index_file: "{{ dss_log_dir }}/prefix_index_data.json"
+### Path defaults
+dss_log_dir: /var/log/dss
