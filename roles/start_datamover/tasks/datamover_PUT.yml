@@ -44,4 +44,3 @@
   run_once: true
   until: "'DataMover RESUME operation is required' not in master_application.stdout"
   retries: "{{ datamover_put_retries }}"
-  become: true
