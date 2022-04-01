@@ -22,16 +22,19 @@
     "port_status": {{ datamover_message_port_status }}
   },
   "ip_address_family": "{{ hostvars[groups['clients'][0]].tcp_alias_list[0].family }}",
-  "nfs_config":{
+  "fs_config": {
+    "mounted": {{ datamover_fs_mounted }},
+    "nfs" {
 {% for nfs_server in datamover_nfs_shares %}
-    "{{ nfs_server.ip}}": [
+      "{{ nfs_server.ip}}": [
   {%- for share in nfs_server.shares -%}
-      "{{ share }}"{% if not loop.last %},{% endif -%}
+        "{{ share }}"{% if not loop.last %},{% endif -%}
   {% endfor %}]
 {%- if not loop.last %},
 {% endif %}
 {% endfor %}
 
+    }
   },
   "s3_storage": {
     "minio": {"url": "{{ hostvars[minio_hostnames[0]].tcp_alias_list[0].alias }}:9000", "access_key": "{{ minio_access_key }}", "secret_key": "{{ minio_secret_key }}"},
