@@ -24,7 +24,7 @@
   "ip_address_family": "{{ hostvars[groups['clients'][0]].tcp_alias_list[0].family }}",
   "fs_config": {
     "mounted": {{ datamover_fs_mounted }},
-    "nfs" {
+    "nfs": {
 {% for nfs_server in datamover_nfs_shares %}
       "{{ nfs_server.ip}}": [
   {%- for share in nfs_server.shares -%}
