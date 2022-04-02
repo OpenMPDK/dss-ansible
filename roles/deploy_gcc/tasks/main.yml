@@ -64,8 +64,9 @@
 
 - name: Remove conflicting GCC RPMs if present
   yum:
-    name: gcc_remove_rpms
+    name: "{{ item }}"
     state: absent
+  loop: "{{ gcc_remove_rpms }}"
   become: true
 
 - name: Install GCC RPM
