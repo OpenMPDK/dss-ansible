@@ -44,16 +44,19 @@
   "operations": ["PUT","GET","DEL","LIST"],
   "logging": {"path": "{{ dss_log_dir }}", "level": "{{ datamover_logging_level }}"},
   "dss_targets": {
+    "subsystem_nqn": {
 {% for target in ((groups['servers'] | d([]) + groups['targets'] | d([])) | unique) %}
 {% set target_loop = loop %}
-    "{{ hostvars[target].inventory_hostname }}": [
-      {%- for nqn in hostvars[target].subsystem_nqns -%}
-        "{{ nqn }}"{% if not loop.last %},{% endif -%}
-      {% endfor %}
+      "{{ hostvars[target].inventory_hostname }}": [
+        {%- for nqn in hostvars[target].subsystem_nqns -%}
+          "{{ nqn }}"{% if not loop.last %},{% endif -%}
+        {% endfor %}
 ]{% if not target_loop.last %},
 {% endif %}
 {% endfor %}
 
+    },
+    "installation_path": "{{ target_dir }}"
   },
   "environment": {
     "gcc" : {
