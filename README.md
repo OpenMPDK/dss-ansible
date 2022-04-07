@@ -841,14 +841,6 @@ Execute this playbook to upgrade DSS software to all hosts in your inventory.
 This playbook is equivelent to executing "stop_dss_software", then "deploy_dss_software".
 Note that software will only be upgraded if new binaries are placed under the "artifacts" directory.
 
-#### playbooks/upgrade_kvssd_firmware.yml
-
-NOTE: For internal Samsung / DSS use! Unsupported!
-
-This playbook can be used to upgrade the firmware of PM983 SSDs. All other models not supported.
-In order to upgrade firmware, a valid firmware binary must be copied to the "artifacts" directory.
-Then the "target_fw_version" must be commented out in all vars / defaults files.
-
 ## Testing DSS Software Stack
 
 ### Wasabi Benchmark Program (s3-benchmark)
