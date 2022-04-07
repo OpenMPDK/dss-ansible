@@ -32,6 +32,7 @@
 ### Path defaults
 dss_dir: /usr/dss
 datamover_dir: "{{ dss_dir }}/nkv-datamover"
+target_dir: "{{ dss_dir }}/nkv-target"
 target_conf_dir: /etc/dss
 datamover_conf_dir: "{{ target_conf_dir }}/datamover"
 dss_log_dir: /var/log/dss
