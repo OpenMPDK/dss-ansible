@@ -55,6 +55,24 @@
   when: inventory_hostname in host_hostnames
   become: true
 
+- name: Check minio config
+  command: "{{ minio_dir }}/mc config host list"
+  changed_when: false
+  failed_when: false
+  register: mc_config_check
+
+- name: Assert minio config compatible
+  assert:
+    that: fail_string not in mc_config_check.stderr
+    msg: |
+      Unable to load mc config.
+      This is likely due to an incompatible version of MinIO mc config being present.
+      Please review {{ inventory_hostname }}{{ ansible_env.HOME }}/.mc/config.json
+      Consider backing up this file, then deleting it.
+      Once the incompatible mc config file is removed, try running this playbook again.
+  vars:
+    fail_string: Unable to load config
+
 - name: Check minio connection
   command: "{{ minio_dir }}/mc ls {{ local_mc_alias }}"
   loop: "{{ range(0, tcp_alias_list | length) | list }}"
