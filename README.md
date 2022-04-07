@@ -358,19 +358,18 @@ All hosts should return `SUCCESS`. If any hosts fail the ping command, validate 
 
 ### Initial Host Configuration
 
-Configure VMs (or hosts when you wish to not use OFED):
-  
-    ansible-playbook -i your_inventory playbooks/configure_vms.yml
-
-Configure Physical Hosts (using OFED):
+Configure Hosts:
   
     ansible-playbook -i your_inventory playbooks/configure_hosts.yml
 
 ### Pre-Deployment Network Test
 
-Validate Network Settings (cross-ping all TCP and RoCEv2 endpoints, perform ib_read_bw test):
+Validate Network Settings:
   
-    ansible-playbook -i your_inventory playbooks/test_network.yml
+    ansible-playbook -i your_inventory playbooks/test_ping.yml
+    ansible-playbook -i your_inventory playbooks/test_ib_read_bw.yml
+    ansible-playbook -i your_inventory playbooks/test_iperf.yml
+
 
 ### Deploy DSS Software Stack
 
