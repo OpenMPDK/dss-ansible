@@ -50,7 +50,7 @@
   assert:
     that: kernel_version.files | map(attribute='path') | select('search', rpm_name) | list | count > 0
     fail_msg: "{{ rpm_name }} rpm not found. Please download kernel RPM's to {{ artifacts_dir }}"
-    success_msg: "Found kernel RPMs"
+    success_msg: "Found {{ rpm_name }} RPM"
   loop: "{{ kernel_rpm_list }}"
   vars:
     rpm_name: "{{ item }}-{{ kernel_rpm_version }}"
