@@ -29,12 +29,34 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-### Path defaults
-artifacts_dir: "{{ inventory_dir }}/artifacts"
-deploy_kernel_staging_dir: /tmp
+- name: "Identify newest version of {{ rpm_name }} RPM found"
+  set_fact:
+    kernel_rpm_file: "{{ (kernel_rpms.files | selectattr('path', 'search', rpm_name) | sort(attribute='ctime', reverse=true) | first).path }}"
+  run_once: true
 
-### Kernel defaults
-kernel_rpm_version: 5.1.0
+- name: "Check if {{ rpm_name }} RPM is installed"
+  shell: "rpm -qa | grep {{ kernel_rpm_file | basename | splitext | first }}"
+  args:
+    warn: false
+  register: kernel_rpm_qa
+  changed_when: false
+  failed_when: false
 
-### Reboot defaults
-reboot_timeout: 3600
+- name: "Copy {{ rpm_name }} RPM to staging directory"
+  copy:
+    src: "{{ kernel_rpm_file }}"
+    dest: "{{ deploy_kernel_staging_dir }}"
+    mode: 0644
+  when: kernel_rpm_qa.rc != 0
+
+- name: "Install {{ rpm_name }} RPM"
+  yum:
+    name: "{{ deploy_kernel_staging_dir }}/{{ kernel_rpm_file | basename }}"
+    disable_gpg_check: true
+  become: true
+  when: kernel_rpm_qa.rc != 0
+
+- name: "Delete {{ rpm_name }} RPM from staging directory"
+  file:
+    path: "{{ deploy_kernel_staging_dir }}/{{ kernel_rpm_file | basename }}"
+    state: absent
