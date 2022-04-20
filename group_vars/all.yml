@@ -43,7 +43,7 @@
 # datamover_get_path: "{{ ansible_env.HOME }}/datamover"
 # deploy_aws_sdk_cpp_staging_dir: /tmp
 # deploy_gcc_staging_dir: /tmp
-# deploy_kernel_staging_dir: /tmp/kernel_rpms
+# deploy_kernel_staging_dir: /tmp
 # deploy_nvme_cli_staging_dir: /tmp/nvme-cli
 # deploy_ofed_staging_dir: /tmp/ofed
 # dss_agent_config_file_dir: /etc/nkv-agent
@@ -70,6 +70,9 @@
 # spdk_setup_script: "{{ target_script_dir }}/setup.sh"
 # target_conf_file: "{{ target_conf_dir }}/nvmf.in.conf"
 # ufm_staging_dir: /tmp
+
+### Kernel defaults
+# kernel_rpm_version: 5.1.0
 
 ### Target defaults
 # target_fw_version: ETA51KCB
