@@ -48,40 +48,48 @@
 
 - name: Assert kernel RPMs are found
   assert:
-    that: kernel_version.files | length > 0
-    fail_msg: "No kernel RPMs found. Please download RPM's to {{ artifacts_dir }}"
-    success_msg: "Found kernel RPMs"
+    that: kernel_version.files | map(attribute='path') | select('search', rpm_name) | list | count > 0
+    fail_msg: "{{ rpm_name }} rpm not found. Please download kernel RPM's to {{ artifacts_dir }}"
+    success_msg: "Found {{ rpm_name }} RPM"
+  loop: "{{ kernel_rpm_list }}"
+  vars:
+    rpm_name: "{{ item }}-{{ kernel_rpm_version }}"
   run_once: true
 
-- name: Set host_kernel_version variable
-  set_fact:
-    host_kernel_version: >-
-      {%- set kernel_re = 'kernel-(?!devel)(?!headers)(.+)-.+' -%}
-      {%- for file in kernel_version.files -%}
-        {%- if file.path is regex(kernel_re) -%}
-          {{ file.path | regex_search(kernel_re, '\1') | first }}
-        {%- endif -%}
-      {%- endfor -%}
+- name: Deploy kernel RPMs
+  include_tasks: deploy_kernel_rpm.yml
+  loop: "{{ kernel_rpm_list }}"
+  loop_control:
+    loop_var: kernel_rpm_item
+  vars:
+    rpm_name: "{{ kernel_rpm_item }}-{{ kernel_rpm_version }}"
+  when: inventory_hostname in (groups['servers'] | d([]) + groups['hosts'] | d([]))
 
-- name: Assert host_kernel_version is defined
-  assert:
-    that: host_kernel_version is defined
+- name: Set default grub boot
+  command: "grub2-set-default 'CentOS {{ dist_string }} ({{ host_kernel_version }}) {{ major_dist_ver }}{{ core_string }}'"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
+  vars:
+    major_dist_ver: "{{ ansible_distribution_version.split('.')[0] }}"
+    dist_string: "{% if major_dist_ver == '8' %}Stream{% else %}Linux{% endif %}"
+    core_string: "{% if major_dist_ver == '8' %}{% else %} (Core){% endif %}"
+  notify:
+    - Reboot system - kernel
+    - Gather facts post-reboot
+  when:
+    - inventory_hostname in (groups['servers'] | d([]) + groups['hosts'] | d([]))
+    - ansible_kernel is version (kernel_rpm_version, '!=')
+  become: true
 
 - name: Set GRUB Commandline Options
   import_tasks: set_grub_cmdline.yml
-
-- name: Deploy Kernel
-  import_tasks: deploy_kernel.yml
-  when:
-    - inventory_hostname in (groups['servers'] | d([]) + groups['hosts'] | d([]))
-    - ansible_kernel is version (host_kernel_version, '!=')
 
 - name: Flush handlers
   meta: flush_handlers
 
 - name: Assert host kernel version
   assert:
-    that: ansible_kernel is version (host_kernel_version, '==')
-    fail_msg: "Expected kernel version {{ host_kernel_version }} but found {{ ansible_kernel }}"
-    success_msg: "Detected host kernel version {{ host_kernel_version }}"
+    that: ansible_kernel is version (kernel_rpm_version, '==')
+    fail_msg: "Expected kernel version {{ kernel_rpm_version }} but found {{ ansible_kernel }}"
+    success_msg: "Detected host kernel version {{ kernel_rpm_version }}"
   when: inventory_hostname in (groups['servers'] | d([]) + groups['hosts'] | d([]))
