@@ -56,8 +56,8 @@
 
 - name: Identify newest version of RPMs found
   set_fact:
-    ufm_rpm_file: "{{ (ufm_rpm.files | sort(attribute='ctime', reverse=true) | first).path }}"
-    ufmbroker_rpm_file: "{{ (ufmbroker_rpm.files | sort(attribute='ctime', reverse=true) | first).path }}"
+    ufm_rpm_file: "{{ (ufm_rpm.files | sort(attribute='mtime', reverse=true) | first).path }}"
+    ufmbroker_rpm_file: "{{ (ufmbroker_rpm.files | sort(attribute='mtime', reverse=true) | first).path }}"
   run_once: true
 
 - name: Check if UFM RPMs are installed

@@ -65,7 +65,7 @@
 
 - name: Deploy client library from tarball
   unarchive:
-    src: "{{ (client_tgz.files | sort(attribute='ctime', reverse=true) | first).path }}"
+    src: "{{ (client_tgz.files | sort(attribute='mtime', reverse=true) | first).path }}"
     dest: "{{ client_library_dir }}"
     owner: root
     group: root

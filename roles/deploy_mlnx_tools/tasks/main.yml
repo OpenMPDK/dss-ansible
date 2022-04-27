@@ -51,7 +51,7 @@
 
 - name: Identify most-recent version of Mellanox Tools RPMs in artifacts dir
   set_fact:
-    mlnx_tools_rpm_filenames: "{{ mlnx_tools_rpm_filenames | d([]) + [ (item.files | sort(attribute='ctime', reverse=true) | first).path ] }}"
+    mlnx_tools_rpm_filenames: "{{ mlnx_tools_rpm_filenames | d([]) + [ (item.files | sort(attribute='mtime', reverse=true) | first).path ] }}"
   run_once: true
   loop: "{{ mlnx_tools_rpms.results }}"
   loop_control:

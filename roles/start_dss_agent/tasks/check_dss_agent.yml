@@ -39,7 +39,7 @@
 
 - name: Identify newest version of agent RPM
   set_fact:
-    agent_rpm_file: "{{ (dss_agent_rpm.files | sort(attribute='ctime', reverse=true) | first).path }}"
+    agent_rpm_file: "{{ (dss_agent_rpm.files | sort(attribute='mtime', reverse=true) | first).path }}"
   run_once: true
 
 - name: Check if agent RPM is installed

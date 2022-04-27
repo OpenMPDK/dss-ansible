@@ -62,7 +62,7 @@
 
 - name: Deploy minio from tarball
   unarchive:
-    src: "{{ (minio_tgz.files | sort(attribute='ctime', reverse=true) | first).path }}"
+    src: "{{ (minio_tgz.files | sort(attribute='mtime', reverse=true) | first).path }}"
     dest: "{{ minio_dir }}"
     owner: root
     group: root

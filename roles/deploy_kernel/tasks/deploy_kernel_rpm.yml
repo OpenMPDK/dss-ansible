@@ -31,7 +31,7 @@
 
 - name: "Identify newest version of {{ rpm_name }} RPM found"
   set_fact:
-    kernel_rpm_file: "{{ (kernel_rpms.files | selectattr('path', 'search', rpm_name) | sort(attribute='ctime', reverse=true) | first).path }}"
+    kernel_rpm_file: "{{ (kernel_rpms.files | selectattr('path', 'search', rpm_name) | sort(attribute='mtime', reverse=true) | first).path }}"
   run_once: true
 
 - name: "Check if {{ rpm_name }} RPM is installed"

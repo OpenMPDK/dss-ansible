@@ -53,7 +53,7 @@
 
 - name: Deploy datamover from tarball
   unarchive:
-    src: "{{ (datamover_tgz.files | sort(attribute='ctime', reverse=true) | first).path }}"
+    src: "{{ (datamover_tgz.files | sort(attribute='mtime', reverse=true) | first).path }}"
     dest: "{{ datamover_dir }}"
     owner: root
     group: root
