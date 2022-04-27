@@ -44,7 +44,7 @@
 
 - name: Identify newest version of aws-sdk-cpp RPM found
   set_fact:
-    aws_sdk_cpp_rpm_file: "{{ (aws_sdk_cpp_rpm.files | sort(attribute='ctime', reverse=true) | first).path }}"
+    aws_sdk_cpp_rpm_file: "{{ (aws_sdk_cpp_rpm.files | sort(attribute='mtime', reverse=true) | first).path }}"
   run_once: true
 
 - name: Check if aws-sdk-cpp RPM is installed

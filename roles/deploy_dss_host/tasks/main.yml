@@ -111,7 +111,7 @@
 
 - name: Deploy host from tarball
   unarchive:
-    src: "{{ (host_tgz.files | sort(attribute='ctime', reverse=true) | first).path }}"
+    src: "{{ (host_tgz.files | sort(attribute='mtime', reverse=true) | first).path }}"
     dest: "{{ nkv_sdk_dir }}"
     extra_opts: [--strip-components=1]
     owner: root

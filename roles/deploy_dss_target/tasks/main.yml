@@ -92,7 +92,7 @@
 
 - name: Deploy target from tarball
   unarchive:
-    src: "{{ (target_tgz.files | sort(attribute='ctime', reverse=true) | first).path }}"
+    src: "{{ (target_tgz.files | sort(attribute='mtime', reverse=true) | first).path }}"
     dest: "{{ target_dir }}"
     extra_opts: [--strip-components=1]
     owner: root

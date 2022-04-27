@@ -44,7 +44,7 @@
 
 - name: Identify newest version of GCC RPM found
   set_fact:
-    gcc_rpm_file: "{{ (gcc_rpm.files | sort(attribute='ctime', reverse=true) | first).path }}"
+    gcc_rpm_file: "{{ (gcc_rpm.files | sort(attribute='mtime', reverse=true) | first).path }}"
   run_once: true
 
 - name: Check if GCC RPM is installed
