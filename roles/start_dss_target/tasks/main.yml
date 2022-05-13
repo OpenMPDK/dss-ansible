@@ -114,8 +114,18 @@
   changed_when: false
   failed_when: false
 
+- name: Stat XRT script
+  stat:
+    path: "{{ xrt_setenv }}"
+  register: xrt_setenv_script
+
 - name: Start DSS target process
-  shell: source {{ gcc_setenv }} && {{ nvmf_tgt_cmd }} > {{ dss_log_dir }}/nkv-target.log 2>&1 &
+  shell: >
+    {% if xrt_setenv_script.stat.exists %}
+    source {{ xrt_setenv }} &&
+    {% endif %}
+    source {{ gcc_setenv }} &&
+    {{ nvmf_tgt_cmd }} > {{ dss_log_dir }}/nkv-target.log 2>&1 &
   args:
     chdir: "{{ target_dir }}/bin"
   when: nvmf_ps.rc != 0

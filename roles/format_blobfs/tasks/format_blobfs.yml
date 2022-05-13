@@ -29,6 +29,11 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Stat XRT script
+  stat:
+    path: "{{ xrt_setenv }}"
+  register: xrt_setenv_script
+
 - name: Create format_disks.sh script
   template:
     src: format_disks.sh.j2
