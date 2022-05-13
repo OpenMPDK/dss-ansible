@@ -38,3 +38,6 @@ target_conf_dir: /etc/dss
 
 ### PIP defaults
 pip2_version: 20.3.4
+
+### XRT defaults
+xrt_tarball: xrt_binaries.tgz

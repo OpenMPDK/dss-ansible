@@ -326,3 +326,7 @@
 # benchmark_bucket_prefix: benchmark-bucket-
 # deploy_dss_benchmark_ssh_key_name: id_rsa
 # deploy_dss_benchmark_httpd_port: 80
+
+### XRT defaults
+# xrt_tarball: xrt_binaries.tgz
+# xrt_setenv: /opt/xilinx/xrt/set_up_xrt_env.sh
