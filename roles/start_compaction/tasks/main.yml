@@ -37,7 +37,7 @@
   command: "{{ target_script_dir }}/dss_rpc.py -s /var/run/spdk.sock rdb_compact -n {{ item }}"
   loop: "{{ subsystem_nqns }}"
   become: true
-  when: dss_target_mode is search('kv_block')
+  when: dss_target_mode is search('kv_block') and not hpos
 
 - name: Check compaction status
   command: "{{ target_script_dir }}/dss_rpc.py -s /var/run/spdk.sock rdb_compact --get_status -n {{ item }}"
@@ -54,4 +54,4 @@
   retries: "{{ (start_compaction_timeout | int / start_compaction_delay | int) | int }}"
   delay: "{{ start_compaction_delay }}"
   become: true
-  when: dss_target_mode is search('kv_block')
+  when: dss_target_mode is search('kv_block') and not hpos

@@ -63,3 +63,6 @@ things_to_do_while_waiting:
   - teach your dog a new trick
   - learn how to juggle
   - learn how to whistle with your fingers
+
+### HPOS defaults
+hpos: false
