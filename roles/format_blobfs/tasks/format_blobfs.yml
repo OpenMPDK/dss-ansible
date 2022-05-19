@@ -37,7 +37,7 @@
 - name: Assert XRT script exists
   assert:
     that: xrt_setenv_script.stat.exists
-  when: xrt
+  when: hpos
 
 - name: Create format_disks.sh script
   template:

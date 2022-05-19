@@ -42,7 +42,7 @@ gcc_setenv: /usr/local/bin/setenv-for-gcc510.sh
 gcc_restore: /usr/local/bin/restore-default-paths-gcc510.sh
 
 ### XRT defaults
-xrt: false
+hpos: false
 xrt_setenv: /opt/xilinx/xrt/set_up_xrt_env.sh
 
 ### Target defaults

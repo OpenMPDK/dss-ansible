@@ -329,6 +329,6 @@
 # deploy_dss_benchmark_httpd_port: 80
 
 ### XRT defaults
-# xrt: false
+# hpos: false
 # xrt_tarball: xrt_binaries.tgz
 # xrt_setenv: /opt/xilinx/xrt/set_up_xrt_env.sh
