@@ -119,6 +119,11 @@
     path: "{{ xrt_setenv }}"
   register: xrt_setenv_script
 
+- name: Assert XRT script exists
+  assert:
+    that: xrt_setenv_script.stat.exists
+  when: xrt
+
 - name: Start DSS target process
   shell: >
     {% if xrt_setenv_script.stat.exists %}
