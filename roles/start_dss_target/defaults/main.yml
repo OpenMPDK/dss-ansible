@@ -41,6 +41,10 @@ dss_log_dir: /var/log/dss
 gcc_setenv: /usr/local/bin/setenv-for-gcc510.sh
 gcc_restore: /usr/local/bin/restore-default-paths-gcc510.sh
 
+### XRT defaults
+xrt: false
+xrt_setenv: /opt/xilinx/xrt/set_up_xrt_env.sh
+
 ### Target defaults
 ### dss_target_mode valid values: [kv, kv_block_vm, kv_block_perf, block]
 dss_target_mode: kv_block_perf

@@ -83,6 +83,14 @@
     that: target_tgz.files | length > 0
     fail_msg: "No target tarball found. Please download tarball to {{ artifacts_dir }}"
 
+- name: Identify XRT tarball
+  find:
+    path: "{{ artifacts_dir }}"
+    patterns: "{{ xrt_tarball }}"
+  delegate_to: localhost
+  run_once: true
+  register: xrt_tgz
+
 - name: Create target destination path
   file:
     path: "{{ target_dir }}"
@@ -98,6 +106,16 @@
     owner: root
     group: root
     mode: 0555
+  become: true
+
+- name: Deploy XRT from tarball
+  unarchive:
+    src: "{{ (xrt_tgz.files | sort(attribute='mtime', reverse=true) | first).path }}"
+    dest: '/'
+    owner: root
+    group: root
+    mode: 0755
+  when: xrt_tgz.files | length > 0
   become: true
 
 - name: Create log dir

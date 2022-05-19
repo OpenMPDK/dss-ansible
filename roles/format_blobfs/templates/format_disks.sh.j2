@@ -31,6 +31,9 @@
 
 set -e
 
+{% if xrt_setenv_script.stat.exists %}
+source {{ xrt_setenv }}
+{% endif %}
 source {{ gcc_setenv }}
 {% for pcie_addr in pcie_addrs.stdout_lines -%}
     {% set sn_regex = '^.+traddr:[^"]+" "([^"]+)"$' -%}
