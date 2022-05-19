@@ -32,8 +32,10 @@
 ### Path defaults
 dss_dir: /usr/dss
 target_conf_dir: /etc/dss
+xrt_dir: /opt/xilinx
 
 ### Remove DSS defaults
 remove_etc: true
 remove_dss_software_dir_list:
   - "{{ dss_dir }}"
+  - "{{ xrt_dir }}"
