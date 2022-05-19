@@ -70,6 +70,7 @@
 # spdk_setup_script: "{{ target_script_dir }}/setup.sh"
 # target_conf_file: "{{ target_conf_dir }}/nvmf.in.conf"
 # ufm_staging_dir: /tmp
+# xrt_dir: /opt/xilinx
 
 ### Kernel defaults
 # kernel_rpm_version: 5.1.0
@@ -328,5 +329,6 @@
 # deploy_dss_benchmark_httpd_port: 80
 
 ### XRT defaults
+# xrt: false
 # xrt_tarball: xrt_binaries.tgz
 # xrt_setenv: /opt/xilinx/xrt/set_up_xrt_env.sh
