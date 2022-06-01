@@ -37,7 +37,7 @@
 - name: Install numactl
   yum:
     name: numactl
-  become: present
+  become: true
 
 - name: Stat DSS Minio path
   stat:
