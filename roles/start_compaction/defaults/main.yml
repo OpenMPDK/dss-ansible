@@ -43,3 +43,6 @@ dss_target_mode: kv_block_perf
 ### Compaction defaults
 start_compaction_timeout: 12000
 start_compaction_delay: 15
+
+### HPOS defaults
+hpos: false
