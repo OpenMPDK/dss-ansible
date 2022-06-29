@@ -66,6 +66,11 @@
   when: >
     not format_disks_out_file.stat.exists or
     pre_format_disks.stdout is search('Failed to initialize filesystem') or
+    pre_format_disks.stdout is search('io_device bdev_nvme_poll_groups not unregistered') or
+    pre_format_disks.stdout is search('bdev modules init failed') or
+    pre_format_disks.stdout is search('Init subsystem bdev failed') or
+    pre_format_disks.stdout is search('nvme_identify_controller failed') or
+    pre_format_disks.stdout is search('Failed to initialize SSD') or
     pre_format_disks.stdout is search('error while loading shared libraries') or
     pre_format_disks.stdout is not search('Initializing filesystem on bdev') or
     create_format_disks_template.changed or
@@ -78,16 +83,17 @@
   when: execute_format_disks is not skipped
   register: format_disks
 
-- name: Find blobfs conf files
-  find:
-    paths: "{{ target_conf_dir }}"
-    patterns: blobfs.mkfs.in.*.conf
-  register: blobfs_confs
-
 - name: Assert filesystem initialized successfully
   assert:
-    that: format_disks.stdout is not search('Failed to initialize filesystem')
+    that: format_disks.stdout is not search(item)
     fail_msg: |
-      Failed to initialize filesystem.
+      *ERROR* {{ item }}
       Check {{ target_bin_dir }}/format_disks.out for details.
+  loop:
+    - Failed to initialize filesystem
+    - io_device bdev_nvme_poll_groups not unregistered
+    - bdev modules init failed
+    - Init subsystem bdev failed
+    - nvme_identify_controller failed
+    - Failed to initialize SSD
   when: format_disks is not skipped
