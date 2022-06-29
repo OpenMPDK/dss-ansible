@@ -238,6 +238,8 @@
 ### Support bundle defaults
 # coredump_only: false
 # coredump_suffix_name: support_bundle
+# collect_binaries: false
+# collect_coredumps: true
 
 ### PIP defaults
 # pip2_version: 20.3.4
