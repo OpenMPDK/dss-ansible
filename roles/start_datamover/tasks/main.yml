@@ -48,10 +48,10 @@
 
 - name: Set datamover vars
   set_fact:
-    dryrun_string: "{% if datamover_dryrun %}--dryrun{% else %}{% endif %}"
-    compaction_string: "{% if datamover_compaction and dss_target_mode is search('kv_block') and not hpos %}--compaction{% else %}{% endif %}"
-    data_integrity_string: "{% if datamover_data_integrity %}--data_integrity{% else %}{% endif %}"
-    skip_upload_string: "{% if datamover_skip_upload %}--skip_upload{% else %}{% endif %}"
+    dryrun_string: "{% if datamover_dryrun | bool %}--dryrun{% else %}{% endif %}"
+    compaction_string: "{% if datamover_compaction | bool and dss_target_mode is search('kv_block') and not hpos %}--compaction{% else %}{% endif %}"
+    data_integrity_string: "{% if datamover_data_integrity | bool %}--data_integrity{% else %}{% endif %}"
+    skip_upload_string: "{% if datamover_skip_upload | bool %}--skip_upload{% else %}{% endif %}"
     prefix_string: "{% if datamover_prefix != '' %}--prefix={{ datamover_prefix }}{% else %}{% endif %}"
 
 - name: Cleanup Datamover
