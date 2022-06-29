@@ -29,67 +29,12 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Collect ansible_facts
-  include_tasks: collect_ansible_facts.yml
+- name: Fetch nvmf_tgt binary
+  fetch:
+    src: "{{ target_bin_dir }}/nvmf_tgt"
+    dest: "{{ local_coredump_dir }}"
 
-- name: Collect dmesg
-  include_tasks: collect_dmesg.yml
-
-- name: Collect SPDK status
-  include_tasks: collect_spdk_status.yml
-  when: inventory_hostname in target_hostnames
-
-- name: Collect DSS logs dir
-  include_tasks: collect_dss_logs.yml
-
-- name: Collect DSS config dir
-  include_tasks: collect_dss_config.yml
-
-- name: Collect nkv_config json files
-  include_tasks: collect_nkv_config.yml
-
-- name: Collect host config script and MinIO startup scripts
-  include_tasks: collect_host_scripts.yml
-
-- name: Collect target setup script, dss_target.py output, and mkfs_blobfs output
-  include_tasks: collect_target_scripts.yml
-
-- name: Collect coredumps
-  include_tasks: collect_coredumps.yml
-  when: collect_coredumps | bool
-
-- name: Collect /etc/hosts
-  include_tasks: collect_etc_hosts.yml
-
-- name: Collect numactl
-  include_tasks: collect_numactl.yml
-
-- name: Collect ansible log
-  include_tasks: collect_ansible_log.yml
-
-- name: Collect binaries
-  include_tasks: collect_binaries.yml
-  when: collect_binaries | bool
-
-- name: Create support bundle tarball
-  archive:
-    path: "{{ local_coredump_dir }}/{{ inventory_hostname }}"
-    dest: "{{ local_coredump_dir }}/{{ ansible_date_time.epoch }}-{{ inventory_hostname_short }}-{{ coredump_suffix_name }}.tgz"
-    mode: 0755
-  delegate_to: localhost
-
-- name: Remove support bundle temp files
-  file:
-    path: "{{ local_coredump_dir }}/{{ inventory_hostname }}"
-    state: absent
-  delegate_to: localhost
-
-- name: Remove coredumps
-  file:
-    path: "{{ item.path }}"
-    state: absent
-  loop: "{{ coredumps.files }}"
-  loop_control:
-    label: "{{ item.path }}"
-  when: collect_coredumps | bool
-  become: true
+- name: Fetch minio binary
+  fetch:
+    src: "{{ minio_dir }}/minio"
+    dest: "{{ local_coredump_dir }}"

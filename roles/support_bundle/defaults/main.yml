@@ -43,7 +43,10 @@ target_bin_dir: "{{ target_dir }}/bin"
 target_script_dir: "{{ target_dir }}/scripts"
 spdk_setup_script: "{{ target_script_dir }}/setup.sh"
 ansible_log_path: ~/.dss_ansible.log
+minio_dir: "{{ dss_dir }}/nkv-minio"
 
 ### Support bundle defaults
 coredump_only: false
 coredump_suffix_name: support_bundle
+collect_binaries: false
+collect_coredumps: true
