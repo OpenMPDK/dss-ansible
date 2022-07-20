@@ -60,6 +60,7 @@
   changed_when: false
   failed_when: false
   register: mc_config_check
+  when: inventory_hostname in host_hostnames
 
 - name: Assert minio config compatible
   assert:
@@ -72,6 +73,7 @@
       Once the incompatible mc config file is removed, try running this playbook again.
   vars:
     fail_string: Unable to load config
+  when: inventory_hostname in host_hostnames
 
 - name: Check minio connection
   command: "{{ minio_dir }}/mc ls {{ local_mc_alias }}"
