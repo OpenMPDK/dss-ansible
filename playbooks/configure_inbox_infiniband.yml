@@ -44,21 +44,6 @@
   roles:
     - validate_ansible
 
-- name: Check OFED version
-  command: ofed_info -n
-  failed_when: false
-  changed_when: false
-  register: ofed_version
-
-- name: Assert OFED not installed
-  assert:
-    that: ofed_version.rc != 0
-    msg: |
-      Mellanox OFED is presently installed on this host.
-      The inbox Infiniband driver cannot be installed while OFED is installed.
-      If you wish to install the inbox Infiniband driver, first uninstall OFED with command:
-      ofed_uninstall.sh --force
-
 - name: Deploy inbox infiniband support
   hosts:
     - servers
