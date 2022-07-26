@@ -115,6 +115,7 @@
 # minio_nkv_shared: 1
 # minio_nkv_checksum: 1
 # minio_ulimit: 1048576
+# minio_nkv_max_meta_size: 8192
 
 ### DCQCN Defaults
 # dcqcn_roce_cc_prio_mask_p1: 8
