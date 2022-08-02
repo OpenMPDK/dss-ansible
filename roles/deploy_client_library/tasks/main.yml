@@ -90,10 +90,11 @@
     force: true
   become: true
 
-- name: Remove dss.cpython-36m-x86_64-linux-gnu.so from platform dir
+- name: Remove dss.cpython-36m-x86_64-linux-gnu.so from python3 lib dir if different from platform lib dir
   file:
     dest: "{{ python3_lib_dir.stdout }}/dss.cpython-36m-x86_64-linux-gnu.so"
     state: absent
+  when: python3_lib_dir.stdout != python3_platform_lib_dir.stdout
   become: true
 
 - name: Set symlink for libdss.so
