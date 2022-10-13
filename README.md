@@ -57,7 +57,7 @@ Note that Ansible 2.10 or later is not yet supported.
     python3 get-pip.py
     python3 -m pip install "ansible>=2.9,<2.10"
 
-note: If using Python 3.6, use the following get-pip URL instead: https://bootstrap.pypa.io/pip/3.6/get-pip.py
+note: If using Python 3.6, use the following get-pip URL instead: <https://bootstrap.pypa.io/pip/3.6/get-pip.py>
 
 Additionally, ensure that the following python modules are installed on the Ansible host:
 
@@ -369,7 +369,6 @@ Validate Network Settings:
     ansible-playbook -i your_inventory playbooks/test_ping.yml
     ansible-playbook -i your_inventory playbooks/test_ib_read_bw.yml
     ansible-playbook -i your_inventory playbooks/test_iperf.yml
-
 
 ### Deploy DSS Software Stack
 
@@ -832,6 +831,8 @@ s3-benchmark can be tuned by configuring the following vars (default values show
 * s3_benchmark_async_timeout - Async timeout in seconds (increase for larger dataset) (default 600)
 * s3_benchmark_async_retry_delay - Async retry delay in seconds (5)
 * s3_benchmark_max_instances_per_client - Max. number of s3-benchmark instances per client. 0 == no limit (limited by num. IPs in tcp_ip_list) (default 0)
+  * if s3_benchmark_max_instances_per_client is set to a number larger than the number of TCP IP's on each client, multiple s3-bench instances per IP may
+    be spawned
 * s3_benchmark_strict_numa - Limit s3-benchmark instances to one-per-NUMA node on client, if multiple IPs in tcp_ip_list share same NUMA (default true)
 
 #### playbooks/upgrade_dss_software.yml
