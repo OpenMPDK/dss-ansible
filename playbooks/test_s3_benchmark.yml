@@ -62,6 +62,8 @@
 # * s3_benchmark_async_timeout - Async timeout in seconds (increase for larger dataset) (default 600)
 # * s3_benchmark_async_retry_delay - Async retry delay in seconds (5)
 # * s3_benchmark_max_instances_per_client - Max. number of s3-benchmark instances per client. 0 == no limit (limited by num. IPs in tcp_ip_list) (default 0)
+#   * if s3_benchmark_max_instances_per_client is set to a number larger than the number of TCP IP's on each client, multiple s3-bench instances per IP may
+#     be spawned
 # * s3_benchmark_strict_numa - Limit s3-benchmark instances to one-per-NUMA node on client, if multiple IPs in tcp_ip_list share same NUMA (default true)
 
 - name: Validate ansible versions and dependencies

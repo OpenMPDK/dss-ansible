@@ -74,8 +74,8 @@
           {% for endpoint in cluster.endpoints %}
             {% set endpoint_loop = loop %}
             {% set index_scale = { 'value': 0 } %}
-            {% if s3_benchmark_max_instances_per_client > 0 %}
-              {% if index_scale.update({ 'value': (endpoint.vlan_index / s3_benchmark_max_instances_per_client) | round(0,'floor') | int }) %}{% endif %}
+            {% if s3_benchmark_max_instances_per_client | int > 0 %}
+              {% if index_scale.update({ 'value': (endpoint.vlan_index / s3_benchmark_max_instances_per_client | int) | round(0,'floor') | int }) %}{% endif %}
             {% endif %}
             {
               'endpoint': '{{ endpoint.ipv4 }}',
@@ -96,7 +96,7 @@
         {%- for client in groups['clients'] if not assigned.value -%}
           {%- for interface in hostvars[client].adjacent_numa_list if not assigned.value -%}
             {%- if (s3_benchmark_max_instances_per_client == 0 and num_assigned[client] < hostvars[client].adjacent_numa_list | length) or
-              (num_assigned[client] < s3_benchmark_max_instances_per_client) -%}
+              (num_assigned[client] < s3_benchmark_max_instances_per_client | int) -%}
               {%- if interface.vlan_index == minio_endpoint.vlan_index -%}
                 {%- if interface.numa not in assigned_numas[client] -%}
                   {%- if assigned_endpoints.append(
@@ -111,7 +111,7 @@
                   ) -%}{%- endif -%}
                   {%- if num_assigned.update({ client: num_assigned[client] + 1 }) -%}{%- endif -%}
                   {%- if assigned.update({ 'value': true }) -%}{%- endif -%}
-                  {%- if s3_benchmark_strict_numa -%}
+                  {%- if s3_benchmark_strict_numa | bool -%}
                     {%- if assigned_numas.update({ client: assigned_numas[client] + [interface.numa] }) -%}{%- endif -%}
                   {%- endif -%}
                 {%- endif -%}
