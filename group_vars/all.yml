@@ -86,7 +86,8 @@
 # dss_target_enable_rdma: 1
 
 ### Host defaults
-# dss_host_kvpair:
+# dss_host_kvpair: nkv_use_read_cache=1 nkv_use_data_cache=1
+# dss_host_kvpair_vm:
 # start_dss_host_port: 1024
 # start_dss_host_qpairs: 32
 # start_dss_host_mem_align: 4
