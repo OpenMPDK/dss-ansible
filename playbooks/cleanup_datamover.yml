@@ -37,8 +37,7 @@
 #
 # This playbook will terminate all instances of datamover client and master application.
 
-- name: Cleanup Datamover
-  hosts: clients
+   hosts: clients
   gather_facts: false
   roles:
     - cleanup_datamover
