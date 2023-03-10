@@ -58,13 +58,6 @@
     },
     "installation_path": "{{ target_dir }}"
   },
-  "environment": {
-    "gcc" : {
-      "version": "{{ datamover_gcc_version }}",
-      "source" : "{{ gcc_setenv }}",
-      "required": true
-    }
-  },
   "aws": {
    "awslib_log_debug": {{ datamover_awslib_log_debug }}
   }
