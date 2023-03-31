@@ -33,8 +33,8 @@
 {%- if not loop.last %},
 {% endif %}
 {% endfor %}
-
-    }
+    },
+    "nfsport": {{ datamover_nfs_port }}
   },
   "s3_storage": {
     "minio": {"url": "{{ hostvars[minio_hostnames[0]].tcp_alias_list[0].alias }}:9000", "access_key": "{{ minio_access_key }}", "secret_key": "{{ minio_secret_key }}"},
@@ -67,5 +67,6 @@
   },
   "aws": {
    "awslib_log_debug": {{ datamover_awslib_log_debug }}
-  }
+  },
+  "compaction": "{{ datamover_compaction }}"
 }

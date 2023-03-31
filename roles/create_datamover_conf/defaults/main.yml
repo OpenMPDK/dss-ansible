@@ -63,6 +63,7 @@ datamover_nfs_shares:
       - /mnt/nfs_share/5gb-B
       - /mnt/nfs_share/10gb-B
       - /mnt/nfs_share/15gb-B
+datamover_nfs_port: 2049
 datamover_bucket: bucket
 datamover_client_lib: dss_client
 datamover_logging_level: INFO
@@ -70,6 +71,7 @@ datamover_gcc_version: 5.1
 datamover_index_data_queue_size: 50000
 datamover_awslib_log_debug: 0
 datamover_fs_mounted: false
+datamover_compaction: yes
 
 ### GCC defaults
 gcc_setenv: /usr/local/bin/setenv-for-gcc510.sh
