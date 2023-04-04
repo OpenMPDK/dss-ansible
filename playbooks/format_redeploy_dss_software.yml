@@ -55,3 +55,6 @@
 
 - name: Deploy DSS Software
   import_playbook: deploy_dss_software.yml
+
+- name: Cleanup MinIO object store metadata
+  import_playbook: cleanup_dss_minio.yml

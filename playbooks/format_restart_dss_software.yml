@@ -67,6 +67,9 @@
 - name: Start DSS Software
   import_playbook: start_dss_software.yml
 
+- name: Cleanup MinIO object store metadata
+  import_playbook: cleanup_dss_minio.yml
+
 - name: Set client library config
   hosts:
     - servers
