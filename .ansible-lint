@@ -40,4 +40,4 @@ skip_list:
 use_default_rules: true
 exclude_paths:
   - buildspec/
-  - gitlab-ci.yml
+  - .gitlab-ci.yml
