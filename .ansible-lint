@@ -38,3 +38,6 @@ skip_list:
   - empty-string-compare
   - ignore-errors
 use_default_rules: true
+exclude_paths:
+  - buildspec/
+  - .gitlab-ci.yml
