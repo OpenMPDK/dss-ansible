@@ -31,7 +31,7 @@
 
 - name: Restart network service
   service:
-    name: "{% if ansible_distribution_version == '8' %}NetworkManager{% else %}network{% endif %}"
+    name: "{% if ansible_distribution_version is version('8.0', '>=') %}NetworkManager{% else %}network{% endif %}"
     state: restarted
   become: true
 
