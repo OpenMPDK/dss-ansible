@@ -33,6 +33,7 @@
 artifacts_dir: "{{ inventory_dir }}/artifacts"
 dss_dir: /usr/dss
 nkv_sdk_dir: "{{ dss_dir }}/nkv-sdk"
+nkv_sdk_lib_dir: "{{ nkv_sdk_dir }}/lib"
 
 ### PIP defaults
 pip2_version: 20.3.4
