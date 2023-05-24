@@ -35,8 +35,6 @@ set -e
 source {{ xrt_setenv }}
 {% endif %}
 source {{ gcc_setenv }}
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:{{ target_lib_dir }}
-export LD_LIBRARY_PATH
 {% for pcie_addr in pcie_addrs.stdout_lines -%}
     {% set sn_regex = '^.+traddr:[^"]+" "([^"]+)"$' -%}
     ./mkfs_blobfs {{ target_conf_dir }}/blobfs.mkfs.in.{{ loop.index0 }}.conf "{{ pcie_addr | regex_replace(sn_regex, '\\1') }}n1"{% if ansible_virtualization_role == "host" %} &{% endif %}

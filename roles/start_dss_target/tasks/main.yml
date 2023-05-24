@@ -100,7 +100,6 @@
 - name: Set nvmf_tgt command if custom_coremask is defined
   set_fact:
     nvmf_tgt_cmd: >-
-      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:{{ target_lib_dir }}
       nohup
       {{ target_dir }}/bin/nvmf_tgt
       -c {{ target_conf_file }}
