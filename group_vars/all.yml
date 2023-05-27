@@ -29,6 +29,9 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Global defaults
+# gen2: false
+
 ### Path defaults
 # ansible_log_path: ~/.dss_ansible.log
 # artifacts_dir: "{{ inventory_dir }}/artifacts"

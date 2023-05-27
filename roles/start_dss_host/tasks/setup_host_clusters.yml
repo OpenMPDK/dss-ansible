@@ -107,23 +107,6 @@
     loop_var: host
   run_once: true
 
-- name: Create dss_host_config_host.sh script
-  copy:
-    content: >
-      /usr/bin/python2 ./dss_host.py config_host -a
-      {% for ip in first_vlan_ip_list %}{{ ip }}{% if not loop.last %} {% endif %}{% endfor %}
-      -p {{ start_dss_host_port }}
-      -i {{ start_dss_host_qpairs }} -m {{ start_dss_host_mem_align }}
-      {% if ansible_virtualization_role == 'guest' -%}
-        {% if dss_host_kvpair_vm is not none %}-x {{ dss_host_kvpair_vm }}{% endif %}
-      {% else -%}
-        {% if dss_host_kvpair is not none %}-x {{ dss_host_kvpair }}{% endif %}
-      {% endif %}
-    mode: 0755
-    dest: "{{ nkv_sdk_bin_dir }}/dss_host_config_host.sh"
-  when: inventory_hostname in host_hostnames
-  become: true
-
 - name: Configure Driver
   include_tasks: configure_driver.yml
   loop: "{{ range(1,4) | list }}"
@@ -141,6 +124,35 @@
       Expected number of subsystems: {{ combined_expected_num_subsystems }}
       Actual number of mounted subsystems: {{ post_subsystems_found }}
   when: inventory_hostname in host_hostnames
+
+- name: Get Mountpoints
+  include_role:
+    name: get_mountpoints
+
+- name: debug vlan_ip_map
+  debug:
+    var: vlan_ip_map
+
+- name: Create dss_host_config_host.sh script
+  copy:
+    content: >
+      /usr/bin/python2 ./dss_host.py config_host -a
+      {% for ip in first_vlan_ip_list %}{{ ip }}{% if not loop.last %} {% endif %}{% endfor %}
+      -p {{ start_dss_host_port }}
+      -i {{ start_dss_host_qpairs }} -m {{ start_dss_host_mem_align }}
+      {% if ansible_virtualization_role == 'guest' -%}
+        {% if dss_host_kvpair_vm is not none %}-x {{ dss_host_kvpair_vm }}{% endif %}
+      {% else -%}
+        {% if dss_host_kvpair is not none %}-x {{ dss_host_kvpair }}{% endif %}
+      {% endif %}
+      {% if gen2 | bool %}
+      --vlan_ip_map "{{vlan_ip_map}}"
+      --gen2
+      {% endif %}
+    mode: 0755
+    dest: "{{ nkv_sdk_bin_dir }}/dss_host_config_host.sh"
+  when: inventory_hostname in host_hostnames
+  become: true
 
 - name: Execute dss_host_config_host.sh script
   command: sh ./dss_host_config_host.sh

@@ -29,6 +29,9 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Global defaults
+gen2: false
+
 ### Path defaults
 dss_dir: /usr/dss
 minio_dir: "{{ dss_dir }}/nkv-minio"
