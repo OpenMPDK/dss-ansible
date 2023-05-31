@@ -29,6 +29,10 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Artifacts defaults
+# artifacts_url: https://dss-artifacts.s3.us-west-1.amazonaws.com
+# artifacts_branch: master
+
 ### Path defaults
 # ansible_log_path: ~/.dss_ansible.log
 # artifacts_dir: "{{ inventory_dir }}/artifacts"

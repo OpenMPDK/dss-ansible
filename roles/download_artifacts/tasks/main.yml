@@ -1,0 +1,22 @@
+---
+
+- name: Fetch contents of dss-artifacts bucket
+  ansible.builtin.uri:
+    url: " {{ artifacts_url }}"
+    method: GET
+    return_content: true
+  register: artifacts_xml
+  run_once: true
+
+- name: Set list of artifacts for branch
+  ansible.builtin.set_fact:
+    dss_artifacts_list: "{{ artifacts_xml.content | regex_findall(regex) }}"
+  vars:
+    regex: "<Key>({{ artifacts_branch }}/[^<]+?(?=<))"
+  run_once: true
+
+- name: Download artifacts from dss-artifacts bucket
+  ansible.builtin.get_url:
+    url: "{{ artifacts_url }}/{{ item }}"
+    dest: "{{ artifacts_dir }}"
+  loop: "{{ dss_artifacts_list }}"
