@@ -34,7 +34,8 @@
 {% endif %}
 {% endfor %}
     },
-    "nfsport": {{ datamover_nfs_port }}
+    "nfsport": {{ datamover_nfs_port }},
+    "server_as_prefix": "{{ datamover_server_as_prefix }}"
   },
   "s3_storage": {
     "minio": {"url": "{{ hostvars[minio_hostnames[0]].tcp_alias_list[0].alias }}:9000", "access_key": "{{ minio_access_key }}", "secret_key": "{{ minio_secret_key }}"},
