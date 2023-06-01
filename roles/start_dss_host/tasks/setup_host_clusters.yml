@@ -133,6 +133,10 @@
   debug:
     var: vlan_ip_map
 
+- name: debug combined_vlan_ip_map
+  debug:
+    var: combined_vlan_ip_map
+
 - name: Create dss_host_config_host.sh script
   copy:
     content: >
@@ -146,7 +150,7 @@
         {% if dss_host_kvpair is not none %}-x {{ dss_host_kvpair }}{% endif %}
       {% endif %}
       {% if gen2 | bool %}
-      --vlan_ip_map "{{vlan_ip_map}}"
+      --vlan_ip_map "{{combined_vlan_ip_map}}"
       --gen2
       {% endif %}
     mode: 0755
