@@ -118,6 +118,17 @@
   when: xrt_tgz.files | length > 0
   become: true
 
+- name: Set ld.conf.so
+  copy:
+    dest: /etc/ld.so.conf.d/dss_target.conf
+    content: |
+      # DSS libs for dss-sdk target
+      {{ target_lib_dir }}
+
+    mode: 0644
+  notify: Run ldconfig
+  become: true
+
 - name: Create log dir
   file:
     path: "{{ dss_log_dir }}"

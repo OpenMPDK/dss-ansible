@@ -29,8 +29,14 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+
 ### Global defaults
 # gen2: false
+
+### Artifacts defaults
+# artifacts_url: https://dss-artifacts.s3.us-west-1.amazonaws.com
+# artifacts_branch: master
+# download_artifacts: true
 
 ### Path defaults
 # ansible_log_path: ~/.dss_ansible.log
@@ -176,6 +182,7 @@
 #       - /mnt/nfs_share/10gb-B
 #       - /mnt/nfs_share/15gb-B
 # datamover_nfs_port: 2049
+# datamover_server_as_prefix: "yes"
 # datamover_bucket: bucket
 # datamover_client_lib: dss_client
 # datamover_logging_path: /var/log/dss

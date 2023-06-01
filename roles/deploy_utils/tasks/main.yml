@@ -39,7 +39,7 @@
       - net-tools
       - numactl
       - pciutils
-      - "iperf{% if ansible_distribution_version == '8' %}3{% endif %}"
-      - "python{% if ansible_distribution_version == '8' %}2{% endif %}"
+      - "iperf{% if ansible_distribution_version is version('8.0', '>=') %}3{% endif %}"
+      - "python{% if ansible_distribution_version is version('8.0', '>=')  %}2{% endif %}"
       - python3
   become: true
