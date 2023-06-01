@@ -7,6 +7,7 @@
     return_content: true
   register: artifacts_xml
   run_once: true
+  when: download_artifacts | bool
 
 - name: Set list of artifacts for branch
   ansible.builtin.set_fact:
@@ -14,9 +15,11 @@
   vars:
     regex: "<Key>({{ artifacts_branch }}/[^<]+?(?=<))"
   run_once: true
+  when: download_artifacts | bool
 
 - name: Download artifacts from dss-artifacts bucket
   ansible.builtin.get_url:
     url: "{{ artifacts_url }}/{{ item }}"
     dest: "{{ artifacts_dir }}"
   loop: "{{ dss_artifacts_list }}"
+  when: download_artifacts | bool
