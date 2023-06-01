@@ -538,6 +538,14 @@ By default, core dumps will be compressed and stored in `/var/crash`.
 Please ensure your host has enough disk space to store core dumps, if you wish to use for debugging.
 This path can be changed by setting the `coredump_dir` var. see: /group_vars/all.yml
 
+#### playbooks/download_artifacts.yml
+
+Execute this playbook to download artifacts from the dss-artifacts S3 bucket.
+
+By default, this playbook will download artifacts from the public AWS S3 dss-artifacts bucket (public HTTP URL).
+The bucket URL can be overridden with the public URL of any S3-compatible bucket (eg: MinIO, DSS).
+Additionally, the branch name can also be overridden.
+
 #### playbooks/format_redeploy_dss_software.yml
 
 Execute this playbook to re-deploy DSS software to all hosts in your inventory.

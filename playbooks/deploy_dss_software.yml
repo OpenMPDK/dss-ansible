@@ -52,6 +52,9 @@
   roles:
     - validate_ansible
 
+- name: Download Artifacts
+  import_playbook: download_artifacts.yml
+
 - name: Check IOMMU Off
   gather_facts: false
   hosts:
