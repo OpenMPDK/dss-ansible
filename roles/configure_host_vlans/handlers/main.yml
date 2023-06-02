@@ -29,9 +29,12 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Include vars
+  include_vars: "{{ ansible_distribution | lower }}_{{ ansible_distribution_major_version }}.yml"
+
 - name: Restart network service
   service:
-    name: "{% if ansible_distribution_version is version('8.0', '>=') %}NetworkManager{% else %}network{% endif %}"
+    name: "{{ network_service }}" 
     state: restarted
   become: true
 

@@ -33,13 +33,10 @@
   include_role:
     name: deploy_epel
 
+- name: Include vars
+  include_vars: "{{ ansible_distribution | lower }}_{{ ansible_distribution_major_version }}.yml"
+
 - name: Install utils
   yum:
-    name:
-      - net-tools
-      - numactl
-      - pciutils
-      - "iperf{% if ansible_distribution_version is version('8.0', '>=') %}3{% endif %}"
-      - "python{% if ansible_distribution_version is version('8.0', '>=')  %}2{% endif %}"
-      - python3
+    name: "{{ utils_list }}" 
   become: true

@@ -41,11 +41,12 @@
       - libcap-devel
   become: true
 
+- name: Include vars
+  include_vars: "{{ ansible_distribution | lower }}_{{ ansible_distribution_major_version }}.yml"
+
 - name: Install pip3
   yum:
-    name:
-      - python3-pip
-      - python{% if ansible_distribution_version == '8' %}3{% endif %}-setuptools
+    name: "{{ pip3_deps }}" 
   become: true
 
 - name: Identify pip3 executable

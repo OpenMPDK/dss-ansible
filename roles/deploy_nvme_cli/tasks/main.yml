@@ -30,7 +30,7 @@
 ---
 
 - name: Install nvme-cli
-  include_tasks: "nvme_centos_{{ ansible_distribution_version.split('.') | first }}.yml"
+  include_tasks: "{{ ansible_distribution | lower }}_{{ ansible_distribution_major_version }}.yml"
 
 - name: Check nvme-cli version post-install
   command: nvme --version

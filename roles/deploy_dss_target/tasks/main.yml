@@ -33,18 +33,12 @@
   include_role:
     name: deploy_epel
 
+- name: Include vars
+  include_vars: "{{ ansible_distribution | lower }}_{{ ansible_distribution_major_version }}.yml"
+
 - name: Install target runtime dependencies
   yum:
-    name: "{{ item }}"
-  loop:
-    - jemalloc-devel
-    - tbb-devel
-    - libaio-devel
-    - "python{% if ansible_distribution_version == '8' %}2{% endif %}-pip"
-    - python3
-    - sysstat
-    - Judy
-    - "{% if ansible_distribution_version == '8' %}compat-openssl10{% else %}openssl-libs{% endif %}"
+    name: "{{ dss_target_deps }}"
   become: true
 
 - name: Identify pip2 executable

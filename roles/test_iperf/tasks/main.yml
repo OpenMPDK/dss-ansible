@@ -34,8 +34,11 @@
     that: ansible_play_hosts | length > 1
     msg: Can only test iperf with more than 1 target
 
+- name: Include vars
+  include_vars: "{{ ansible_distribution | lower }}_{{ ansible_distribution_major_version }}.yml"
+
 - name: Get iperf versions
-  command: iperf{% if ansible_distribution_version == '8' %}3{% endif %} --version
+  command: "{{ iperf_binary }} --version"
   changed_when: false
   failed_when: false
   register: iperf_version
@@ -43,7 +46,7 @@
 - name: Assert iperf installed
   assert:
     that: iperf_version.stdout is defined
-    msg: iperf is not installed. Install 'iperf{% if ansible_distribution_version == '8' %}3{% endif %}' RPM.
+    msg: "iperf is not installed. Install '{{ iperf_binary }}' RPM."
 
 - name: Get RoCEv2 IP Address
   include_role:

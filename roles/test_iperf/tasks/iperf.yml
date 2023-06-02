@@ -42,16 +42,12 @@
 - name: Set iperf_server_command and iperf_client_command vars
   set_fact:
     iperf_server_command: >-
-      iperf{% if ansible_distribution_version == '8' %}3{% endif %}
+      {{ iperf_binary }}
       --server
-      {% if ansible_distribution_version == '8' -%}
-        --one-off
-      {%- else -%}
-        --time {{ iperf_duration + 2 }}
-      {%- endif %}
+      {{ iperf_time }}
       --port {{ iperf_port }}
     iperf_client_command: >-
-      iperf{% if ansible_distribution_version == '8' %}3{% endif %}
+      {{ iperf_binary }}
       --client
       {{ server_ip_address }}
       --parallel {{ iperf_parallel }}
