@@ -70,9 +70,8 @@
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   vars:
-    major_dist_ver: "{{ ansible_distribution_version.split('.')[0] }}"
-    dist_string: "{% if major_dist_ver == '8' %}Stream{% else %}Linux{% endif %}"
-    core_string: "{% if major_dist_ver == '8' %}{% else %} (Core){% endif %}"
+    dist_string: "{% if ansible_distribution_major_version == '8' %}Stream{% else %}Linux{% endif %}"
+    core_string: "{% if ansible_distribution_major_version == '8' %}{% else %} (Core){% endif %}"
   notify:
     - Reboot system - kernel
     - Gather facts post-reboot
