@@ -72,7 +72,7 @@
       --tcp {{ dss_target_enable_tcp }} \
       --rdma {{ dss_target_enable_rdma }} \
       {% if gen2 | bool %}
-      --tcp_alias_list "{{tcp_alias_list}}" \
+      --tcp_alias_list "{{ tcp_alias_list }}" \
       --gen2
       {% endif %}
     dest: "{{ target_dir }}/bin/dss_target_config.sh"
