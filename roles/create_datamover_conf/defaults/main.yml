@@ -64,6 +64,7 @@ datamover_nfs_shares:
       - /mnt/nfs_share/10gb-B
       - /mnt/nfs_share/15gb-B
 datamover_nfs_port: 2049
+datamover_server_as_prefix: "yes"
 datamover_bucket: bucket
 datamover_client_lib: dss_client
 datamover_logging_level: INFO

@@ -29,11 +29,18 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-### Path defaults
-artifacts_dir: "{{ inventory_dir }}/artifacts"
-dss_dir: /usr/dss
-nkv_sdk_dir: "{{ dss_dir }}/nkv-sdk"
-nkv_sdk_lib_dir: "{{ nkv_sdk_dir }}/lib"
+### Playbook Documentation ###
+#
+# #### playbooks/download_artifacts.yml
+#
+# Execute this playbook to download artifacts from the dss-artifacts S3 bucket.
+#
+# By default, this playbook will download artifacts from the public AWS S3 dss-artifacts bucket (public HTTP URL).
+# The bucket can be overridden with the public URL of any S3-compatible bucket (eg: MinIO, DSS)
+# Additionally, the branch name can also be overridden.
 
-### PIP defaults
-pip2_version: 20.3.4
+- name: Download DSS Artifacts
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - download_artifacts

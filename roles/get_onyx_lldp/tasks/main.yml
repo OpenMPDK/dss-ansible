@@ -39,24 +39,20 @@
 
 - name: Query lldp remote
   onyx_command:
-    commands: show lldp remote
+    commands: show lldp remote | json-print
   register: lldp_remote
 
 - name: Set lldp_interfaces var
   set_fact:
     lldp_interfaces: >-
-      {%- for line in lldp_remote.stdout.0.splitlines() -%}
-        {%- if line is regex(lldp_regex) -%}
-          {{
-            [{
-              'local_interface': line | regex_search(lldp_regex, '\1') | first,
-              'device_id': line | regex_search(lldp_regex, '\2') | first,
-              'port_id': line | regex_search(lldp_regex, '\3') | first,
-              'system_name': line | regex_search(lldp_regex, '\4')  | first
-            }]
-          }}
-          {%- if not loop.last %} + {% endif -%}
-        {%- endif -%}
-      {%- endfor %}
+      {{ lldp_interfaces | d([]) +
+        [{
+          'local_interface': item | replace('Eth', ''),
+          'device_id': lldp_dict[item][0]['Device ID'],
+          'port_id': lldp_dict[item][0]['Port ID'],
+          'system_name': lldp_dict[item][0]['System Name']
+        }]
+      }}
+  loop: "{{ lldp_dict | list }}"
   vars:
-    lldp_regex: Eth([^ ]+) +([^ ]+) +([^ ]+) +([^ ]+)
+    lldp_dict: "{{ lldp_remote.stdout[0] | from_json }}"

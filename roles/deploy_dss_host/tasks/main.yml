@@ -118,3 +118,14 @@
     group: root
     mode: 0555
   become: true
+
+- name: Set ld.conf.so
+  copy:
+    dest: /etc/ld.so.conf.d/dss_host.conf
+    content: |
+      # DSS libs for dss-sdk host
+      {{ nkv_sdk_lib_dir }}
+
+    mode: 0644
+  notify: Run ldconfig
+  become: true
