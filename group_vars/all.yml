@@ -236,7 +236,7 @@
 #   - kewb-gcc510
 
 ### Infiniband defaults
-# infiniband_driver: ofed
+# infiniband_driver: inbox
 
 ### nvme-cli defaults
 # deploy_nvme_cli_version: 1.8.1
