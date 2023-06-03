@@ -72,6 +72,7 @@
     - targets
   roles:
     - deploy_kernel
+    - deploy_nvme_cli
     - check_iommu_off
 
 - name: Configure Hosts
@@ -85,7 +86,6 @@
     - configure_firewalld
     - configure_tuned
     - deploy_utils
-    - deploy_nvme_cli
     - deploy_infiniband
     - configure_irq
     - configure_lldpd
