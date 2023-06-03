@@ -33,7 +33,6 @@
 supported_major_versions:
   - '7'
   - '8'
-
 supported_distributions:
   - CentOS
   - Rocky
