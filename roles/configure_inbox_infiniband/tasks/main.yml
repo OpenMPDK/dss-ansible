@@ -45,7 +45,7 @@
       ofed_uninstall.sh --force
 
 - name: Install Infiniband
-  include_tasks: "infiniband_centos{{ ansible_distribution_version.split('.') | first }}.yml"
+  include_tasks: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
 
 - name: Start and enable RDMA service
   service:

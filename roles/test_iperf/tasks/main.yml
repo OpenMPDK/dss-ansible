@@ -35,7 +35,7 @@
     msg: Can only test iperf with more than 1 target
 
 - name: Include vars
-  include_vars: "{{ ansible_distribution | lower }}_{{ ansible_distribution_major_version }}.yml"
+  include_vars: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
 
 - name: Get iperf versions
   command: "{{ iperf_binary }} --version"

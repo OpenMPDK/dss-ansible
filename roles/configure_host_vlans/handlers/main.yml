@@ -29,9 +29,6 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Include vars
-  include_vars: "{{ ansible_distribution | lower }}_{{ ansible_distribution_major_version }}.yml"
-
 - name: Restart network service
   service:
     name: "{{ network_service }}" 

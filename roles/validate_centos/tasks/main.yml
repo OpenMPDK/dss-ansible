@@ -32,9 +32,9 @@
 - name: Validate CentOS Version
   assert:
     that:
-      - ansible_distribution == validate_centos_distro
-      - ansible_distribution_version in supported_distributions
+      - ansible_distribution in supported_distributions
+      - ansible_distribution_major_version in supported_major_versions
     fail_msg: |
-      Server must be {{ validate_centos_distro }} version {{ supported_distributions }}.
-      Detected {{ ansible_distribution }} version {{ ansible_distribution_version }}.
-    success_msg: "Detected {{ ansible_distribution }} version {{ ansible_distribution_version }}."
+      Server must be {{ supported_distributions }} version {{ supported_major_versions }}.
+      Detected {{ ansible_distribution }} version {{ ansible_distribution_major_version }}.
+    success_msg: "Detected {{ ansible_distribution }} version {{ ansible_distribution_major_version }}."

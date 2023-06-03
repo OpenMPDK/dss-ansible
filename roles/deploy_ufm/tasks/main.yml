@@ -85,7 +85,7 @@
 - name: Install FabricManager - CentOS
   import_tasks: ufm_centos.yml
   when:
-    - ansible_os_family == 'RedHat'
+    - ansible_distribution_file_variety == 'RedHat'
     - ufm_rpms_missing | int > 0
 
 - name: Start Services
