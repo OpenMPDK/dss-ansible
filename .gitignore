@@ -1,2 +1,3 @@
 # Internal testing inventory files
-inv_*.ini
+inv_*
+.vscode/**

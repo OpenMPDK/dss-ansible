@@ -1,0 +1,11 @@
+---
+
+dss_host_deps:
+  - boost-devel
+  - libcurl-devel
+  - numactl-devel
+  - tbb-devel
+  - jemalloc-devel
+  - python2-pip
+  - lshw
+  - gcc

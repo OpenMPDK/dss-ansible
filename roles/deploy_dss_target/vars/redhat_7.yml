@@ -1,0 +1,12 @@
+---
+
+dss_target_deps:
+  - jemalloc-devel
+  - tbb-devel
+  - libaio-devel
+  - python-pip
+  - python3
+  - sysstat
+  - Judy
+  - openssl-libs
+  

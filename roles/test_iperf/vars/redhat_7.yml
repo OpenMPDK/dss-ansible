@@ -1,0 +1,4 @@
+---
+
+iperf_binary: iperf
+iperf_time: --time {{ iperf_duration + 2 }}

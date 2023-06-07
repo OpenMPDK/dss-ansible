@@ -33,17 +33,12 @@
   include_role:
     name: deploy_epel
 
+- name: Include vars
+  include_vars: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
+
 - name: Install DSS host dependencies
   yum:
-    name:
-      - boost-devel
-      - libcurl-devel
-      - numactl-devel
-      - tbb-devel
-      - jemalloc-devel
-      - "python{% if ansible_distribution_version == '8' %}2{% endif %}-pip"
-      - lshw
-      - gcc
+    name: "{{ dss_host_deps }}" 
   become: true
 
 # Needed for CentOS Stream 8

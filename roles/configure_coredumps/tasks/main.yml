@@ -32,7 +32,7 @@
 - name: Install selinux deps
   yum:
     name: python3-libselinux
-  when: ansible_distribution_version == '8'
+  when: ansible_distribution_major_version == '8'
   become: true
 
 - name: Set unlimited core dump pam limit

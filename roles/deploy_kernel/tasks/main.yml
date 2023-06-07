@@ -66,13 +66,12 @@
   when: inventory_hostname in (groups['servers'] | d([]) + groups['hosts'] | d([]))
 
 - name: Set default grub boot
-  command: "grub2-set-default 'CentOS {{ dist_string }} ({{ kernel_rpm_version }}) {{ major_dist_ver }}{{ core_string }}'"
+  command: "grub2-set-default 'CentOS {{ dist_string }} ({{ kernel_rpm_version }}) {{ ansible_distribution_major_version }}{{ core_string }}'"
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   vars:
-    major_dist_ver: "{{ ansible_distribution_version.split('.')[0] }}"
-    dist_string: "{% if major_dist_ver == '8' %}Stream{% else %}Linux{% endif %}"
-    core_string: "{% if major_dist_ver == '8' %}{% else %} (Core){% endif %}"
+    dist_string: "{% if ansible_distribution_major_version == '8' %}Stream{% else %}Linux{% endif %}"
+    core_string: "{% if ansible_distribution_major_version == '8' %}{% else %} (Core){% endif %}"
   notify:
     - Reboot system - kernel
     - Gather facts post-reboot

@@ -30,4 +30,4 @@
 ---
 
 ### Infiniband defaults
-infiniband_driver: ofed
+infiniband_driver: inbox

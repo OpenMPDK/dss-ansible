@@ -1,0 +1,9 @@
+---
+
+utils_list:
+  - net-tools
+  - numactl
+  - pciutils
+  - iperf3
+  - python2
+  - python3

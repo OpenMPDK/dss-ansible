@@ -32,6 +32,7 @@
 ### Artifacts defaults
 # artifacts_url: https://dss-artifacts.s3.us-west-1.amazonaws.com
 # artifacts_branch: master
+# artifacts_validate_certs: false
 # download_artifacts: true
 
 ### Path defaults
@@ -236,7 +237,7 @@
 #   - kewb-gcc510
 
 ### Infiniband defaults
-# infiniband_driver: ofed
+# infiniband_driver: inbox
 
 ### nvme-cli defaults
 # deploy_nvme_cli_version: 1.8.1
@@ -267,14 +268,12 @@
 # tuned_profile: throughput-performance
 
 ### Validate CentOS defaults
-# supported_distributions:
-#   - '7.4'
-#   - '7.5'
-#   - '7.6'
-#   - '7.7'
-#   - '7.8'
-#   - '7.9'
+# supported_major_versions:
+#   - '7'
 #   - '8'
+# supported_distributions:
+#   - CentOS
+#   - Rocky
 
 ### KVSSD defaults
 # kvssd_models:
