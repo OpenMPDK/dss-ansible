@@ -5,6 +5,7 @@
     url: " {{ artifacts_url }}"
     method: GET
     return_content: true
+    validate_certs: "{{ artifacts_validate_certs }}"
   register: artifacts_xml
   run_once: true
   when: download_artifacts | bool
@@ -21,5 +22,6 @@
   ansible.builtin.get_url:
     url: "{{ artifacts_url }}/{{ item }}"
     dest: "{{ artifacts_dir }}"
+    validate_certs: "{{ artifacts_validate_certs }}"
   loop: "{{ dss_artifacts_list }}"
   when: download_artifacts | bool

@@ -32,6 +32,7 @@
 ### Artifacts defaults
 # artifacts_url: https://dss-artifacts.s3.us-west-1.amazonaws.com
 # artifacts_branch: master
+# artifacts_validate_certs: false
 # download_artifacts: true
 
 ### Path defaults
