@@ -35,7 +35,6 @@
     combined_vlan_ip_map: []
     included_targets: []
     included_hosts: []
-    standalone_minio: false
 
 - name: Assert current_cluster_num is defined
   assert:

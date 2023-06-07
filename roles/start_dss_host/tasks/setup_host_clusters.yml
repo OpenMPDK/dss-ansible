@@ -111,10 +111,6 @@
   include_role:
     name: get_combined_vlan_ip_map
 
-- name: debug combined_vlan_ip_map
-  debug:
-    var: combined_vlan_ip_map
-
 - name: Create dss_host_config_host.sh script
   copy:
     content: >
@@ -129,6 +125,7 @@
       {% endif %}
       {% if gen2 | bool %}
       --vlan_ip_map "{{ combined_vlan_ip_map }}"
+      --rdd_port {{ rdd_port }}
       --gen2
       {% endif %}
     mode: 0755

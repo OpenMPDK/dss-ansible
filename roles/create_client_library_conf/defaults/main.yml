@@ -31,6 +31,7 @@
 
 ### Global defaults
 gen2: false
+rdd_port: 1234
 
 ### Path defaults
 dss_dir: /usr/dss
