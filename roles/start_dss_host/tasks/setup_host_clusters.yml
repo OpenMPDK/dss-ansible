@@ -125,13 +125,9 @@
       Actual number of mounted subsystems: {{ post_subsystems_found }}
   when: inventory_hostname in host_hostnames
 
-- name: Get Mountpoints
+- name: Get Combined VLAN IP map
   include_role:
-    name: get_mountpoints
-
-- name: debug vlan_ip_map
-  debug:
-    var: vlan_ip_map
+    name: get_combined_vlan_ip_map
 
 - name: debug combined_vlan_ip_map
   debug:

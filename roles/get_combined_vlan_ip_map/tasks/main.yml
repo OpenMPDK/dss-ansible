@@ -1,0 +1,101 @@
+# The Clear BSD License
+#
+# Copyright (c) 2022 Samsung Electronics Co., Ltd.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted (subject to the limitations in the disclaimer
+# below) provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice,
+#   this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# * Neither the name of Samsung Electronics Co., Ltd. nor the names of its
+#   contributors may be used to endorse or promote products derived from this
+#   software without specific prior written permission.
+# NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY
+# THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+# NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+# PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---
+
+- name: Init vars
+  set_fact:
+    vlan_ip_map: []
+    combined_vlan_ip_map: []
+    included_targets: []
+    included_hosts: []
+    standalone_minio: false
+
+- name: Assert current_cluster_num is defined
+  assert:
+    that: current_cluster_num is defined
+    msg: |
+      current_cluster_num is not defined.
+      This role must be included in groups by cluster_num
+
+- name: Set included_targets var
+  set_fact:
+    included_targets: "{{ included_targets | default([]) + [ target ] }}"
+  loop: "{{ target_hostnames }}"
+  loop_control:
+    loop_var: target
+  when: hostvars[target].cluster_num | d(cluster_num) | string == current_cluster_num | string
+  run_once: true
+
+- name: Set included_hosts var
+  set_fact:
+    included_hosts: "{{ included_hosts | default([]) + [ host ] }}"
+  loop: "{{ host_hostnames }}"
+  loop_control:
+    loop_var: host
+  when: hostvars[host].cluster_num | d(cluster_num) | string == current_cluster_num | string
+  run_once: true
+
+- name: Set TCP - RoCEv2 IP map
+  set_fact:
+    vlan_ip_map: "{{ vlan_ip_map | default([]) +
+                  [{'tcp_alias': tcp_alias,
+                    'rocev2_ip': rocev2_ip }] }}"
+  with_together:
+    - "{{ tcp_alias_list | d([]) }}"
+    - "{{ rocev2_ip_list }}"
+  loop_control:
+    label: "tcp_alias: {{ tcp_alias }}, rocev2_ip: {{ rocev2_ip }}"
+  vars:
+    tcp_alias: "{{ item.0.alias | d('') }}"
+    rocev2_ip: "{{ item.1 }}"
+
+- name: Set combined_vlan_ip_map
+  set_fact:
+    combined_vlan_ip_map: "{{ combined_vlan_ip_map | default([]) }} +
+      [{ 'rocev2': [{% for host in included_targets -%}
+      '{{ hostvars[host].vlan_ip_map[ansible_loop.index0].rocev2_ip }}'
+      {%- if not loop.last %}, {% endif %}{% endfor %}],
+          'tcp': [{% for host in included_hosts -%}
+      '{{ hostvars[host].vlan_ip_map[ansible_loop.index0].tcp_alias }}'
+      {%- if not loop.last %}, {% endif %}{% endfor %}] }]"
+  loop: "{{ range(0, vlan_ip_map | length) | list }}"
+  loop_control:
+    label: "{{ ansible_loop.index0 }}"
+    extended: true
+  run_once: true
+
+- name: NVMe list subsystems
+  command: nvme list-subsys -o json
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
+  changed_when: false
+  register: nvme_subsys
+  become: true
+  when: inventory_hostname in host_hostnames
