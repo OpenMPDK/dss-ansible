@@ -107,24 +107,6 @@
     loop_var: host
   run_once: true
 
-- name: Configure Driver
-  include_tasks: configure_driver.yml
-  loop: "{{ range(1,4) | list }}"
-  loop_control:
-    loop_var: config_num
-  when: inventory_hostname in host_hostnames
-
-- name: Assert all subsystems are mounted
-  assert:
-    that:
-      - all_subsystems_mounted is defined
-      - all_subsystems_mounted == true
-    fail_msg: |
-      Failed to mount all subsystems.
-      Expected number of subsystems: {{ combined_expected_num_subsystems }}
-      Actual number of mounted subsystems: {{ post_subsystems_found }}
-  when: inventory_hostname in host_hostnames
-
 - name: Get Combined VLAN IP map
   include_role:
     name: get_combined_vlan_ip_map
@@ -153,6 +135,24 @@
     dest: "{{ nkv_sdk_bin_dir }}/dss_host_config_host.sh"
   when: inventory_hostname in host_hostnames
   become: true
+
+- name: Configure Driver
+  include_tasks: configure_driver.yml
+  loop: "{{ range(1,4) | list }}"
+  loop_control:
+    loop_var: config_num
+  when: inventory_hostname in host_hostnames
+
+- name: Assert all subsystems are mounted
+  assert:
+    that:
+      - all_subsystems_mounted is defined
+      - all_subsystems_mounted == true
+    fail_msg: |
+      Failed to mount all subsystems.
+      Expected number of subsystems: {{ combined_expected_num_subsystems }}
+      Actual number of mounted subsystems: {{ post_subsystems_found }}
+  when: inventory_hostname in host_hostnames
 
 - name: Execute dss_host_config_host.sh script
   command: sh ./dss_host_config_host.sh
