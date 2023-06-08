@@ -29,6 +29,10 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+### Global defaults
+gen2: false
+rdd_port: 1234
+
 ### Path defaults
 dss_dir: /usr/dss
 nkv_sdk_dir: "{{ dss_dir }}/nkv-sdk"

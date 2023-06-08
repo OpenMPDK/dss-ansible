@@ -29,6 +29,11 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+
+### Global defaults
+# gen2: false
+# rdd_port: 1234
+
 ### Artifacts defaults
 # artifacts_url: https://dss-artifacts.s3.us-west-1.amazonaws.com
 # artifacts_branch: master

@@ -1,6 +1,9 @@
 {
     "version": 0.1,
     "init_time": {{ client_library_init_time }},
+{% if gen2 | bool %}
+    "transport_type": "rdd",
+{% endif %}
     "clusters": [
 {% for cluster in clusters %}
         {
@@ -14,7 +17,20 @@
 {% endif %}
 {% endfor %}
 
+            ]{% if gen2 | bool %},{% endif %}
+{% if gen2 | bool %}
+            
+            "rdd_endpoints": [
+{% for endpoint in cluster.endpoints %}
+                {
+                    "ipv4": "{{ endpoint.ipv4 }}",
+                    "port": {{ rdd_port }}
+                }{% if not loop.last %},
+{% endif %}
+{% endfor %}
+
             ]
+{% endif %}
         }{% if not loop.last %},
 {% endif %}
 {% endfor %}

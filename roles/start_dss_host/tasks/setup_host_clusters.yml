@@ -107,6 +107,10 @@
     loop_var: host
   run_once: true
 
+- name: Get Combined VLAN IP map
+  include_role:
+    name: get_combined_vlan_ip_map
+
 - name: Create dss_host_config_host.sh script
   copy:
     content: >
@@ -118,6 +122,11 @@
         {% if dss_host_kvpair_vm is not none %}-x {{ dss_host_kvpair_vm }}{% endif %}
       {% else -%}
         {% if dss_host_kvpair is not none %}-x {{ dss_host_kvpair }}{% endif %}
+      {% endif %}
+      {% if gen2 | bool %}
+      --vlan_ip_map "{{ combined_vlan_ip_map }}"
+      --rdd_port {{ rdd_port }}
+      --gen2
       {% endif %}
     mode: 0755
     dest: "{{ nkv_sdk_bin_dir }}/dss_host_config_host.sh"
