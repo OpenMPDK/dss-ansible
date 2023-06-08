@@ -18,7 +18,7 @@
 {% endfor %}
 
             ]{% if gen2 | bool %},{% endif %}
-            {% if gen2 | bool %}
+{% if gen2 | bool %}
             
             "rdd_endpoints": [
 {% for endpoint in cluster.endpoints %}
@@ -30,7 +30,7 @@
 {% endfor %}
 
             ]
-            {% endif %}
+{% endif %}
         }{% if not loop.last %},
 {% endif %}
 {% endfor %}
