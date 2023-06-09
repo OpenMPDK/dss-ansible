@@ -72,6 +72,8 @@
     pre_format_disks.stdout is search('nvme_identify_controller failed') or
     pre_format_disks.stdout is search('Failed to initialize SSD') or
     pre_format_disks.stdout is search('error while loading shared libraries') or
+    pre_format_disks.stdout is search('core dumped') or
+    pre_format_disks.stdout is search('Illegal instruction') or
     pre_format_disks.stdout is not search('Initializing filesystem on bdev') or
     create_format_disks_template.changed or
     create_blobfs_conf.changed
@@ -96,4 +98,6 @@
     - Init subsystem bdev failed
     - nvme_identify_controller failed
     - Failed to initialize SSD
+    - core dumped
+    - Illegal instruction
   when: format_disks is not skipped
