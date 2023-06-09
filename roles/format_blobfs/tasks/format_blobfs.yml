@@ -98,4 +98,6 @@
     - Init subsystem bdev failed
     - nvme_identify_controller failed
     - Failed to initialize SSD
+    - core dumped
+    - Illegal instruction
   when: format_disks is not skipped
