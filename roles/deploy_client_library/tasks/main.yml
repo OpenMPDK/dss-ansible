@@ -97,10 +97,19 @@
   when: python3_lib_dir.stdout != python3_platform_lib_dir.stdout
   become: true
 
-- name: Set symlink for libdss.so
+- name: Remove existing libdss.so Library symlink
   file:
-    src: "{{ client_library_dir }}/libdss.so"
-    dest: "/usr/local/lib64/libdss.so"
-    state: link
-    force: true
+    path: /usr/local/lib64/libdss.so
+    state: absent
+  become: true
+
+- name: Set ld.conf.so
+  copy:
+    dest: /etc/ld.so.conf.d/dss_client_library.conf
+    content: |
+      # DSS libs for client library
+      {{ client_library_dir }}
+      
+    mode: 0644
+  notify: Run ldconfig
   become: true
