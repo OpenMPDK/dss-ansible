@@ -511,7 +511,7 @@ This playbook will perform the following actions:
 
 #### playbooks/deploy_datamover.yml
 
-Execute this playbook to deploy the datamover, client library, and their dependencies.
+Execute this playbook to deploy DSS Client, including datamover, client library, and their dependencies.
 Artifacts are deployed to hosts under the [clients] group.
 Note that it is possible for hosts to appear under both the [clients] and [servers] / [targets] / [hosts] groups.
 Hosts under the [clients] group will be used for datamover distributed operations.
