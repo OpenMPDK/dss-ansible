@@ -29,16 +29,16 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Include vars
+  include_vars: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
+
 - name: Install epel-release repo
   include_role:
     name: deploy_epel
 
 - name: Install yum dependencies
   yum:
-    name:
-      - python3
-      - python3-pip
-      - python3-devel
+    name: "{{ client_library_deps }}"
   become: true
 
 - name: Identify client tarball
