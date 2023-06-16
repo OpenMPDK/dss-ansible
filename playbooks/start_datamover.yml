@@ -146,7 +146,7 @@
     - servers
     - hosts
     - clients
-    - ufm_hosts
+    # - ufm_hosts
   roles:
     - get_tcp_vlan_ip_list
 

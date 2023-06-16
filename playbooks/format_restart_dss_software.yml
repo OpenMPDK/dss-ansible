@@ -76,7 +76,7 @@
     - targets
     - hosts
     - clients
-    - ufm_hosts
+    # - ufm_hosts
   gather_facts: false
   roles:
     - create_client_library_conf

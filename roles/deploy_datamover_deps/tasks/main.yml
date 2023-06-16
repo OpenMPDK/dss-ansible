@@ -46,7 +46,7 @@
 
 - name: Install pip3
   yum:
-    name: "{{ pip3_deps }}" 
+    name: "{{ pip3_deps }}"
   become: true
 
 - name: Identify pip3 executable

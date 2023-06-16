@@ -170,9 +170,6 @@ Your inventory file should contain hosts in the following groups:
   * Hosts running client software (can also be members of [servers] group)
     * S3 Benchmark
     * Datamover / Client Library
-* [ufm_hosts]
-  * Optional group of hosts used to deploy Universal Fabric Manager, used for stats collection to Graphite server
-    * Can be a member of [servers] or [clients] groups, or can be a lightweight, standalone CentOS host or VM
 * [onyx]
   * Optional group of Mellanox Onyx switches your hosts are connected to.
     * For Samsung internal use only. - Not supported!
@@ -530,7 +527,6 @@ This playbook will perform the following:
 * Deploy, configure, and start target on all [servers] / [targets]
 * Deploy, configure, and start nkv-sdpk host driver to all [servers] / [hosts]
 * Deploy, configure, and start MinIO instances to all [servers] / [hosts]
-* Optionally deploy, configure, and start UFM to all [ufm_hosts]
 * Deploy and configure datamover and client library to all [clients]
 
 Note that core dumps are enabled on all [servers] hosts.

@@ -55,7 +55,7 @@
     - servers
     - hosts
     - clients
-    - ufm_hosts
+    # - ufm_hosts
   roles:
     - get_tcp_vlan_ip_list
 
@@ -74,22 +74,22 @@
   roles:
     - start_dss_target
 
-- name: Start etcd Gateway
-  hosts:
-    - servers
-    - targets
-    - ufm_hosts
-  gather_facts: false
-  roles:
-    - start_etcd_gateway
+# - name: Start etcd Gateway
+#   hosts:
+#     - servers
+#     - targets
+#     - ufm_hosts
+#   gather_facts: false
+#   roles:
+#     - start_etcd_gateway
 
-- name: Start DSS Agent
-  hosts:
-    - servers
-    - targets
-  gather_facts: false
-  roles:
-    - start_dss_agent
+# - name: Start DSS Agent
+#   hosts:
+#     - servers
+#     - targets
+#   gather_facts: false
+#   roles:
+#     - start_dss_agent
 
 - name: Start DSS Host
   hosts:
