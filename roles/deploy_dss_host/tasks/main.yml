@@ -38,7 +38,7 @@
 
 - name: Install DSS host dependencies
   yum:
-    name: "{{ dss_host_deps }}" 
+    name: "{{ dss_host_deps }}"
   become: true
 
 # Needed for CentOS Stream 8
