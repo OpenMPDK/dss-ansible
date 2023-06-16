@@ -9,4 +9,3 @@ dss_target_deps:
   - sysstat
   - Judy
   - compat-openssl10
-  

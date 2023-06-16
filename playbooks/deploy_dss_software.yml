@@ -39,7 +39,6 @@
 # * Deploy, configure, and start target on all [servers] / [targets]
 # * Deploy, configure, and start nkv-sdpk host driver to all [servers] / [hosts]
 # * Deploy, configure, and start MinIO instances to all [servers] / [hosts]
-# * Optionally deploy, configure, and start UFM to all [ufm_hosts]
 # * Deploy and configure datamover and client library to all [clients]
 #
 # Note that core dumps are enabled on all [servers] hosts.
@@ -78,23 +77,23 @@
     - servers
     - hosts
     - clients
-    - ufm_hosts
+    # - ufm_hosts
   roles:
     - get_tcp_vlan_ip_list
 
-- name: Deploy UFM ETCD
-  hosts:
-    - ufm_hosts
-  gather_facts: false
-  roles:
-    - deploy_ufm_etcd
+# - name: Deploy UFM ETCD
+#   hosts:
+#     - ufm_hosts
+#   gather_facts: false
+#   roles:
+#     - deploy_ufm_etcd
 
-- name: Deploy UFM
-  hosts: ufm_hosts
-  gather_facts: false
-  roles:
-    - start_ufm_etcd
-    - deploy_ufm
+# - name: Deploy UFM
+#   hosts: ufm_hosts
+#   gather_facts: false
+#   roles:
+#     - start_ufm_etcd
+#     - deploy_ufm
 
 - name: Deploy DSS Target
   hosts:
@@ -105,23 +104,23 @@
     - deploy_gcc
     - deploy_dss_target
 
-- name: Deploy etcd Gateway
-  hosts:
-    - servers
-    - targets
-    - ufm_hosts
-  gather_facts: false
-  roles:
-    - deploy_etcd_gateway
+# - name: Deploy etcd Gateway
+#   hosts:
+#     - servers
+#     - targets
+#     - ufm_hosts
+#   gather_facts: false
+#   roles:
+#     - deploy_etcd_gateway
 
-- name: Deploy DSS Agent
-  hosts:
-    - servers
-    - targets
-  gather_facts: false
-  roles:
-    - deploy_dss_agent
-    - deploy_dss_diamond
+# - name: Deploy DSS Agent
+#   hosts:
+#     - servers
+#     - targets
+#   gather_facts: false
+#   roles:
+#     - deploy_dss_agent
+#     - deploy_dss_diamond
 
 - name: Deploy DSS Host
   hosts:

@@ -198,11 +198,12 @@
   loop:
     - servers
     - hosts
-    - ufm_hosts
+    # - ufm_hosts
   when: >
     inventory_hostname in groups['servers'] | d([]) or
-    inventory_hostname in groups['hosts'] | d([]) or
-    inventory_hostname in groups['ufm_hosts'] | d([])
+    inventory_hostname in groups['hosts'] | d([])
+#    or
+#    inventory_hostname in groups['ufm_hosts'] | d([])
 
 - name: Set hostnames_list var for clients
   set_fact:

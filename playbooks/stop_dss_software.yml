@@ -61,6 +61,6 @@
     - servers
     - targets
   roles:
-    - stop_dss_agent
-    - stop_etcd_gateway
+    # - stop_dss_agent
+    # - stop_etcd_gateway
     - stop_dss_target

@@ -56,37 +56,37 @@
   roles:
     - reset_spdk
 
-- name: Remove DSS Agent software
-  hosts:
-    - servers
-    - targets
-  gather_facts: false
-  roles:
-    - remove_dss_diamond
-    - remove_dss_agent
+# - name: Remove DSS Agent software
+#   hosts:
+#     - servers
+#     - targets
+#   gather_facts: false
+#   roles:
+#     - remove_dss_diamond
+#     - remove_dss_agent
 
-- name: Remove etcd Gateway
-  hosts:
-    - servers
-    - targets
-    - ufm_hosts
-  gather_facts: false
-  roles:
-    - remove_etcd_gateway
+# - name: Remove etcd Gateway
+#   hosts:
+#     - servers
+#     - targets
+#     - ufm_hosts
+#   gather_facts: false
+#   roles:
+#     - remove_etcd_gateway
 
-- name: Remove UFM Software
-  hosts: ufm_hosts
-  gather_facts: false
-  roles:
-    - remove_ufm
-    - stop_ufm_etcd
+# - name: Remove UFM Software
+#   hosts: ufm_hosts
+#   gather_facts: false
+#   roles:
+#     - remove_ufm
+#     - stop_ufm_etcd
 
-- name: Remove UFM ETCD
-  hosts:
-    - ufm_hosts
-  gather_facts: false
-  roles:
-    - remove_ufm_etcd
+# - name: Remove UFM ETCD
+#   hosts:
+#     - ufm_hosts
+#   gather_facts: false
+#   roles:
+#     - remove_ufm_etcd
 
 - name: Remove DSS software
   hosts:
