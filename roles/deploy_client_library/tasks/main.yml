@@ -109,7 +109,7 @@
     content: |
       # DSS libs for client library
       {{ client_library_dir }}
-      
+
     mode: 0644
   notify: Run ldconfig
   become: true
