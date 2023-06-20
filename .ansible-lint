@@ -29,7 +29,6 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-parseable: true
 quiet: true
 skip_list:
   - no-changed-when
@@ -41,3 +40,4 @@ use_default_rules: true
 exclude_paths:
   - buildspec/
   - .gitlab-ci.yml
+  - .github/

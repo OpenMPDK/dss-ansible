@@ -143,4 +143,4 @@
   import_playbook: start_dss_software.yml
 
 - name: Deploy Data Mover
-  import_playbook: deploy_datamover.yml
+  import_playbook: deploy_client.yml

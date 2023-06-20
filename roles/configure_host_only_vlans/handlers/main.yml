@@ -31,7 +31,7 @@
 
 - name: Restart network service
   service:
-    name: "{{ network_service }}" 
+    name: "{{ network_service }}"
     state: restarted
   become: true
 

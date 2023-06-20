@@ -38,5 +38,5 @@
 
 - name: Install utils
   yum:
-    name: "{{ utils_list }}" 
+    name: "{{ utils_list }}"
   become: true

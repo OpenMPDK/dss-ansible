@@ -29,16 +29,16 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Include vars
+  include_vars: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
+
 - name: Install epel-release repo
   include_role:
     name: deploy_epel
 
 - name: Install yum dependencies
   yum:
-    name:
-      - python3
-      - python3-pip
-      - python3-devel
+    name: "{{ client_library_deps }}"
   become: true
 
 - name: Identify client tarball
@@ -97,10 +97,19 @@
   when: python3_lib_dir.stdout != python3_platform_lib_dir.stdout
   become: true
 
-- name: Set symlink for libdss.so
+- name: Remove existing libdss.so Library symlink
   file:
-    src: "{{ client_library_dir }}/libdss.so"
-    dest: "/usr/local/lib64/libdss.so"
-    state: link
-    force: true
+    path: /usr/local/lib64/libdss.so
+    state: absent
+  become: true
+
+- name: Set ld.conf.so
+  copy:
+    dest: /etc/ld.so.conf.d/dss_client_library.conf
+    content: |
+      # DSS libs for client library
+      {{ client_library_dir }}
+
+    mode: 0644
+  notify: Run ldconfig
   become: true
