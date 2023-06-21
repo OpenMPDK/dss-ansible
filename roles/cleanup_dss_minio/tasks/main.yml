@@ -2,4 +2,4 @@
 
 - name: Cleanup DSS Minio
   ansible.builtin.include_tasks: cleanup_minio.yml
-  when: cleanup_dss_minio | bool
+  when: cleanup_minio | bool
