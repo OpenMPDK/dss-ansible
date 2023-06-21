@@ -106,4 +106,5 @@
     - targets
     - hosts
   roles:
+    - cleanup_dss_minio
     - start_dss_minio

@@ -29,16 +29,22 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-### Path defaults
-dss_dir: /usr/dss
-nkv_sdk_dir: "{{ dss_dir }}/nkv-sdk"
-nkv_sdk_bin_dir: "{{ nkv_sdk_dir }}/bin"
-nkv_sdk_conf_dir: "{{ nkv_sdk_dir }}/conf"
-target_conf_dir: /etc/dss
-target_conf_file: "{{ target_conf_dir }}/nvmf.in.conf"
+- name: Get range of mountpoints
+  command: >-
+    grep -oP "mount_point\"\: \"/dev/nvme\K\d+" nkv_config_{{ rocev2_ip }}.json
+  register: mountpoint_range
+  args:
+    chdir: "{{ nkv_sdk_conf_dir }}"
+  changed_when: false
 
-### Cluster defaults
-cluster_num: 0
+- name: Set min_mountpoint and max_mountpoint vars
+  set_fact:
+    min_mountpoint: "{{ mountpoint_range.stdout_lines[0] }}"
+    max_mountpoint: "{{ mountpoint_range.stdout_lines[-1] }}"
 
-### Cleanup defaults
-cleanup_minio: false
+- name: Execute minio_cleanup.sh
+  command: "sh ./minio_cleanup.sh {{ min_mountpoint }} {{ max_mountpoint }} nkv_config_{{ rocev2_ip }}.json"
+  args:
+    chdir: "{{ nkv_sdk_bin_dir }}"
+  become: true
+  run_once: true

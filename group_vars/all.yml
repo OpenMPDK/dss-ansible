@@ -348,3 +348,6 @@
 # hpos: false
 # xrt_tarball: xrt_binaries.tgz
 # xrt_setenv: /opt/xilinx/xrt/set_up_xrt_env.sh
+
+### Cleanup defaults
+# cleanup_minio: false
