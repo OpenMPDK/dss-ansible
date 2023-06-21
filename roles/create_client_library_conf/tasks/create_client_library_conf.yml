@@ -123,6 +123,7 @@
 - name: Initialize vars for cluster map
   set_fact:
     clusters: []
+    rdd_clusters: []
     cluster_index: 0
 
 - name: Set clusters array
@@ -135,14 +136,32 @@
     current_cluster: "{{ cluster_mountpoints[current_cluster_count] }}"
   when: current_cluster.cluster_num | string == cluster_num | string
 
+- name: Set client library json data Gen1
+  set_fact:
+    client_library_json:
+      version: 0.1
+      init_time: "{{ client_library_init_time }}"
+      clusters: "{{ clusters }}"
+  when: not gen2 | bool
+
+- name: Set client library json data Gen2
+  set_fact:
+    client_library_json:
+      version: 0.1
+      init_time: "{{ client_library_init_time }}"
+      transport_type: rdd
+      clusters: "{{ clusters }}"
+      rdd_endpoints: "{{ rdd_clusters }}"
+  when: gen2 | bool
+
 - name: Create client library conf.json
-  template:
-    src: conf.json.j2
+  copy:
     dest: "{{ target_conf_dir }}/client_library_conf.json"
+    content: |
+      {{ client_library_json | to_nice_json(sort_keys=False) }}
+
     mode: 0644
-  register: create_conf_template
   become: true
-  when: inventory_hostname in host_hostnames
 
 - name: Remove client library conf.json from targets
   file:
