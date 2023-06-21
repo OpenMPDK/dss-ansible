@@ -4,6 +4,7 @@
   set_fact:
     endpoints: []
     combined_endpoints: []
+    combined_rdd_endpoints: []
 
 - name: Set endpoints var
   set_fact:
@@ -12,6 +13,13 @@
           {
               'ipv4': '{{ current_cluster.vlan_ip_map[vlan].tcp_alias }}',
               'port': {{ minio_port }}
+          }
+      ]"
+    rdd_endpoints: "{{ endpoints | d([]) }} +
+      [
+          {
+              'ipv4': '{{ current_cluster.vlan_ip_map[vlan].tcp_alias }}',
+              'port': {{ rdd_port }}
           }
       ]"
   loop: "{{ range(0, current_cluster.vlan_ip_map | length) | list }}"
@@ -23,6 +31,7 @@
 - name: Set combined_endpoints var
   set_fact:
     combined_endpoints: "{{ combined_endpoints + hostvars[host].endpoints }}"
+    combined_rdd_endpoints: "{{ combined_rdd_endpoints + hostvars[host].rdd_endpoints }}"
   loop: "{{ included_hosts }}"
   loop_control:
     loop_var: host
@@ -36,6 +45,13 @@
         {
           'id': {{ cluster_index }},
           'endpoints': {{ combined_endpoints }}
+        }
+      ]"
+    rdd_clusters: "{{ rdd_clusters }} +
+      [
+        {
+          'id': {{ cluster_index }},
+          'endpoints': {{ combined_rdd_endpoints }}
         }
       ]"
     cluster_index: "{{ cluster_index | int + 1 }}"
