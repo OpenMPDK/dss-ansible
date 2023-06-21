@@ -74,6 +74,7 @@
     pre_format_disks.stdout is search('error while loading shared libraries') or
     pre_format_disks.stdout is search('core dumped') or
     pre_format_disks.stdout is search('Illegal instruction') or
+    pre_format_disks.stdout is search('error while loading shared libraries') or
     pre_format_disks.stdout is not search('Initializing filesystem on bdev') or
     create_format_disks_template.changed or
     create_blobfs_conf.changed
@@ -100,4 +101,5 @@
     - Failed to initialize SSD
     - core dumped
     - Illegal instruction
+    - error while loading shared libraries
   when: format_disks is not skipped
