@@ -144,7 +144,7 @@
       clusters: "{{ clusters }}"
   when: not gen2 | bool
 
-- name: Set client library json data Gen1
+- name: Set client library json data Gen2
   set_fact:
     client_library_json:
       version: 0.1
