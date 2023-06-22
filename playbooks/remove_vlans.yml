@@ -44,8 +44,6 @@
 
 - name: Remove DSS Software
   import_playbook: remove_dss_software.yml
-  vars:
-    remove_etc: false
 
 - name: Get Onyx LLDP tables
   hosts: onyx
