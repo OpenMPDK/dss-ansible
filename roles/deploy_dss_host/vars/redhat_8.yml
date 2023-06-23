@@ -9,3 +9,4 @@ dss_host_deps:
   - python2-pip
   - lshw
   - gcc
+  - git
