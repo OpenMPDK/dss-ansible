@@ -1,5 +1,12 @@
 ---
 
+- name: Stat client config
+  ansible.builtin.stat:
+    path: "{{ target_conf_dir }}/client_library_conf.json"
+  register: client_library_conf
+
 - name: Cleanup DSS Minio
   ansible.builtin.include_tasks: cleanup_minio.yml
-  when: cleanup_minio | bool
+  when:
+    - cleanup_minio | bool
+    - client_library_conf.stat.exists
