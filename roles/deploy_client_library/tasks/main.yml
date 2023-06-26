@@ -70,6 +70,7 @@
     owner: root
     group: root
     mode: 0555
+  notify: Run ldconfig
   become: true
 
 - name: Get python3 platform lib dir
