@@ -100,6 +100,7 @@
     owner: root
     group: root
     mode: 0555
+  notify: Run ldconfig
   become: true
 
 - name: Deploy XRT from tarball
