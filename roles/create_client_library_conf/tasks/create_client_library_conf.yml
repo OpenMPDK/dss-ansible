@@ -163,13 +163,6 @@
     mode: 0644
   become: true
 
-- name: Remove client library conf.json from targets
-  file:
-    path: "{{ target_conf_dir }}/client_library_conf.json"
-    state: absent
-  when: inventory_hostname in groups['targets'] | d([])
-  become: true
-
 - name: Read DSS conf
   command: "{{ minio_dir }}/mc cat {{ local_mc_alias }}/{{ dss_bucket_name }}/conf.json"
   loop: "{{ range(0, tcp_alias_list | length) | list }}"
