@@ -76,6 +76,8 @@
       -o {{ operation_num }}
       -p vlan_index-{{ endpoint.vlan_index }}/{{ inventory_hostname }}/
       {% if operation == 'GET' %}-d {{ s3_benchmark_duration }}{% endif %}
+  environment:
+    S3BENCH_MAX_VALUE_SIZE: "{{ s3_benchmark_max_value_size }}"
   register: s3_benchmark_async
   async: "{{ s3_benchmark_async_timeout }}"
   poll: 0
@@ -85,7 +87,7 @@
     jid: "{{ async_task.ansible_job_id }}"
   register: async_results
   until: async_results.finished
-  retries: "{{ (s3_benchmark_async_timeout / s3_benchmark_async_retry_delay) | int }}"
+  retries: "{{ (s3_benchmark_async_timeout | int  / s3_benchmark_async_retry_delay | int ) | int }}"
   delay: "{{ s3_benchmark_async_retry_delay }}"
   loop: "{{ s3_benchmark_async.results }}"
   loop_control:
