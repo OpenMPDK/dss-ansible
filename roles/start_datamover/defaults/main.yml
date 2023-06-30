@@ -66,3 +66,6 @@ things_to_do_while_waiting:
 
 ### HPOS defaults
 hpos: false
+
+### Target defaults
+dss_target_mode: kv_block_perf

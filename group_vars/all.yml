@@ -209,6 +209,7 @@
 # s3_benchmark_async_retry_delay: 5
 # s3_benchmark_max_instances_per_client: 0
 # s3_benchmark_strict_numa: false
+# s3_benchmark_max_value_size: 4194304
 
 ### ib_read_bw defaults
 # ib_read_bw_starting_port: 18515
