@@ -50,8 +50,8 @@ cluster_num: 0
 
 ### Target defaults
 num_subsystems: 1
-dss_host_kvpair: nkv_use_read_cache=1 nkv_use_data_cache=1
-dss_host_kvpair_vm:
+dss_host_kvpair: nkv_use_read_cache=1 nkv_use_data_cache=1 nkv_need_path_stat=1
+dss_host_kvpair_vm: nkv_need_path_stat=1
 
 ### VLAN defaults
 rocev2_vlans:
