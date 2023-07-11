@@ -47,5 +47,14 @@
   include_tasks: get_ip_numa.yml
   when: inventory_hostname in host_hostnames
 
+- name: Create log dir
+  file:
+    path: "{{ dss_log_dir }}"
+    state: directory
+    mode: 0755
+    owner: "{{ ansible_effective_user_id }}"
+    group: "{{ ansible_effective_group_id }}"
+  become: true
+
 - name: Execute nkv_test_cli test
   include_tasks: "{{ nkv_test_cli_test }}.yml"
