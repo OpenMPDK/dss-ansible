@@ -51,24 +51,18 @@
     name: get_vlan_ips
   vars:
     vlan_list: "{{ rocev2_vlans }}"
-  when:
-    - inventory_hostname in included_targets
-    - rocev2_ip_list is not defined
+  when: rocev2_ip_list is not defined
 
 - name: Set rocev2_ip_list and first_rocev2_ip_list var if IP's auto-discovered
   set_fact:
     rocev2_ip_list: "{{ vlan_ip_list }}"
     first_rocev2_ip_list: "{{ vlan_ip_list | first }}"
-  when:
-    - inventory_hostname in included_targets
-    - rocev2_ip_list is not defined
+  when: rocev2_ip_list is not defined
 
 - name: Set first_rocev2_ip_list var if IP's user-defined
   set_fact:
     first_rocev2_ip_list: "{{ rocev2_ip_list | first }}"
-  when:
-    - inventory_hostname in included_targets
-    - rocev2_ip_list is defined
+  when: rocev2_ip_list is defined
 
 - name: Assert that at least one RoCEv2 IP is present
   assert:
@@ -77,7 +71,6 @@
       - first_rocev2_ip_list | length > 0
     fail_msg: "No RoCEv2 IPs configured on any Mellanox adapter. Please configure at least one IP to deploy target."
     success_msg: "RoCEv2 IP(s) detected."
-  when: inventory_hostname in included_targets
 
 - name: Set first_vlan_ip_list var
   set_fact:
