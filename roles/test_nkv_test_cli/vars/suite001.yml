@@ -1,0 +1,54 @@
+---
+
+nkv_test_cli_keysize: 60
+nkv_test_cli_valsize: 1048576
+nkv_test_cli_threads: 128
+nkv_test_cli_objects: 100
+
+
+test_cases:
+  - id: N001
+    description: put and list
+    steps:
+      - put
+      - list
+  - id: N002
+    description: put, delete, list
+    expected_list_keys: 0
+    steps:
+      - put
+      - delete
+      - list
+  - id: N003
+    description: put, get, delete objects with data integrity check
+    integrity: true
+    steps:
+      - put_get_delete
+  - id: N004
+    description: mixed_io testing
+    mixed_io: true
+    steps:
+      - put
+  - id: N005
+    description: simulate minio io testing
+    simulate_minio: true
+    steps:
+      - put
+  - id: N006a-N007a
+    description: large key test - a
+    keysize: 160
+    steps:
+      - put
+      - get
+  - id: N006b-N007b
+    description: large key test - b
+    keysize: 255
+    steps:
+      - put
+      - get
+  - id: N006c-N007c
+    description: large key test - c
+    keysize: 1024
+    steps:
+      - put
+      - get

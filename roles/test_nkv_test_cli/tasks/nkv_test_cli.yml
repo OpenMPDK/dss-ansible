@@ -29,36 +29,56 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Set nkv_test_cli_objects default - vm
+  ansible.builtin.set_fact:
+    nkv_test_cli_objects: "{{ nkv_test_cli_objects | d(nkv_test_cli_vm_objects_vm) }}"
+  when: ansible_virtualization_role == 'guest'
+
+- name: Set nkv_test_cli_objects default - physical
+  ansible.builtin.set_fact:
+    nkv_test_cli_objects: "{{ nkv_test_cli_objects | d(nkv_test_cli_objects_phys) }}"
+  when: ansible_virtualization_role != 'guest'
+
 - name: Execute nkv_test_cli command
-  command: "{{ nkv_test_cli_command }}"
+  shell: "{{ nkv_test_cli_command | regex_replace('[\\r\\n\\t]+','') }}"
   args:
     chdir: "{{ nkv_sdk_bin_dir }}"
   loop: "{{ rocev2_numa_prefix_list }}"
   loop_control:
     loop_var: vlan
-    label: "{{ nkv_test_cli_command }}"
+    label: "{{ nkv_test_cli_command | regex_replace('[\\r\\n\\t]+','') }}"
     extended: true
   vars:
     nkv_test_cli_command: >-
-      /usr/bin/python2 {{ nkv_sdk_bin_dir }}/dss_host.py
-      verify_nkv_cli
-      --conf nkv_config_{{ vlan.ip }}.json
-      --addr {{ vlan.ipv4_prefix }}
-      --numa {{ vlan.numa }}
-      --workload {{ operation }}
-      --keysize {{ nkv_test_cli_keysize }}
-      --valsize {{ nkv_test_cli_valsize }}
-      --threads {{ nkv_test_cli_threads }}
-      --numobj
-      {% if ansible_virtualization_role == 'guest' -%}
-        {{ nkv_test_cli_vm_objects }}
-      {% else -%}
-        {{ nkv_test_cli_objects }}
+      numactl -N {{ vlan.numa }} -m {{ vlan.numa }}
+      {{ nkv_sdk_bin_dir }}/nkv_test_cli
+      -c {{ nkv_sdk_conf_dir }}/nkv_config_{{ vlan.ip }}.json
+      -i {{ inventory_hostname }}
+      -p {{ nkv_test_cli_port }}
+      -b {{ nkv_test_cli_prefix }}/host{{ host_id }}/test{{ ansible_loop.index0 }}/
+      -o {{ operation }}
+      {% if operation != '4' -%}
+        -t {{ nkv_test_cli_threads }}
+        -k {{ nkv_test_cli_keysize }}
+        -v {{ nkv_test_cli_valsize }}
+        -n {{ nkv_test_cli_objects }}
       {% endif %}
+      {% if nkv_test_cli_integrity | bool -%}
+        -m 1
+      {% endif %}
+      {% if nkv_test_cli_mixed_io | bool -%}
+        -d 1
+      {% endif %}
+      {% if nkv_test_cli_simulate_minio | bool -%}
+        -g 1
+      {% endif %}
+      2>&1 | tee -a {{ dss_log_dir }}/nkv_test_cli-test{{ ansible_loop.index0 }}.log
   async: "{{ nkv_test_cli_async_timeout }}"
   poll: 0
   register: nkv_test_cli_async
   become: true
+  tags:
+    - skip_ansible_lint
 
 - name: Check async nkv_test_cli command
   async_status:
@@ -70,7 +90,7 @@
   loop: "{{ nkv_test_cli_async.results }}"
   loop_control:
     loop_var: async_task
-    label: "{{ async_task.vlan.ipv4_prefix }}"
+    label: "{{ async_task.vlan.ip }}"
   become: true
 
 - name: Assert async nkv_test_cli completion
@@ -81,7 +101,22 @@
   loop: "{{ async_results.results }}"
   loop_control:
     loop_var: async_result
-    label: "{{ async_result.cmd | join(' ') }}"
+    label: "{{ async_result.cmd | regex_replace('[\\r\\n\\t]+','') }}"
+
+- name: Check nkv_test_cli output for errors
+  debug:
+    msg: "Checking for errors in nkv_test_cli output..."
+  loop: "{{ async_results.results }}"
+  loop_control:
+    loop_var: async_result
+    label: "{{ async_result.cmd | regex_replace('[\\r\\n\\t]+','') }}"
+  failed_when: >-
+    async_result.stdout is search('NKV Store KVP call failed') or
+    async_result.stdout is search('NKV Store KVP checksum call failed') or
+    async_result.stdout is search('store tuple failed with error') or
+    async_result.stdout is search('NKV store operation failed') or
+    async_result.stdout is search('Container Path down') or
+    async_result.stdout is search('Unsupported operation provided')
 
 - name: Initialize throughput vars
   set_fact:
@@ -90,14 +125,15 @@
 
 - name: Set throughput
   set_fact:
-    throughput: "{{ (throughput | float) + (async_result.stdout | regex_search(nkv_re, '\\1') | first | float) }}"
+    throughput: "{{ (throughput | float) + (async_result.stdout | regex_search(nkv_re, '\\1') | first | float / 1000) }}"
   vars:
     nkv_re: >-
-      BW = ([^ ]+) GB/s
+      Throughput = ([^ ]+) MB/sec
   loop: "{{ async_results.results }}"
   loop_control:
     loop_var: async_result
-    label: "{{ async_result.cmd | join(' ') }}"
+    label: "{{ async_result.async_task.vlan.ip }}"
+  when: async_result.stdout | regex_search(nkv_re, '\\1')
 
 - name: Set combined_throughput
   set_fact:
@@ -106,3 +142,20 @@
   loop_control:
     loop_var: host
   run_once: true
+
+- name: Assert total_num_keys for list operation
+  ansible.builtin.assert:
+    that: expected_total_num_keys | int == async_result.stdout | regex_search(nkv_re, '\\1') | first | int
+    fail_msg: "Expected {{ expected_total_num_keys }} - found {{ async_result.stdout | regex_search(nkv_re, '\\1') | first | int }}"
+    quiet: true
+  vars:
+    nkv_re: >-
+      total_num_keys = ([^ \r\n]+)
+    expected_total_num_keys: "{{ assert_num_keys | d(nkv_test_cli_threads | int * nkv_test_cli_objects | int) }}"
+  loop: "{{ async_results.results }}"
+  loop_control:
+    loop_var: async_result
+    label: "{{ async_result.async_task.vlan.ip }}"
+  when:
+    - operation == '4'
+    - async_result.stdout | regex_search(nkv_re, '\\1')
