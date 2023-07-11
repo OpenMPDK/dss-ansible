@@ -111,11 +111,14 @@
     loop_var: async_result
     label: "{{ async_result.cmd | regex_replace('[\\r\\n\\t]+','') }}"
   failed_when: >-
+    async_result.stdout is search('Container Path down') or
+    async_result.stdout is search('NKV open failed') or
     async_result.stdout is search('NKV Store KVP call failed') or
     async_result.stdout is search('NKV Store KVP checksum call failed') or
-    async_result.stdout is search('store tuple failed with error') or
     async_result.stdout is search('NKV store operation failed') or
-    async_result.stdout is search('Container Path down') or
+    async_result.stdout is search('Opening path failed') or
+    async_result.stdout is search('Path open failed') or
+    async_result.stdout is search('store tuple failed with error') or
     async_result.stdout is search('Unsupported operation provided')
 
 - name: Initialize throughput vars
