@@ -506,7 +506,7 @@ This playbook will perform the following actions:
 * Search for errors in all MinIO logs across all [hosts] / [servers]
 * Search for errors in all target logs across all [targets] / [servers]
 
-#### playbooks/deploy_datamover.yml
+#### playbooks/deploy_client.yml
 
 Execute this playbook to deploy DSS Client, including datamover, client library, and their dependencies.
 Artifacts are deployed to hosts under the [clients] group.
@@ -539,7 +539,7 @@ This path can be changed by setting the `coredump_dir` var. see: /group_vars/all
 Execute this playbook to download artifacts from the dss-artifacts S3 bucket.
 
 By default, this playbook will download artifacts from the public AWS S3 dss-artifacts bucket (public HTTP URL).
-The bucket URL can be overridden with the public URL of any S3-compatible bucket (eg: MinIO, DSS).
+The bucket can be overridden with the public URL of any S3-compatible bucket (eg: MinIO, DSS)
 Additionally, the branch name can also be overridden.
 
 #### playbooks/format_redeploy_dss_software.yml
@@ -776,7 +776,7 @@ iperf can be tuned by configuring the following vars (default values shown):
 
 #### playbooks/test_nkv_test_cli.yml
 
-Perform a basic nkv_test_cli test and report observed throughput.
+By default, perform a basic nkv_test_cli test and report observed throughput.
 This playbook will execute a suite of nkv_test_cli tests in order:
 
 1. Put
@@ -787,17 +787,29 @@ This playbook will execute a suite of nkv_test_cli tests in order:
 
 Upon test completion, throughput is reported for PUT and GET.
 
+Optionally, this playbook can be used to execute a suite of regression test cases.
+This can be done by changing the value of `nkv_test_cli_test` from `smoke` to `suite`.
+The default set of test cases can be found in `roles/test_nkv_test_cli/vars/suite001.yml`.
+You can create additional test suites using this file as a template.
+You can specify your custom test suite by setting `nkv_test_cli_suite` to `your-test` (default: `suite001`).
+
 nkv_test_cli can be tuned by configuring the following vars (default values shown):
 
-| Var name                       | Default | Description                                                                 |
-| ------------------------------ | ------- | --------------------------------------------------------------------------- |
-| nkv_test_cli_keysize           | 60      | Key size in bytes. Max size = 255                                           |
-| nkv_test_cli_valsize           | 1048576 | Value size in bytes. Max size = 1048576                                     |
-| nkv_test_cli_threads           | 128     | Number of threads                                                           |
-| nkv_test_cli_objects           | 2000    | Number of objects for each thread (total objects = objects x threads)       |
-| nkv_test_cli_vm_objects        | 100     | Number of objects if host is a VM (default reduced due to lower throughput) |
-| nkv_test_cli_async_timeout     | 600     | Async timeout in seconds (increase for larger dataset, or slow throughput)  |
-| nkv_test_cli_async_retry_delay | 5       | Async retry delay in seconds                                                |
+| Var name                       | Default      | Description                                                                           |
+| ------------------------------ | ------------ | ------------------------------------------------------------------------------------- |
+| nkv_test_cli_port              | 1030         | Port used by nkv_test_cli to communicate with subsystem                               |
+| nkv_test_cli_prefix            | meta/ansible | KV prefix used to write object. Must beging with `meta/`                              |
+| nkv_test_cli_keysize           | 60           | Key size in bytes. Max size = 255                                                     |
+| nkv_test_cli_valsize           | 1048576      | Value size in bytes. Max size = 1048576                                               |
+| nkv_test_cli_threads           | 128          | Number of threads                                                                     |
+| nkv_test_cli_objects           | 2000         | Number of objects for each thread (total objects = objects x threads)                 |
+| nkv_test_cli_async_timeout     | 600          | Async timeout in seconds (increase for larger dataset, or slow throughput)            |
+| nkv_test_cli_async_retry_delay | 5            | Async retry delay in seconds                                                          |
+| nkv_test_cli_test              | smoke        | Run standard "smoke" test. Change to "suite" to run regression test suite             |
+| nkv_test_cli_suite             | suite001     | Name of test suite to run. Corresponds to suite vars in roles/test_nkv_test_cli/vars/ |
+| nkv_test_cli_integrity         | false        | Run nkv_test_cli in data integrity mode                                               |
+| nkv_test_cli_mixed_io          | false        | Run nkv_test_cli with "small meta io before doing a big io"                           |
+| nkv_test_cli_simulate_minio    | false        | Run nkv_test_cli with "IO pattern similar to MinIO"                                   |
 
 #### playbooks/test_ping.yml
 
