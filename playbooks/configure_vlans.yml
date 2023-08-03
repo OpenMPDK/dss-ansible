@@ -83,12 +83,7 @@
 
 - name: Get Onyx LLDP tables
   hosts: onyx
-  connection: network_cli
   gather_facts: false
-  become: true
-  become_method: enable
-  vars:
-    ansible_network_os: onyx
   roles:
     - get_onyx_lldp
 
@@ -104,11 +99,6 @@
 
 - name: Configure Onyx VLANs
   hosts: onyx
-  connection: network_cli
   gather_facts: false
-  become: true
-  become_method: enable
-  vars:
-    ansible_network_os: onyx
   roles:
     - configure_onyx_vlans
