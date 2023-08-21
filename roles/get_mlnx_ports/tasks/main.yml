@@ -36,13 +36,13 @@
   become: true
 
 - name: Assert ConnectX devices are present
-  assert:
+  ansible.builtin.assert:
     that: mlx_list.stdout_lines | length > 0
     fail_msg: "Found 0 ConnectX devices"
     success_msg: "Found {{ mlx_list.stdout_lines | length }} devices"
 
 - name: Initialize vars
-  set_fact:
+  ansible.builtin.set_fact:
     mellanox_devices: []
     mellanox_devices_numa: []
     mellanox_ports: []
@@ -51,7 +51,7 @@
     pci_addr: '[\da-fA-F]+:[\da-fA-F]+:[\da-fA-F]+\.[\da-fA-F]+'
 
 - name: Assert ibdev2netdev results are parseable
-  assert:
+  ansible.builtin.assert:
     that: item is regex(mlx_regex)
     msg: |
       Unable to parse output from ibdev2netdev.
@@ -60,7 +60,7 @@
   loop: "{{ mlx_list.stdout_lines }}"
 
 - name: Create list of ConnectX device dict
-  set_fact:
+  ansible.builtin.set_fact:
     mellanox_devices: "{{ mellanox_devices | default([]) +
                         [{'hw_addr': hw_addr,
                           'ibdev': ibdev_val,
@@ -80,7 +80,7 @@
     status_val: "{{ item | regex_search(mlx_regex, '\\6') | first }}"
 
 - name: Get NUMA for each adapter
-  slurp:
+  ansible.builtin.slurp:
     src: "/sys/class/net/{{ item.netdev }}/device/numa_node"
   loop: "{{ mellanox_devices }}"
   loop_control:
@@ -88,7 +88,7 @@
   register: numas
 
 - name: Set mellanox devices list with numa
-  set_fact:
+  ansible.builtin.set_fact:
     mellanox_devices_numa: "{{ mellanox_devices_numa | default([]) +
                               [{'hw_addr': item.0.hw_addr,
                                 'ibdev': item.0.ibdev,
@@ -104,5 +104,5 @@
     label: "{{ item.0.ibdev }}"
 
 - name: Set sorted list of ConnectX ports
-  set_fact:
+  ansible.builtin.set_fact:
     mellanox_ports: "{{ mellanox_devices_numa | sort(attribute='ibdev') | sort(attribute='hw_addr') | sort(attribute='numa') }}"
