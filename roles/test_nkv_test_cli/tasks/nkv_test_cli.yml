@@ -119,6 +119,7 @@
     async_result.stdout is search('NKV open failed') or
     async_result.stdout is search('NKV RDD chunked Get KVP call failed') or
     async_result.stdout is search('NKV RDD Retrieve KVP call failed') or
+    async_result.stdout is search('NKV Retrieve KVP call failed') or
     async_result.stdout is search('NKV Store KVP call failed') or
     async_result.stdout is search('NKV Store KVP checksum call failed') or
     async_result.stdout is search('NKV store operation failed') or
