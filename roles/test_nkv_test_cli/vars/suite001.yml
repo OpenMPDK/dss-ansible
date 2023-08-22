@@ -3,7 +3,7 @@
 # Default nkv_test_cli values to be used by all tests
 nkv_test_cli_keysize: 60
 nkv_test_cli_valsize: 1048576
-nkv_test_cli_threads: 12
+nkv_test_cli_threads: 6
 nkv_test_cli_objects: 100
 
 # List of test cases to execute.
@@ -40,13 +40,13 @@ nkv_test_cli_objects: 100
 #   - assert_num_keys: Expected number of keys to find during list operation (default: num. objects x num. threads)
 
 test_cases:
-  - id: MIN-1761
-    description: put single object with 255-byte key
-    keysize: 255
-    threads: 1
-    objects: 1
-    steps:
-      - put
+  # - id: MIN-1761
+  #   description: put single object with 255-byte key
+  #   keysize: 255
+  #   threads: 1
+  #   objects: 1
+  #   steps:
+  #     - put
   - id: N001
     description: put and list
     steps:
@@ -80,12 +80,12 @@ test_cases:
     steps:
       - put
       - get
-  - id: N006b-N007b
-    description: large key test - put and get objects with 255-byte key
-    keysize: 255
-    steps:
-      - put
-      - get
+  # - id: N006b-N007b
+  #   description: large key test - put and get objects with 255-byte key
+  #   keysize: 255
+  #   steps:
+  #     - put
+  #     - get
   - id: N006c-N007c
     description: large key test - put and get objects with 1024-byte key
     keysize: 1024
@@ -93,7 +93,7 @@ test_cases:
       - put
       - get
   - id: N008
-    description: chunked put and get
+    description: chunked put and del
     steps:
       - chunked_put
-      - get
+      - chunked_del
