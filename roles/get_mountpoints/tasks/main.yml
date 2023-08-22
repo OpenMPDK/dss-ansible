@@ -31,7 +31,7 @@
 
 - name: Init vars
   set_fact:
-    standalone_minio: false
+    standalone_minio: "{{ standalone_minio | d(false)}}"
 
 - name: Get Combined VLAN IP map
   include_role:
