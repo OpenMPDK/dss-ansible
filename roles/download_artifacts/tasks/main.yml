@@ -2,7 +2,7 @@
 
 - name: Fetch contents of dss-artifacts bucket
   ansible.builtin.uri:
-    url: " {{ artifacts_url }}"
+    url: " {{ artifacts_url }}?prefix={{ artifacts_branch }}"
     method: GET
     return_content: true
     validate_certs: "{{ artifacts_validate_certs }}"
