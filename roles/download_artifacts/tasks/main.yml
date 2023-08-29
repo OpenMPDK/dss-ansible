@@ -18,6 +18,16 @@
   run_once: true
   when: download_artifacts | bool
 
+- name: Check artifacts found
+  ansible.builtin.assert:
+    that: dss_artifacts_list | length > 0
+    fail_msg: |
+      No artifacts found. Check vars:
+      artifacts_url: {{ artifacts_url }}
+      artifacts_branch: {{ artifacts_branch }}
+    quiet: true
+  run_once: true
+
 - name: Download artifacts from dss-artifacts bucket
   ansible.builtin.get_url:
     url: "{{ artifacts_url }}/{{ item }}"
