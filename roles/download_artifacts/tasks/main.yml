@@ -27,6 +27,7 @@
       artifacts_branch: {{ artifacts_branch }}
     quiet: true
   run_once: true
+  when: download_artifacts | bool
 
 - name: Download artifacts from dss-artifacts bucket
   ansible.builtin.get_url:
