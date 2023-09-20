@@ -51,6 +51,12 @@
       set: pcie_aspm=off
     - match: rcu_nocbs
       set: rcu_nocbs=0-255
+    - match: nvme_core.mem_align
+      set: nvme_core.mem_align=4
+    - match: nvme_core.io_timeout
+      set: nvme_core.io_timeout=300
+    - match: nvme_core.admin_timeout
+      set: nvme_core.admin_timeout=300
   loop_control:
     loop_var: grub
     label: "{{ grub.match }}"
