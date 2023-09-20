@@ -46,37 +46,37 @@
     fail_msg: DSS Host is not installed. Execute 'deploy_dss_software.yml' playbook first.
   when: inventory_hostname in host_hostnames
 
-- name: Stat KV kernel drivers
-  stat:
-    path: "{{ nkv_sdk_dir }}/openmpdk_driver/kernel_v5.1_nvmf/{{ item }}"
-  register: kv_kernel_drivers
-  loop:
-    - nvme-core.ko
-    - nvme-fabrics.ko
-    - nvme-fc.ko
-    - nvme-rdma.ko
-    - nvme-tcp.ko
-    - nvme.ko
-  when: inventory_hostname in host_hostnames
+# - name: Stat KV kernel drivers
+#   stat:
+#     path: "{{ nkv_sdk_dir }}/openmpdk_driver/kernel_v5.1_nvmf/{{ item }}"
+#   register: kv_kernel_drivers
+#   loop:
+#     - nvme-core.ko
+#     - nvme-fabrics.ko
+#     - nvme-fc.ko
+#     - nvme-rdma.ko
+#     - nvme-tcp.ko
+#     - nvme.ko
+#   when: inventory_hostname in host_hostnames
 
-- name: Check for missing KV kernel drivers
-  set_fact:
-    missing_drivers: true
-  when:
-    - inventory_hostname in host_hostnames
-    - not item.stat.exists
-  loop: "{{ kv_kernel_drivers.results }}"
-  loop_control:
-    label: "{{ item.item }}"
+# - name: Check for missing KV kernel drivers
+#   set_fact:
+#     missing_drivers: true
+#   when:
+#     - inventory_hostname in host_hostnames
+#     - not item.stat.exists
+#   loop: "{{ kv_kernel_drivers.results }}"
+#   loop_control:
+#     label: "{{ item.item }}"
 
-- name: Configure Driver
-  command: /usr/bin/python2 ./dss_host.py config_driver
-  args:
-    chdir: "{{ nkv_sdk_bin_dir }}"
-  when:
-    - inventory_hostname in host_hostnames
-    - missing_drivers is defined
-  become: true
+# - name: Configure Driver
+#   command: /usr/bin/python2 ./dss_host.py config_driver
+#   args:
+#     chdir: "{{ nkv_sdk_bin_dir }}"
+#   when:
+#     - inventory_hostname in host_hostnames
+#     - missing_drivers is defined
+#   become: true
 
 - name: Set cluster_num_list var
   set_fact:
