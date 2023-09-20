@@ -47,3 +47,12 @@
 
 - name: Gather facts post-reboot
   setup:
+
+- name: Modprobe nvme-fabrics module
+  ansible.builtin.modprobe:
+    name: nvme-fabrics
+  loop:
+    - nvme-fabrics
+    - nvme-tcp
+    - nvme-rdma
+  become: true

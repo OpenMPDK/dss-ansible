@@ -92,3 +92,14 @@
     fail_msg: "Expected kernel version {{ kernel_rpm_version }} but found {{ ansible_kernel }}"
     success_msg: "Detected host kernel version {{ kernel_rpm_version }}"
   when: inventory_hostname in (groups['servers'] | d([]) + groups['hosts'] | d([]))
+
+- name: Load nvme-fabrics module at boot
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/DSS-nvme.conf
+    content: |
+      nvme-fabrics
+      nvme-tcp
+      nvme-rdma
+    mode: '0644'
+  notify: Modprobe nvme-fabrics module
+  become: true
