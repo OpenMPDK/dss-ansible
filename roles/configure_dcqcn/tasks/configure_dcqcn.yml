@@ -44,8 +44,10 @@
   loop_control:
     label: "{{ item.item.ibdev }}"
   vars:
-    found_setting: "{{ item.stdout | regex_search('ROCE_CC_PRIO_MASK_P1 +([^ ]+)','\\1') | first }}"
-  when: found_setting != dcqcn_roce_cc_prio_mask_p1 | string
+    mlx_re: 'ROCE_CC_PRIO_MASK_P1 +([^ ]+)'
+  when:
+    - item.stdout is regex(mlx_re)
+    - item.stdout | regex_search(mlx_re,'\\1') | first != dcqcn_roce_cc_prio_mask_p1 | string
   notify: Reboot system - dcqcn
   become: true
 
@@ -55,8 +57,10 @@
   loop_control:
     label: "{{ item.item.ibdev }}"
   vars:
-    found_setting: "{{ item.stdout | regex_search('CNP_DSCP_P1 +([^ ]+)','\\1') | first }}"
-  when: found_setting != dcqcn_cnp_dscp_p1 | string
+    mlx_re: 'CNP_DSCP_P1 +([^ ]+)'
+  when:
+    - item.stdout is regex(mlx_re)
+    - item.stdout | regex_search(mlx_re,'\\1') | first != dcqcn_cnp_dscp_p1 | string
   notify: Reboot system - dcqcn
   become: true
 
@@ -66,8 +70,10 @@
   loop_control:
     label: "{{ item.item.ibdev }}"
   vars:
-    found_setting: "{{ item.stdout | regex_search('CNP_802P_PRIO_P1 +([^ ]+)','\\1') | first }}"
-  when: found_setting != dcqcn_cnp_802p_prio_p1 | string
+    mlx_re: 'CNP_802P_PRIO_P1 +([^ ]+)'
+  when: 
+    - item.stdout is regex(mlx_re)
+    - item.stdout | regex_search(mlx_re,'\\1') | first != dcqcn_cnp_802p_prio_p1 | string
   notify: Reboot system - dcqcn
   become: true
 
