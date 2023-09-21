@@ -123,7 +123,6 @@
 - name: Initialize vars for cluster map
   set_fact:
     clusters: []
-    rdd_clusters: []
     cluster_index: 0
 
 - name: Set clusters array
@@ -151,7 +150,6 @@
       init_time: "{{ client_library_init_time }}"
       transport_type: rdd
       clusters: "{{ clusters }}"
-      rdd_endpoints: "{{ rdd_clusters }}"
   when: gen2 | bool
 
 - name: Create client library conf.json
