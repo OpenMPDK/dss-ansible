@@ -44,14 +44,8 @@
       [
         {
           'id': {{ cluster_index }},
-          'endpoints': {{ combined_endpoints }}
-        }
-      ]"
-    rdd_clusters: "{{ rdd_clusters }} +
-      [
-        {
-          'id': {{ cluster_index }},
-          'endpoints': {{ combined_rdd_endpoints }}
+          'endpoints': {{ combined_endpoints }},
+          'rdd_endpoints': {{ combined_rdd_endpoints }}
         }
       ]"
     cluster_index: "{{ cluster_index | int + 1 }}"
