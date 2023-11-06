@@ -850,7 +850,7 @@ Note that software will only be upgraded if new binaries are placed under the "a
 ### Wasabi Benchmark Program (s3-benchmark)
 
 Wasabi Benchmark (s3-benchmark) is a performance testing tool that can validate performance of standard S3 operations (PUT, GET, and DELETE) on the MinIO object store.
-It is automatically installed by Ansible to `/usr/dss/nkv-minio/s3-benchmark` on each host in the [servers] and [clients] groups.
+It is automatically installed by Ansible to `/usr/dss/client-library/s3-benchmark` on each host in the [servers] and [clients] groups.
 
 For complete documentation please see <https://github.com/wasabi-tech/s3-benchmark>.
 
@@ -902,7 +902,7 @@ Compaction reduces the dataset footprint on back-end storage and ensures optimal
 
 Command:
 
-    [ansible@server-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 1
+    [ansible@server-vm01 ~]$ /usr/dss/client-library/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 1
 
 Output:
 
@@ -920,7 +920,7 @@ Command:
 
 Command:
 
-    [ansible@server-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 2
+    [ansible@server-vm01 ~]$ /usr/dss/client-library/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 2
 
 Output:
 
@@ -932,7 +932,7 @@ Output:
 
 Command:
 
-    [ansible@server-vm01 ~]$ /usr/dss/nkv-minio/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 3
+    [ansible@server-vm01 ~]$ /usr/dss/client-library/s3-benchmark -a minio -s minio123 -b testbucket -u http://192.168.200.1:9000 -t 100 -z 1M -n 100 -o 3
 
 Output:
 
