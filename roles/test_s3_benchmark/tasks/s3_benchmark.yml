@@ -60,7 +60,7 @@
       {% if num_numa | int > 1 -%}
       numactl -N {{ numa }} -m {{ adjacent_numa }}
       {% endif -%}
-      {{ minio_dir }}/s3-benchmark
+      {{ client_library_dir }}/s3-benchmark
       -a {{ minio_access_key }}
       -s {{ minio_secret_key }}
       -b {{ s3_benchmark_bucket_prefix }}{{ cluster_id }}

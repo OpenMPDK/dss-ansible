@@ -32,7 +32,7 @@
 ### Path defaults
 artifacts_dir: "{{ inventory_dir }}/artifacts"
 dss_dir: /usr/dss
-minio_dir: "{{ dss_dir }}/nkv-minio"
+client_library_dir: "{{ dss_dir }}/client-library"
 
 ### s3_benchmark defaults
 s3_benchmark_bucket_prefix: s3-bucket-
