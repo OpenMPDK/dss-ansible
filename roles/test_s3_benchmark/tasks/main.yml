@@ -39,15 +39,15 @@
     name: numactl
   become: true
 
-- name: Stat DSS Minio path
+- name: Stat DSS Client path
   stat:
-    path: "{{ minio_dir }}"
-  register: dss_minio_path
+    path: "{{ client_library_dir }}"
+  register: dss_client_path
   when: inventory_hostname in host_hostnames
 
 - name: Assert DSS Minio path exists
   assert:
-    that: dss_minio_path.stat.exists
+    that: dss_client_path.stat.exists
     fail_msg: DSS Minio is not installed. Execute 'deploy_dss_software.yml' playbook first.
   when: inventory_hostname in host_hostnames
 
