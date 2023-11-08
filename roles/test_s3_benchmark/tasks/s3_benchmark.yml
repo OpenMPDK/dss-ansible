@@ -30,12 +30,12 @@
 ---
 
 - name: Assert operation is valid
-  assert:
+  ansible.builtin.assert:
     that: operation in ['PUT', 'GET', 'DEL']
   run_once: true
 
 - name: Set operation_num var
-  set_fact:
+  ansible.builtin.set_fact:
     operation_num: >-
       {%- if operation == 'PUT' -%}
         {{ s3_bench_put }}
@@ -47,7 +47,7 @@
   run_once: true
 
 - name: "Execute s3-benchmark {{ operation }}"
-  command: "{{ s3_bench_command }}"
+  ansible.builtin.command: "{{ s3_bench_command }}"
   loop: "{{ assigned_endpoints }}"
   loop_control:
     loop_var: endpoint
@@ -83,7 +83,7 @@
   poll: 0
 
 - name: "Check async s3-benchmark {{ operation }} command"
-  async_status:
+  ansible.builtin.async_status:
     jid: "{{ async_task.ansible_job_id }}"
   register: async_results
   until: async_results.finished
@@ -95,7 +95,7 @@
     label: "{{ async_task.endpoint.endpoint }}"
 
 - name: "Assert async s3-benchmark {{ operation }} completion"
-  assert:
+  ansible.builtin.assert:
     that: async_result.finished != 0
     fail_msg: "nkv_test_cli did not complete in time"
     quiet: true
@@ -105,7 +105,7 @@
     label: "{{ async_result.cmd | join(' ') }}"
 
 - name: "Assert s3-benchmark {{ operation }} results valid"
-  assert:
+  ansible.builtin.assert:
     that: async_result.stdout is regex(objects_re)
     fail_msg: "Did not get valid s3-benchmark result"
     quiet: true
@@ -118,7 +118,7 @@
   when: operation != 'DEL'
 
 - name: Set test_seconds var
-  set_fact:
+  ansible.builtin.set_fact:
     test_seconds: >-
       {%- set elapsed_time = {'start': '', 'end': ''} -%}
       {%- for client in groups['clients'] -%}
@@ -140,7 +140,7 @@
   when: operation != 'DEL'
 
 - name: set s3_speed var
-  set_fact:
+  ansible.builtin.set_fact:
     s3_speed: >-
       {%- set total_objects = {'value': 0} -%}
       {%- set objects_re = 'objects = ([\d]+),' -%}
