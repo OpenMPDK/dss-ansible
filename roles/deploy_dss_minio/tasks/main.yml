@@ -30,5 +30,5 @@
 ---
 
 - name: Deploy MinIO
-  include_tasks: deploy_minio.yml
+  ansible.builtin.include_tasks: deploy_minio.yml
   when: not no_minio | d(false)

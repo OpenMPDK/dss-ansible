@@ -30,7 +30,7 @@
 ---
 
 - name: Identify GCC RPM
-  find:
+  ansible.builtin.find:
     path: "{{ artifacts_dir }}"
     patterns: "{{ gcc_rpm_name }}-*.rpm"
   delegate_to: localhost
@@ -38,17 +38,17 @@
   register: gcc_rpm
 
 - name: Assert GCC RPM found
-  assert:
+  ansible.builtin.assert:
     that: gcc_rpm.files | length > 0
     fail_msg: "No gcc RPM found. Please download RPM to {{ artifacts_dir }}"
 
 - name: Identify newest version of GCC RPM found
-  set_fact:
+  ansible.builtin.set_fact:
     gcc_rpm_file: "{{ (gcc_rpm.files | sort(attribute='mtime', reverse=true) | first).path }}"
   run_once: true
 
 - name: Check if GCC RPM is installed
-  shell: "rpm -qa | grep {{ gcc_rpm_file | basename | splitext | first }}"
+  ansible.builtin.shell: "rpm -qa | grep {{ gcc_rpm_file | basename | splitext | first }}"
   args:
     warn: false
   register: gcc_rpm_qa
@@ -56,27 +56,27 @@
   failed_when: false
 
 - name: Copy GCC RPM to staging directory
-  copy:
+  ansible.builtin.copy:
     src: "{{ gcc_rpm_file }}"
     dest: "{{ deploy_gcc_staging_dir }}"
     mode: 0644
   when: gcc_rpm_qa.rc != 0
 
 - name: Remove conflicting GCC RPMs if present
-  yum:
+  ansible.builtin.yum:
     name: "{{ item }}"
     state: absent
   loop: "{{ gcc_remove_rpms }}"
   become: true
 
 - name: Install GCC RPM
-  yum:
+  ansible.builtin.yum:
     name: "{{ deploy_gcc_staging_dir }}/{{ gcc_rpm_file | basename }}"
     disable_gpg_check: true
   become: true
   when: gcc_rpm_qa.rc != 0
 
 - name: Delete GCC RPM from staging directory
-  file:
+  ansible.builtin.file:
     path: "{{ deploy_gcc_staging_dir }}/{{ gcc_rpm_file | basename }}"
     state: absent

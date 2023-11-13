@@ -30,7 +30,7 @@
 ---
 
 - name: Install nvme-cli
-  yum:
+  ansible.builtin.yum:
     name: "{{ deploy_nvme_cli_url }}"
     disable_gpg_check: true
   become: true

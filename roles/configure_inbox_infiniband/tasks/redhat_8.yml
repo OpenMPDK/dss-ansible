@@ -31,7 +31,7 @@
 
 # Install CentOS 7 RPMs on CentOS Stream 8 - temporary work-around
 - name: Install Infiniband
-  yum:
+  ansible.builtin.yum:
     name: "{{ infiniband_rpm_urls }}"
     state: present
     disable_gpg_check: true

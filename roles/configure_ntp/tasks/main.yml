@@ -30,19 +30,19 @@
 ---
 
 - name: Install NTP packages
-  yum:
+  ansible.builtin.yum:
     name:
       - chrony
       - tzdata
   become: true
 
 - name: Set timezone
-  timezone:
+  ansible.builtin.timezone:
     name: "{{ ntp_timezone }}"
   become: true
 
 - name: chronyd is started and enabled
-  service:
+  ansible.builtin.service:
     name: chronyd
     state: started
     enabled: true
@@ -50,7 +50,7 @@
   when: ntp_enabled
 
 - name: chronyd is stopped and disabled
-  service:
+  ansible.builtin.service:
     name: chronyd
     state: stopped
     enabled: false

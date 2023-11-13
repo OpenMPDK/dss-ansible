@@ -30,12 +30,12 @@
 ---
 
 - name: "Identify newest version of {{ rpm_name }} RPM found"
-  set_fact:
+  ansible.builtin.set_fact:
     kernel_rpm_file: "{{ (kernel_rpms.files | selectattr('path', 'search', rpm_name) | sort(attribute='mtime', reverse=true) | first).path }}"
   run_once: true
 
 - name: "Check if {{ rpm_name }} RPM is installed"
-  shell: "rpm -qa | grep {{ kernel_rpm_file | basename | splitext | first }}"
+  ansible.builtin.shell: "rpm -qa | grep {{ kernel_rpm_file | basename | splitext | first }}"
   args:
     warn: false
   register: kernel_rpm_qa
@@ -43,20 +43,20 @@
   failed_when: false
 
 - name: "Copy {{ rpm_name }} RPM to staging directory"
-  copy:
+  ansible.builtin.copy:
     src: "{{ kernel_rpm_file }}"
     dest: "{{ deploy_kernel_staging_dir }}"
     mode: 0644
   when: kernel_rpm_qa.rc != 0
 
 - name: "Install {{ rpm_name }} RPM"
-  yum:
+  ansible.builtin.yum:
     name: "{{ deploy_kernel_staging_dir }}/{{ kernel_rpm_file | basename }}"
     disable_gpg_check: true
   become: true
   when: kernel_rpm_qa.rc != 0
 
 - name: "Delete {{ rpm_name }} RPM from staging directory"
-  file:
+  ansible.builtin.file:
     path: "{{ deploy_kernel_staging_dir }}/{{ kernel_rpm_file | basename }}"
     state: absent

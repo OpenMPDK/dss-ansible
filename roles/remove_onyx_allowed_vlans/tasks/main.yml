@@ -30,7 +30,7 @@
 ---
 
 - name: Find a host that has a defined combined_interface_switch_vlan_map
-  set_fact:
+  ansible.builtin.set_fact:
     combined_interface_switch_vlan_map: "{{ hostvars[host]['combined_interface_switch_vlan_map'] }}"
   loop: "{{ (groups['clients'] | d([]) + groups['servers'] | d([]) + groups['targets'] | d([]) + groups['hosts'] | d([])) | unique }}"
   loop_control:
@@ -40,13 +40,13 @@
     - combined_interface_switch_vlan_map is not defined
 
 - name: Assert combined_interface_switch_vlan_map is defined
-  assert:
+  ansible.builtin.assert:
     that: combined_interface_switch_vlan_map is defined
     fail_msg: Unable to obtain a list of MAC addresses from hosts. Check for playbook failures.
     quiet: true
 
 - name: Set switchport mode access
-  onyx_config:
+  ansible.builtin.onyx_config:
     lines:
       - "interface ethernet {{ link.switch_port }} switchport mode access"
     save: true

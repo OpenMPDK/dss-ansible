@@ -30,7 +30,7 @@
 ---
 
 - name: Find a host that has a defined combined_interface_switch_vlan_map
-  set_fact:
+  ansible.builtin.set_fact:
     combined_interface_switch_vlan_map: "{{ hostvars[host]['combined_interface_switch_vlan_map'] }}"
   loop: "{{ (groups['clients'] | d([]) + groups['servers'] | d([]) + groups['targets'] | d([]) + groups['hosts'] | d([])) | unique }}"
   loop_control:
@@ -40,28 +40,28 @@
     - combined_interface_switch_vlan_map is not defined
 
 - name: Assert combined_interface_switch_vlan_map is defined
-  assert:
+  ansible.builtin.assert:
     that: combined_interface_switch_vlan_map is defined
     fail_msg: Unable to obtain a list of MAC addresses from hosts. Check for playbook failures.
     quiet: true
 
 - name: Enable PFC
-  onyx_config:
+  ansible.builtin.onyx_config:
     lines:
       - dcb priority-flow-control enable force
 
 - name: Set pfc_prio_list
-  set_fact:
+  ansible.builtin.set_fact:
     pfc_prio_list: "{% for vlan in (rocev2_vlans + tcp_vlans) | map(attribute='id') | list %}[ {{ (vlan | string)[0] }} ] + {% endfor %}[ 0 ]"
 
 - name: Set PFC priorities
-  onyx_config:
+  ansible.builtin.onyx_config:
     lines:
       - "dcb priority-flow-control priority {{ item }} enable"
   loop: "{{ pfc_prio_list | unique }}"
 
 - name: Configure TCP VLANs
-  onyx_vlan:
+  ansible.builtin.onyx_vlan:
     vlan_id: "{{ item.id }}"
     name: "TCP_vlan{{ item.id }}"
   loop: "{{ tcp_vlans }}"
@@ -69,7 +69,7 @@
     label: "{{ item.id }}"
 
 - name: Configure RoCEv2 VLANs
-  onyx_vlan:
+  ansible.builtin.onyx_vlan:
     vlan_id: "{{ item.id }}"
     name: "RoCE_vlan{{ item.id }}"
   loop: "{{ rocev2_vlans }}"
@@ -77,7 +77,7 @@
     label: "{{ item.id }}"
 
 - name: Configure interfaces
-  onyx_config:
+  ansible.builtin.onyx_config:
     lines:
       - "interface ethernet {{ link.switch_port }} switchport mode hybrid"
       - "interface ethernet {{ link.switch_port }} switchport hybrid allowed-vlan add {{ link.vlan_id }}"
@@ -91,7 +91,7 @@
   when: link.switch_name == inventory_hostname
 
 - name: Enable PFC
-  onyx_pfc_interface:
+  ansible.builtin.onyx_pfc_interface:
     name: "Eth{{ link.switch_port }}"
     state: enabled
   loop: "{{ combined_interface_switch_vlan_map }}"
@@ -101,7 +101,7 @@
   when: link.switch_name == inventory_hostname
 
 - name: Configure MTU
-  onyx_interface:
+  ansible.builtin.onyx_interface:
     name: "Eth{{ link.switch_port }}"
     mtu: "{{ mtu_size }}"
   loop: "{{ combined_interface_switch_vlan_map }}"

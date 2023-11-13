@@ -30,7 +30,7 @@
 ---
 
 - name: Get name of local Mellanox Tools RPMs
-  find:
+  ansible.builtin.find:
     path: "{{ inventory_dir }}/artifacts/"
     patterns: "{{ item }}-*.rpm"
   delegate_to: localhost
@@ -39,7 +39,7 @@
   register: mlnx_tools_rpms
 
 - name: Assert Mellanox Tools RPMs found
-  assert:
+  ansible.builtin.assert:
     that: item.files[0].path is defined
     msg: "Missing Mellanox Tools RPM. Ensure Mellanox Tools RPMs are located in `{{ inventory_dir }}/artifacts`: {{ mlnx_tools_rpm_names }}"
     quiet: true
@@ -50,7 +50,7 @@
     label: "{{ item.item }}"
 
 - name: Identify most-recent version of Mellanox Tools RPMs in artifacts dir
-  set_fact:
+  ansible.builtin.set_fact:
     mlnx_tools_rpm_filenames: "{{ mlnx_tools_rpm_filenames | d([]) + [ (item.files | sort(attribute='mtime', reverse=true) | first).path ] }}"
   run_once: true
   loop: "{{ mlnx_tools_rpms.results }}"
@@ -58,7 +58,7 @@
     label: "{{ item.item }}"
 
 - name: Verify Mellanox Tools RPMs are installed
-  shell: "rpm -qa | grep {{ item | basename | splitext | first }}"
+  ansible.builtin.shell: "rpm -qa | grep {{ item | basename | splitext | first }}"
   args:
     warn: false
   register: mlnx_tools_rpm_qa
@@ -67,7 +67,7 @@
   failed_when: false
 
 - name: Set mlnx_tools_rpms_missing var
-  set_fact:
+  ansible.builtin.set_fact:
     mlnx_tools_rpms_missing: >-
       {%- set count = [] -%}
       {%- for file in mlnx_tools_rpm_qa.results -%}
@@ -78,11 +78,11 @@
       {{ count | length }}
 
 - name: Install Mellanox Tools
-  import_tasks: install_mellanox_tools.yml
+  ansible.builtin.import_tasks: install_mellanox_tools.yml
   when: mlnx_tools_rpms_missing | int > 0
 
 - name: Delete Mellanox Tools staging RPMs
-  file:
+  ansible.builtin.file:
     path: "{{ mlnx_tools_staging_dir }}/{{ item | basename }}"
     state: absent
   loop: "{{ mlnx_tools_rpm_filenames }}"

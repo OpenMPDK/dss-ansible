@@ -30,6 +30,6 @@
 ---
 
 - name: Fetch /etc/hosts
-  fetch:
+  ansible.builtin.fetch:
     src: /etc/hosts
     dest: "{{ local_coredump_dir }}"

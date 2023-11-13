@@ -30,14 +30,14 @@
 ---
 
 - name: create dirs...
-  file:
+  ansible.builtin.file:
     state: directory
     path: "{{ dss_agent_config_file_dir }}"
     mode: 0755
   become: true
 
 - name: Create agent configuration file
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: "{{ dss_agent_config_file_dir }}/agent.conf"
     create: true
     mode: 0755
@@ -75,7 +75,7 @@
   become: true
 
 - name: Copy sflowtool binary
-  copy:
+  ansible.builtin.copy:
     src: sflowtool
     dest: /usr/bin/sflowtool
     mode: 0755

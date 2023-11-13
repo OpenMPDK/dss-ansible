@@ -30,6 +30,6 @@
 ---
 
 - name: Install nvme-cli
-  yum:
+  ansible.builtin.yum:
     name: "nvme-cli-{{ deploy_nvme_cli_version }}"
   become: true

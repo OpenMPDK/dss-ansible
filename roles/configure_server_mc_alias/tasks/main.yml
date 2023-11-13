@@ -30,5 +30,5 @@
 ---
 
 - name: Configure server mc aliases
-  include_tasks: configure_server_mc_alias.yml
+  ansible.builtin.include_tasks: configure_server_mc_alias.yml
   when: not no_minio | d(false)

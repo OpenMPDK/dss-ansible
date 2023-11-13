@@ -30,13 +30,13 @@
 ---
 
 - name: Check OFED version
-  command: ofed_info -n
+  ansible.builtin.command: ofed_info -n
   failed_when: false
   changed_when: false
   register: ofed_version
 
 - name: Assert OFED not installed
-  assert:
+  ansible.builtin.assert:
     that: ofed_version.rc != 0
     msg: |
       Mellanox OFED is presently installed on this host.
@@ -45,17 +45,17 @@
       ofed_uninstall.sh --force
 
 - name: Install Infiniband
-  include_tasks: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
+  ansible.builtin.include_tasks: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
 
 - name: Start and enable RDMA service
-  service:
+  ansible.builtin.service:
     name: rdma
     enabled: true
     state: started
   become: true
 
 - name: Copy show_gids script
-  copy:
+  ansible.builtin.copy:
     src: show_gids.sh
     dest: /usr/local/bin/show_gids
     mode: 0755

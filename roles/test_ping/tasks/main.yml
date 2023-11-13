@@ -30,23 +30,23 @@
 ---
 
 - name: Assert test_vlans defined
-  assert:
+  ansible.builtin.assert:
     that:
       - test_vlans is defined
       - (test_vlans == "tcp") or (test_vlans == "rocev2")
 
 - name: Set selected_vlans var for rocev2
-  set_fact:
+  ansible.builtin.set_fact:
     selected_vlans: "{{ rocev2_vlans }}"
   when: test_vlans == "rocev2"
 
 - name: Set selected_vlans var for tcp
-  set_fact:
+  ansible.builtin.set_fact:
     selected_vlans: "{{ tcp_vlans }}"
   when: test_vlans == "tcp"
 
 - name: Get IP Addresses
-  include_role:
+  ansible.builtin.include_role:
     name: get_vlan_ips
   vars:
     vlan_list: "{{ selected_vlans }}"
@@ -55,33 +55,33 @@
     - rocev2_ip_list is not defined
 
 - name: Set vlan_ip_list for rocev2 if user-defined
-  set_fact:
+  ansible.builtin.set_fact:
     vlan_ip_list: "{{ rocev2_ip_list }}"
   when:
     - rocev2_ip_list is defined
     - test_vlans == "rocev2"
 
 - name: Set vlan_ip_list for tcp if user-defined
-  set_fact:
+  ansible.builtin.set_fact:
     vlan_ip_list: "{{ tcp_ip_list }}"
   when:
     - tcp_ip_list is defined
     - test_vlans == "tcp"
 
 - name: Assert that IP's are defined
-  assert:
+  ansible.builtin.assert:
     that: vlan_ip_list | length > 0
     fail_msg: |
       No IPs configured on any Mellanox adapter.
       Please configure at least one IP to test ping.
 
 - name: Initialized combined_vlan_ip_list
-  set_fact:
+  ansible.builtin.set_fact:
     combined_vlan_ip_list: []
   run_once: true
 
 - name: Set combined_vlan_ip_list
-  set_fact:
+  ansible.builtin.set_fact:
     combined_vlan_ip_list: "{{ combined_vlan_ip_list | default([]) }} + {{ hostvars[host].vlan_ip_list }}"
   loop: "{{ ansible_play_hosts }}"
   loop_control:
@@ -89,13 +89,13 @@
   run_once: true
 
 - name: Query IPs (getent)
-  shell: "getent ahosts {{ item }} | awk '{ print $1 }' | grep -v '^::1' | head -n 1"
+  ansible.builtin.shell: "getent ahosts {{ item }} | awk '{ print $1 }' | grep -v '^::1' | head -n 1"
   loop: "{{ combined_vlan_ip_list }}"
   changed_when: false
   register: getent
 
 - name: Assert getent contains routable hostnames or IPs
-  assert:
+  ansible.builtin.assert:
     that: "{{ item.stdout | ipaddr != false }}"
     msg: "{{ item.item }} is not routable on this host"
     quiet: true
@@ -104,7 +104,7 @@
     label: "{{ item.item }}"
 
 - name: Ping all endpoints
-  command: "ping {% if item.stdout | ipv6 %}-6 {% endif %}-c 1 {{ item.stdout }}"
+  ansible.builtin.command: "ping {% if item.stdout | ipv6 %}-6 {% endif %}-c 1 {{ item.stdout }}"
   changed_when: false
   loop: "{{ getent.results }}"
   loop_control:

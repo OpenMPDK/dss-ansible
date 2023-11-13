@@ -43,7 +43,7 @@
     - validate_ansible
 
 - name: Remove DSS Software
-  import_playbook: remove_dss_software.yml
+  ansible.builtin.import_playbook: remove_dss_software.yml
 
 - name: Format Disks
   hosts:
@@ -54,6 +54,6 @@
     - format_disks
 
 - name: Deploy DSS Software
-  import_playbook: deploy_dss_software.yml
+  ansible.builtin.import_playbook: deploy_dss_software.yml
   vars:
     cleanup_minio: true

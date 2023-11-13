@@ -30,6 +30,6 @@
 ---
 
 - name: Reboot system - dcqcn
-  reboot:
+  ansible.builtin.reboot:
     reboot_timeout: "{{ reboot_timeout }}"
   become: true

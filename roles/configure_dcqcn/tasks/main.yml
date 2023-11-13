@@ -30,24 +30,24 @@
 ---
 
 - name: Check mlxconfig exists
-  command: which mlxconfig
+  ansible.builtin.command: which mlxconfig
   register: which_mlxconfig
   changed_when: false
   failed_when: false
 
 - name: Install Mellanox Tools
-  include_role:
+  ansible.builtin.include_role:
     name: deploy_mlnx_tools
   when: which_mlxconfig.rc != 0
 
 - name: Get list of Mellanox ports
-  include_role:
+  ansible.builtin.include_role:
     name: get_mlnx_ports
   when: mellanox_ports is not defined
 
 - name: Configure DCQCN for each device
-  include_tasks: configure_dcqcn.yml
+  ansible.builtin.include_tasks: configure_dcqcn.yml
   when: ansible_virtualization_role != 'guest'
 
 - name: Flush handlers
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers

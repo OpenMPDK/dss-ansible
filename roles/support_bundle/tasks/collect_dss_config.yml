@@ -30,13 +30,13 @@
 ---
 
 - name: Find DSS config files
-  find:
+  ansible.builtin.find:
     paths: "{{ target_conf_dir }}"
     recurse: true
   register: dss_config
 
 - name: Fetch DSS config files
-  fetch:
+  ansible.builtin.fetch:
     src: "{{ item.path }}"
     dest: "{{ local_coredump_dir }}"
   loop: "{{ dss_config.files }}"

@@ -30,12 +30,12 @@
 ---
 
 - name: Initialize minio_hostnames var
-  set_fact:
+  ansible.builtin.set_fact:
     minio_hostnames: []
   run_once: true
 
 - name: Set minio_hostnames var
-  set_fact:
+  ansible.builtin.set_fact:
     minio_hostnames: "{{ minio_hostnames | d([]) + [ item ] }}"
   loop: "{{ (groups['servers'] | d([]) + groups['hosts'] | d([])) | unique }}"
   run_once: true

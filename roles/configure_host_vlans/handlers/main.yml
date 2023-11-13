@@ -30,10 +30,10 @@
 ---
 
 - name: Restart network service
-  service:
+  ansible.builtin.service:
     name: "{{ network_service }}"
     state: restarted
   become: true
 
 - name: Reload facts
-  setup:
+  ansible.builtin.setup:

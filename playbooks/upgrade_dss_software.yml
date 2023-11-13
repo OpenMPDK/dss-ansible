@@ -43,7 +43,7 @@
     - validate_ansible
 
 - name: Stop DSS Software and Reset SPDK
-  import_playbook: stop_reset_dss_software.yml
+  ansible.builtin.import_playbook: stop_reset_dss_software.yml
 
 - name: Deploy DSS Software
-  import_playbook: deploy_dss_software.yml
+  ansible.builtin.import_playbook: deploy_dss_software.yml

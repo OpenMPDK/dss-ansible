@@ -30,45 +30,45 @@
 ---
 
 - name: Assert more than one host
-  assert:
+  ansible.builtin.assert:
     that: ansible_play_hosts | length > 1
     msg: Can only test iperf with more than 1 target
 
 - name: Include vars
-  include_vars: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
 
 - name: Get iperf versions
-  command: "{{ iperf_binary }} --version"
+  ansible.builtin.command: "{{ iperf_binary }} --version"
   changed_when: false
   failed_when: false
   register: iperf_version
 
 - name: Assert iperf installed
-  assert:
+  ansible.builtin.assert:
     that: iperf_version.stdout is defined
     msg: "iperf is not installed. Install '{{ iperf_binary }}' RPM."
 
 - name: Get RoCEv2 IP Address
-  include_role:
+  ansible.builtin.include_role:
     name: get_vlan_ips
   vars:
     vlan_list: "{{ rocev2_vlans }}"
   when: rocev2_ip_list is not defined
 
 - name: Set rocev2_ip_list var if IP's auto-discovered
-  set_fact:
+  ansible.builtin.set_fact:
     rocev2_ip_list: "{{ vlan_ip_list }}"
   when: rocev2_ip_list is not defined
 
 - name: Assert that IP's are defined
-  assert:
+  ansible.builtin.assert:
     that: rocev2_ip_list | length > 0
     fail_msg: |
       No IPs configured on any Mellanox adapter.
       Please configure at least one IP to test ping.
 
 - name: Set net_devices var
-  set_fact:
+  ansible.builtin.set_fact:
     net_devices: "{{ net_devices | default([]) +
                 [{'ip_address': ip_address,
                   'linkspeed': linkspeed,
@@ -84,7 +84,7 @@
     linkspeed: "{{ ansible_facts | dict2items | json_query(speed_query) }}"
 
 - name: Set combined_net_devices var
-  set_fact:
+  ansible.builtin.set_fact:
     combined_net_devices: "{{ combined_net_devices | default([]) }} + {{ hostvars[host].net_devices }}"
   loop: "{{ ansible_play_hosts }}"
   loop_control:
@@ -92,7 +92,7 @@
   run_once: true
 
 - name: Iterate iperf permutations
-  include_tasks: iperf.yml
+  ansible.builtin.include_tasks: iperf.yml
   vars:
     server_vlan_index: "{{ server_net_device.vlan_index }}"
     server_hostname: "{{ server_net_device.hostname }}"
@@ -103,7 +103,7 @@
     loop_var: server_net_device
 
 - name: Assert iperf throughput is > 90% of link speed
-  assert:
+  ansible.builtin.assert:
     that: iperf_result.throughput | float >= min_linkspeed | float
     fail_msg: "Expected bandwidth: {{ min_linkspeed }}. Actual throughput: {{ iperf_result.throughput }}"
     quiet: true

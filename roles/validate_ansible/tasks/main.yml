@@ -30,5 +30,5 @@
 ---
 
 - name: Validate Ansible
-  include_tasks: validate_ansible.yml
+  ansible.builtin.include_tasks: validate_ansible.yml
   when: not ansible_validated | d(false)

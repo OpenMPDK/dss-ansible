@@ -30,21 +30,21 @@
 ---
 
 - name: Init vars
-  set_fact:
+  ansible.builtin.set_fact:
     standalone_minio: "{{ standalone_minio | d(false)}}"
 
 - name: Get Combined VLAN IP map
-  include_role:
+  ansible.builtin.include_role:
     name: get_combined_vlan_ip_map
 
 - name: Assert Subsystems mounted
-  assert:
+  ansible.builtin.assert:
     that: (nvme_subsys.stdout | from_json).Subsystems is defined
     msg: Subsystems are not mounted. Run `start_dss_software` playbook first.
   when: inventory_hostname in host_hostnames
 
 - name: Set flattened_subsystems
-  set_fact:
+  ansible.builtin.set_fact:
     flattened_subsystems: "{{ flattened_subsystems | d([]) }} +
       [
         {
@@ -59,18 +59,18 @@
   when: inventory_hostname in host_hostnames
 
 - name: Set rdma_subsystems var
-  set_fact:
+  ansible.builtin.set_fact:
     rdma_subsystems: "{{ flattened_subsystems | json_query('[?Paths[?Transport==`rdma`]]') }}"
   when: inventory_hostname in host_hostnames
 
 - name: Assert rdma subsystems present
-  assert:
+  ansible.builtin.assert:
     that: rdma_subsystems | length > 0
     msg: "No RDMA subsystems are mounted."
   when: inventory_hostname in host_hostnames
 
 - name: Set nvme_mountpoints
-  set_fact:
+  ansible.builtin.set_fact:
     nvme_mountpoints: |
       [
       {% for subsystem in rdma_subsystems %}
@@ -92,13 +92,13 @@
   when: inventory_hostname in host_hostnames
 
 - name: Assert subsystems mounted
-  assert:
+  ansible.builtin.assert:
     that: nvme_mountpoints | length > 0
     msg: NVMeOF subsystems not mounted. Please verify DSS software is running (start_dss_software)
   when: inventory_hostname in host_hostnames
 
 - name: Find min/max devmap
-  set_fact:
+  ansible.builtin.set_fact:
     subsys_range: >-
       {% set dev_range = { 'min': 999, 'max': 0 } -%}
       {%- for subsys in nvme_mountpoints -%}
@@ -118,14 +118,14 @@
   when: inventory_hostname in host_hostnames
 
 - name: Assert mountpoints found for each VLAN
-  assert:
+  ansible.builtin.assert:
     that: item.min != 999
     msg: "NVMe mountpoints not found for all VLANs. Check rocev2_vlans or rocev2_ip_list vars."
   loop: "{{ subsys_range }}"
   when: inventory_hostname in host_hostnames
 
 - name: Set min_subsystem_list
-  set_fact:
+  ansible.builtin.set_fact:
     min_subsystem_list: |
       [
         {% for vlan in subsys_range %}
@@ -135,7 +135,7 @@
   when: inventory_hostname in host_hostnames
 
 - name: Set standalone_minio var
-  set_fact:
+  ansible.builtin.set_fact:
     standalone_minio: true
   when:
     - inventory_hostname in host_hostnames
@@ -144,7 +144,7 @@
       (nvme_mountpoints | length /  tcp_alias_list | length) < 4)
 
 - name: Set standalone_minio var if disaggregated
-  set_fact:
+  ansible.builtin.set_fact:
     standalone_minio: true
   when:
     - inventory_hostname in groups['hosts'] | d([])

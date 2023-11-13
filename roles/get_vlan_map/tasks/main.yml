@@ -30,19 +30,19 @@
 ---
 
 - name: Assert onyx group is defined
-  assert:
+  ansible.builtin.assert:
     that: "'onyx' in groups"
     msg: No hosts defined in onyx group. Cannot automatically configure VLANs.
 
 - name: Assert VLAN ID lists are defined
-  assert:
+  ansible.builtin.assert:
     that:
       - tcp_vlan_id_list is defined
       - rocev2_vlan_id_list is defined
     msg: "VLAN ID list var is not defined"
 
 - name: Set interface_switch_map_no_numa var
-  set_fact:
+  ansible.builtin.set_fact:
     interface_switch_map_no_numa: >-
       {{ interface_switch_map_no_numa | default([]) }}
       {%- for switch in groups['onyx'] -%}
@@ -66,12 +66,12 @@
       {%- endfor -%}
 
 - name: Assert links found
-  assert:
+  ansible.builtin.assert:
     that: interface_switch_map_no_numa | length > 0
     msg: No links found for host on any switch. Check that NICs are connected to switch and that LLDPD is running.
 
 - name: Get NUMA
-  command: "cat /sys/class/net/{{ item.local_interface }}/device/numa_node"
+  ansible.builtin.command: "cat /sys/class/net/{{ item.local_interface }}/device/numa_node"
   changed_when: false
   loop: "{{ interface_switch_map_no_numa }}"
   loop_control:
@@ -79,7 +79,7 @@
   register: numa_node
 
 - name: Set interface_switch_map with NUMA
-  set_fact:
+  ansible.builtin.set_fact:
     interface_switch_map: "{{ interface_switch_map | default([]) }} +
       [
         {
@@ -95,7 +95,7 @@
     label: "{{ item.item.local_interface }}"
 
 - name: Assert number of links is greater than or equal to number of VLANs on switch
-  assert:
+  ansible.builtin.assert:
     that: (num_links | int) * (num_vlans_per_port | int) >= num_vlans | int
     fail_msg: >
       Number of links ({{ num_links }}) times num_vlans_per_port ({{ num_vlans_per_port }}): {{ (num_links | int) * (num_vlans_per_port | int) }}
@@ -114,7 +114,7 @@
     num_links: "{{ interface_switch_map | selectattr('switch_name', 'equalto', switch) | list | count }}"
 
 - name: Set interface_switch_vlan_map
-  set_fact:
+  ansible.builtin.set_fact:
     interface_switch_vlan_map: |
       {{ interface_switch_vlan_map | default([]) }}
       {%- for switch in groups['onyx'] -%}
@@ -152,7 +152,7 @@
       {%- endfor -%}
 
 - name: Set NUMA-sorted combined_interface_switch_vlan_map
-  set_fact:
+  ansible.builtin.set_fact:
     combined_interface_switch_vlan_map: "{{ combined_interface_switch_vlan_map | default([]) }} + {{ hostvars[host].interface_switch_vlan_map }}"
   loop: "{{ ansible_play_hosts }}"
   loop_control:

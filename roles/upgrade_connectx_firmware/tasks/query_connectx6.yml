@@ -30,13 +30,13 @@
 ---
 
 - name: Query ConnectX-6 adapter {{ mlx_ibdev }}
-  command: "flint -d {{ mlx_ibdev }} query"
+  ansible.builtin.command: "flint -d {{ mlx_ibdev }} query"
   changed_when: false
   register: flint_query
   become: true
 
 - name: Assert ConnectX-6 adapter is supported {{ mlx_ibdev }}
-  assert:
+  ansible.builtin.assert:
     that: connectx6_fw[psid] is defined
     fail_msg: "Adapter {{ mlx_ibdev }} PSID: {{ psid }} is unsupported"
     success_msg: "Found firmware URL for adapter {{ mlx_ibdev }} PSID: {{ psid }}"
@@ -44,7 +44,7 @@
     psid: "{{ flint_query.stdout | regex_search('PSID: +(.+)','\\1') | first }}"
 
 - name: Upgrade ConnectX-6 adapter {{ mlx_ibdev }}
-  include_tasks: upgrade_connectx6.yml
+  ansible.builtin.include_tasks: upgrade_connectx6.yml
   vars:
     psid: "{{ flint_query.stdout | regex_search('PSID: +(.+)','\\1') | first }}"
     fw_url: "{{ connectx6_fw[psid] }}"

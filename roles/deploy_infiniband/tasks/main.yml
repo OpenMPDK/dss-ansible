@@ -30,16 +30,16 @@
 ---
 
 - name: Assert infinband_driver value
-  assert:
+  ansible.builtin.assert:
     that: infiniband_driver in ['ofed', 'inbox']
     msg: infiniband_driver var must be either 'ofed' or 'inbox'
 
 - name: Install Mellanox OFED
-  include_role:
+  ansible.builtin.include_role:
     name: deploy_ofed
   when: infiniband_driver == 'ofed'
 
 - name: Install in-box Infiniband
-  include_role:
+  ansible.builtin.include_role:
     name: configure_inbox_infiniband
   when: infiniband_driver == 'inbox'

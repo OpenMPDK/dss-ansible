@@ -30,7 +30,7 @@
 ---
 
 - name: Stop and disable ufm_etcd service
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ ufm_etcd_service_file | basename }}"
     state: stopped
     daemon_reload: true
@@ -42,7 +42,7 @@
   become: true
 
 - name: Remove UFM files and directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   loop: "{{ ufm_reset_dirs + [ ufm_etcd_service_file ] }}"

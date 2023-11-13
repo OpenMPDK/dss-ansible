@@ -30,7 +30,7 @@
 ---
 
 - name: Install etcd-gateway.service systemd unit
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: /etc/systemd/system/etcd-gateway.service
     create: true
     mode: 0644
@@ -53,13 +53,13 @@
   become: true
 
 - name: systemctl daemon-reload
-  systemd:
+  ansible.builtin.systemd:
     daemon_reload: true
   when: etcd_gateway_service.changed
   become: true
 
 - name: Start etcd-gateway systemd unit
-  systemd:
+  ansible.builtin.systemd:
     enabled: true
     name: etcd-gateway
   when: etcd_gateway_service.changed

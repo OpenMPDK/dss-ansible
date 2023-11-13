@@ -30,7 +30,7 @@
 ---
 
 - name: Get name of local Fabric Mananger RPM
-  find:
+  ansible.builtin.find:
     path: "{{ inventory_dir }}/artifacts/"
     patterns: 'ufm-*.rpm'
   delegate_to: localhost
@@ -38,7 +38,7 @@
   register: ufm_rpm
 
 - name: Get name of local Fabric Mananger Broker RPM
-  find:
+  ansible.builtin.find:
     path: "{{ inventory_dir }}/artifacts/"
     patterns: 'ufmbroker-*.rpm'
   delegate_to: localhost
@@ -46,7 +46,7 @@
   register: ufmbroker_rpm
 
 - name: Fail if packages are missing
-  fail:
+  ansible.builtin.fail:
     msg: "Missing UFM packages. Check `{{ inventory_dir }}/artifacts` and execute build scripts if empty."
   delegate_to: localhost
   run_once: true
@@ -55,13 +55,13 @@
     ufmbroker_rpm.files[0].path is undefined
 
 - name: Identify newest version of RPMs found
-  set_fact:
+  ansible.builtin.set_fact:
     ufm_rpm_file: "{{ (ufm_rpm.files | sort(attribute='mtime', reverse=true) | first).path }}"
     ufmbroker_rpm_file: "{{ (ufmbroker_rpm.files | sort(attribute='mtime', reverse=true) | first).path }}"
   run_once: true
 
 - name: Check if UFM RPMs are installed
-  shell: "rpm -qa | grep {{ item | basename | splitext | first }}"
+  ansible.builtin.shell: "rpm -qa | grep {{ item | basename | splitext | first }}"
   args:
     warn: false
   register: ufm_rpm_qa
@@ -72,7 +72,7 @@
   failed_when: false
 
 - name: Set ufm_rpms_missing var
-  set_fact:
+  ansible.builtin.set_fact:
     ufm_rpms_missing: >-
       {%- set count = [] -%}
       {%- for file in ufm_rpm_qa.results -%}
@@ -83,13 +83,13 @@
       {{ count | length }}
 
 - name: Install FabricManager - CentOS
-  import_tasks: ufm_centos.yml
+  ansible.builtin.import_tasks: ufm_centos.yml
   when:
     - ansible_distribution_file_variety == 'RedHat'
     - ufm_rpms_missing | int > 0
 
 - name: Start Services
-  systemd:
+  ansible.builtin.systemd_service:
     name: "{{ item }}"
     state: started
     enabled: true
@@ -100,7 +100,7 @@
   become: true
 
 - name: Check that UFM services are running
-  service:
+  ansible.builtin.service:
     name: "{{ item }}"
   register: service_status
   failed_when: service_status.status.ActiveState != "active"
@@ -111,7 +111,7 @@
     - ufm_api
 
 - name: Delete RPM files from Fabric Mananger Hosts
-  file:
+  ansible.builtin.file:
     path: "{{ ufm_staging_dir }}/{{ item | basename }}"
     state: absent
   loop:

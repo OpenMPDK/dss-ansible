@@ -30,12 +30,12 @@
 ---
 
 - name: Check Ansible's python version
-  shell: 'ansible --version | grep -oP "python version = \K[^ ]+"'
+  ansible.builtin.shell: 'ansible --version | grep -oP "python version = \K[^ ]+"'
   register: local_python_version
   changed_when: false
 
 - name: Validate Ansible python version
-  assert:
+  ansible.builtin.assert:
     that: local_python_version.stdout is version(min_python_version, '>=')
     msg: |
       Ansible must be installed under python {{ min_python_version }} or newer.
@@ -47,7 +47,7 @@
       python3 -m pip install "ansible>={{ min_ansible_version }},<{{ max_ansible_version }}"
 
 - name: Validate Ansible version
-  assert:
+  ansible.builtin.assert:
     that:
       - ansible_version.full is version(min_ansible_version, '>=')
       - ansible_version.full is version(max_ansible_version, '<')
@@ -58,7 +58,7 @@
       python3 -m pip install ansible>={{ min_ansible_version }},<{{ max_ansible_version }}
 
 - name: Validate python modules
-  include_tasks: validate_python_modules.yml
+  ansible.builtin.include_tasks: validate_python_modules.yml
   loop: "{{ required_python_modules }}"
   vars:
     python_module: "{{ item.name }}"

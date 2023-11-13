@@ -30,20 +30,20 @@
 ---
 
 - name: Check {{ python_module }} python module version
-  command: 'python3 -c "import {{ python_module }}; print({{ python_module }}.__version__)"'
+  ansible.builtin.command: 'python3 -c "import {{ python_module }}; print({{ python_module }}.__version__)"'
   register: detected_module_version
   changed_when: false
   failed_when: false
 
 - name: Assert {{ python_module }} python module installed
-  assert:
+  ansible.builtin.assert:
     that: detected_module_version.rc == 0
     msg: |
        {{ python_module }} python module is not installed on the ansible controller.
        Install from your local console with: 'python3 -m pip install {{ python_module }}'
 
 - name: Assert {{ python_module }} python module version
-  assert:
+  ansible.builtin.assert:
     that: detected_module_version.stdout is version(python_module_version, '>=')
     msg: |
        {{ python_module }} python module must be >= {{ python_module_version }} on the ansible controller.

@@ -30,12 +30,12 @@
 ---
 
 - name: Collect dmesg
-  command: dmesg -T
+  ansible.builtin.command: dmesg -T
   register: dmesg
   changed_when: false
 
 - name: Fetch dmesg
-  copy:
+  ansible.builtin.copy:
     dest: "{{ local_coredump_dir }}/{{ inventory_hostname }}/dmesg"
     content: "{{ dmesg.stdout }}"
     mode: 0755

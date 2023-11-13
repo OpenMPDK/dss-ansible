@@ -30,7 +30,7 @@
 ---
 
 - name: Get Subsystems NQNs
-  command: |
+  ansible.builtin.command: |
     grep -oP '^  NQN \Knqn\..+' {{ target_conf_file }}
   register: nqn_list
   become: true
@@ -38,10 +38,10 @@
   when: dss_target_mode is search('kv_block')
 
 - name: Assert subsystems found
-  assert:
+  ansible.builtin.assert:
     that: nqn_list.stdout_lines | length > 0
     msg: Subsystems not found.
 
 - name: Set subsystem_nqns var
-  set_fact:
+  ansible.builtin.set_fact:
     subsystem_nqns: "{{ nqn_list.stdout_lines }}"

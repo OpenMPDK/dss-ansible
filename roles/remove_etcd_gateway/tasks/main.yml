@@ -31,11 +31,11 @@
 
 - name: Remove etcd-gateway systemd unit
   become: true
-  file:
+  ansible.builtin.file:
     path: /etc/systemd/system/etcd-gateway.service
     state: absent
 
 - name: systemctl daemon-reload
   become: true
-  systemd:
+  ansible.builtin.systemd:
     daemon_reload: true

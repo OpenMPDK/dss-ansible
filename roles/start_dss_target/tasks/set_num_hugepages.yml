@@ -30,7 +30,7 @@
 ---
 
 - name: Set Hugepages vars for VMs
-  set_fact:
+  ansible.builtin.set_fact:
     num_2mb_hugepages: 12288
     num_1gb_hugepages: 0
   when:
@@ -39,7 +39,7 @@
     - num_1gb_hugepages is not defined
 
 - name: Set Hugepages vars for physical hosts
-  set_fact:
+  ansible.builtin.set_fact:
     num_2mb_hugepages: 12288
     num_1gb_hugepages: 200
   when:
@@ -48,17 +48,17 @@
     - num_1gb_hugepages is not defined
 
 - name: Check 2MB hugepages
-  command: cat /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+  ansible.builtin.command: cat /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
   changed_when: false
   register: current_2mb_hugepages
 
 - name: Check 1GB hugepages
-  command: cat /sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages
+  ansible.builtin.command: cat /sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages
   changed_when: false
   register: current_1gb_hugepages
 
 - name: Assert host has sufficient memory to allocate hugepages
-  assert:
+  ansible.builtin.assert:
     that: free_memory_plus_current_hugepages | int > (num_2mb_hugepages | int * 2) + (num_1gb_hugepages | int * 1024)
     fail_msg: |
       Currently allocated hugepages: {{ current_total_hugepages_mb }} MB
@@ -75,21 +75,21 @@
     free_memory_plus_current_hugepages: "{{ ansible_memory_mb.nocache.free | int + current_total_hugepages_mb | int }}"
 
 - name: Zero 2MB hugepages
-  shell: echo 0 >  /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+  ansible.builtin.shell: echo 0 >  /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
   when:
     - current_2mb_hugepages.stdout | int != num_2mb_hugepages
     - current_2mb_hugepages.stdout | int != 0
   become: true
 
 - name: Zero 1GB hugepages
-  shell: echo 0 >  /sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages
+  ansible.builtin.shell: echo 0 >  /sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages
   when:
     - current_1gb_hugepages.stdout | int != num_1gb_hugepages
     - current_1gb_hugepages.stdout | int != 0
   become: true
 
 - name: Set GRUB_CMDLINE_LINUX hugepages options
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/default/grub
     state: present
     backrefs: true
@@ -109,4 +109,4 @@
   become: true
 
 - name: Flush handlers
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers

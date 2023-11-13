@@ -1,24 +1,24 @@
 ---
 
 - name: Init vars
-  set_fact:
+  ansible.builtin.set_fact:
     target_hostnames: "{{ (groups['servers'] | d([]) + groups['targets'] | d([])) | unique }}"
     host_hostnames: "{{ (groups['servers'] | d([]) + groups['hosts'] | d([])) | unique }}"
 
 - name: Get all RoCEv2 IP Addresses
-  include_role:
+  ansible.builtin.include_role:
     name: get_vlan_ips
   vars:
     vlan_list: "{{ rocev2_vlans }}"
   when: rocev2_ip_list is not defined
 
 - name: Set rocev2_ip_list var if IP's auto-discovered
-  set_fact:
+  ansible.builtin.set_fact:
     rocev2_ip_list: "{{ vlan_ip_list }}"
   when: rocev2_ip_list is not defined
 
 - name: Set rocev2_alias_map var
-  set_fact:
+  ansible.builtin.set_fact:
     rocev2_alias_map: "{{ rocev2_alias_map | d([]) }} +
       [
         {
@@ -34,14 +34,14 @@
   when: inventory_hostname in host_hostnames
 
 - name: Read local DSS conf
-  command: "cat {{ target_conf_dir }}/client_library_conf.json"
+  ansible.builtin.command: "cat {{ target_conf_dir }}/client_library_conf.json"
   register: local_dss_conf
   run_once: true
   delegate_to: "{{ host_hostnames[0] }}"
   changed_when: false
 
 - name: Set cluster_num_list var
-  set_fact:
+  ansible.builtin.set_fact:
     cluster_num_list: "{{ cluster_num_list | default([]) }} +
       [
         {% for host in ansible_play_hosts %}
@@ -52,14 +52,14 @@
   run_once: true
 
 - name: Check subsystems are mounted
-  include_tasks: check_subsystems.yml
+  ansible.builtin.include_tasks: check_subsystems.yml
   loop: "{{ cluster_num_list | unique }}"
   loop_control:
     loop_var: current_cluster_num
   when: current_cluster_num | string == cluster_num | string
 
 - name: Cleanup MinIO
-  include_tasks: execute_cleanup_script.yml
+  ansible.builtin.include_tasks: execute_cleanup_script.yml
   loop: "{{ (local_dss_conf.stdout | from_json).clusters }}"
   loop_control:
     label: "{{ first_endpoint }}"

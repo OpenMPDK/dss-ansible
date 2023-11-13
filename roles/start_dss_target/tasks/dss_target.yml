@@ -30,27 +30,27 @@
 ---
 
 - name: Set hugepages
-  include_tasks: set_num_hugepages.yml
+  ansible.builtin.include_tasks: set_num_hugepages.yml
 
 - name: Identify kvssd firmware
-  include_role:
+  ansible.builtin.include_role:
     name: identify_kvssd_firmware
   when: target_fw_version is not defined
 
 - name: Get RoCEv2 IP Address
-  include_role:
+  ansible.builtin.include_role:
     name: get_vlan_ips
   vars:
     vlan_list: "{{ rocev2_vlans }}"
   when: rocev2_ip_list is not defined
 
 - name: Set rocev2_ip_list var if auto-discovered
-  set_fact:
+  ansible.builtin.set_fact:
     rocev2_ip_list: "{{ vlan_ip_list }}"
   when: rocev2_ip_list is not defined
 
 - name: Assert that at least one RoCEv2 IP is present
-  assert:
+  ansible.builtin.assert:
     that:
       - rocev2_ip_list is defined
       - rocev2_ip_list | length > 0
@@ -58,7 +58,7 @@
     success_msg: "RoCEv2 IP(s) detected."
 
 - name: Create dss_target_config.sh script
-  copy:
+  ansible.builtin.copy:
     content: |
       export PCI_BLACKLIST="{{ pci_blacklist | d('') }}"
       /usr/bin/python2 ./dss_target.py configure \
@@ -82,14 +82,14 @@
   become: true
 
 - name: Reset SPDK
-  include_role:
+  ansible.builtin.include_role:
     name: reset_spdk
   when:
     - dss_target_config_script.changed
     - spdk_status.stdout is search('uio_pci_generic')
 
 - name: Configure target with dss_target_config.sh script
-  command: sh ./dss_target_config.sh
+  ansible.builtin.command: sh ./dss_target_config.sh
   args:
     chdir: "{{ target_dir }}/bin"
   register: dss_target_configure
@@ -101,7 +101,7 @@
     (spdk_status.stdout is not search('uio_pci_generic')) and (spdk_status.stdout is not search('vfio-pci'))
 
 - name: Assert dss_target.py success
-  assert:
+  ansible.builtin.assert:
     that:
       - "'drive setup to system is done' in dss_target_configure.stdout"
       - "'hugepage setup is done' in dss_target_configure.stdout"
@@ -118,7 +118,7 @@
   when: dss_target_configure.changed
 
 - name: Save output of dss_target.py
-  copy:
+  ansible.builtin.copy:
     content: "{{ dss_target_configure.stdout }}"
     dest: "{{ target_dir }}/bin/dss_target.out"
     mode: 0644
@@ -126,5 +126,5 @@
   when: dss_target_configure.changed
 
 - name: Check hugepages
-  include_tasks: check_hugepages.yml
+  ansible.builtin.include_tasks: check_hugepages.yml
   when: dss_target_configure.changed

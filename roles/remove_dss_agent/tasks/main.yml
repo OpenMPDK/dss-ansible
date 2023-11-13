@@ -30,16 +30,15 @@
 ---
 
 - name: Remove agent related packages
-  become: true
-  package:
+  ansible.builtin.package:
     name: "{{ item }}"
     state: absent
   loop:
     - nkvagent
+  become: true
 
 - name: Delete log files and config directories
-  become: true
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   loop:
@@ -47,3 +46,4 @@
     - "{{ nkv_agent_conf_dir }}"
     - "{{ nkv_agent_tmp_dir }}"
     - "{{ dss_log_dir }}/subsystem_store.log"
+  become: true

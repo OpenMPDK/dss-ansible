@@ -30,21 +30,21 @@
 ---
 
 - name: Init vars
-  set_fact:
+  ansible.builtin.set_fact:
     vlan_ip_map: []
     combined_vlan_ip_map: []
     included_targets: []
     included_hosts: []
 
 - name: Assert current_cluster_num is defined
-  assert:
+  ansible.builtin.assert:
     that: current_cluster_num is defined
     msg: |
       current_cluster_num is not defined.
       This role must be included in groups by cluster_num
 
 - name: Set included_targets var
-  set_fact:
+  ansible.builtin.set_fact:
     included_targets: "{{ included_targets | default([]) + [ target ] }}"
   loop: "{{ target_hostnames }}"
   loop_control:
@@ -53,7 +53,7 @@
   run_once: true
 
 - name: Set included_hosts var
-  set_fact:
+  ansible.builtin.set_fact:
     included_hosts: "{{ included_hosts | default([]) + [ host ] }}"
   loop: "{{ host_hostnames }}"
   loop_control:
@@ -62,7 +62,7 @@
   run_once: true
 
 - name: Set TCP - RoCEv2 IP map
-  set_fact:
+  ansible.builtin.set_fact:
     vlan_ip_map: "{{ vlan_ip_map | default([]) +
                   [{'tcp_alias': tcp_alias,
                     'rocev2_ip': rocev2_ip }] }}"
@@ -76,7 +76,7 @@
     rocev2_ip: "{{ item.1 }}"
 
 - name: Set combined_vlan_ip_map
-  set_fact:
+  ansible.builtin.set_fact:
     combined_vlan_ip_map: "{{ combined_vlan_ip_map | default([]) }} +
       [{ 'rocev2': [{% for host in included_targets -%}
       '{{ hostvars[host].vlan_ip_map[ansible_loop.index0].rocev2_ip }}'
@@ -91,7 +91,7 @@
   run_once: true
 
 - name: NVMe list subsystems
-  command: nvme list-subsys -o json
+  ansible.builtin.command: nvme list-subsys -o json
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   changed_when: false

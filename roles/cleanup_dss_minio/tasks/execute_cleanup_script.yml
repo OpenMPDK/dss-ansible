@@ -30,7 +30,7 @@
 ---
 
 - name: Get range of mountpoints
-  command: >-
+  ansible.builtin.command: >-
     grep -oP "mount_point\"\: \"/dev/nvme\K\d+" nkv_config_{{ rocev2_ip }}.json
   register: mountpoint_range
   args:
@@ -38,12 +38,12 @@
   changed_when: false
 
 - name: Set min_mountpoint and max_mountpoint vars
-  set_fact:
+  ansible.builtin.set_fact:
     min_mountpoint: "{{ mountpoint_range.stdout_lines[0] }}"
     max_mountpoint: "{{ mountpoint_range.stdout_lines[-1] }}"
 
 - name: Execute minio_cleanup.sh
-  command: "sh ./minio_cleanup.sh {{ min_mountpoint }} {{ max_mountpoint }} nkv_config_{{ rocev2_ip }}.json"
+  ansible.builtin.command: "sh ./minio_cleanup.sh {{ min_mountpoint }} {{ max_mountpoint }} nkv_config_{{ rocev2_ip }}.json"
   args:
     chdir: "{{ nkv_sdk_bin_dir }}"
   become: true

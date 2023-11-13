@@ -30,17 +30,17 @@
 ---
 
 - name: Install nvme-cli
-  include_tasks: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
+  ansible.builtin.include_tasks: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
 
 - name: Check nvme-cli version post-install
-  command: nvme --version
+  ansible.builtin.command: nvme --version
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   changed_when: false
   register: post_nvme_cli_version
 
 - name: Assert nvme-cli version post-install
-  assert:
+  ansible.builtin.assert:
     that: post_nvme_cli_version.stdout.split(' ')[-1] is version(deploy_nvme_cli_version, '==')
     fail_msg: "Expected nvme-cli version {{ deploy_nvme_cli_version }}. Detected nvme-cli version {{ post_nvme_cli_version.stdout.split(' ')[-1] }}"
     success_msg: "Detected target nvme-cli version {{ deploy_nvme_cli_version }}."

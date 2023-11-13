@@ -30,7 +30,7 @@
 ---
 
 - name: Install DSS Agent runtime dependencies
-  package:
+  ansible.builtin.package:
     name: "{{ item }}"
     state: present
   loop:
@@ -43,7 +43,7 @@
   become: true
 
 - name: Remove existing staging directory
-  file:
+  ansible.builtin.file:
     name: "{{ item }}"
     state: absent
   loop:
@@ -51,7 +51,7 @@
   become: true
 
 - name: Create RPM staging directory
-  file:
+  ansible.builtin.file:
     state: directory
     path: "{{ item }}"
     mode: 0755
@@ -59,13 +59,13 @@
     - "{{ nkv_agent_tmp_dir }}"
 
 - name: Copy DSS Agent RPM
-  copy:
+  ansible.builtin.copy:
     src: "{{ agent_rpm_file }}"
     dest: "{{ nkv_agent_tmp_dir }}"
     mode: 0755
 
 - name: Install DSS Agent RPM
-  yum:
+  ansible.builtin.yum:
     name: "{{ nkv_agent_tmp_dir }}/{{ agent_rpm_file | basename }}"
     allow_downgrade: true
     disable_gpg_check: true
@@ -76,7 +76,7 @@
   become: true
 
 - name: Check that target services are running
-  service:
+  ansible.builtin.service:
     name: "{{ item }}"
   register: service_status
   failed_when: service_status.status.ActiveState != "active"
@@ -85,7 +85,7 @@
     - kv_cli
 
 - name: Copy python script to remote location
-  template:
+  ansible.builtin.template:
     src: subsystem_store.py
     dest: "{{ dss_subsystem_script_temp_file }}"
     mode: 0755
@@ -93,11 +93,11 @@
 
 - name: Wait for agent to gather all data on Target
   # May need to tune this
-  wait_for: timeout=70
+  ansible.builtin.wait_for: timeout=70
   when: agent_rpm_status.changed
 
 - name: Creating subsystem based on CONFIG file.
-  command: "python {{ dss_subsystem_script_temp_file }}"
+  ansible.builtin.command: "python {{ dss_subsystem_script_temp_file }}"
   register: subsys_store
   failed_when: false
   no_log: true
@@ -105,7 +105,7 @@
   become: true
 
 - name: Check status of subsystem configure script
-  fail:
+  ansible.builtin.fail:
     msg: "Error in configuring subsystem. Check {{ start_dss_agent_subsystem_log }}"
   when:
     - subsys_store is not skipped

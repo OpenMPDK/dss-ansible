@@ -30,11 +30,11 @@
 ---
 
 - name: Gather service facts
-  service_facts:
+  ansible.builtin.service_facts:
 
 - name: Start etcd-gateway systemd unit
   become: true
-  systemd:
+  ansible.builtin.systemd:
     enabled: true
     state: started
     name: etcd-gateway

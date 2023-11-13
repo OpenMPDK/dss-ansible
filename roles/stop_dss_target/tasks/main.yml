@@ -30,13 +30,13 @@
 ---
 
 - name: Find running target process
-  command: "pgrep reactor_"
+  ansible.builtin.command: "pgrep reactor_"
   register: nvmf_ps
   changed_when: false
   failed_when: false
 
 - name: Kill -2 target processes
-  command: "kill -2 {{ pid }}"
+  ansible.builtin.command: "kill -2 {{ pid }}"
   register: kill_nvmf
   changed_when: kill_nvmf.stdout is not search('No such process')
   failed_when: false
@@ -46,7 +46,7 @@
   become: true
 
 - name: Wait for nvmf_tgt process to stop
-  command: "pgrep reactor_"
+  ansible.builtin.command: "pgrep reactor_"
   register: postnvmf_ps
   until: postnvmf_ps.rc != 0
   retries: 120
@@ -55,7 +55,7 @@
   failed_when: false
 
 - name: Kill -9 stuck target processes
-  command: "kill -9 {{ pid }}"
+  ansible.builtin.command: "kill -9 {{ pid }}"
   register: kill9_nvmf
   changed_when: kill9_nvmf.stdout is not search('No such process')
   failed_when: false
@@ -66,7 +66,7 @@
   become: true
 
 - name: Wait for nvmf_tgt process to stop after kill -9
-  command: "pgrep reactor_"
+  ansible.builtin.command: "pgrep reactor_"
   register: postnvmf_ps9
   until: postnvmf_ps9.rc != 0
   retries: 120

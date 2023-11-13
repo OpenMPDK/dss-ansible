@@ -30,11 +30,11 @@
 ---
 
 - name: Fetch nvmf_tgt binary
-  fetch:
+  ansible.builtin.fetch:
     src: "{{ target_bin_dir }}/nvmf_tgt"
     dest: "{{ local_coredump_dir }}"
 
 - name: Fetch minio binary
-  fetch:
+  ansible.builtin.fetch:
     src: "{{ minio_dir }}/minio"
     dest: "{{ local_coredump_dir }}"
