@@ -32,7 +32,7 @@
 - name: Gather service facts
   ansible.builtin.service_facts:
 
-- name: stop dss agent kv_cli systemd unit
+- name: Stop dss agent kv_cli systemd unit
   ansible.builtin.systemd:
     enabled: false
     state: stopped

@@ -29,7 +29,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: create dirs...
+- name: Create agent directories
   ansible.builtin.file:
     state: directory
     path: "{{ dss_agent_config_file_dir }}"

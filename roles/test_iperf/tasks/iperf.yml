@@ -67,7 +67,7 @@
     var: iperf_client_command
   when: inventory_hostname != server_hostname
 
-- name: iperf server from {{ server_hostname }} - {{ server_ip_address }}
+- name: Execute iperf server from {{ server_hostname }} - {{ server_ip_address }}
   ansible.builtin.command: "{{ iperf_server_command }}"
   changed_when: false
   async: "{{ iperf_duration | int + 10 }}"
@@ -76,7 +76,7 @@
   delegate_to: "{{ server_hostname }}"
   when: inventory_hostname != server_hostname
 
-- name: iperf client to {{ server_hostname }} - {{ server_ip_address }}, {{ iperf_duration }} seconds
+- name: Execute iperf client to {{ server_hostname }} - {{ server_ip_address }}, {{ iperf_duration }} seconds
   ansible.builtin.command: "{{ iperf_client_command }}"
   changed_when: false
   register: iperf_results

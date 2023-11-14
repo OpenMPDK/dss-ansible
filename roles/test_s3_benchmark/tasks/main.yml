@@ -151,7 +151,7 @@
     loop_var: client
   run_once: true
 
-- name: s3-benchmark PUT
+- name: Execute s3-benchmark PUT
   ansible.builtin.include_tasks: s3_benchmark.yml
   vars:
     operation: PUT
@@ -169,7 +169,7 @@
     s3_put_speed: "{{ s3_speed }}"
   run_once: true
 
-- name: s3-benchmark GET
+- name: Execute s3-benchmark GET
   ansible.builtin.include_tasks: s3_benchmark.yml
   vars:
     operation: GET
@@ -180,7 +180,7 @@
     s3_get_speed: "{{ s3_speed }}"
   run_once: true
 
-- name: s3-benchmark DEL
+- name: Execute s3-benchmark DEL
   ansible.builtin.include_tasks: s3_benchmark.yml
   vars:
     operation: DEL

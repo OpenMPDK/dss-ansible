@@ -35,7 +35,7 @@
     - groups['ufm_hosts'] is defined
     - groups['ufm_hosts'] | length > 0
 
-- name: start dss agent kv_cli systemd unit
+- name: Start dss agent kv_cli systemd unit
   ansible.builtin.systemd:
     enabled: false
     state: started

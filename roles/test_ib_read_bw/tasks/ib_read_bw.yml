@@ -81,12 +81,12 @@
   delegate_to: "{{ server_hostname }}"
   when: inventory_hostname != server_hostname
 
-- name: print ib_read_bw client command
+- name: Print ib_read_bw client command
   ansible.builtin.debug:
     var: ib_read_bw_client_command
   when: inventory_hostname != server_hostname
 
-- name: ib_read_bw server from {{ server_hostname }} - {{ server_ip_address }}
+- name: Execute ib_read_bw server from {{ server_hostname }} - {{ server_ip_address }}
   ansible.builtin.command: "{{ ib_read_bw_server_command }}"
   changed_when: false
   async: "{{ ib_read_bw_duration | int + 10 }}"
@@ -95,7 +95,7 @@
   delegate_to: "{{ server_hostname }}"
   when: inventory_hostname != server_hostname
 
-- name: ib_read_bw client to {{ server_hostname }} - {{ server_ip_address }}, {{ ib_read_bw_duration }} seconds
+- name: Execute ib_read_bw client to {{ server_hostname }} - {{ server_ip_address }}, {{ ib_read_bw_duration }} seconds
   ansible.builtin.command: "{{ ib_read_bw_client_command }}"
   changed_when: false
   register: ib_results

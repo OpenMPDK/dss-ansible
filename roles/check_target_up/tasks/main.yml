@@ -29,7 +29,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: pgrep target instances
+- name: Search for target instances with pgrep
   ansible.builtin.command: pgrep reactor_
   changed_when: false
   failed_when: false

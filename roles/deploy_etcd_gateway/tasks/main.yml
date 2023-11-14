@@ -52,7 +52,7 @@
   register: etcd_gateway_service
   become: true
 
-- name: systemctl daemon-reload
+- name: Run systemctl daemon-reload
   ansible.builtin.systemd:
     daemon_reload: true
   when: etcd_gateway_service.changed

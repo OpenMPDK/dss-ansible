@@ -35,7 +35,7 @@
     path: /etc/systemd/system/etcd-gateway.service
     state: absent
 
-- name: systemctl daemon-reload
+- name: Run systemctl daemon-reload
   become: true
   ansible.builtin.systemd:
     daemon_reload: true

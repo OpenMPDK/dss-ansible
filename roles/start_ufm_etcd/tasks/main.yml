@@ -46,7 +46,7 @@
   when: service_file.changed
   become: true
 
-- name: ufm_etcd service is started and enabled
+- name: Start and enable ufm_etcd service
   ansible.builtin.systemd_service:
     name: "{{ ufm_etcd_service_file | basename }}"
     state: started

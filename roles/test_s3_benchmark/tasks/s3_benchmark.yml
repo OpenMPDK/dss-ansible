@@ -139,7 +139,7 @@
   run_once: true
   when: operation != 'DEL'
 
-- name: set s3_speed var
+- name: Set s3_speed var
   ansible.builtin.set_fact:
     s3_speed: >-
       {%- set total_objects = {'value': 0} -%}

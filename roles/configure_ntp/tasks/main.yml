@@ -41,7 +41,7 @@
     name: "{{ ntp_timezone }}"
   become: true
 
-- name: chronyd is started and enabled
+- name: Start and enable chronyd
   ansible.builtin.service:
     name: chronyd
     state: started
@@ -49,7 +49,7 @@
   become: true
   when: ntp_enabled
 
-- name: chronyd is stopped and disabled
+- name: Stop and disable chronyd
   ansible.builtin.service:
     name: chronyd
     state: stopped

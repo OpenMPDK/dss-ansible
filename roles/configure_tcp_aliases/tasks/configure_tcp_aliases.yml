@@ -168,7 +168,7 @@
   ansible.builtin.set_fact:
     tcp_adapter_numa_list: "{{ tcp_adapter_numa_list | sort(attribute='numa') }}"
 
-- name: set tcp_alias_list var
+- name: Set tcp_alias_list var
   ansible.builtin.set_fact:
     tcp_alias_list: "{{ tcp_alias_list | default([]) }} +
       [
