@@ -30,14 +30,14 @@
 ---
 
 - name: Load Mellanox modules
-  modprobe:
+  ansible.builtin.modprobe:
     name: "{{ item }}"
     state: present
   become: true
   loop: "{{ load_mlnx_drivers_modules }}"
 
 - name: Create modules-load.d template
-  template:
+  ansible.builtin.template:
     src: dss_mlnx.conf.j2
     dest: "{{ load_mlnx_drivers_path }}/{{ load_mlnx_drivers_script_name }}"
     mode: 0644

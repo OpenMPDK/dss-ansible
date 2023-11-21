@@ -30,14 +30,14 @@
 ---
 
 - name: Find target setup script, dss_target.py output, and mkfs_blobfs output
-  find:
+  ansible.builtin.find:
     paths: "{{ target_bin_dir }}"
     patterns: 'dss_target_config.sh,dss_target.out,format_disks.sh,format_disks.out'
     recurse: false
   register: target_setup_logs
 
 - name: Fetch target setup script, dss_target.py output, and mkfs_blobfs output
-  fetch:
+  ansible.builtin.fetch:
     src: "{{ item.path }}"
     dest: "{{ local_coredump_dir }}"
   loop: "{{ target_setup_logs.files }}"

@@ -30,13 +30,13 @@
 ---
 
 - name: Start DSS Agent if ufm_hosts group exists, and there are hosts in the group
-  include_tasks: check_dss_agent.yml
+  ansible.builtin.include_tasks: check_dss_agent.yml
   when:
     - groups['ufm_hosts'] is defined
     - groups['ufm_hosts'] | length > 0
 
-- name: start dss agent kv_cli systemd unit
-  systemd:
+- name: Start dss agent kv_cli systemd unit
+  ansible.builtin.systemd:
     enabled: false
     state: started
     name: kv_cli

@@ -30,12 +30,12 @@
 ---
 
 - name: Set target_hostnames and host_hostnames vars
-  set_fact:
+  ansible.builtin.set_fact:
     target_hostnames: "{{ (groups['servers'] | d([]) + groups['targets'] | d([])) | unique }}"
     host_hostnames: "{{ (groups['servers'] | d([]) + groups['hosts'] | d([])) | unique }}"
 
 - name: Create local coredump dir
-  file:
+  ansible.builtin.file:
     path: "{{ local_coredump_dir }}"
     state: directory
     mode: 0755
@@ -43,7 +43,7 @@
   run_once: true
 
 - name: Create host dirs if coredump_only is false
-  file:
+  ansible.builtin.file:
     path: "{{ local_coredump_dir }}/{{ inventory_hostname }}"
     state: directory
     mode: 0755
@@ -51,11 +51,11 @@
   when: not coredump_only
 
 - name: Check for coredumps
-  find:
+  ansible.builtin.find:
     path: "{{ coredump_dir }}"
     patterns: 'core-reactor_*.gz'
   register: coredumps
 
 - name: Generate support bundle
-  include_tasks: generate_bundle.yml
+  ansible.builtin.include_tasks: generate_bundle.yml
   when: coredumps.matched > 0 or not coredump_only

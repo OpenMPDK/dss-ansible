@@ -52,7 +52,7 @@
     - validate_ansible
 
 - name: Download Artifacts
-  import_playbook: download_artifacts.yml
+  ansible.builtin.import_playbook: download_artifacts.yml
 
 - name: Check IOMMU Off
   gather_facts: false
@@ -140,7 +140,7 @@
     - deploy_dss_minio
 
 - name: Start DSS Software
-  import_playbook: start_dss_software.yml
+  ansible.builtin.import_playbook: start_dss_software.yml
 
 - name: Deploy Data Mover
-  import_playbook: deploy_client.yml
+  ansible.builtin.import_playbook: deploy_client.yml

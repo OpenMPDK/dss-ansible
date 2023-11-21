@@ -30,7 +30,7 @@
 ---
 
 - name: Query ConnectX Devices (ibdev2netdev)
-  command: ibdev2netdev -v
+  ansible.builtin.command: ibdev2netdev -v
   changed_when: false
   register: mlx_list
   become: true

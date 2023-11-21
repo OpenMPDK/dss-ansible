@@ -30,42 +30,42 @@
 ---
 
 - name: Install epel-release repo
-  include_role:
+  ansible.builtin.include_role:
     name: deploy_epel
 
 - name: Include vars
-  include_vars: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
 
 - name: Install target runtime dependencies
-  yum:
+  ansible.builtin.yum:
     name: "{{ dss_target_deps }}"
   become: true
 
 - name: Identify pip2 executable
-  shell: which pip2 pip-2 | grep 'bin/pip' | head -n 1
+  ansible.builtin.shell: which pip2 pip-2 | grep 'bin/pip' | head -n 1
   register: pip2_path
   changed_when: false
   failed_when: false
 
 - name: Assert pip2_path is found
-  assert:
+  ansible.builtin.assert:
     that: pip2_path.stdout != ''
     msg: "pip2 is not installed"
 
 - name: Upgrade pip
-  pip:
+  ansible.builtin.pip:
     name: "pip=={{ pip2_version }}"
     executable: "{{ pip2_path.stdout }}"
   become: true
 
 - name: Install netifaces python dependency
-  pip:
+  ansible.builtin.pip:
     name: netifaces
     executable: "{{ pip2_path.stdout }}"
   become: true
 
 - name: Identify target tarball
-  find:
+  ansible.builtin.find:
     path: "{{ artifacts_dir }}"
     patterns: 'nkv-target*.tgz'
   delegate_to: localhost
@@ -73,12 +73,12 @@
   register: target_tgz
 
 - name: Assert target tarball found
-  assert:
+  ansible.builtin.assert:
     that: target_tgz.files | length > 0
     fail_msg: "No target tarball found. Please download tarball to {{ artifacts_dir }}"
 
 - name: Identify XRT tarball
-  find:
+  ansible.builtin.find:
     path: "{{ artifacts_dir }}"
     patterns: "{{ xrt_tarball }}"
   delegate_to: localhost
@@ -86,14 +86,14 @@
   register: xrt_tgz
 
 - name: Create target destination path
-  file:
+  ansible.builtin.file:
     path: "{{ target_dir }}"
     state: directory
     mode: 0555
   become: true
 
 - name: Deploy target from tarball
-  unarchive:
+  ansible.builtin.unarchive:
     src: "{{ (target_tgz.files | sort(attribute='mtime', reverse=true) | first).path }}"
     dest: "{{ target_dir }}"
     extra_opts: [--strip-components=1]
@@ -104,7 +104,7 @@
   become: true
 
 - name: Deploy XRT from tarball
-  unarchive:
+  ansible.builtin.unarchive:
     src: "{{ (xrt_tgz.files | sort(attribute='mtime', reverse=true) | first).path }}"
     dest: '/'
     owner: root
@@ -114,7 +114,7 @@
   become: true
 
 - name: Set ld.conf.so
-  copy:
+  ansible.builtin.copy:
     dest: /etc/ld.so.conf.d/dss_target.conf
     content: |
       # DSS libs for dss-sdk target
@@ -125,7 +125,7 @@
   become: true
 
 - name: Create log dir
-  file:
+  ansible.builtin.file:
     path: "{{ dss_log_dir }}"
     state: directory
     mode: 0755
@@ -134,7 +134,7 @@
   become: true
 
 - name: Create conf dir
-  file:
+  ansible.builtin.file:
     path: "{{ target_conf_dir }}"
     state: directory
     mode: 0755

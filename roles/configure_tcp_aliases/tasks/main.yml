@@ -30,5 +30,5 @@
 ---
 
 - name: Configure aliases if not already set
-  include_tasks: configure_tcp_aliases.yml
+  ansible.builtin.include_tasks: configure_tcp_aliases.yml
   when: tcp_alias_list is not defined

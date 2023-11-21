@@ -30,10 +30,10 @@
 ---
 
 - name: Gather service facts
-  service_facts:
+  ansible.builtin.service_facts:
 
 - name: Stop diamond service
-  systemd:
+  ansible.builtin.systemd_service:
     name: diamond
     state: stopped
     enabled: false
@@ -41,7 +41,7 @@
   become: true
 
 - name: Remove diamond configuration file and service script
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   loop:
@@ -50,6 +50,6 @@
   become: true
 
 - name: Update systemd configuration
-  systemd:
+  ansible.builtin.systemd:
     daemon-reload: true
   become: true

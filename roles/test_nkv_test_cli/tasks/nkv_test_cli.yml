@@ -30,7 +30,7 @@
 ---
 
 - name: Execute nkv_test_cli command
-  command: "{{ nkv_test_cli_command }}"
+  ansible.builtin.command: "{{ nkv_test_cli_command }}"
   args:
     chdir: "{{ nkv_sdk_bin_dir }}"
   loop: "{{ rocev2_numa_prefix_list }}"
@@ -61,7 +61,7 @@
   become: true
 
 - name: Check async nkv_test_cli command
-  async_status:
+  ansible.builtin.async_status:
     jid: "{{ async_task.ansible_job_id }}"
   register: async_results
   until: async_results.finished
@@ -74,7 +74,7 @@
   become: true
 
 - name: Assert async nkv_test_cli completion
-  assert:
+  ansible.builtin.assert:
     that: async_result.finished != 0
     fail_msg: "nkv_test_cli did not complete in time"
     quiet: true
@@ -84,12 +84,12 @@
     label: "{{ async_result.cmd | join(' ') }}"
 
 - name: Initialize throughput vars
-  set_fact:
+  ansible.builtin.set_fact:
     throughput: 0
     combined_throughput: 0
 
 - name: Set throughput
-  set_fact:
+  ansible.builtin.set_fact:
     throughput: "{{ (throughput | float) + (async_result.stdout | regex_search(nkv_re, '\\1') | first | float) }}"
   vars:
     nkv_re: >-
@@ -100,7 +100,7 @@
     label: "{{ async_result.cmd | join(' ') }}"
 
 - name: Set combined_throughput
-  set_fact:
+  ansible.builtin.set_fact:
     combined_throughput: "{{ (combined_throughput | float) + (hostvars[host].throughput | float) }}"
   loop: "{{ host_hostnames }}"
   loop_control:

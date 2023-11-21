@@ -30,7 +30,7 @@
 ---
 
 - name: Assert datamover_operation is valid
-  assert:
+  ansible.builtin.assert:
     that: datamover_operation in valid_operations
     msg: datamover_operation var must be one of {{ valid_operations }}
   vars:
@@ -43,11 +43,11 @@
   run_once: true
 
 - name: Create datamover config file
-  include_role:
+  ansible.builtin.include_role:
     name: create_datamover_conf
 
 - name: Set datamover vars
-  set_fact:
+  ansible.builtin.set_fact:
     dryrun_string: "{% if datamover_dryrun | bool %}--dryrun{% else %}{% endif %}"
     compaction_string: "{% if datamover_compaction | bool and dss_target_mode is search('kv_block') and not hpos %}--compaction yes{% else %}{% endif %}"
     data_integrity_string: "{% if datamover_data_integrity | bool %}--data_integrity{% else %}{% endif %}"
@@ -55,11 +55,11 @@
     prefix_string: "{% if datamover_prefix != '' %}--prefix={{ datamover_prefix }}{% else %}{% endif %}"
 
 - name: Cleanup Datamover
-  include_role:
+  ansible.builtin.include_role:
     name: cleanup_datamover
 
 - name: While you wait ...
-  debug:
+  ansible.builtin.debug:
     msg: |
       Datamover is about to execute.
       This could take a very long time, depending on the size of your dataset.
@@ -74,16 +74,16 @@
     label: ''
 
 - name: "Execute datamover - {{ datamover_operation }}"
-  include_tasks: "datamover_{{ datamover_operation }}.yml"
+  ansible.builtin.include_tasks: "datamover_{{ datamover_operation }}.yml"
   run_once: true
 
 - name: Print master_application.log
-  debug:
+  ansible.builtin.debug:
     msg: "{{ master_application.stdout }}"
   run_once: true
 
 - name: Assert no errors in master_application.log
-  assert:
+  ansible.builtin.assert:
     that: "item not in master_application.stdout"
     msg: Errors found in Datamover
   run_once: true

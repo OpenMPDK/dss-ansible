@@ -30,12 +30,12 @@
 ---
 
 - name: Stat DSS Target path
-  stat:
+  ansible.builtin.stat:
     path: "{{ target_bin_dir }}"
   register: dss_target_path
 
 - name: Move disks back to kernel mode (spdk reset)
-  command: /usr/bin/python2 ./dss_target.py reset
+  ansible.builtin.command: /usr/bin/python2 ./dss_target.py reset
   args:
     chdir: "{{ target_bin_dir }}"
   register: target_reset

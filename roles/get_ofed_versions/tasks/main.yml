@@ -30,11 +30,11 @@
 ---
 
 - name: Initialize ofed_files variable
-  set_fact:
+  ansible.builtin.set_fact:
     ofed_files: []
 
 - name: Set list of variables for detected OFED versions
-  set_fact:
+  ansible.builtin.set_fact:
     ofed_files: "{{ ofed_files | default([]) +
                         [{'url': item,
                           'filename': item | basename,

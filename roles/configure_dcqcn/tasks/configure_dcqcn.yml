@@ -30,7 +30,7 @@
 ---
 
 - name: Query mlxconfig
-  command: "mlxconfig -d {{ item.ibdev }} q"
+  ansible.builtin.command: "mlxconfig -d {{ item.ibdev }} q"
   changed_when: false
   register: mlxconfig
   loop: "{{ mellanox_devices_numa }}"
@@ -39,7 +39,7 @@
   become: true
 
 - name: Set ROCE_CC_PRIO_MASK_P1
-  command: "mlxconfig -d {{ item.item.ibdev }} -y s ROCE_CC_PRIO_MASK_P1={{ dcqcn_roce_cc_prio_mask_p1 }}"
+  ansible.builtin.command: "mlxconfig -d {{ item.item.ibdev }} -y s ROCE_CC_PRIO_MASK_P1={{ dcqcn_roce_cc_prio_mask_p1 }}"
   loop: "{{ mlxconfig.results }}"
   loop_control:
     label: "{{ item.item.ibdev }}"
@@ -52,7 +52,7 @@
   become: true
 
 - name: Set CNP_DSCP_P1
-  command: "mlxconfig -d {{ item.item.ibdev }} -y s CNP_DSCP_P1={{ dcqcn_cnp_dscp_p1 }}"
+  ansible.builtin.command: "mlxconfig -d {{ item.item.ibdev }} -y s CNP_DSCP_P1={{ dcqcn_cnp_dscp_p1 }}"
   loop: "{{ mlxconfig.results }}"
   loop_control:
     label: "{{ item.item.ibdev }}"
@@ -65,20 +65,20 @@
   become: true
 
 - name: Set CNP_802P_PRIO_P1
-  command: "mlxconfig -d {{ item.item.ibdev }} -y s CNP_802P_PRIO_P1={{ dcqcn_cnp_802p_prio_p1 }}"
+  ansible.builtin.command: "mlxconfig -d {{ item.item.ibdev }} -y s CNP_802P_PRIO_P1={{ dcqcn_cnp_802p_prio_p1 }}"
   loop: "{{ mlxconfig.results }}"
   loop_control:
     label: "{{ item.item.ibdev }}"
   vars:
     mlx_re: 'CNP_802P_PRIO_P1 +([^ ]+)'
-  when: 
+  when:
     - item.stdout is regex(mlx_re)
     - item.stdout | regex_search(mlx_re,'\\1') | first != dcqcn_cnp_802p_prio_p1 | string
   notify: Reboot system - dcqcn
   become: true
 
 - name: Set PCI_WR_ORDERING
-  command: "mlxconfig -d {{ item.item.ibdev }} -y s PCI_WR_ORDERING={{ dcqcn_pci_wr_ordering }}"
+  ansible.builtin.command: "mlxconfig -d {{ item.item.ibdev }} -y s PCI_WR_ORDERING={{ dcqcn_pci_wr_ordering }}"
   loop: "{{ mlxconfig.results }}"
   loop_control:
     label: "{{ item.item.ibdev }}"

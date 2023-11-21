@@ -30,13 +30,13 @@
 ---
 
 - name: Check for running minio instances
-  command: "pgrep -x minio"
+  ansible.builtin.command: "pgrep -x minio"
   register: minio_ps
   changed_when: false
   failed_when: false
 
 - name: Kill -2 minio processes
-  command: "kill -2 {{ pid }}"
+  ansible.builtin.command: "kill -2 {{ pid }}"
   register: kill_minio
   changed_when: kill_minio.stdout is not search('No such process')
   failed_when: false
@@ -46,7 +46,7 @@
   become: true
 
 - name: Wait for minio processes to stop
-  command: "pgrep -x minio"
+  ansible.builtin.command: "pgrep -x minio"
   register: postminio_ps
   until: postminio_ps.rc != 0
   retries: 12
@@ -55,7 +55,7 @@
   failed_when: false
 
 - name: Kill -9 stuck minio processes
-  command: "kill -9 {{ pid }}"
+  ansible.builtin.command: "kill -9 {{ pid }}"
   register: kill9_minio
   changed_when: kill9_minio.stdout is not search('No such process')
   failed_when: false
@@ -66,7 +66,7 @@
   become: true
 
 - name: Wait for minio process to stop after kill -9
-  command: "pgrep -x minio"
+  ansible.builtin.command: "pgrep -x minio"
   register: postminio_ps9
   until: postminio_ps9.rc != 0
   retries: 12

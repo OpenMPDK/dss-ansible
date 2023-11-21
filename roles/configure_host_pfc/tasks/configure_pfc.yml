@@ -30,7 +30,7 @@
 ---
 
 - name: Query mlnx_qos
-  command: "mlnx_qos -i {{ item.netdev }}"
+  ansible.builtin.command: "mlnx_qos -i {{ item.netdev }}"
   register: mlnx_qos
   changed_when: false
   loop: "{{ mellanox_devices_numa }}"
@@ -38,7 +38,7 @@
     label: "{{ item.netdev }}"
 
 - name: Set mlnx_qos
-  command: "mlnx_qos -i {{ item.item.netdev }} -f {{ set_pfc_string }}"
+  ansible.builtin.command: "mlnx_qos -i {{ item.item.netdev }} -f {{ set_pfc_string }}"
   become: true
   loop: "{{ mlnx_qos.results }}"
   loop_control:

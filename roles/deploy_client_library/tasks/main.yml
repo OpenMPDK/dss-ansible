@@ -30,19 +30,19 @@
 ---
 
 - name: Include vars
-  include_vars: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
 
 - name: Install epel-release repo
-  include_role:
+  ansible.builtin.include_role:
     name: deploy_epel
 
 - name: Install yum dependencies
-  yum:
+  ansible.builtin.yum:
     name: "{{ client_library_deps }}"
   become: true
 
 - name: Identify client tarball
-  find:
+  ansible.builtin.find:
     path: "{{ artifacts_dir }}"
     patterns: 'dss_client*.tgz'
   delegate_to: localhost
@@ -50,21 +50,21 @@
   register: client_tgz
 
 - name: Assert client tarball found
-  assert:
+  ansible.builtin.assert:
     that: client_tgz.files | length > 0
     fail_msg: "No client tarball found. Please download tarball to {{ artifacts_dir }}"
     success_msg: "Found client tarball"
   run_once: true
 
 - name: Create client library destination path
-  file:
+  ansible.builtin.file:
     path: "{{ client_library_dir }}"
     state: directory
     mode: 0755
   become: true
 
 - name: Deploy client library from tarball
-  unarchive:
+  ansible.builtin.unarchive:
     src: "{{ (client_tgz.files | sort(attribute='mtime', reverse=true) | first).path }}"
     dest: "{{ client_library_dir }}"
     owner: root
@@ -74,17 +74,17 @@
   become: true
 
 - name: Get python3 platform lib dir
-  command: python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(True))"
+  ansible.builtin.command: python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(True))"
   register: python3_platform_lib_dir
   changed_when: false
 
 - name: Get python3 lib dir
-  command: python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"
+  ansible.builtin.command: python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"
   register: python3_lib_dir
   changed_when: false
 
 - name: Set symlink for dss.cpython-36m-x86_64-linux-gnu.so
-  file:
+  ansible.builtin.file:
     src: "{{ client_library_dir }}/dss.cpython-36m-x86_64-linux-gnu.so"
     dest: "{{ python3_platform_lib_dir.stdout }}/dss.cpython-36m-x86_64-linux-gnu.so"
     state: link
@@ -92,20 +92,20 @@
   become: true
 
 - name: Remove dss.cpython-36m-x86_64-linux-gnu.so from python3 lib dir if different from platform lib dir
-  file:
+  ansible.builtin.file:
     dest: "{{ python3_lib_dir.stdout }}/dss.cpython-36m-x86_64-linux-gnu.so"
     state: absent
   when: python3_lib_dir.stdout != python3_platform_lib_dir.stdout
   become: true
 
 - name: Remove existing libdss.so Library symlink
-  file:
+  ansible.builtin.file:
     path: /usr/local/lib64/libdss.so
     state: absent
   become: true
 
 - name: Set ld.conf.so
-  copy:
+  ansible.builtin.copy:
     dest: /etc/ld.so.conf.d/dss_client_library.conf
     content: |
       # DSS libs for client library

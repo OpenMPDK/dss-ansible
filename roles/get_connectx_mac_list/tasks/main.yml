@@ -30,12 +30,12 @@
 ---
 
 - name: Get list of Mellanox ports
-  include_role:
+  ansible.builtin.include_role:
     name: get_mlnx_ports
   when: mellanox_ports is not defined
 
 - name: Get list of MAC addresses
-  set_fact:
+  ansible.builtin.set_fact:
     connectx_mac_address_list: "{{ connectx_mac_address_list | default([]) + [ mac_address ] }}"
   loop: "{{ mellanox_ports }}"
   loop_control:
@@ -49,7 +49,7 @@
     - lookup('vars', vlan_device, default='') != ''
 
 - name: Set combined_connectx_mac_list
-  set_fact:
+  ansible.builtin.set_fact:
     combined_connectx_mac_list: "{{ combined_connectx_mac_list | default([]) }} + {{ hostvars[host].connectx_mac_address_list }}"
   loop: "{{ ansible_play_hosts }}"
   loop_control:

@@ -30,13 +30,13 @@
 ---
 
 - name: Collect numactl
-  command: numactl -H
+  ansible.builtin.command: numactl -H
   register: numactl
   changed_when: false
   failed_when: false
 
 - name: Fetch numactl
-  copy:
+  ansible.builtin.copy:
     dest: "{{ local_coredump_dir }}/{{ inventory_hostname }}/numactl"
     content: "{{ numactl.stdout }}"
     mode: 0755

@@ -30,7 +30,7 @@
 ---
 
 - name: Set GRUB_CMDLINE_LINUX options
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/default/grub
     state: present
     backrefs: true
@@ -61,7 +61,7 @@
   become: true
 
 - name: Set GRUB_DEFAULT
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/default/grub
     state: present
     backrefs: true

@@ -30,58 +30,58 @@
 ---
 
 - name: Set target/host group vars
-  set_fact:
+  ansible.builtin.set_fact:
     target_hostnames: "{{ (groups['servers'] | d([]) + groups['targets'] | d([])) | unique }}"
     host_hostnames: "{{ (groups['servers'] | d([]) + groups['hosts'] | d([])) | unique }}"
 
 - name: Get RoCEv2 IP lists and NUMA
-  include_tasks: get_ip_numa.yml
+  ansible.builtin.include_tasks: get_ip_numa.yml
   when: inventory_hostname in host_hostnames
 
 - name: Execute nkv_test_cli put
-  include_tasks: nkv_test_cli.yml
+  ansible.builtin.include_tasks: nkv_test_cli.yml
   vars:
     operation: "{{ test_nkv_test_cli_put }}"
   when: inventory_hostname in host_hostnames
 
 - name: Set put_throughput
-  set_fact:
+  ansible.builtin.set_fact:
     put_throughput: "{{ combined_throughput }}"
   when: inventory_hostname in host_hostnames
 
 - name: Start Compaction
-  include_role:
+  ansible.builtin.include_role:
     name: start_compaction
   when:
     - inventory_hostname in target_hostnames
     - dss_target_mode is search('kv_block')
 
 - name: Execute nkv_test_cli get
-  include_tasks: nkv_test_cli.yml
+  ansible.builtin.include_tasks: nkv_test_cli.yml
   vars:
     operation: "{{ test_nkv_test_cli_get }}"
   when: inventory_hostname in host_hostnames
 
 - name: Set get_throughput
-  set_fact:
+  ansible.builtin.set_fact:
     get_throughput: "{{ combined_throughput }}"
   when: inventory_hostname in host_hostnames
 
 - name: Execute nkv_test_cli delete
-  include_tasks: nkv_test_cli.yml
+  ansible.builtin.include_tasks: nkv_test_cli.yml
   vars:
     operation: "{{ test_nkv_test_cli_delete }}"
   when: inventory_hostname in host_hostnames
 
 - name: Start Compaction
-  include_role:
+  ansible.builtin.include_role:
     name: start_compaction
   when:
     - inventory_hostname in target_hostnames
     - dss_target_mode is search('kv_block')
 
 - name: Print throughput
-  debug:
+  ansible.builtin.debug:
     msg: |
       Put throughput:    {{ '%0.2f' | format(put_throughput | float) }} GB/s
       Get throughput:    {{ '%0.2f' | format(get_throughput | float) }} GB/s

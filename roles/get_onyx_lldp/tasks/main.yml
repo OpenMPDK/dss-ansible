@@ -30,7 +30,7 @@
 ---
 
 - name: Assert VLAN lists are defined
-  assert:
+  ansible.builtin.assert:
     that:
       - tcp_vlan_id_list is defined
       - rocev2_vlan_id_list is defined
@@ -38,12 +38,12 @@
     fail_msg: "{{ inventory_hostname }} needs 'tcp_vlan_id_list' and 'rocev2_vlan_id_list' variables defined"
 
 - name: Query lldp remote
-  onyx_command:
+  ansible.builtin.onyx_command:
     commands: show lldp remote | json-print
   register: lldp_remote
 
 - name: Set lldp_interfaces var
-  set_fact:
+  ansible.builtin.set_fact:
     lldp_interfaces: >-
       {{ lldp_interfaces | d([]) +
         [{

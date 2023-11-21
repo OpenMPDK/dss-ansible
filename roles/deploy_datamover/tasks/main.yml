@@ -30,7 +30,7 @@
 ---
 
 - name: Identify datamover tarball
-  find:
+  ansible.builtin.find:
     path: "{{ artifacts_dir }}"
     patterns: 'nkv-datamover*.tgz'
   delegate_to: localhost
@@ -38,21 +38,21 @@
   register: datamover_tgz
 
 - name: Assert datamove tarball found
-  assert:
+  ansible.builtin.assert:
     that: datamover_tgz.files | length > 0
     fail_msg: "No datamove tarball found. Please download tarball to {{ artifacts_dir }}"
     success_msg: "Found datamover tarball"
   run_once: true
 
 - name: Create datamover destination path
-  file:
+  ansible.builtin.file:
     path: "{{ datamover_dir }}"
     state: directory
     mode: 0755
   become: true
 
 - name: Deploy datamover from tarball
-  unarchive:
+  ansible.builtin.unarchive:
     src: "{{ (datamover_tgz.files | sort(attribute='mtime', reverse=true) | first).path }}"
     dest: "{{ datamover_dir }}"
     owner: root

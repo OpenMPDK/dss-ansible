@@ -30,12 +30,12 @@
 ---
 
 - name: Remove BlobFS Files
-  include_role:
+  ansible.builtin.include_role:
     name: remove_blobfs_files
   when: dss_target_mode is search('kv_block')
 
 - name: Format KVSSD
-  include_role:
+  ansible.builtin.include_role:
     name: "{{ item }}"
   loop:
     - reset_spdk

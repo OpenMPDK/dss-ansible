@@ -30,13 +30,13 @@
 ---
 
 - name: Init vars
-  set_fact:
+  ansible.builtin.set_fact:
     included_targets: []
     first_vlan_ip_list: []
     combined_expected_num_subsystems: 0
 
 - name: Set included_targets var
-  set_fact:
+  ansible.builtin.set_fact:
     included_targets: "{{ included_targets + [ target ] }}"
   loop: "{{ ansible_play_hosts }}"
   loop_control:
@@ -47,25 +47,25 @@
   run_once: true
 
 - name: Get RoCEv2 IP Addresses
-  include_role:
+  ansible.builtin.include_role:
     name: get_vlan_ips
   vars:
     vlan_list: "{{ rocev2_vlans }}"
   when: rocev2_ip_list is not defined
 
 - name: Set rocev2_ip_list and first_rocev2_ip_list var if IP's auto-discovered
-  set_fact:
+  ansible.builtin.set_fact:
     rocev2_ip_list: "{{ vlan_ip_list }}"
     first_rocev2_ip_list: "{{ vlan_ip_list | first }}"
   when: rocev2_ip_list is not defined
 
 - name: Set first_rocev2_ip_list var if IP's user-defined
-  set_fact:
+  ansible.builtin.set_fact:
     first_rocev2_ip_list: "{{ rocev2_ip_list | first }}"
   when: rocev2_ip_list is defined
 
 - name: Assert that at least one RoCEv2 IP is present
-  assert:
+  ansible.builtin.assert:
     that:
       - first_rocev2_ip_list is defined
       - first_rocev2_ip_list | length > 0
@@ -73,7 +73,7 @@
     success_msg: "RoCEv2 IP(s) detected."
 
 - name: Set first_vlan_ip_list var
-  set_fact:
+  ansible.builtin.set_fact:
     first_vlan_ip_list: "{{ first_vlan_ip_list + [hostvars[host].first_rocev2_ip_list] }}"
   loop: "{{ included_targets }}"
   loop_control:
@@ -81,19 +81,19 @@
   run_once: true
 
 - name: Check number of listeners in nvmf.in.conf
-  shell: |
+  ansible.builtin.shell: |
     grep '^  Listen RDMA' {{ target_conf_file }} | wc -l
   changed_when: false
   register: num_listeners
   when: inventory_hostname in included_targets
 
 - name: Set expected_num_subsystems var
-  set_fact:
+  ansible.builtin.set_fact:
     expected_num_subsystems: "{{ num_listeners.stdout }}"
   when: inventory_hostname in included_targets
 
 - name: Set combined_expected_num_subsystems var
-  set_fact:
+  ansible.builtin.set_fact:
     combined_expected_num_subsystems: "{{ combined_expected_num_subsystems | int + hostvars[host].expected_num_subsystems | int }}"
   loop: "{{ included_targets }}"
   loop_control:
@@ -101,11 +101,11 @@
   run_once: true
 
 - name: Get Combined VLAN IP map
-  include_role:
+  ansible.builtin.include_role:
     name: get_combined_vlan_ip_map
 
 - name: Create dss_host_config_host.sh script
-  copy:
+  ansible.builtin.copy:
     content: >
       /usr/bin/python2 ./dss_host.py config_host -a
       {% for ip in first_vlan_ip_list %}{{ ip }}{% if not loop.last %} {% endif %}{% endfor %}
@@ -127,14 +127,14 @@
   become: true
 
 - name: Configure Driver
-  include_tasks: configure_driver.yml
+  ansible.builtin.include_tasks: configure_driver.yml
   loop: "{{ range(1,4) | list }}"
   loop_control:
     loop_var: config_num
   when: inventory_hostname in host_hostnames
 
 - name: Assert all subsystems are mounted
-  assert:
+  ansible.builtin.assert:
     that:
       - all_subsystems_mounted is defined
       - all_subsystems_mounted == true
@@ -145,7 +145,7 @@
   when: inventory_hostname in host_hostnames
 
 - name: Execute dss_host_config_host.sh script
-  command: sh ./dss_host_config_host.sh
+  ansible.builtin.command: sh ./dss_host_config_host.sh
   args:
     chdir: "{{ nkv_sdk_bin_dir }}"
   when:

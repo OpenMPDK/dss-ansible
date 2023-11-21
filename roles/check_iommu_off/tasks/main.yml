@@ -30,13 +30,13 @@
 ---
 
 - name: Find IOMMU groups
-  find:
+  ansible.builtin.find:
     path: /sys/kernel/iommu_groups
     file_type: directory
     recurse: false
   register: iommu_groups
 
 - name: Assert IOMMU off
-  assert:
+  ansible.builtin.assert:
     that: iommu_groups.matched == 0
     msg: IOMMU is enabled. Please disable IOMMU to use DSS software.

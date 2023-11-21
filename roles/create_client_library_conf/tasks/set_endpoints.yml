@@ -1,13 +1,13 @@
 ---
 
 - name: Init vars
-  set_fact:
+  ansible.builtin.set_fact:
     endpoints: []
     combined_endpoints: []
     combined_rdd_endpoints: []
 
 - name: Set endpoints var
-  set_fact:
+  ansible.builtin.set_fact:
     endpoints: "{{ endpoints | d([]) }} +
       [
           {
@@ -29,7 +29,7 @@
   when: current_cluster.min_subsystem_list[vlan] == unique_subsystem
 
 - name: Set combined_endpoints var
-  set_fact:
+  ansible.builtin.set_fact:
     combined_endpoints: "{{ combined_endpoints + hostvars[host].endpoints }}"
     combined_rdd_endpoints: "{{ combined_rdd_endpoints + hostvars[host].rdd_endpoints }}"
   loop: "{{ included_hosts }}"
@@ -39,7 +39,7 @@
   run_once: true
 
 - name: Set clusters var and increment cluster_index
-  set_fact:
+  ansible.builtin.set_fact:
     clusters: "{{ clusters }} +
       [
         {

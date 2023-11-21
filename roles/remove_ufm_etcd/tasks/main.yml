@@ -30,13 +30,13 @@
 ---
 
 - name: Remove UFM yum Repository
-  yum_repository:
+  ansible.builtin.yum_repository:
     name: ufm
     state: absent
   become: true
 
 - name: Remove UFM Packages (yum)
-  yum:
+  ansible.builtin.yum:
     name: "{{ ufm_install_packages }}"
     state: absent
     disable_gpg_check: true

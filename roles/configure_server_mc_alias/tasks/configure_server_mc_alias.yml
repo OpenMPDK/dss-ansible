@@ -30,17 +30,17 @@
 ---
 
 - name: Stat DSS Minio path
-  stat:
+  ansible.builtin.stat:
     path: "{{ minio_dir }}"
   register: mc_alias_path
 
 - name: Assert DSS Minio path exists
-  assert:
+  ansible.builtin.assert:
     that: mc_alias_path.stat.exists
     fail_msg: DSS Minio is not installed. Execute 'deploy_dss_software.yml' playbook first.
 
 - name: List local hosts with mc
-  command: "{{ minio_dir }}/mc config host list {{ local_mc_alias }}"
+  ansible.builtin.command: "{{ minio_dir }}/mc config host list {{ local_mc_alias }}"
   loop: "{{ range(0, tcp_alias_list | length) | list }}"
   loop_control:
     label: "{{ tcp_alias }}"
@@ -53,7 +53,7 @@
   changed_when: false
 
 - name: Set local hosts with mc
-  command: >
+  ansible.builtin.command: >
     {{ minio_dir }}/mc config host
     add {{ local_mc_alias }} http://{{ tcp_alias }}:{{ minio_port }}
     {{ minio_access_key }} {{ minio_secret_key }}

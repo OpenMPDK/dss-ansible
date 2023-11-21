@@ -30,7 +30,7 @@
 ---
 
 - name: Set ib_read_bw_port and cumulative_bw vars
-  set_fact:
+  ansible.builtin.set_fact:
     cumulative_bw: 0
     ib_read_bw_port: |-
       {%- for host in ansible_play_hosts -%}
@@ -40,7 +40,7 @@
       {%- endfor -%}
 
 - name: Set server linkspeed
-  set_fact:
+  ansible.builtin.set_fact:
     server_linkspeed: "{{ lookup('vars', server_ans_netdev).speed }}"
   vars:
     server_ans_netdev: "ansible_{{ server_netdev | replace('-', '_') }}"
@@ -48,11 +48,11 @@
   run_once: true
 
 - name: Set client_ib_device var
-  set_fact:
+  ansible.builtin.set_fact:
     client_ib_device: "{{ ib_devices | selectattr('vlan_index', 'equalto', server_vlan_index) | list | first }}"
 
 - name: Set ib_read_bw_server_command and ib_read_bw_client_command vars
-  set_fact:
+  ansible.builtin.set_fact:
     ib_read_bw_server_command: >-
       ib_read_bw
       --ib-dev={{ server_ibdev }}
@@ -76,18 +76,18 @@
   when: inventory_hostname != server_hostname
 
 - name: Print ib_read_bw server command
-  debug:
+  ansible.builtin.debug:
     var: ib_read_bw_server_command
   delegate_to: "{{ server_hostname }}"
   when: inventory_hostname != server_hostname
 
-- name: print ib_read_bw client command
-  debug:
+- name: Print ib_read_bw client command
+  ansible.builtin.debug:
     var: ib_read_bw_client_command
   when: inventory_hostname != server_hostname
 
-- name: ib_read_bw server from {{ server_hostname }} - {{ server_ip_address }}
-  command: "{{ ib_read_bw_server_command }}"
+- name: Execute ib_read_bw server from {{ server_hostname }} - {{ server_ip_address }}
+  ansible.builtin.command: "{{ ib_read_bw_server_command }}"
   changed_when: false
   async: "{{ ib_read_bw_duration | int + 10 }}"
   poll: 0
@@ -95,15 +95,15 @@
   delegate_to: "{{ server_hostname }}"
   when: inventory_hostname != server_hostname
 
-- name: ib_read_bw client to {{ server_hostname }} - {{ server_ip_address }}, {{ ib_read_bw_duration }} seconds
-  command: "{{ ib_read_bw_client_command }}"
+- name: Execute ib_read_bw client to {{ server_hostname }} - {{ server_ip_address }}, {{ ib_read_bw_duration }} seconds
+  ansible.builtin.command: "{{ ib_read_bw_client_command }}"
   changed_when: false
   register: ib_results
   become: true
   when: inventory_hostname != server_hostname
 
 - name: Set cumulative_bw var
-  set_fact:
+  ansible.builtin.set_fact:
     cumulative_bw: "{{ (cumulative_bw | float) + (bw_avg | float) }}"
   loop: "{{ ansible_play_hosts }}"
   loop_control:
@@ -115,7 +115,7 @@
   when: client_hostname != server_hostname
 
 - name: Collect ib_read_bw results for server {{ server_hostname }} - {{ server_ip_address }}
-  set_fact:
+  ansible.builtin.set_fact:
     combined_ib_results: "{{ combined_ib_results | default([]) +
                           [{'bw_avg': '%0.2f' % cumulative_bw | float,
                             'server_hostname': server_hostname,

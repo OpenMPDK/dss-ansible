@@ -1,11 +1,11 @@
 ---
 
 - name: Init vars
-  set_fact:
+  ansible.builtin.set_fact:
     included_hosts: []
 
 - name: Set included_hosts var
-  set_fact:
+  ansible.builtin.set_fact:
     included_hosts: "{{ included_hosts | default([]) + [ host ] }}"
   loop: "{{ ansible_play_hosts }}"
   loop_control:
@@ -16,7 +16,7 @@
   run_once: true
 
 - name: Set endpoints for each min_subsystem_list
-  include_tasks: set_endpoints.yml
+  ansible.builtin.include_tasks: set_endpoints.yml
   loop: "{{ current_cluster.min_subsystem_list | unique }}"
   loop_control:
     loop_var: unique_subsystem

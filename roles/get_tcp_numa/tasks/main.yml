@@ -30,5 +30,5 @@
 ---
 
 - name: Get TCP Numa only if adjacent_numa_list is not defined
-  include_tasks: get_tcp_numa.yml
+  ansible.builtin.include_tasks: get_tcp_numa.yml
   when: adjacent_numa_list is not defined

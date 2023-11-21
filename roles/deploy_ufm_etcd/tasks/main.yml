@@ -30,40 +30,40 @@
 ---
 
 - name: Gather service facts
-  service_facts:
+  ansible.builtin.service_facts:
 
 - name: Install dependencies
-  include_tasks: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
+  ansible.builtin.include_tasks: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
 
 - name: Open Ports - CentOS
-  include_tasks: ports_centos.yml
+  ansible.builtin.include_tasks: ports_centos.yml
 
 - name: Identify pip2 executable
-  shell: which pip2 pip-2 | grep 'bin/pip' | head -n 1
+  ansible.builtin.shell: which pip2 pip-2 | grep 'bin/pip' | head -n 1
   register: pip2_path
   changed_when: false
   failed_when: false
 
 - name: Assert pip2_path is found
-  assert:
+  ansible.builtin.assert:
     that: pip2_path.stdout != ''
     msg: "pip2 is not installed"
 
 - name: Upgrade pip
-  pip:
+  ansible.builtin.pip:
     name: "pip=={{ pip2_version }}"
     executable: "{{ pip2_path.stdout }}"
   become: true
 
 - name: Install etcd3 python module
-  pip:
+  ansible.builtin.pip:
     name: etcd3
     state: present
     executable: "{{ pip2_path.stdout }}"
   become: true
 
 - name: Stop and disable default etcd service
-  systemd:
+  ansible.builtin.systemd:
     name: etcd
     state: stopped
     enabled: false

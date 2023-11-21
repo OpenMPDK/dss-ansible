@@ -30,12 +30,12 @@
 ---
 
 - name: Identify UEFI boot for hugepages
-  stat:
+  ansible.builtin.stat:
     path: /sys/firmware/efi
   register: uefi
 
 - name: Execute grub2-mkconfig for hugepages
-  command: "grub2-mkconfig -o {{ grubpath }}"
+  ansible.builtin.command: "grub2-mkconfig -o {{ grubpath }}"
   become: true
   vars:
     grubpath: "/boot/{% if uefi.stat.exists %}efi/EFI/centos{% else %}grub2{% endif %}/grub.cfg"

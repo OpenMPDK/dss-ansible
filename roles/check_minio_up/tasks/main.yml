@@ -29,12 +29,12 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: pgrep minio instances
-  command: pgrep -x minio
+- name: Search for minio instances with pgrep
+  ansible.builtin.command: pgrep -x minio
   changed_when: false
   failed_when: false
   register: minio_instances
 
 - name: Print number of minio instances running
-  debug:
+  ansible.builtin.debug:
     msg: "Minio instances running: {{ minio_instances.stdout_lines | length }}"
