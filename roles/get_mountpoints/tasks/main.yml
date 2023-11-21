@@ -31,7 +31,7 @@
 
 - name: Init vars
   ansible.builtin.set_fact:
-    standalone_minio: "{{ standalone_minio | d(false)}}"
+    standalone_minio: "{{ standalone_minio | d(false) }}"
 
 - name: Get Combined VLAN IP map
   ansible.builtin.include_role:
