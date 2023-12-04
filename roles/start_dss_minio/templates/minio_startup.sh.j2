@@ -60,6 +60,9 @@ export MINIO_ON_KV={{ minio_on_kv }}
 export MINIO_DISABLE_EC={{ minio_disable_ec }}
 export MINIO_KV_MAX_SIZE={{ minio_kv_max_size }}
 export MINIO_NKV_MAX_META_SIZE={{ minio_nkv_max_meta_size }}
+{% if minio_report_metrics %}
+export MINIO_REPORT_METRICS=1
+{% endif %}
 {% if standalone_minio %}#{% endif %}export MINIO_NKV_SHARED={{ minio_nkv_shared }}
 #export MINIO_NKV_CHECKSUM={{ minio_nkv_checksum }}
 
