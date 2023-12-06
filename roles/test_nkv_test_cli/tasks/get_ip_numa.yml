@@ -30,26 +30,26 @@
 ---
 
 - name: Get all RoCEv2 IP Addresses
-  include_role:
+  ansible.builtin.include_role:
     name: get_vlan_ips
   vars:
     vlan_list: "{{ rocev2_vlans }}"
   when: rocev2_ip_list is not defined
 
 - name: Set rocev2_ip_list var if IP's auto-discovered
-  set_fact:
+  ansible.builtin.set_fact:
     rocev2_ip_list: "{{ vlan_ip_list }}"
   when: rocev2_ip_list is not defined
 
 - name: Get ip route
-  command: ip route show
+  ansible.builtin.command: ip route show
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   changed_when: false
   register: ip_route
 
 - name: Set rocev2_dev
-  set_fact:
+  ansible.builtin.set_fact:
     rocev2_dev_list: "{{ rocev2_dev_list | default([]) +
                       [{ 'ipv4_prefix': ipv4_prefix,
                           'dev': device,
@@ -63,7 +63,7 @@
   when: ip_route.stdout is regex(item)
 
 - name: Get NUMA
-  command: "cat /sys/class/net/{{ item.dev.split('.')[0] }}/device/numa_node"
+  ansible.builtin.command: "cat /sys/class/net/{{ item.dev.split('.')[0] }}/device/numa_node"
   changed_when: false
   loop: "{{ rocev2_dev_list }}"
   loop_control:
@@ -71,7 +71,7 @@
   register: numa_node
 
 - name: Set rocev2_numa_prefix_list
-  set_fact:
+  ansible.builtin.set_fact:
     rocev2_numa_prefix_list: "{{ rocev2_numa_prefix_list | default([]) +
                           [{ 'ipv4_prefix': vlan.item.ipv4_prefix,
                              'ip': vlan.item.ip,

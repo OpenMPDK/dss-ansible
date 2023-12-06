@@ -30,7 +30,7 @@
 ---
 
 - name: Open etcd ports (firewalld)
-  firewalld:
+  ansible.builtin.firewalld:
     port: "{{ item }}/tcp"
     immediate: true
     permanent: true

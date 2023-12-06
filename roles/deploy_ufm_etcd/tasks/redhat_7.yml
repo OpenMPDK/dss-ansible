@@ -30,11 +30,11 @@
 ---
 
 - name: Install epel-release repo
-  include_role:
+  ansible.builtin.include_role:
     name: deploy_epel
 
 - name: Install Required Packages (yum)
-  yum:
+  ansible.builtin.yum:
     name:
       - fping
       - python-pip

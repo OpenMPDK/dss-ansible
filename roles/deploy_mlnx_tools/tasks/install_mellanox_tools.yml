@@ -30,7 +30,7 @@
 ---
 
 - name: Copy Mellanox Tools RPMs
-  copy:
+  ansible.builtin.copy:
     src: "{{ item }}"
     dest: "{{ mlnx_tools_staging_dir }}"
     mode: 0644
@@ -39,7 +39,7 @@
     label: "{{ item }}"
 
 - name: Install Mellanox Tools RPMs
-  yum:
+  ansible.builtin.yum:
     name: "{{ mlnx_tools_staging_dir }}/{{ item | basename }}"
     disable_gpg_check: true
   become: true

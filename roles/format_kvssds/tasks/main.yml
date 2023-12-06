@@ -30,12 +30,12 @@
 ---
 
 - name: Identify kvssd firmware
-  include_role:
+  ansible.builtin.include_role:
     name: identify_kvssd_firmware
   when: target_fw_version is not defined
 
 - name: Query list of NVMe devices
-  command: nvme list -o json
+  ansible.builtin.command: nvme list -o json
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   changed_when: false
@@ -43,7 +43,7 @@
   become: true
 
 - name: Set kvssd_format_list variable
-  set_fact:
+  ansible.builtin.set_fact:
     kvssd_format_list: "{{ kvssd_format_list | default([]) + [ kvssd.DevicePath ] }}"
   loop: "{{ (nvme_list.stdout | from_json).Devices }}"
   loop_control:
@@ -54,7 +54,7 @@
     - kvssd.Firmware == target_fw_version
 
 - name: Format kvssd devices
-  command: "nvme format {{ kvssd_device_path }} -s0 -n1"
+  ansible.builtin.command: "nvme format {{ kvssd_device_path }} -s0 -n1"
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   register: kvssd_format
@@ -71,7 +71,7 @@
   become: true
 
 - name: Check async nvme reset
-  include_tasks: check_async.yml
+  ansible.builtin.include_tasks: check_async.yml
   vars:
     async_name: "format kvssd"
     async_tasks: "{{ kvssd_format.results }}"

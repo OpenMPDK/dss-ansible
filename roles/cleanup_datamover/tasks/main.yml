@@ -30,7 +30,7 @@
 ---
 
 - name: Get PIDs of datamover processes
-  command: "pgrep -f 'python3 {{ item }}'"
+  ansible.builtin.command: "pgrep -f 'python3 {{ item }}'"
   register: datamover_pids
   changed_when: false
   failed_when: false
@@ -41,14 +41,14 @@
     - client_application.py
 
 - name: Get SIDs of datamover processes
-  command: "ps -p {{ item }} -o sess="
+  ansible.builtin.command: "ps -p {{ item }} -o sess="
   register: datamover_sids
   changed_when: false
   failed_when: false
   loop: "{{ datamover_pids.results | map(attribute='stdout_lines') | flatten | unique }}"
 
 - name: Kill datamover processes and sub-processes
-  command: "pkill -s {{ item }}"
+  ansible.builtin.command: "pkill -s {{ item }}"
   loop: "{{ datamover_sids.results | map(attribute='stdout_lines') | flatten | unique }}"
   register: pkill_sid
   become: true

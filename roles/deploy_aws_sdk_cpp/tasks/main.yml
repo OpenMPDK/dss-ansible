@@ -30,7 +30,7 @@
 ---
 
 - name: Identify aws-sdk-cpp RPM
-  find:
+  ansible.builtin.find:
     path: "{{ artifacts_dir }}"
     patterns: 'aws-sdk-cpp*.rpm'
   delegate_to: localhost
@@ -38,17 +38,17 @@
   register: aws_sdk_cpp_rpm
 
 - name: Assert aws-sdk-cpp RPM found
-  assert:
+  ansible.builtin.assert:
     that: aws_sdk_cpp_rpm.files | length > 0
     fail_msg: "No aws_sdk_cpp RPM found. Please download RPM to {{ artifacts_dir }}"
 
 - name: Identify newest version of aws-sdk-cpp RPM found
-  set_fact:
+  ansible.builtin.set_fact:
     aws_sdk_cpp_rpm_file: "{{ (aws_sdk_cpp_rpm.files | sort(attribute='mtime', reverse=true) | first).path }}"
   run_once: true
 
 - name: Check if aws-sdk-cpp RPM is installed
-  shell: "rpm -qa | grep {{ aws_sdk_cpp_rpm_file | basename | splitext | first }}"
+  ansible.builtin.shell: "rpm -qa | grep {{ aws_sdk_cpp_rpm_file | basename | splitext | first }}"
   args:
     warn: false
   register: aws_sdk_cpp_rpm_qa
@@ -56,20 +56,20 @@
   failed_when: false
 
 - name: Copy aws-sdk-cpp RPM to staging directory
-  copy:
+  ansible.builtin.copy:
     src: "{{ aws_sdk_cpp_rpm_file }}"
     dest: "{{ deploy_aws_sdk_cpp_staging_dir }}"
     mode: 0644
   when: aws_sdk_cpp_rpm_qa.rc != 0
 
 - name: Install aws-sdk-cpp RPM
-  yum:
+  ansible.builtin.yum:
     name: "{{ deploy_aws_sdk_cpp_staging_dir }}/{{ aws_sdk_cpp_rpm_file | basename }}"
     disable_gpg_check: true
   become: true
   when: aws_sdk_cpp_rpm_qa.rc != 0
 
 - name: Delete aws-sdk-cpp RPM from staging directory
-  file:
+  ansible.builtin.file:
     path: "{{ deploy_aws_sdk_cpp_staging_dir }}/{{ aws_sdk_cpp_rpm_file | basename }}"
     state: absent

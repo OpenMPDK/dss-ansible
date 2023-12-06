@@ -2,7 +2,7 @@
 
 - name: Fetch contents of dss-artifacts bucket
   ansible.builtin.uri:
-    url: " {{ artifacts_url }}"
+    url: "{{ artifacts_url }}?prefix={{ artifacts_branch }}"
     method: GET
     return_content: true
     validate_certs: "{{ artifacts_validate_certs }}"
@@ -15,6 +15,17 @@
     dss_artifacts_list: "{{ artifacts_xml.content | regex_findall(regex) }}"
   vars:
     regex: "<Key>({{ artifacts_branch }}/[^<]+?(?=<))"
+  run_once: true
+  when: download_artifacts | bool
+
+- name: Check artifacts found
+  ansible.builtin.assert:
+    that: dss_artifacts_list | length > 0
+    fail_msg: |
+      No artifacts found. Check vars:
+      artifacts_url: {{ artifacts_url }}
+      artifacts_branch: {{ artifacts_branch }}
+    quiet: true
   run_once: true
   when: download_artifacts | bool
 

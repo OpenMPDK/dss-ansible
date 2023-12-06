@@ -30,7 +30,7 @@
 ---
 
 - name: Set iperf_port and cumulative_tp vars
-  set_fact:
+  ansible.builtin.set_fact:
     cumulative_tp: 0
     iperf_port: |-
       {%- for host in ansible_play_hosts -%}
@@ -40,7 +40,7 @@
       {%- endfor -%}
 
 - name: Set iperf_server_command and iperf_client_command vars
-  set_fact:
+  ansible.builtin.set_fact:
     iperf_server_command: >-
       {{ iperf_binary }}
       --server
@@ -57,18 +57,18 @@
   when: inventory_hostname != server_hostname
 
 - name: Print iperf server command
-  debug:
+  ansible.builtin.debug:
     var: iperf_server_command
   delegate_to: "{{ server_hostname }}"
   when: inventory_hostname != server_hostname
 
 - name: Print iperf client command
-  debug:
+  ansible.builtin.debug:
     var: iperf_client_command
   when: inventory_hostname != server_hostname
 
-- name: iperf server from {{ server_hostname }} - {{ server_ip_address }}
-  command: "{{ iperf_server_command }}"
+- name: Execute iperf server from {{ server_hostname }} - {{ server_ip_address }}
+  ansible.builtin.command: "{{ iperf_server_command }}"
   changed_when: false
   async: "{{ iperf_duration | int + 10 }}"
   poll: 0
@@ -76,15 +76,15 @@
   delegate_to: "{{ server_hostname }}"
   when: inventory_hostname != server_hostname
 
-- name: iperf client to {{ server_hostname }} - {{ server_ip_address }}, {{ iperf_duration }} seconds
-  command: "{{ iperf_client_command }}"
+- name: Execute iperf client to {{ server_hostname }} - {{ server_ip_address }}, {{ iperf_duration }} seconds
+  ansible.builtin.command: "{{ iperf_client_command }}"
   changed_when: false
   register: iperf_results
   become: true
   when: inventory_hostname != server_hostname
 
 - name: Set cumulative_tp var
-  set_fact:
+  ansible.builtin.set_fact:
     cumulative_tp: "{{ (cumulative_tp | float) + (throughput | float) }}"
   loop: "{{ ansible_play_hosts }}"
   loop_control:
@@ -97,7 +97,7 @@
   when: client_hostname != server_hostname
 
 - name: Collect iperf results for server {{ server_hostname }} - {{ server_ip_address }}
-  set_fact:
+  ansible.builtin.set_fact:
     combined_iperf_results: "{{ combined_iperf_results | default([]) +
                           [{'throughput': '%0.2f' % cumulative_tp | float,
                             'server_hostname': server_hostname,

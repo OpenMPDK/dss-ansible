@@ -30,7 +30,7 @@
 ---
 
 - name: List data with datamover
-  shell: >
+  ansible.builtin.shell: >
     source {{ gcc_setenv }} &&
     python3 {{ datamover_dir }}/master_application.py
     {{ datamover_operation }}

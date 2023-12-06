@@ -30,7 +30,7 @@
 ---
 
 - name: Get all TCP IP Addresses
-  include_role:
+  ansible.builtin.include_role:
     name: get_vlan_ips
   vars:
     vlan_list: "{{ tcp_vlans }}"
@@ -38,11 +38,11 @@
     - tcp_ip_list is not defined
 
 - name: Set tcp_ip_list var
-  set_fact:
+  ansible.builtin.set_fact:
     tcp_ip_list: "{{ vlan_ip_list }}"
   when:
     - tcp_ip_list is not defined
 
 - name: Set TCP aliases
-  include_role:
+  ansible.builtin.include_role:
     name: configure_tcp_aliases

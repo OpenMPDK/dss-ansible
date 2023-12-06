@@ -30,23 +30,23 @@
 ---
 
 - name: Get TCP IP lists and NUMA
-  include_role:
+  ansible.builtin.include_role:
     name: get_tcp_numa
 
 - name: Assert distributed minio minimum mountpoints
-  assert:
+  ansible.builtin.assert:
     that: (nvme_mountpoints | length /  tcp_alias_list | length) >= 4
     msg: Minimum of 4 subsystems per distributed minio required.
   when: not standalone_minio
 
 - name: Assert standalone minio minimum mountpoints
-  assert:
+  ansible.builtin.assert:
     that: nvme_mountpoints | length >= 4
     msg: Minimum of 4 subsystems required for standalone minio.
   when: standalone_minio
 
 - name: Create minio scripts
-  template:
+  ansible.builtin.template:
     src: minio_startup.sh.j2
     dest: "{{ nkv_sdk_bin_dir }}/minio_startup_{{ tcp_alias }}.sh"
     mode: 0751
@@ -64,13 +64,13 @@
     my_range: "{{ subsys_range[ansible_loop.index0] }}"
 
 - name: Stat nkv_config scripts
-  stat:
+  ansible.builtin.stat:
     path: "{{ nkv_sdk_conf_dir }}/nkv_config_{{ item }}.json"
   loop: "{{ rocev2_ip_list }}"
   register: nkv_config_scripts
 
 - name: Assert nkv_config scripts exist
-  assert:
+  ansible.builtin.assert:
     that: "{{ nkv_config_scripts.results[item].stat.exists }}"
     msg: |
       nkv_config script does not exist:

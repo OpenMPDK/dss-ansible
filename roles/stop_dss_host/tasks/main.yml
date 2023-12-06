@@ -30,12 +30,12 @@
 ---
 
 - name: Stat DSS Host bin path
-  stat:
+  ansible.builtin.stat:
     path: "{{ nkv_sdk_bin_dir }}"
   register: dss_host_path
 
 - name: Execute dss_host.py remove script
-  command: /usr/bin/python2 ./dss_host.py remove
+  ansible.builtin.command: /usr/bin/python2 ./dss_host.py remove
   args:
     chdir: "{{ nkv_sdk_bin_dir }}"
   when: dss_host_path.stat.exists

@@ -30,17 +30,17 @@
 ---
 
 - name: Get Subsystems NQNs
-  include_role:
+  ansible.builtin.include_role:
     name: get_subsystem_nqns
 
 - name: Start compaction
-  command: "{{ target_script_dir }}/dss_rpc.py -s /var/run/spdk.sock rdb_compact -n {{ item }}"
+  ansible.builtin.command: "{{ target_script_dir }}/dss_rpc.py -s /var/run/spdk.sock rdb_compact -n {{ item }}"
   loop: "{{ subsystem_nqns }}"
   become: true
   when: dss_target_mode is search('kv_block') and not hpos
 
 - name: Check compaction status
-  command: "{{ target_script_dir }}/dss_rpc.py -s /var/run/spdk.sock rdb_compact --get_status -n {{ item }}"
+  ansible.builtin.command: "{{ target_script_dir }}/dss_rpc.py -s /var/run/spdk.sock rdb_compact --get_status -n {{ item }}"
   register: compaction_status
   loop: "{{ subsystem_nqns }}"
   until: >

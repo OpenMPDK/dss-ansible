@@ -30,7 +30,7 @@
 ---
 
 - name: Get IP last octet from hostname
-  set_fact:
+  ansible.builtin.set_fact:
     last_octet: "{{ (short_hostname | regex_search(octet_regex,'\\1') | first | int) + last_octet_offset | int }}"
   vars:
     short_hostname: "{{ ansible_hostname.split('.').0 }}"
@@ -42,7 +42,7 @@
     - short_hostname | regex_search(octet_regex,'\\1') | first | int <= 255
 
 - name: Set last_octet_list
-  set_fact:
+  ansible.builtin.set_fact:
     last_octet_list: "{{ last_octet_list | default([]) + [ hostvars[item].last_octet | int ] }}"
   loop: "{{ ansible_play_hosts }}"
   run_once: true
@@ -50,7 +50,7 @@
     - hostvars[item].last_octet is defined
 
 - name: Use inventory ID number if hostnames do not contain unique numbers between 1 and 255
-  set_fact:
+  ansible.builtin.set_fact:
     last_octet: "{{ ansible_loop.index + last_octet_offset | int }}"
   when: >
     item == inventory_hostname and
@@ -62,7 +62,7 @@
     extended: true
 
 - name: Set final_last_octet_list
-  set_fact:
+  ansible.builtin.set_fact:
     final_last_octet_list: "{{ final_last_octet_list | default([]) + [ hostvars[item].last_octet | int ] }}"
   loop: "{{ ansible_play_hosts }}"
   run_once: true
@@ -70,7 +70,7 @@
     - hostvars[item].last_octet is defined
 
 - name: Assert last_octet is valid
-  assert:
+  ansible.builtin.assert:
     that:
       - last_octet | int >= 1
       - last_octet | int <= 255

@@ -30,7 +30,7 @@
 ---
 
 - name: Check async {{ async_name }}
-  async_status:
+  ansible.builtin.async_status:
     jid: "{{ async_task.ansible_job_id }}"
   register: async_results
   until: async_results.finished
@@ -43,7 +43,7 @@
   become: true
 
 - name: Assert async {{ async_name }} completion
-  assert:
+  ansible.builtin.assert:
     that: async_result.finished != 0
     fail_msg: "{{ async_name }} did not complete in time"
     quiet: true

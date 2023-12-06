@@ -30,25 +30,25 @@
 ---
 
 - name: Install unzip
-  yum:
+  ansible.builtin.yum:
     name: unzip
   become: true
 
 - name: Create ConnectX-6 firmware staging directory
-  file:
+  ansible.builtin.file:
     path: "{{ connectx6_staging_dir }}"
     state: directory
     mode: 0755
 
 - name: Download ConnectX-6 firmware for adapter {{ mlx_ibdev }}
-  unarchive:
+  ansible.builtin.unarchive:
     src: "{{ fw_url }}"
     dest: "{{ connectx6_staging_dir }}"
     mode: 0644
     remote_src: true
 
 - name: Upgrade ConnectX-6 firmware for adapter {{ mlx_ibdev }}
-  command: "flint -d {{ mlx_ibdev }} -i {{ fw_file }} -y b"
+  ansible.builtin.command: "flint -d {{ mlx_ibdev }} -i {{ fw_file }} -y b"
   args:
     chdir: "{{ connectx6_staging_dir }}"
   register: fw_upgrade
@@ -61,17 +61,17 @@
     - "'The firmware image was already updated on flash' not in fw_upgrade.stdout"
 
 - name: Reset ConnectX-6 adapter {{ mlx_ibdev }}
-  command: "mlxfwreset -d {{ mlx_ibdev }} reset -y"
+  ansible.builtin.command: "mlxfwreset -d {{ mlx_ibdev }} reset -y"
   become: true
 
 - name: Get post-upgrade Firmware version for adapter {{ mlx_ibdev }}
-  command: "flint -d {{ mlx_ibdev }} query"
+  ansible.builtin.command: "flint -d {{ mlx_ibdev }} query"
   changed_when: false
   register: post_upgrade_flint
   become: true
 
 - name: Assert firmware upgrade success for adapter {{ mlx_ibdev }}
-  assert:
+  ansible.builtin.assert:
     that: post_upgrade_fw is version(target_fw, '==')
     fail_msg: "Expected firmware {{ target_fw }} but found {{ post_upgrade_fw }}"
     success_msg: "Found firmware version {{ post_upgrade_fw }}"

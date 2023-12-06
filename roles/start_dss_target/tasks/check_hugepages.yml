@@ -30,17 +30,17 @@
 ---
 
 - name: Check 2MB hugepages
-  command: cat /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+  ansible.builtin.command: cat /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
   changed_when: false
   register: current_2mb_hugepages
 
 - name: Check 1GB hugepages
-  command: cat /sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages
+  ansible.builtin.command: cat /sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages
   changed_when: false
   register: current_1gb_hugepages
 
 - name: Assert hugepages are set
-  assert:
+  ansible.builtin.assert:
     that:
       - current_2mb_hugepages.stdout | int == num_2mb_hugepages
       - current_1gb_hugepages.stdout | int == num_1gb_hugepages

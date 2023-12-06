@@ -30,11 +30,11 @@
 ---
 
 - name: Get Mountpoints
-  include_role:
+  ansible.builtin.include_role:
     name: get_mountpoints
 
 - name: Append mountpoints to cluster_mountpoints
-  set_fact:
+  ansible.builtin.set_fact:
     cluster_mountpoints: "{{ cluster_mountpoints }} +
         [
             {

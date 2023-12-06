@@ -30,5 +30,5 @@
 ---
 
 - name: Start MinIO
-  include_tasks: start_minio.yml
+  ansible.builtin.include_tasks: start_minio.yml
   when: not no_minio | d(false)

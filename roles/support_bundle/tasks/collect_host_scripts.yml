@@ -30,14 +30,14 @@
 ---
 
 - name: Find host config script and MinIO startup scripts
-  find:
+  ansible.builtin.find:
     paths: "{{ nkv_sdk_bin_dir }}"
     patterns: 'minio_startup_*.sh,dss_host_config_host.sh'
     recurse: false
   register: minio_startup_scripts
 
 - name: Fetch host config script and MinIO startup scripts
-  fetch:
+  ansible.builtin.fetch:
     src: "{{ item.path }}"
     dest: "{{ local_coredump_dir }}"
   loop: "{{ minio_startup_scripts.files }}"

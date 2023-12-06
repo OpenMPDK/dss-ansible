@@ -30,19 +30,19 @@
 ---
 
 - name: Get OFED versions
-  include_role:
+  ansible.builtin.include_role:
     name: get_ofed_versions
 
 - name: Set infiniband_driver to 'inbox' if not supported distribution version
-  set_fact:
+  ansible.builtin.set_fact:
     ofed_unsupported: true
   when: ansible_distribution_version not in ofed_files | map(attribute='distribution_version') | list
 
 - name: Deploy Mellanox OFED
-  import_tasks: deploy_ofed.yml
+  ansible.builtin.import_tasks: deploy_ofed.yml
   when: not ofed_unsupported | d(false)
 
 - name: Install in-box Infiniband driver if OFED is not supported
-  include_role:
+  ansible.builtin.include_role:
     name: configure_inbox_infiniband
   when: ofed_unsupported | d(false)

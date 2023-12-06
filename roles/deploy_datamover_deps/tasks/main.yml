@@ -30,11 +30,11 @@
 ---
 
 - name: Install epel-release repo
-  include_role:
+  ansible.builtin.include_role:
     name: deploy_epel
 
 - name: Install datamover yum dependencies
-  yum:
+  ansible.builtin.yum:
     name:
       - nfs-utils
       - libnfsidmap
@@ -42,43 +42,43 @@
   become: true
 
 - name: Include vars
-  include_vars: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
 
 - name: Install pip3
-  yum:
+  ansible.builtin.yum:
     name: "{{ pip3_deps }}"
   become: true
 
 - name: Identify pip3 executable
-  shell: which pip3 pip-3 | grep 'bin/pip' | head -n 1
+  ansible.builtin.shell: which pip3 pip-3 | grep 'bin/pip' | head -n 1
   register: pip3_path
   changed_when: false
   failed_when: false
 
 - name: Assert pip_path is found
-  assert:
+  ansible.builtin.assert:
     that: pip3_path.stdout != ''
     msg: "pip3 is not installed"
 
 - name: Upgrade pip
-  pip:
+  ansible.builtin.pip:
     name: "pip=={{ pip3_version }}"
     executable: "{{ pip3_path.stdout }}"
   become: true
 
 - name: Install python dependencies from requirements.txt
-  pip:
+  ansible.builtin.pip:
     requirements: "{{ datamover_dir }}/requirements.txt"
     executable: "{{ pip3_path.stdout }}"
   register: benchmark_requirements
   become: true
 
 - name: Create datamover config file
-  include_role:
+  ansible.builtin.include_role:
     name: create_datamover_conf
 
 - name: Create log dir
-  file:
+  ansible.builtin.file:
     path: "{{ dss_log_dir }}"
     state: directory
     mode: 0755

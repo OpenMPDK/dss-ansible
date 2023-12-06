@@ -30,7 +30,7 @@
 ---
 
 - name: Generate service file for the etcd cluster
-  template:
+  ansible.builtin.template:
     src: ufm_etcd.service.j2
     dest: "{{ ufm_etcd_service_file }}"
     mode: 0644
@@ -38,7 +38,7 @@
   become: true
 
 - name: Restart ufm_etcd service if service file changed
-  systemd:
+  ansible.builtin.systemd_service:
     name: "{{ ufm_etcd_service_file | basename }}"
     state: restarted
     enabled: true
@@ -46,8 +46,8 @@
   when: service_file.changed
   become: true
 
-- name: ufm_etcd service is started and enabled
-  systemd:
+- name: Start and enable ufm_etcd service
+  ansible.builtin.systemd_service:
     name: "{{ ufm_etcd_service_file | basename }}"
     state: started
     enabled: true
@@ -55,8 +55,8 @@
   become: true
 
 - name: Add etcd Cluster
-  import_tasks: add_cluster.yml
+  ansible.builtin.import_tasks: add_cluster.yml
   run_once: true
 
 - name: Add etcd CM Node
-  import_tasks: add_cm_node.yml
+  ansible.builtin.import_tasks: add_cm_node.yml

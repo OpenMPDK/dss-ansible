@@ -30,7 +30,7 @@
 ---
 
 - name: Create target destination path for diamond collector
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     mode: 0555
@@ -40,7 +40,7 @@
   become: true
 
 - name: Configure diamond configuration file
-  template:
+  ansible.builtin.template:
     src: diamond.conf.j2
     dest: /etc/diamond/diamond.conf
     mode: 0644
@@ -48,14 +48,14 @@
   become: true
 
 - name: Configure diamond service file
-  template:
+  ansible.builtin.template:
     src: diamond.service.j2
     dest: /etc/systemd/system/diamond.service
     mode: 0644
   become: true
 
 - name: Enable diamond service
-  systemd:
+  ansible.builtin.systemd:
     name: diamond
     daemon_reload: true
     enabled: true

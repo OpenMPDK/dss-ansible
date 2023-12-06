@@ -30,7 +30,7 @@
 ---
 
 - name: Validate CentOS Version
-  assert:
+  ansible.builtin.assert:
     that:
       - ansible_distribution in supported_distributions
       - ansible_distribution_major_version in supported_major_versions
