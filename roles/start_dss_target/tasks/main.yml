@@ -74,9 +74,9 @@
       Disk serial numbers not found in nvmf.in.conf for firmware {{ target_fw_version }}
       Please verify that 'target_fw_version' var matches desired firmware.
 
-- name: Format BlobFS
+- name: Format KV File System
   ansible.builtin.include_role:
-    name: format_blobfs
+    name: format_kvfs
   when: dss_target_mode is search('kv_block')
 
 - name: Read dss_target.out
