@@ -31,14 +31,18 @@
 
 set -e
 
+{% if not dss_formatter.stat.exists %}
 {% if xrt_setenv_script.stat.exists %}
 source {{ xrt_setenv }}
 {% endif %}
 source {{ gcc_setenv }}
+{% endif %}
 {% for pcie_addr in pcie_addrs.stdout_lines -%}
     {% set sn_regex = '^.+traddr:[^"]+" "([^"]+)"$' -%}
-    ./mkfs_blobfs {{ target_conf_dir }}/blobfs.mkfs.in.{{ loop.index0 }}.conf "{{ pcie_addr | regex_replace(sn_regex, '\\1') }}n1"
+    {{ target_bin_dir}}/{{ format_bin }} {% if dss_formatter.stat.exists %}--config {% endif %}{{ target_conf_dir }}/{{ format_type}}-{{ loop.index0 }}.conf {% if dss_formatter.stat.exists %}--dev_name {% endif %}"{{ pcie_addr | regex_replace(sn_regex, '\\1') }}n1"
 
 {% endfor %}
 wait
+{% if not dss_formatter.stat.exists %}
 source {{ gcc_restore }}
+{% endif %}
