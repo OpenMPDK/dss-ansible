@@ -80,7 +80,7 @@
   when: dss_target_mode is search('kv_block')
 
 - name: Read dss_target.py.out
-  ansible.builtin.command: "cat {{ target_dir }}/dss_target.py.out"
+  ansible.builtin.command: "cat {{ dss_log_dir }}/dss_target.py.out"
   become: true
   changed_when: false
   register: dss_target_out
