@@ -117,10 +117,10 @@
       {{ dss_target_configure.stderr }}
   when: dss_target_configure.changed
 
-- name: Save output of dss_target.py
+- name: Save output of dss_target.py.out
   ansible.builtin.copy:
     content: "{{ dss_target_configure.stdout }}"
-    dest: "{{ dss_log_dir }}/bin/dss_target.out"
+    dest: "{{ dss_log_dir }}/dss_target.py.out"
     mode: 0644
   become: true
   when: dss_target_configure.changed

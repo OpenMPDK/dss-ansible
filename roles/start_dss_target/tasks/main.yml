@@ -44,9 +44,9 @@
     path: "{{ target_conf_file }}"
   register: nvmf_in_conf
 
-- name: Stat dss_target.out
+- name: Stat dss_target.py.out
   ansible.builtin.stat:
-    path: "{{ dss_log_dir }}/bin/dss_target.out"
+    path: "{{ dss_log_dir }}/dss_target.py.out"
   register: dss_target_out
 
 - name: Get spdk status
@@ -79,8 +79,8 @@
     name: format_kvfs
   when: dss_target_mode is search('kv_block')
 
-- name: Read dss_target.out
-  ansible.builtin.command: "cat {{ target_dir }}/bin/dss_target.out"
+- name: Read dss_target.py.out
+  ansible.builtin.command: "cat {{ target_dir }}/dss_target.py.out"
   become: true
   changed_when: false
   register: dss_target_out
