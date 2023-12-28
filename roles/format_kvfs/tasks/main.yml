@@ -44,6 +44,15 @@
      spdk_status.stdout is search('vfio-pci')
     msg: Cannot format BlobFS. Disks are not in SPDK mode. Start DSS software first.
 
+- name: Stat dss_formatter
+  ansible.builtin.stat:
+    path: "{{ target_dir }}/bin/dss_formatter"
+  register: dss_formatter
+
+- name: Set format_type var
+  ansible.builtin.set_fact:
+    format_type: "{% if dss_formatter.stat.exists %}kvfs{% else %}blobfs{% endif %}"
+
 - name: Stat nvmf.in.conf
   ansible.builtin.stat:
     path: "{{ target_conf_file }}"
@@ -70,17 +79,17 @@
       Execute 'stop_reset_dss_software' playbook to put disks back into kernel mode.
       Then verify desired SSD firmware version.
 
-- name: Create blobfs scripts for each device
+- name: Create KV Filesystem scripts for each device
   ansible.builtin.template:
-    src: blobfs.mkfs.in.conf.j2
-    dest: "{{ target_conf_dir }}/blobfs.mkfs.in.{{ ansible_loop.index0 }}.conf"
+    src: kvfs.mkfs.in.conf.j2
+    dest: "{{ target_conf_dir }}/{{ format_type }}-{{ ansible_loop.index0 }}.conf"
     mode: 0644
   loop: "{{ pcie_addrs.stdout_lines }}"
   loop_control:
     extended: true
-  register: create_blobfs_conf
+  register: create_kvfs_conf
   become: true
 
-- name: Create BlobFS filesystem for KV-Block
-  ansible.builtin.include_tasks: format_blobfs.yml
+- name: Create filesystem for KV-Block
+  ansible.builtin.include_tasks: format_kvfs.yml
   when: dss_target_mode is search('kv_block')
