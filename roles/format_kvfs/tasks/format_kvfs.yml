@@ -77,7 +77,7 @@
     pre_format_disks.stdout is search('error while loading shared libraries') or
     pre_format_disks.stdout is not search('Initializing filesystem on bdev') or
     create_format_disks_template.changed or
-    create_blobfs_conf.changed
+    create_kvfs_conf.changed
   become: true
 
 - name: Read output of format_disks.sh
