@@ -36,7 +36,7 @@ target_bin_dir: "{{ target_dir }}/bin"
 target_conf_dir: /etc/dss
 target_conf_file: "{{ target_conf_dir }}/nvmf.in.conf"
 target_lib_dir: "{{ target_dir }}/lib"
-
+dss_log_dir: /var/log/dss
 
 ### GCC defaults
 gcc_setenv: /usr/local/bin/setenv-for-gcc510.sh
