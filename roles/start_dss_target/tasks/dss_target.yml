@@ -120,7 +120,7 @@
 - name: Save output of dss_target.py
   ansible.builtin.copy:
     content: "{{ dss_target_configure.stdout }}"
-    dest: "{{ target_dir }}/bin/dss_target.out"
+    dest: "{{ dss_log_dir }}/bin/dss_target.out"
     mode: 0644
   become: true
   when: dss_target_configure.changed

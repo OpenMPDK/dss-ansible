@@ -46,7 +46,7 @@
 
 - name: Stat dss_target.out
   ansible.builtin.stat:
-    path: "{{ target_dir }}/bin/dss_target.out"
+    path: "{{ dss_log_dir }}/bin/dss_target.out"
   register: dss_target_out
 
 - name: Get spdk status
