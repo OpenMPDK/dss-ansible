@@ -102,4 +102,6 @@
     - core dumped
     - Illegal instruction
     - error while loading shared libraries
-  when: format_disks is not skipped
+  when:
+    - format_disks is not skipped
+    - dss_formatter.stat.exists
