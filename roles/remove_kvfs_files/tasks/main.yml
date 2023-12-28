@@ -34,7 +34,8 @@
     paths: "{{ target_conf_dir }}"
     patterns:
       - blobfs.mkfs.in*.conf
-      - kvfs.mkfs.in.conf
+      - blobfs-*.conf
+      - kvfs-*.conf
   register: blobfs_conf_files
 
 - name: Remove KV Filesystem config files
