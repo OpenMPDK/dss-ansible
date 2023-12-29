@@ -72,7 +72,3 @@ datamover_index_data_queue_size: 50000
 datamover_awslib_log_debug: 0
 datamover_fs_mounted: false
 datamover_compaction: "yes"
-
-### GCC defaults
-gcc_setenv: /usr/local/bin/setenv-for-gcc510.sh
-gcc_restore: /usr/local/bin/restore-default-paths-gcc510.sh
