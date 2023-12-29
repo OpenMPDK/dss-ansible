@@ -38,10 +38,6 @@ datamover_conf_dir: "{{ target_conf_dir }}/datamover"
 dss_dir: /usr/dss
 datamover_dir: "{{ dss_dir }}/nkv-datamover"
 
-### GCC defaults
-gcc_setenv: /usr/local/bin/setenv-for-gcc510.sh
-gcc_restore: /usr/local/bin/restore-default-paths-gcc510.sh
-
 ### Datamover defaults
 # datamover_operation possible values: ['PUT', 'GET', 'LIST', 'DEL', 'TEST']
 datamover_operation: PUT
