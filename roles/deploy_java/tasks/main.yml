@@ -1,0 +1,7 @@
+---
+
+- name: "Install Java OpenJDK {{ java_version }}"
+  ansible.builtin.yum:
+    name: "java-{{ java_version }}-openjdk-devel"
+    state: present
+  become: true
