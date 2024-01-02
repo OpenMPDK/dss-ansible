@@ -1,0 +1,9 @@
+---
+
+collections:
+  - name: prometheus.prometheus
+    type: galaxy
+    version: 0.10.0
+  - name: community.mongodb
+    type: galaxy
+    version: 1.6.3
