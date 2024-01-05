@@ -133,7 +133,7 @@
     {% if xrt_setenv_script.stat.exists %}
     source {{ xrt_setenv }} &&
     {% endif %}
-    {% if dss_formatter.stat.exists %}
+    {% if not dss_formatter.stat.exists %}
     source {{ gcc_setenv }} &&
     {% endif %}
     {{ nvmf_tgt_cmd }} > {{ dss_log_dir }}/nkv-target.log 2>&1 &
