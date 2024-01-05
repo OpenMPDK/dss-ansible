@@ -54,4 +54,5 @@
   loop:
     - format_disks.sh
     - format_disks.out
+    - format_disks.err
   become: true
