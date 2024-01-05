@@ -37,6 +37,7 @@ nkv_sdk_bin_dir: "{{ nkv_sdk_dir }}/bin"
 nkv_sdk_conf_dir: "{{ nkv_sdk_dir }}/conf"
 nkv_sdk_lib_dir: "{{ nkv_sdk_dir }}/lib"
 dss_log_dir: /var/log/dss
+target_conf_dir: /etc/dss
 
 ### Cluster defaults
 cluster_num: 0
