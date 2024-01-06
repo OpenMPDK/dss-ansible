@@ -1,0 +1,26 @@
+---
+
+- name: Get Subsystems NQNs
+  ansible.builtin.include_role:
+    name: get_subsystem_nqns
+
+- name: Start compaction
+  ansible.builtin.command: "{{ target_script_dir }}/dss_rpc.py -s /var/run/spdk.sock rdb_compact -n {{ item }}"
+  loop: "{{ subsystem_nqns }}"
+  become: true
+
+- name: Check compaction status
+  ansible.builtin.command: "{{ target_script_dir }}/dss_rpc.py -s /var/run/spdk.sock rdb_compact --get_status -n {{ item }}"
+  register: compaction_status
+  loop: "{{ subsystem_nqns }}"
+  until: >
+    compaction_status.rc !=0 or
+    compaction_status.stdout is search('IDLE')
+  changed_when: false
+  failed_when: >
+    compaction_status.rc !=0 or
+    (compaction_status.stdout is not search('IDLE') and
+    compaction_status.stdout is not search('IN PROGRESS'))
+  retries: "{{ (start_compaction_timeout | int / start_compaction_delay | int) | int }}"
+  delay: "{{ start_compaction_delay }}"
+  become: true

@@ -101,7 +101,6 @@
     - targets
   gather_facts: false
   roles:
-    - deploy_gcc
     - deploy_dss_target
 
 # - name: Deploy etcd Gateway

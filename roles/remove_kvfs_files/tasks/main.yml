@@ -29,13 +29,16 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Find BlobFS config files
+- name: Find KV Filesystem config files
   ansible.builtin.find:
     paths: "{{ target_conf_dir }}"
-    patterns: blobfs.mkfs.in*.conf
+    patterns:
+      - blobfs.mkfs.in*.conf
+      - blobfs-*.conf
+      - kvfs-*.conf
   register: blobfs_conf_files
 
-- name: Remove BlobFS config files
+- name: Remove KV Filesystem config files
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
@@ -51,4 +54,5 @@
   loop:
     - format_disks.sh
     - format_disks.out
+    - format_disks.err
   become: true

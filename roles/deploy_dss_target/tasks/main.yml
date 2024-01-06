@@ -139,3 +139,13 @@
     state: directory
     mode: 0755
   become: true
+
+- name: Stat dss_formatter
+  ansible.builtin.stat:
+    path: "{{ target_dir }}/bin/dss_formatter"
+  register: dss_formatter
+
+- name: Deploy GCC
+  ansible.builtin.include_role:
+    name: deploy_gcc
+  when: not dss_formatter.stat.exists

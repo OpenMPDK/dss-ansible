@@ -61,7 +61,7 @@
   ansible.builtin.copy:
     content: |
       export PCI_BLACKLIST="{{ pci_blacklist | d('') }}"
-      /usr/bin/python2 ./dss_target.py configure \
+      /usr/bin/python2 {{ target_dir }}/bin/dss_target.py configure \
       --config_file {{ target_conf_file }} \
       --ip_addresses {% for ip in rocev2_ip_list %}{{ ip }}{% if not loop.last %} {% endif %}{% endfor %} \
       --kv_firmware {{ target_fw_version }} \
@@ -76,7 +76,7 @@
       --rdd_port {{ rdd_port }} \
       --gen2
       {% endif %}
-    dest: "{{ target_dir }}/bin/dss_target_config.sh"
+    dest: "{{ target_conf_dir }}/dss_target_config.sh"
     mode: 0755
   register: dss_target_config_script
   become: true
@@ -89,7 +89,7 @@
     - spdk_status.stdout is search('uio_pci_generic')
 
 - name: Configure target with dss_target_config.sh script
-  ansible.builtin.command: sh ./dss_target_config.sh
+  ansible.builtin.command: "sh {{ target_conf_dir }}/dss_target_config.sh"
   args:
     chdir: "{{ target_dir }}/bin"
   register: dss_target_configure
@@ -117,10 +117,10 @@
       {{ dss_target_configure.stderr }}
   when: dss_target_configure.changed
 
-- name: Save output of dss_target.py
+- name: Save output of dss_target.py.out
   ansible.builtin.copy:
     content: "{{ dss_target_configure.stdout }}"
-    dest: "{{ target_dir }}/bin/dss_target.out"
+    dest: "{{ dss_log_dir }}/dss_target.py.out"
     mode: 0644
   become: true
   when: dss_target_configure.changed
