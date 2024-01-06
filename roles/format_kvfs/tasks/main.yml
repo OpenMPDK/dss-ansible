@@ -49,10 +49,6 @@
     path: "{{ target_dir }}/bin/dss_formatter"
   register: dss_formatter
 
-- name: Set format_type var
-  ansible.builtin.set_fact:
-    format_type: "{% if dss_formatter.stat.exists %}kvfs{% else %}blobfs{% endif %}"
-
 - name: Stat nvmf.in.conf
   ansible.builtin.stat:
     path: "{{ target_conf_file }}"

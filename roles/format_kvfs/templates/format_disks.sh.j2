@@ -30,7 +30,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 set -e
-
+{
 {% if not dss_formatter.stat.exists %}
 {% if xrt_setenv_script.stat.exists %}
 source {{ xrt_setenv }}
@@ -46,3 +46,4 @@ wait
 {% if not dss_formatter.stat.exists %}
 source {{ gcc_restore }}
 {% endif %}
+} 2>&1 | tee {{ dss_log_dir }}/format_disks.out

@@ -54,54 +54,49 @@
     path: "{{ dss_log_dir }}/format_disks.out"
   register: format_disks_out_file
 
-- name: Check output of existing format_disks.sh
-  ansible.builtin.command: "cat {{ dss_log_dir }}/format_disks.out"
-  changed_when: false
-  when: format_disks_out_file.stat.exists
-  register: pre_format_disks
+- name: Check previous format_disks.sh output
+  ansible.builtin.include_tasks: check_blobfs_format.yml
+  when: not dss_formatter.stat.exists
 
 - name: Execute format_disks.sh script
-  ansible.builtin.shell: "{{ target_conf_dir }}//format_disks.sh > {{ dss_log_dir }}/format_disks.out 2>&1"
+  ansible.builtin.command: "{{ target_conf_dir }}//format_disks.sh"
   register: execute_format_disks
   when: >
     not format_disks_out_file.stat.exists or
-    pre_format_disks.stdout is search('Failed to initialize filesystem') or
-    pre_format_disks.stdout is search('io_device bdev_nvme_poll_groups not unregistered') or
-    pre_format_disks.stdout is search('bdev modules init failed') or
-    pre_format_disks.stdout is search('Init subsystem bdev failed') or
-    pre_format_disks.stdout is search('nvme_identify_controller failed') or
-    pre_format_disks.stdout is search('Failed to initialize SSD') or
-    pre_format_disks.stdout is search('error while loading shared libraries') or
-    pre_format_disks.stdout is search('core dumped') or
-    pre_format_disks.stdout is search('Illegal instruction') or
-    pre_format_disks.stdout is search('error while loading shared libraries') or
-    pre_format_disks.stdout is not search('Initializing filesystem on bdev') or
+    blobfs_format_error | d(false) or
     create_format_disks_template.changed or
     create_kvfs_conf.changed
   become: true
 
-- name: Read output of format_disks.sh
-  ansible.builtin.command: "cat {{ dss_log_dir }}/format_disks.out"
-  changed_when: false
-  when: execute_format_disks is not skipped
-  register: format_disks
+- name: Write format_disks.sh output
+  ansible.builtin.copy:
+    dest: "{{ dss_log_dir }}/format_disks.{{ item.suffix }}"
+    content: "{{ execute_format_disks[item.type] }}"
+    mode: 0644
+  loop:
+    - suffix: out
+      type: stdout
+    - suffix: err
+      type: stderr
+  loop_control:
+    label: "{{ dss_log_dir }}/format_disks.{{ item.suffix }}"
+  when:
+    - dss_formatter.stat.exists
+    - execute_format_disks is not skipped
+  become: true
+
+- name: Check previous format_disks.sh output
+  ansible.builtin.include_tasks: check_blobfs_format.yml
+  when:
+    - execute_format_disks is not skipped
+    - not dss_formatter.stat.exists
 
 - name: Assert filesystem initialized successfully
   ansible.builtin.assert:
-    that: format_disks.stdout is not search(item)
+    that: not blobfs_format_error | d(false)
     fail_msg: |
-      *ERROR* {{ item }}
+      mkfs_blobfs format failed
       Check {{ dss_log_dir }}/format_disks.out for details.
-  loop:
-    - Failed to initialize filesystem
-    - io_device bdev_nvme_poll_groups not unregistered
-    - bdev modules init failed
-    - Init subsystem bdev failed
-    - nvme_identify_controller failed
-    - Failed to initialize SSD
-    - core dumped
-    - Illegal instruction
-    - error while loading shared libraries
   when:
-    - format_disks is not skipped
-    - dss_formatter.stat.exists
+    - execute_format_disks is not skipped
+    - not dss_formatter.stat.exists
