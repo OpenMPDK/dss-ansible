@@ -37,8 +37,6 @@
     {{ compaction_string }}
     {{ dryrun_string }}
     {{ prefix_string }}
-  args:
-    chdir: "{{ datamover_dir }}"
   register: master_application
   run_once: true
   until: "'DataMover RESUME operation is required' not in master_application.stdout"
