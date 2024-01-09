@@ -1,0 +1,25 @@
+---
+
+- name: Include vars
+  ansible.builtin.include_vars: "{{ nkv_test_cli_suite }}.yml"
+
+- name: Set suit_key var
+  ansible.builtin.set_fact:
+    suite_key: "{{ nkv_test_cli_prefix }}"
+    suite_keysize: "{{ nkv_test_cli_keysize }}"
+    suite_objects: "{{ nkv_test_cli_objects }}"
+    suite_valsize: "{{ nkv_test_cli_valsize }}"
+    suite_threads: "{{ nkv_test_cli_threads }}"
+
+- name: Executing Test suite
+  debug:
+    msg: "Test suite: {{ nkv_test_cli_suite }}"
+  run_once: true
+
+- name: "Execute test case"
+  include_tasks: case.yml
+  loop: "{{ test_cases }}"
+  vars:
+    test_case: "{{ item }}"
+    nkv_test_cli_prefix: "{{ suite_key }}/{{ nkv_test_cli_suite }}/{{ test_case.id }}"
+  when: inventory_hostname in host_hostnames

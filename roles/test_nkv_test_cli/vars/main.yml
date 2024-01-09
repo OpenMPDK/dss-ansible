@@ -32,3 +32,12 @@
 test_nkv_test_cli_put: 0
 test_nkv_test_cli_get: 1
 test_nkv_test_cli_delete: 2
+test_nkv_test_cli_put_get_delete: 3
+test_nkv_test_cli_list: 4
+test_nkv_test_cli_put_list: 5
+test_nkv_test_cli_lock_unlock: 6
+test_nkv_test_cli_chunked_put: 7
+test_nkv_test_cli_rdd_get: 8
+test_nkv_test_cli_rdd_chunked_get: 9
+test_nkv_test_cli_chunked_del: 10
+test_nkv_test_cli_rdd_put: 11

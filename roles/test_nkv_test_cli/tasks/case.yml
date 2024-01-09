@@ -1,0 +1,17 @@
+---
+
+- name: "Execute test step: {{ test_case.id }}: {{ test_case.description }}"
+  ansible.builtin.include_tasks: nkv_test_cli.yml
+  vars:
+    operation: "{{ lookup('vars', 'test_nkv_test_cli_' + step) }}"
+    nkv_test_cli_integrity: "{{ test_case.integrity | d(false) }}"
+    nkv_test_cli_mixed_io: "{{ test_case.mixed_io | d(false) }}"
+    nkv_test_cli_simulate_minio: "{{ test_case.simulate_minio | d(false) }}"
+    nkv_test_cli_keysize: "{{ test_case.keysize | d(suite_keysize) }}"
+    nkv_test_cli_valsize: "{{ test_case.valsize | d(suite_valsize) }}"
+    nkv_test_cli_objects: "{{ test_case.objects | d(suite_objects) }}"
+    nkv_test_cli_threads: "{{ test_case.threads | d(suite_threads) }}"
+    assert_num_keys: "{{ test_case.expected_list_keys | d(test_case.threads | d(suite_threads) | int * test_case.objects | d(suite_objects) | int) }}"
+  loop: "{{ test_case.steps }}"
+  loop_control:
+    loop_var: step

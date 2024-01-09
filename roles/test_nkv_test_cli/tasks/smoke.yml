@@ -1,0 +1,52 @@
+# Smoke test to validate cluster throughput with nkv_test_cli (the teste that this play executes by default)
+---
+
+- name: Execute nkv_test_cli put
+  include_tasks: nkv_test_cli.yml
+  vars:
+    operation: "{{ test_nkv_test_cli_put }}"
+  when: inventory_hostname in host_hostnames
+
+- name: Set put_throughput
+  set_fact:
+    put_throughput: "{{ combined_throughput }}"
+  when: inventory_hostname in host_hostnames
+
+- name: Start Compaction
+  include_role:
+    name: start_compaction
+  when:
+    - inventory_hostname in target_hostnames
+    - dss_target_mode is search('kv_block')
+
+- name: Execute nkv_test_cli get
+  include_tasks: nkv_test_cli.yml
+  vars:
+    operation: "{{ test_nkv_test_cli_get }}"
+  when: inventory_hostname in host_hostnames
+
+- name: Set get_throughput
+  set_fact:
+    get_throughput: "{{ combined_throughput }}"
+  when: inventory_hostname in host_hostnames
+
+- name: Execute nkv_test_cli delete
+  include_tasks: nkv_test_cli.yml
+  vars:
+    operation: "{{ test_nkv_test_cli_delete }}"
+  when: inventory_hostname in host_hostnames
+
+- name: Start Compaction
+  include_role:
+    name: start_compaction
+  when:
+    - inventory_hostname in target_hostnames
+    - dss_target_mode is search('kv_block')
+
+- name: Print throughput
+  debug:
+    msg: |
+      Put throughput:    {{ '%0.2f' | format(put_throughput | float) }} GB/s
+      Get throughput:    {{ '%0.2f' | format(get_throughput | float) }} GB/s
+  run_once: true
+  when: inventory_hostname in host_hostnames
