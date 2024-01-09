@@ -49,10 +49,10 @@
 
 - name: Remove format_disks.sh files
   ansible.builtin.file:
-    path: "{{ target_dir }}/bin/{{ item }}"
+    path: "{{ item }}"
     state: absent
   loop:
-    - format_disks.sh
-    - format_disks.out
-    - format_disks.err
+    - "{{ target_conf_dir }}/format_disks.sh"
+    - "{{ dss_log_dir }}/format_disks.out"
+    - "{{ dss_log_dir }}/format_disks.err"
   become: true

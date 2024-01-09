@@ -83,6 +83,7 @@
   when:
     - dss_formatter.stat.exists
     - execute_format_disks is not skipped
+    - execute_format_disks[item.type] != ''
   become: true
 
 - name: Check previous format_disks.sh output

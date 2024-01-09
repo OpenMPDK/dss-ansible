@@ -29,51 +29,45 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Run block if subsystems not mounted
-  block:
+- name: "Initialize subsystems_found var #{{ config_num }}"
+  ansible.builtin.set_fact:
+    subsystems_found: []
+    post_subsystems_found: []
 
-    - name: "Initialize subsystems_found var #{{ config_num }}"
-      ansible.builtin.set_fact:
-        subsystems_found: []
-        post_subsystems_found: []
+- name: "NVMe list subsystems - pre config_driver #{{ config_num }}"
+  ansible.builtin.command: nvme list-subsys
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
+  changed_when: false
+  register: nvme_subsys
+  become: true
 
-    - name: "NVMe list subsystems - pre config_driver #{{ config_num }}"
-      ansible.builtin.command: nvme list-subsys
-      environment:
-        PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
-      changed_when: false
-      register: nvme_subsys
-      become: true
+- name: "Check number of mounted subsystems #{{ config_num }}"
+  ansible.builtin.set_fact:
+    subsystems_found: "{{ nvme_subsys.stdout | regex_findall(nvme_re) | length }}"
+  vars:
+    nvme_re: 'traddr=[^\s]+\strsvcid=[^\s]+\slive'
 
-    - name: "Check number of mounted subsystems #{{ config_num }}"
-      ansible.builtin.set_fact:
-        subsystems_found: "{{ nvme_subsys.stdout | regex_findall(nvme_re) | length }}"
-      vars:
-        nvme_re: 'traddr=[^\s]+\strsvcid=[^\s]+\slive'
+- name: "Configure Driver #{{ config_num }}"
+  ansible.builtin.command: "sh {{ target_conf_dir }}/dss_host_config_host.sh"
+  when: subsystems_found != combined_expected_num_subsystems
+  become: true
 
-    - name: "Configure Driver #{{ config_num }}"
-      ansible.builtin.command: sh ./dss_host_config_host.sh
-      args:
-        chdir: "{{ nkv_sdk_bin_dir }}"
-      when: subsystems_found != combined_expected_num_subsystems
-      become: true
+- name: "NVMe list subsystems - post config_driver #{{ config_num }}"
+  ansible.builtin.command: nvme list-subsys
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
+  changed_when: false
+  register: post_nvme_subsys
+  become: true
 
-    - name: "NVMe list subsystems - post config_driver #{{ config_num }}"
-      ansible.builtin.command: nvme list-subsys
-      environment:
-        PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
-      changed_when: false
-      register: post_nvme_subsys
-      become: true
+- name: "Post-Check subsystems are mounted #{{ config_num }}"
+  ansible.builtin.set_fact:
+    post_subsystems_found: "{{ post_nvme_subsys.stdout | regex_findall(nvme_re) | length }}"
+  vars:
+    nvme_re: 'traddr=[^\s]+\strsvcid=[^\s]+\slive'
 
-    - name: "Post-Check subsystems are mounted #{{ config_num }}"
-      ansible.builtin.set_fact:
-        post_subsystems_found: "{{ post_nvme_subsys.stdout | regex_findall(nvme_re) | length }}"
-      vars:
-        nvme_re: 'traddr=[^\s]+\strsvcid=[^\s]+\slive'
-
-    - name: "Check all subsystems are mounted #{{ config_num }}"
-      ansible.builtin.set_fact:
-        all_subsystems_mounted: true
-      when: post_subsystems_found == combined_expected_num_subsystems
-  when: all_subsystems_mounted is not defined
+- name: "Check all subsystems are mounted #{{ config_num }}"
+  ansible.builtin.set_fact:
+    all_subsystems_mounted: true
+  when: post_subsystems_found == combined_expected_num_subsystems

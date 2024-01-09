@@ -37,7 +37,5 @@
     {{ compaction_string }}
     {{ dryrun_string }}
     {{ prefix_string }}
-  args:
-    chdir: "{{ datamover_dir }}"
   run_once: true
   register: master_application

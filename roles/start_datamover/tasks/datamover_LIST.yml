@@ -36,7 +36,5 @@
     --config {{ datamover_conf_dir }}/config.json
     --dest_path {{ datamover_list_path }}
     {{ prefix_string }}
-  args:
-    chdir: "{{ datamover_dir }}"
   run_once: true
   register: master_application

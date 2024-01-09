@@ -50,10 +50,8 @@
   register: dss_target_out
 
 - name: Get spdk status
-  ansible.builtin.command: ./setup.sh status
+  ansible.builtin.command: "{{ target_dir }}/scripts/setup.sh status"
   changed_when: false
-  args:
-    chdir: "{{ target_dir }}/scripts"
   register: spdk_status
   become: true
 
@@ -137,8 +135,6 @@
     source {{ gcc_setenv }} &&
     {% endif %}
     {{ nvmf_tgt_cmd }} > {{ dss_log_dir }}/nkv-target.log 2>&1 &
-  args:
-    chdir: "{{ target_dir }}/bin"
   when: nvmf_ps.rc != 0
   become: true
 

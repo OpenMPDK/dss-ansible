@@ -38,7 +38,5 @@
     {{ skip_upload_string }}
     {{ prefix_string }}
     --dest_path {{ datamover_get_path }}
-  args:
-    chdir: "{{ datamover_dir }}"
   register: master_application
   run_once: true
