@@ -31,5 +31,6 @@
 
 ### Path defaults
 dss_dir: /usr/dss
+dss_log_dir: /var/log/dss
 target_conf_dir: /etc/dss
 target_dir: "{{ dss_dir }}/nkv-target"
