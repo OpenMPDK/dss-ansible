@@ -44,7 +44,7 @@
     extended: true
 
 - name: Get RoCEv2 IP lists and NUMA
-  ansible.builtin.ansible.builtin.include_tasks: get_ip_numa.yml
+  ansible.builtin.include_tasks: get_ip_numa.yml
   when: inventory_hostname in host_hostnames
 
 - name: Create log dir
