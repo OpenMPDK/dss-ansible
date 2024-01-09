@@ -60,7 +60,7 @@
         not hpos and
         not dss_formatter.stat.exists %}
         --compaction yes
-      {% else %}--compaction no{% endif %}
+      {% else %}{% endif %}
     data_integrity_string: "{% if datamover_data_integrity | bool %}--data_integrity{% else %}{% endif %}"
     skip_upload_string: "{% if datamover_skip_upload | bool %}--skip_upload{% else %}{% endif %}"
     prefix_string: "{% if datamover_prefix != '' %}--prefix={{ datamover_prefix }}{% else %}{% endif %}"

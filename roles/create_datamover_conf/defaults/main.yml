@@ -71,4 +71,4 @@ datamover_logging_level: INFO
 datamover_index_data_queue_size: 50000
 datamover_awslib_log_debug: 0
 datamover_fs_mounted: false
-datamover_compaction: "yes"
+datamover_compaction: "no"

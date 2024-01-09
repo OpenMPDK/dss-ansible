@@ -159,7 +159,6 @@
 # datamover_operation: DEL
 # datamover_operation: TEST
 # datamover_dryrun: false
-# datamover_compaction: true
 # datamover_prefix: ''
 # datamover_debug: false
 # datamover_data_integrity: true
@@ -192,7 +191,7 @@
 # datamover_logging_level: INFO
 # datamover_index_data_queue_size: 50000
 # datamover_awslib_log_debug: 0
-# datamover_compaction: "yes"
+# datamover_compaction: "no"
 
 ### NTP defaults
 # ntp_enabled: true
