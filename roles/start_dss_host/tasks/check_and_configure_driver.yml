@@ -1,0 +1,5 @@
+---
+
+- name: Configure Driver
+  ansible.builtin.include_tasks: configure_driver.yml
+  when: all_subsystems_mounted is not defined
