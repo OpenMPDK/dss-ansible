@@ -30,10 +30,8 @@
 ---
 
 - name: Get spdk status
-  ansible.builtin.command: ./setup.sh status
+  ansible.builtin.command: "{{ target_dir }}/scripts/setup.sh status"
   changed_when: false
-  args:
-    chdir: "{{ target_dir }}/scripts"
   register: spdk_status
   become: true
 
