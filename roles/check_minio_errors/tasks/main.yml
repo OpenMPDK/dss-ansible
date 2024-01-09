@@ -30,7 +30,7 @@
 ---
 
 - name: Check minio logs for errors
-  shell: >
+  ansible.builtin.shell: >
     grep -i error {{ dss_log_dir }}/nkv-minio*.log
     {%- for error in exclude_errors_list -%}
     | grep -v '{{ error }}'
@@ -40,7 +40,7 @@
   register: minio_errors
 
 - name: Assert minio errors not found
-  assert:
+  ansible.builtin.assert:
     that: minio_errors.stdout_lines | length == 0
     msg: "{{ minio_errors.stdout }}"
   ignore_errors: true

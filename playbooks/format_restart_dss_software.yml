@@ -44,7 +44,7 @@
     - validate_ansible
 
 - name: Stop DSS Software
-  import_playbook: stop_dss_software.yml
+  ansible.builtin.import_playbook: stop_dss_software.yml
 
 - name: Format Disks
   hosts:
@@ -65,7 +65,7 @@
     - remove_datamover_index
 
 - name: Start DSS Software
-  import_playbook: start_dss_software.yml
+  ansible.builtin.import_playbook: start_dss_software.yml
   vars:
     cleanup_minio: true
 

@@ -30,7 +30,7 @@
 ---
 
 - name: Install Infiniband
-  yum:
+  ansible.builtin.yum:
     name: '@Infiniband Support'
     state: present
   become: true

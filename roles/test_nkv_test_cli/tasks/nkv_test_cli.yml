@@ -40,7 +40,7 @@
   when: ansible_virtualization_role != 'guest'
 
 - name: Execute nkv_test_cli command
-  shell: "{{ nkv_test_cli_command | regex_replace('[\\r\\n\\t]+','') }}"
+  ansible.builtin.shell: "{{ nkv_test_cli_command | regex_replace('[\\r\\n\\t]+','') }}"
   args:
     chdir: "{{ nkv_sdk_bin_dir }}"
   loop: "{{ rocev2_numa_prefix_list }}"
@@ -81,7 +81,7 @@
     - skip_ansible_lint
 
 - name: Check async nkv_test_cli command
-  async_status:
+  ansible.builtin.async_status:
     jid: "{{ async_task.ansible_job_id }}"
   register: async_results
   until: async_results.finished
@@ -94,7 +94,7 @@
   become: true
 
 - name: Assert async nkv_test_cli completion
-  assert:
+  ansible.builtin.assert:
     that: async_result.finished != 0
     fail_msg: "nkv_test_cli did not complete in time"
     quiet: true
@@ -104,7 +104,7 @@
     label: "{{ async_result.cmd | regex_replace('[\\r\\n\\t]+','') }}"
 
 - name: Check nkv_test_cli output for errors
-  debug:
+  ansible.builtin.debug:
     msg: "Checking for errors in nkv_test_cli output..."
   loop: "{{ async_results.results }}"
   loop_control:
@@ -129,12 +129,12 @@
     async_result.stdout is search('Unsupported operation provided')
 
 - name: Initialize throughput vars
-  set_fact:
+  ansible.builtin.set_fact:
     throughput: 0
     combined_throughput: 0
 
 - name: Set throughput
-  set_fact:
+  ansible.builtin.set_fact:
     throughput: "{{ (throughput | float) + (async_result.stdout | regex_search(nkv_re, '\\1') | first | float / 1000) }}"
   vars:
     nkv_re: >-
@@ -146,7 +146,7 @@
   when: async_result.stdout | regex_search(nkv_re, '\\1')
 
 - name: Set combined_throughput
-  set_fact:
+  ansible.builtin.set_fact:
     combined_throughput: "{{ (combined_throughput | float) + (hostvars[host].throughput | float) }}"
   loop: "{{ host_hostnames }}"
   loop_control:

@@ -43,10 +43,10 @@
     - validate_ansible
 
 - name: Stop datamover
-  import_playbook: cleanup_datamover.yml
+  ansible.builtin.import_playbook: cleanup_datamover.yml
 
 - name: Stop DSS Software
-  import_playbook: stop_dss_software.yml
+  ansible.builtin.import_playbook: stop_dss_software.yml
 
 - name: Reset SPDK
   hosts:

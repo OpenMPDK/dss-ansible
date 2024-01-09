@@ -30,7 +30,7 @@
 ---
 
 - name: Install minio dependencies
-  yum:
+  ansible.builtin.yum:
     name: "{{ item }}"
   loop:
     - numactl
@@ -41,7 +41,7 @@
   become: true
 
 - name: Identify host tarball
-  find:
+  ansible.builtin.find:
     path: "{{ artifacts_dir }}"
     patterns: 'dss-minio-bin-*.tgz'
   delegate_to: localhost
@@ -49,19 +49,19 @@
   register: minio_tgz
 
 - name: Assert minio tarball found
-  assert:
+  ansible.builtin.assert:
     that: minio_tgz.files | length > 0
     fail_msg: "No minio tarball found. Please download tarball to {{ artifacts_dir }}"
 
 - name: Create minio destination path
-  file:
+  ansible.builtin.file:
     path: "{{ minio_dir }}"
     state: directory
     mode: 0755
   become: true
 
 - name: Deploy minio from tarball
-  unarchive:
+  ansible.builtin.unarchive:
     src: "{{ (minio_tgz.files | sort(attribute='mtime', reverse=true) | first).path }}"
     dest: "{{ minio_dir }}"
     owner: root
@@ -70,7 +70,7 @@
   become: true
 
 - name: Create minio symlink to host bin dir
-  file:
+  ansible.builtin.file:
     src: "{{ minio_dir }}/minio"
     dest: "{{ nkv_sdk_bin_dir }}/minio"
     state: link
@@ -81,7 +81,7 @@
   become: true
 
 - name: Create log dir
-  file:
+  ansible.builtin.file:
     path: "{{ dss_log_dir }}"
     state: directory
     mode: 0755

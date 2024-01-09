@@ -30,7 +30,7 @@
 ---
 
 - name: Identify kvssd firmware
-  find:
+  ansible.builtin.find:
     path: "{{ artifacts_dir }}"
     patterns: '*.bin'
   delegate_to: localhost
@@ -38,11 +38,11 @@
   register: firmware_bin
 
 - name: Assert kvssd firmware found
-  assert:
+  ansible.builtin.assert:
     that: firmware_bin.files | count == 1
     fail_msg: "Expected 1 but found {{ firmware_bin.files | count }} firmware files. Please download firmware bin to {{ artifacts_dir }}"
     success_msg: "Found {{ firmware_bin.files[0].path | basename }}"
 
 - name: Set target firmware version
-  set_fact:
+  ansible.builtin.set_fact:
     target_fw_version: "{{ (firmware_bin.files[0].path | basename ).split('_') | first }}"

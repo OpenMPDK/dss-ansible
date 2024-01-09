@@ -30,29 +30,29 @@
 ---
 
 - name: Assert more than one host
-  assert:
+  ansible.builtin.assert:
     that: ansible_play_hosts | length > 1
     msg: Can only test ib_read_bw with more than 1 target
 
 - name: Get ib_read_bw versions
-  command: ib_read_bw --version
+  ansible.builtin.command: ib_read_bw --version
   changed_when: false
   failed_when: false
   register: ib_read_bw_version
 
 - name: Assert ib_read_bw installed
-  assert:
+  ansible.builtin.assert:
     that: ib_read_bw_version.stdout is defined
     msg: ib_read_bw is not installed. Install 'perftest' RPM.
 
 - name: Set ib_read_bw_ver_list var
-  set_fact:
+  ansible.builtin.set_fact:
     ib_read_bw_ver_list: "{{ ib_read_bw_ver_list | d([]) + [ hostvars[item].ib_read_bw_version.stdout ] }}"
   loop: "{{ ansible_play_hosts }}"
   run_once: true
 
 - name: Assert ib_read_bw versions match
-  assert:
+  ansible.builtin.assert:
     that: ib_read_bw_ver_list | unique | length == 1
     msg: |
       Mixed versions of ib_read_bw detected.
@@ -60,33 +60,33 @@
       {{ ib_read_bw_version.stdout }}
 
 - name: Get RoCEv2 IP Address
-  include_role:
+  ansible.builtin.include_role:
     name: get_vlan_ips
   vars:
     vlan_list: "{{ rocev2_vlans }}"
   when: rocev2_ip_list is not defined
 
 - name: Set rocev2_ip_list var if IP's auto-discovered
-  set_fact:
+  ansible.builtin.set_fact:
     rocev2_ip_list: "{{ vlan_ip_list }}"
   when: rocev2_ip_list is not defined
 
 - name: Assert that IP's are defined
-  assert:
+  ansible.builtin.assert:
     that: rocev2_ip_list | length > 0
     fail_msg: |
       No IPs configured on any Mellanox adapter.
       Please configure at least one IP to test ping.
 
 - name: Copy show_gids script
-  copy:
+  ansible.builtin.copy:
     src: show_gids.sh
     dest: /usr/local/bin/show_gids
     mode: 0755
   become: true
 
 - name: Query show_gids
-  command: show_gids
+  ansible.builtin.command: show_gids
   environment:
     PATH: "{{ ansible_env.PATH }}:/usr/local/bin:/usr/sbin"
   changed_when: false
@@ -95,7 +95,7 @@
   become: true
 
 - name: Set ib_devices var
-  set_fact:
+  ansible.builtin.set_fact:
     ib_devices: "{{ ib_devices | default([]) +
                 [{ 'ibdev': ibdev,
                   'gid_index': gid_index,
@@ -116,7 +116,7 @@
   when: gids_list.stdout is regex(gid_regex)
 
 - name: Set combined_ib_devices var
-  set_fact:
+  ansible.builtin.set_fact:
     combined_ib_devices: "{{ combined_ib_devices | default([]) }} + {{ hostvars[host].ib_devices }}"
   loop: "{{ ansible_play_hosts }}"
   loop_control:
@@ -124,7 +124,7 @@
   run_once: true
 
 - name: Iterate ib_read_bw permutations
-  include_tasks: ib_read_bw.yml
+  ansible.builtin.include_tasks: ib_read_bw.yml
   vars:
     server_vlan_index: "{{ server_ib_device.vlan_index }}"
     server_ibdev: "{{ server_ib_device.ibdev }}"
@@ -137,7 +137,7 @@
     loop_var: server_ib_device
 
 - name: Assert ib_read_bw bw_avg is > 90% of link speed
-  assert:
+  ansible.builtin.assert:
     that: ib_result.bw_avg | float >= min_linkspeed | float
     fail_msg: "Expected bw: {{ min_linkspeed }}. Actual bw: {{ ib_result.bw_avg }}"
     quiet: true

@@ -30,12 +30,12 @@
 ---
 
 - name: Set target/host group vars
-  set_fact:
+  ansible.builtin.set_fact:
     target_hostnames: "{{ (groups['servers'] | d([]) + groups['targets'] | d([])) | unique }}"
     host_hostnames: "{{ (groups['servers'] | d([]) + groups['hosts'] | d([])) | unique }}"
 
 - name: Set host_id var from inventory
-  set_fact:
+  ansible.builtin.set_fact:
     host_id: "{{ ansible_loop.index }}"
   when: >
     item == inventory_hostname
@@ -44,11 +44,11 @@
     extended: true
 
 - name: Get RoCEv2 IP lists and NUMA
-  include_tasks: get_ip_numa.yml
+  ansible.builtin.ansible.builtin.include_tasks: get_ip_numa.yml
   when: inventory_hostname in host_hostnames
 
 - name: Create log dir
-  file:
+  ansible.builtin.file:
     path: "{{ dss_log_dir }}"
     state: directory
     mode: 0755
@@ -57,4 +57,4 @@
   become: true
 
 - name: Execute nkv_test_cli test
-  include_tasks: "{{ nkv_test_cli_test }}.yml"
+  ansible.builtin.include_tasks: "{{ nkv_test_cli_test }}.yml"

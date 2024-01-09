@@ -30,7 +30,7 @@
 ---
 
 - name: Stop and disable ufm service
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ ufm_service_file | basename }}"
     state: stopped
     daemon_reload: true
@@ -42,13 +42,13 @@
   become: true
 
 - name: List stuck Fabric Manager processes
-  command: pgrep -f '[f]abricmanager.py'
+  ansible.builtin.command: pgrep -f '[f]abricmanager.py'
   changed_when: false
   failed_when: false
   register: fm_proc
 
 - name: Kill stuck Fabric Manager processes
-  command: "kill -9 {{ item }}"
+  ansible.builtin.command: "kill -9 {{ item }}"
   loop: "{{ fm_proc.stdout_lines }}"
   when: fm_proc.stdout_lines
   become: true

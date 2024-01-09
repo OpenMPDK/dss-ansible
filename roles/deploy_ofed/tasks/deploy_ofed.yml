@@ -30,13 +30,13 @@
 ---
 
 - name: Remove inbox infiniband drivers
-  yum:
+  ansible.builtin.yum:
     name: '@Infiniband Support'
     state: absent
   become: true
 
 - name: Set OFED version variables
-  set_fact:
+  ansible.builtin.set_fact:
     ofed_url: "{{ item.url }}"
     ofed_target_version: "{{ item.version }}"
     ofed_dir: "{{ item.dir }}"
@@ -46,30 +46,30 @@
   when: ansible_distribution_version is version(item.distribution_version, '==')
 
 - name: Check OFED version
-  command: ofed_info -n
+  ansible.builtin.command: ofed_info -n
   failed_when: false
   changed_when: false
   register: ofed_version
 
 - name: Install Mellanox OFED
-  import_tasks: install_ofed.yml
+  ansible.builtin.import_tasks: install_ofed.yml
   when: >
     ofed_version.rc != 0 or
     ofed_version.stdout is version(ofed_target_version, '!=')
 
 - name: Check OFED version post-deploy
-  command: ofed_info -n
+  ansible.builtin.command: ofed_info -n
   changed_when: false
   register: post_ofed_version
 
 - name: Assert target OFED version
-  assert:
+  ansible.builtin.assert:
     that: post_ofed_version.stdout is version(ofed_target_version, '==')
     fail_msg: "Expected OFED version {{ ofed_target_version }} but found {{ post_ofed_version.stdout }}"
     success_msg: "Detected target OFED version {{ ofed_target_version }}"
 
 - name: Stop and disable openibd service
-  service:
+  ansible.builtin.service:
     name: openibd
     state: stopped
     enabled: false
@@ -77,23 +77,23 @@
   become: true
 
 - name: Remove mlnx-ofa_kernel modules
-  file:
+  ansible.builtin.file:
     path: "/lib/modules/{{ ansible_kernel }}/extra/mlnx-ofa_kernel"
     state: absent
   register: rm_mlnx_ofa_kernel
   become: true
 
 - name: Reload module dependencies
-  command: depmod -a
+  ansible.builtin.command: depmod -a
   when: >
     openibd_service.changed or
     rm_mlnx_ofa_kernel.changed
   become: true
 
 - name: Load Mellanox Drivers
-  include_role:
+  ansible.builtin.include_role:
     name: load_mlnx_drivers
 
 - name: Upgrade ConnectX Firmware
-  include_role:
+  ansible.builtin.include_role:
     name: upgrade_connectx_firmware

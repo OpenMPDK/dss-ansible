@@ -30,10 +30,10 @@
 ---
 
 - name: Gather service facts
-  service_facts:
+  ansible.builtin.service_facts:
 
 - name: Firewall is stopped and disabled
-  service:
+  ansible.builtin.service:
     name: firewalld
     state: stopped
     enabled: false

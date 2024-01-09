@@ -30,21 +30,21 @@
 ---
 
 - name: Set combined_endpoints var
-  set_fact:
+  ansible.builtin.set_fact:
     combined_endpoints: "{{ combined_endpoints | d([]) }} +
-    {% for tcp in hostvars[server].tcp_alias_list %}
-      [
-        {{ tcp }}{% if not loop.last %},{% endif %}
-      ]{% if not loop.last %} +{% endif %}
-    {% endfor %}
-    "
+      {% for tcp in hostvars[server].tcp_alias_list %}
+        [
+          {{ tcp }}{% if not loop.last %},{% endif %}
+        ]{% if not loop.last %} +{% endif %}
+      {% endfor %}
+      "
   loop: "{{ (groups['servers'] | d([]) + groups['hosts'] | d([])) | unique }}"
   loop_control:
     loop_var: server
   run_once: true
 
 - name: Ping all endpoints
-  command: "ping -{{ family }} -c 1 {{ alias }}"
+  ansible.builtin.command: "ping -{{ family }} -c 1 {{ alias }}"
   loop: "{{ combined_endpoints }}"
   loop_control:
     loop_var: endpoint
@@ -58,28 +58,28 @@
   register: ping_endpoints
 
 - name: Initialize endpoint vars
-  set_fact:
+  ansible.builtin.set_fact:
     assigned_endpoints: []
     endpoint_map: []
 
 - name: Assign endpoint to each client
-  include_tasks: assign_endpoint.yml
+  ansible.builtin.include_tasks: assign_endpoint.yml
   loop: "{{ ansible_play_hosts }}"
   loop_control:
     loop_var: client_host
 
 - name: Set minio ip
-  set_fact:
+  ansible.builtin.set_fact:
     minio_endpoint: "http://{{ (endpoint_map | selectattr('client', 'equalto', inventory_hostname) | first).endpoint }}:{{ minio_port }}"
 
 - name: List local hosts with mc
-  shell: "{{ minio_dir }}/mc config host list {{ minio_mc_alias }} --json | sed -n '/^{/,$p'"
+  ansible.builtin.shell: "{{ minio_dir }}/mc config host list {{ minio_mc_alias }} --json | sed -n '/^{/,$p'"
   register: mc_host_list
   failed_when: false
   changed_when: false
 
 - name: Set Client Minio mc configuration
-  command: "{{ minio_dir }}/mc config host add {{ minio_mc_alias }} {{ minio_endpoint }} {{ minio_access_key }} {{ minio_secret_key }}"
+  ansible.builtin.command: "{{ minio_dir }}/mc config host add {{ minio_mc_alias }} {{ minio_endpoint }} {{ minio_access_key }} {{ minio_secret_key }}"
   when: >
     ((mc_host_list.stdout | from_json).status | default('') == 'error') or
     ((mc_host_list.stdout | from_json).URL | default('') != minio_endpoint)

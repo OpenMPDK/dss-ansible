@@ -42,7 +42,7 @@
     - validate_ansible
 
 - name: Stop DSS Software
-  import_playbook: stop_dss_software.yml
+  ansible.builtin.import_playbook: stop_dss_software.yml
 
 - name: Start DSS Software
-  import_playbook: start_dss_software.yml
+  ansible.builtin.import_playbook: start_dss_software.yml

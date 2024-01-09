@@ -30,13 +30,13 @@
 ---
 
 - name: Set target/host group vars
-  set_fact:
+  ansible.builtin.set_fact:
     target_hostnames: "{{ (groups['servers'] | d([]) + groups['targets'] | d([])) | unique }}"
     host_hostnames: "{{ (groups['servers'] | d([]) + groups['hosts'] | d([])) | unique }}"
     cluster_num_list: []
 
 - name: Set cluster_num_list var
-  set_fact:
+  ansible.builtin.set_fact:
     cluster_num_list: "{{ cluster_num_list }} +
       [
         {% for host in ansible_play_hosts %}
@@ -46,35 +46,35 @@
   run_once: true
 
 - name: Get all RoCEv2 IP Addresses
-  include_role:
+  ansible.builtin.include_role:
     name: get_vlan_ips
   vars:
     vlan_list: "{{ rocev2_vlans }}"
   when: rocev2_ip_list is not defined
 
 - name: Set rocev2_ip_list var if IP's auto-discovered
-  set_fact:
+  ansible.builtin.set_fact:
     rocev2_ip_list: "{{ vlan_ip_list }}"
   when: rocev2_ip_list is not defined
 
 - name: Initialize cluster_mountpoints var
-  set_fact:
+  ansible.builtin.set_fact:
     cluster_mountpoints: []
 
 - name: Collect mountpoints for each cluster
-  include_tasks: collect_cluster_mountpoints.yml
+  ansible.builtin.include_tasks: collect_cluster_mountpoints.yml
   loop: "{{ cluster_num_list | unique }}"
   loop_control:
     loop_var: current_cluster_num
   when: current_cluster_num | string == cluster_num | string
 
 - name: Initialize vars for cluster map
-  set_fact:
+  ansible.builtin.set_fact:
     clusters: []
     cluster_index: 0
 
 - name: Set clusters array
-  include_tasks: set_clusters.yml
+  ansible.builtin.include_tasks: set_clusters.yml
   loop: "{{ range(0, cluster_mountpoints | length) | list }}"
   loop_control:
     loop_var: current_cluster_count

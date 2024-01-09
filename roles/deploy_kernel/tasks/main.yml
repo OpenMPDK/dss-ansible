@@ -30,7 +30,7 @@
 ---
 
 - name: Identify host kernel version
-  find:
+  ansible.builtin.find:
     path: "{{ artifacts_dir }}"
     patterns: 'kernel-*.rpm'
     excludes: 'devel,headers'
@@ -39,7 +39,7 @@
   register: kernel_version
 
 - name: Identify kernel RPMs
-  find:
+  ansible.builtin.find:
     path: "{{ artifacts_dir }}"
     patterns: 'kernel-*.rpm'
   delegate_to: localhost
@@ -47,7 +47,7 @@
   register: kernel_rpms
 
 - name: Assert kernel RPMs are found
-  assert:
+  ansible.builtin.assert:
     that: kernel_version.files | map(attribute='path') | select('search', rpm_name) | list | count > 0
     fail_msg: "{{ rpm_name }} rpm not found. Please download kernel RPM's to {{ artifacts_dir }}"
     success_msg: "Found {{ rpm_name }} RPM"
@@ -57,7 +57,7 @@
   run_once: true
 
 - name: Deploy kernel RPMs
-  include_tasks: deploy_kernel_rpm.yml
+  ansible.builtin.include_tasks: deploy_kernel_rpm.yml
   loop: "{{ kernel_rpm_list }}"
   loop_control:
     loop_var: kernel_rpm_item
@@ -66,7 +66,7 @@
   when: inventory_hostname in (groups['servers'] | d([]) + groups['hosts'] | d([]))
 
 - name: Set default grub boot
-  command: "grub2-set-default 'CentOS {{ dist_string }} ({{ kernel_rpm_version }}) {{ ansible_distribution_major_version }}{{ core_string }}'"
+  ansible.builtin.command: "grub2-set-default 'CentOS {{ dist_string }} ({{ kernel_rpm_version }}) {{ ansible_distribution_major_version }}{{ core_string }}'"
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/usr/sbin"
   vars:
@@ -81,13 +81,13 @@
   become: true
 
 - name: Set GRUB Commandline Options
-  import_tasks: set_grub_cmdline.yml
+  ansible.builtin.import_tasks: set_grub_cmdline.yml
 
 - name: Flush handlers
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: Assert host kernel version
-  assert:
+  ansible.builtin.assert:
     that: ansible_kernel is version (kernel_rpm_version, '==')
     fail_msg: "Expected kernel version {{ kernel_rpm_version }} but found {{ ansible_kernel }}"
     success_msg: "Detected host kernel version {{ kernel_rpm_version }}"

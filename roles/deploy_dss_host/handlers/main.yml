@@ -1,5 +1,5 @@
 ---
 
 - name: Run ldconfig
-  command: ldconfig
+  ansible.builtin.command: ldconfig
   become: true

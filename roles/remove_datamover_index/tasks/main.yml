@@ -30,7 +30,7 @@
 ---
 
 - name: Remove datamover index file
-  file:
+  ansible.builtin.file:
     path: "{{ datamover_index_file }}"
     state: absent
   become: true

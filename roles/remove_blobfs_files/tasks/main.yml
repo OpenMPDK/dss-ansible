@@ -30,13 +30,13 @@
 ---
 
 - name: Find BlobFS config files
-  find:
+  ansible.builtin.find:
     paths: "{{ target_conf_dir }}"
     patterns: blobfs.mkfs.in*.conf
   register: blobfs_conf_files
 
 - name: Remove BlobFS config files
-  file:
+  ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
   loop: "{{ blobfs_conf_files.files }}"
@@ -45,7 +45,7 @@
   become: true
 
 - name: Remove format_disks.sh files
-  file:
+  ansible.builtin.file:
     path: "{{ target_dir }}/bin/{{ item }}"
     state: absent
   loop:

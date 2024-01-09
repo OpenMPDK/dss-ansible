@@ -30,7 +30,7 @@
 ---
 
 - name: Install epel-release repo
-  yum:
+  ansible.builtin.yum:
     name: epel-release
     enablerepo: extras
     state: present

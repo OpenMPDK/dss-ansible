@@ -30,18 +30,18 @@
 ---
 
 - name: Create datamover conf dir
-  file:
+  ansible.builtin.file:
     path: "{{ datamover_conf_dir }}"
     state: directory
     mode: 0755
   become: true
 
 - name: Get MinIO Hostnames
-  include_role:
+  ansible.builtin.include_role:
     name: get_minio_hostnames
 
 - name: Set datamover conf template
-  template:
+  ansible.builtin.template:
     src: config.json.j2
     dest: "{{ datamover_conf_dir }}/config.json"
     mode: 0644

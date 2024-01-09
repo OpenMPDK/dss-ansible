@@ -30,7 +30,7 @@
 ---
 
 - name: Assert valid rocev2_vlan_interfaces var
-  assert:
+  ansible.builtin.assert:
     that:
       - rocev2_vlan_interfaces is defined
       - rocev2_vlan_interfaces is not mapping
@@ -39,7 +39,7 @@
     msg: Cannot configure vlans. Check value of `rocev2_vlan_interfaces` var.
 
 - name: Assert RoCEv2 VLAN Interfaces are present on host
-  assert:
+  ansible.builtin.assert:
     that: matching_interfaces | length > 0
     msg: "{{ item.interface }} is not a valid interface on this host. Please check `rocev2_vlan_interfaces` var"
   loop: "{{ rocev2_vlan_interfaces }}"
@@ -48,7 +48,7 @@
     matching_interfaces: "{{ all_interfaces | selectattr('device', 'equalto', item.interface ) | list }}"
 
 - name: Assert RoCEv2 VLAN IP addresses are defined
-  assert:
+  ansible.builtin.assert:
     that: rocev2_ip_list | length >= ansible_loop.index
     msg: "{{ item }} (index {{ ansible_loop.index0 }}) does not have a corresponding IP address defined. Check rocev2_ip_list var."
   loop: "{{ rocev2_vlan_interfaces }}"
@@ -57,16 +57,16 @@
     extended: true
 
 - name: Include vars
-  include_vars: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
 
 - name: Find ifcfg files
-  find:
+  ansible.builtin.find:
     paths: /etc/sysconfig/network-scripts/
     patterns: "ifcfg-*"
   register: ifcfg_files
 
 - name: Remove ifcfg files for adapters that do not exist
-  file:
+  ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
   loop: "{{ ifcfg_files.files }}"
@@ -82,7 +82,7 @@
   become: true
 
 - name: Configure parent adapters
-  template:
+  ansible.builtin.template:
     src: parent_ifcfg.j2
     dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.interface }}"
     mode: 0644
@@ -93,7 +93,7 @@
   become: true
 
 - name: Configure VLAN child adapters
-  template:
+  ansible.builtin.template:
     src: vlan_ifcfg.j2
     dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item.interface }}.{{ item.vlan_id }}"
     mode: 0644
@@ -112,7 +112,7 @@
   become: true
 
 - name: Remove non-confirming VLAN configurations
-  file:
+  ansible.builtin.file:
     path: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}"
     state: absent
   loop: "{{ ansible_interfaces }}"
@@ -131,4 +131,4 @@
   become: true
 
 - name: Flush handlers
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers

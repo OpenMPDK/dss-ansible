@@ -30,7 +30,7 @@
 ---
 
 - name: Fetch ansible facts
-  copy:
+  ansible.builtin.copy:
     dest: "{{ local_coredump_dir }}/{{ inventory_hostname }}/ansible_facts.json"
     content: "{{ ansible_facts | to_nice_json  }}"
     mode: 0755

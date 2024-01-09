@@ -30,7 +30,7 @@
 ---
 
 - name: Remove DSS Software
-  file:
+  ansible.builtin.file:
     path: "{{ dss_path }}"
     state: absent
   loop: "{{ remove_dss_software_dir_list }}"

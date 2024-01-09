@@ -30,7 +30,7 @@
 ---
 
 - name: Fetch coredumps
-  fetch:
+  ansible.builtin.fetch:
     src: "{{ item.path }}"
     dest: "{{ local_coredump_dir }}"
   loop: "{{ coredumps.files }}"

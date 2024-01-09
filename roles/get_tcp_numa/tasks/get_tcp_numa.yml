@@ -30,29 +30,29 @@
 ---
 
 - name: Assert tcp_alias_list is defined
-  assert:
+  ansible.builtin.assert:
     that: tcp_alias_list is defined
     msg: |
       tcp_alias_list is not defined.
       get_tcp_vlan_ip_list role must be included.
 
 - name: Get num. NUMA nodes
-  shell: |
+  ansible.builtin.shell: |
     lscpu | grep -oP 'NUMA node\(s\): +\K.+'
   changed_when: false
   register: lscpu_num_numa
 
 - name: Set num_numa var
-  set_fact:
+  ansible.builtin.set_fact:
     num_numa: "{{ lscpu_num_numa.stdout | int }}"
 
 - name: Get numa / socket allocation
-  shell: "lscpu --parse=NODE,SOCKET | sort -u | grep -v '#'"
+  ansible.builtin.shell: "lscpu --parse=NODE,SOCKET | sort -u | grep -v '#'"
   register: lscpu_numa_socket
   changed_when: false
 
 - name: Set numa_socket var
-  set_fact:
+  ansible.builtin.set_fact:
     numa_socket: "{{ numa_socket | default([]) +
                     [{
                       'numa': item | regex_search(numa_socket_re, '\\1') | first | int,
@@ -64,12 +64,12 @@
     numa_socket_re: '([^,]+),(.+)'
 
 - name: Set can_interleave var
-  set_fact:
+  ansible.builtin.set_fact:
     can_interleave: true
   when: (num_numa | int) / (tcp_alias_list | length) >= 2
 
 - name: Assert more than one NUMA node
-  assert:
+  ansible.builtin.assert:
     that: num_numa | int > 1
     msg: |
       NUMA Nodes: {{ num_numa }}
@@ -81,7 +81,7 @@
   ignore_errors: true
 
 - name: Set adjacent_numa_list var
-  set_fact:
+  ansible.builtin.set_fact:
     adjacent_numa_list: >-
       {{ adjacent_numa_list | default([]) }} +
       [
@@ -118,7 +118,7 @@
     max_socket_numa: "{{ numa_socket | selectattr('socket', 'equalto', socket_num | int) | map(attribute='numa') | list | last }}"
 
 - name: Assert all adapters are on separate NUMA nodes
-  assert:
+  ansible.builtin.assert:
     that: num_adapters == num_adapters_with_unique_numa
     msg: |
       One or more adapters on the same NUMA node:
@@ -133,7 +133,7 @@
   ignore_errors: true
 
 - name: Assert optimal interleaved NUMA configuration
-  assert:
+  ansible.builtin.assert:
     that: numa != adjacent_numa
     msg: Network adapters are not in a optimal NUMA configuration.
   loop: "{{ adjacent_numa_list }}"
@@ -146,7 +146,7 @@
   ignore_errors: true
 
 - name: Assert NUMA belongs to only one socket
-  assert:
+  ansible.builtin.assert:
     that: numa_socket | selectattr('numa', 'equalto', numa) | map(attribute='socket') | list | length == 1
     msg: NUMA belongs to more than one socket. NUMA configuration is not optimal.
   loop: "{{ tcp_alias_list | map(attribute='numa') | list }}"

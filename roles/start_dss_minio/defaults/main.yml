@@ -65,6 +65,7 @@ minio_nkv_shared: 1
 minio_nkv_checksum: 1
 minio_ulimit: 1048576
 minio_nkv_max_meta_size: 8192
+minio_report_metrics: false
 
 ### VLAN defaults
 rocev2_vlans:

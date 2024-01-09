@@ -37,7 +37,7 @@
 # Additionally, once DSS software is stopped, disks will be returned back to kernel mode (SPDK reset).
 
 - name: Stop DSS Software
-  import_playbook: stop_dss_software.yml
+  ansible.builtin.import_playbook: stop_dss_software.yml
 
 - name: Reset SPDK
   hosts:

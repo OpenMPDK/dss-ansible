@@ -30,7 +30,7 @@
 ---
 
 - name: Start and enable irqbalance service
-  service:
+  ansible.builtin.service:
     name: irqbalance
     state: started
     enabled: true

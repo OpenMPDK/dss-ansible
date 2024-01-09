@@ -30,7 +30,7 @@
 ---
 
 - name: Configure sysctl.conf entries
-  sysctl:
+  ansible.builtin.sysctl:
     name: "{{ item.name }}"
     value: "{{ item.value }}"
     state: "{{ item.state }}"

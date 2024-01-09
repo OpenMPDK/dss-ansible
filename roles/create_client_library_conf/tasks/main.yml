@@ -30,5 +30,5 @@
 ---
 
 - name: Create Client Library Config file
-  include_tasks: create_client_library_conf.yml
+  ansible.builtin.include_tasks: create_client_library_conf.yml
   when: not no_minio | d(false)

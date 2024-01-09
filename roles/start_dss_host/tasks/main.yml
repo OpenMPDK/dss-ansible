@@ -30,24 +30,24 @@
 ---
 
 - name: Set target/host group vars
-  set_fact:
+  ansible.builtin.set_fact:
     target_hostnames: "{{ (groups['servers'] | d([]) + groups['targets'] | d([])) | unique }}"
     host_hostnames: "{{ (groups['servers'] | d([]) + groups['hosts'] | d([])) | unique }}"
 
 - name: Stat DSS Host path
-  stat:
+  ansible.builtin.stat:
     path: "{{ nkv_sdk_dir }}"
   register: dss_host_path
   when: inventory_hostname in host_hostnames
 
 - name: Assert DSS Host path exists
-  assert:
+  ansible.builtin.assert:
     that: dss_host_path.stat.exists
     fail_msg: DSS Host is not installed. Execute 'deploy_dss_software.yml' playbook first.
   when: inventory_hostname in host_hostnames
 
 - name: Stat KV kernel drivers
-  stat:
+  ansible.builtin.stat:
     path: "{{ nkv_sdk_dir }}/openmpdk_driver/kernel_v5.1_nvmf/{{ item }}"
   register: kv_kernel_drivers
   loop:
@@ -60,7 +60,7 @@
   when: inventory_hostname in host_hostnames
 
 - name: Check for missing KV kernel drivers
-  set_fact:
+  ansible.builtin.set_fact:
     missing_drivers: true
   when:
     - inventory_hostname in host_hostnames
@@ -70,7 +70,7 @@
     label: "{{ item.item }}"
 
 - name: Configure Driver
-  command: /usr/bin/python2 ./dss_host.py config_driver
+  ansible.builtin.command: /usr/bin/python2 ./dss_host.py config_driver
   args:
     chdir: "{{ nkv_sdk_bin_dir }}"
   when:
@@ -79,7 +79,7 @@
   become: true
 
 - name: Set cluster_num_list var
-  set_fact:
+  ansible.builtin.set_fact:
     cluster_num_list: "{{ cluster_num_list | default([]) }} +
       [
         {% for host in ansible_play_hosts %}
@@ -90,7 +90,7 @@
   run_once: true
 
 - name: Setup hosts by cluster
-  include_tasks: setup_host_clusters.yml
+  ansible.builtin.include_tasks: setup_host_clusters.yml
   loop: "{{ cluster_num_list | unique }}"
   loop_control:
     loop_var: current_cluster_num

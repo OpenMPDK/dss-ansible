@@ -30,7 +30,7 @@
 ---
 
 - name: Initialize vars
-  set_fact:
+  ansible.builtin.set_fact:
     tcp_adapter_list: []
     tcp_adapter_parent_list: []
     tcp_adapter_numa_list: []
@@ -39,13 +39,13 @@
     hostnames_list: []
 
 - name: Query IPs from tcp_ip_list
-  shell: "getent ahosts {{ item }} | awk '{ print $1 }' | grep -v '^::1' | head -n 1"
+  ansible.builtin.shell: "getent ahosts {{ item }} | awk '{ print $1 }' | grep -v '^::1' | head -n 1"
   loop: "{{ tcp_ip_list }}"
   changed_when: false
   register: getent
 
 - name: Assert tcp_ip_list contains routable hostnames or IPs
-  assert:
+  ansible.builtin.assert:
     that: "{{ item.stdout | ipaddr != false }}"
     msg: "{{ item.item }} is not routable on this host"
     quiet: true
@@ -54,7 +54,7 @@
     label: "{{ item.item }}"
 
 - name: Assert no duplicate IPs on each host
-  assert:
+  ansible.builtin.assert:
     that: ip_list == unique_ip_list
     msg: "Duplicate IPs found on host: {{ ip_list }}"
   vars:
@@ -62,7 +62,7 @@
     unique_ip_list: "{{ ip_list | unique }}"
 
 - name: Set tcp_adapter_list var
-  set_fact:
+  ansible.builtin.set_fact:
     tcp_adapter_list: "{{ tcp_adapter_list | d([]) }} +
       [
       {% for interface in ansible_interfaces %}
@@ -86,12 +86,12 @@
     inventory_name: "{{ item.item }}"
 
 - name: Assert TCP IPs are found
-  assert:
+  ansible.builtin.assert:
     that: tcp_adapter_list | length > 0
     msg: No TCP IPs configured on host. Configure `tcp_ip_list` var for host or configure VLANs. See README.md for details.
 
 - name: Set combined_family_list var
-  set_fact:
+  ansible.builtin.set_fact:
     combined_family_list: "{{ combined_family_list | d([]) + hostvars[hostname].tcp_adapter_list | map(attribute='family') | list }}"
   loop: "{{ ansible_play_hosts }}"
   loop_control:
@@ -99,7 +99,7 @@
   run_once: true
 
 - name: Assert all TCP IP's are same family
-  assert:
+  ansible.builtin.assert:
     that: combined_family_list | unique | length == 1
     msg: |
       tcp_ip_list must contain IPs or hostnames of the same family (IPV6 or IPV4) across all hosts in inventory.
@@ -107,7 +107,7 @@
       {{ tcp_adapter_list | to_nice_json }}
 
 - name: Assert IP addresses found on host
-  assert:
+  ansible.builtin.assert:
     that: item.stdout in tcp_adapter_list | map(attribute='tcp_ip') | list
     msg: "{{ item.item }} is not assigned to any adapter. Check 'tcp_ip_list' setting."
     quiet: true
@@ -116,7 +116,7 @@
     label: "{{ item.item }}"
 
 - name: Get parent adapters
-  shell: "echo $(basename $(readlink /sys/class/net/{{ item.interface }}/lower_* || echo '{{ item.interface }}'))"
+  ansible.builtin.shell: "echo $(basename $(readlink /sys/class/net/{{ item.interface }}/lower_* || echo '{{ item.interface }}'))"
   loop: "{{ tcp_adapter_list }}"
   loop_control:
     label: "{{ item.interface }}"
@@ -124,7 +124,7 @@
   register: parent_adapters
 
 - name: Set tcp_adapter_parent_list var
-  set_fact:
+  ansible.builtin.set_fact:
     tcp_adapter_parent_list: "{{ tcp_adapter_parent_list | default([]) }} +
       [
         {
@@ -140,7 +140,7 @@
     label: "{{ item.item.tcp_ip }}"
 
 - name: Get NUMA for each adapter
-  command: "cat /sys/class/net/{{ item.parent_interface }}/device/numa_node"
+  ansible.builtin.command: "cat /sys/class/net/{{ item.parent_interface }}/device/numa_node"
   changed_when: false
   loop: "{{ tcp_adapter_parent_list }}"
   loop_control:
@@ -148,7 +148,7 @@
   register: numa_node_list
 
 - name: Set tcp_adapter_numa_list var
-  set_fact:
+  ansible.builtin.set_fact:
     tcp_adapter_numa_list: "{{ tcp_adapter_numa_list | default([]) }} +
       [
         {
@@ -165,11 +165,11 @@
     label: "{{ item.item.tcp_ip }}"
 
 - name: Sort tcp_adapter_numa_list by numa
-  set_fact:
+  ansible.builtin.set_fact:
     tcp_adapter_numa_list: "{{ tcp_adapter_numa_list | sort(attribute='numa') }}"
 
-- name: set tcp_alias_list var
-  set_fact:
+- name: Set tcp_alias_list var
+  ansible.builtin.set_fact:
     tcp_alias_list: "{{ tcp_alias_list | default([]) }} +
       [
         {
@@ -193,7 +193,7 @@
     extended: true
 
 - name: Set hostnames_list var for servers
-  set_fact:
+  ansible.builtin.set_fact:
     hostnames_list: "{{ (hostnames_list | d([]) + groups[item] | d([])) | unique }}"
   loop:
     - servers
@@ -206,7 +206,7 @@
 #    inventory_hostname in groups['ufm_hosts'] | d([])
 
 - name: Set hostnames_list var for clients
-  set_fact:
+  ansible.builtin.set_fact:
     hostnames_list: "{{ (hostnames_list | d([]) + groups[item] | d([])) | unique }}"
   loop:
     - servers
@@ -215,7 +215,7 @@
   when: inventory_hostname in groups['clients'] | d([])
 
 - name: Set non_resolvable_aliases var
-  set_fact:
+  ansible.builtin.set_fact:
     needs_aliases: >-
       {%- set needs_alias = { 'value': false } -%}
       {%- for host in hostnames_list -%}
@@ -229,7 +229,7 @@
   run_once: true
 
 - name: Set hostname aliases in /etc/hosts
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: /etc/hosts
     marker: "# {mark} ANSIBLE MANAGED BLOCK - TCP ALIASES FOR DSS"
     block: |
@@ -244,7 +244,7 @@
   become: true
 
 - name: Clear hostname aliases in /etc/hosts if aliases not needed
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: /etc/hosts
     marker: "# {mark} ANSIBLE MANAGED BLOCK - TCP ALIASES FOR DSS"
     block: ''

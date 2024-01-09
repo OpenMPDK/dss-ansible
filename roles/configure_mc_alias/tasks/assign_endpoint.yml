@@ -1,19 +1,19 @@
 ---
 
 - name: Reset assigned_endpoints if all endpoints used or if no more reachable endpoints
-  set_fact:
+  ansible.builtin.set_fact:
     assigned_endpoints: []
   when: |
     combined_endpoints | length == assigned_endpoints | length or
     ping_endpoints.results | selectattr('rc', 'equalto', 0) | map(attribute='endpoint.alias') | difference(assigned_endpoints) == []
 
 - name: Assert at least one endpoint is reachable
-  assert:
+  ansible.builtin.assert:
     that: ping_endpoints.results | selectattr('rc', 'equalto', 0) | map(attribute='endpoint.alias') | difference(assigned_endpoints) != []
     msg: No endpoints are reachable. Ensure clients are able to reach (ping) server TCP endpoints
 
 - name: Assign endpoint
-  set_fact:
+  ansible.builtin.set_fact:
     endpoint_map: "{{ endpoint_map }} +
       [
         {

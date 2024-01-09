@@ -30,20 +30,20 @@
 ---
 
 - name: Install epel-release repo
-  include_role:
+  ansible.builtin.include_role:
     name: deploy_epel
 
 - name: Include vars
-  include_vars: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
 
 - name: Install DSS host dependencies
-  yum:
+  ansible.builtin.yum:
     name: "{{ dss_host_deps }}"
   become: true
 
 # Needed for CentOS Stream 8
 - name: Set symlink for libjemalloc.so.1
-  file:
+  ansible.builtin.file:
     src: /usr/lib64/libjemalloc.so
     dest: /usr/lib64/libjemalloc.so.1
     state: link
@@ -52,7 +52,7 @@
 
 # Needed for CentOS Stream 8
 - name: Set symlink for libboost_filesystem.so
-  file:
+  ansible.builtin.file:
     src: /usr/lib64/libboost_filesystem.so
     dest: /usr/lib64/libboost_filesystem.so.1.53.0
     state: link
@@ -60,24 +60,24 @@
   become: true
 
 - name: Identify pip2 executable
-  shell: which pip2 pip-2 | grep 'bin/pip' | head -n 1
+  ansible.builtin.shell: which pip2 pip-2 | grep 'bin/pip' | head -n 1
   register: pip2_path
   changed_when: false
   failed_when: false
 
 - name: Assert pip2_path is found
-  assert:
+  ansible.builtin.assert:
     that: pip2_path.stdout != ''
     msg: "pip2 is not installed"
 
 - name: Upgrade pip
-  pip:
+  ansible.builtin.pip:
     name: "pip=={{ pip2_version }}"
     executable: "{{ pip2_path.stdout }}"
   become: true
 
 - name: Install python dependencies
-  pip:
+  ansible.builtin.pip:
     name:
       - paramiko
       - pssh
@@ -85,7 +85,7 @@
   become: true
 
 - name: Identify host tarball
-  find:
+  ansible.builtin.find:
     path: "{{ artifacts_dir }}"
     patterns: 'nkv-sdk-bin-*.tgz'
   delegate_to: localhost
@@ -93,19 +93,19 @@
   register: host_tgz
 
 - name: Assert host tarball found
-  assert:
+  ansible.builtin.assert:
     that: host_tgz.files | length > 0
     fail_msg: "No host tarball found. Please download tarball to {{ artifacts_dir }}"
 
 - name: Create host destination path
-  file:
+  ansible.builtin.file:
     path: "{{ nkv_sdk_dir }}"
     state: directory
     mode: 0555
   become: true
 
 - name: Deploy host from tarball
-  unarchive:
+  ansible.builtin.unarchive:
     src: "{{ (host_tgz.files | sort(attribute='mtime', reverse=true) | first).path }}"
     dest: "{{ nkv_sdk_dir }}"
     extra_opts: [--strip-components=1]
@@ -116,7 +116,7 @@
   become: true
 
 - name: Set ld.conf.so
-  copy:
+  ansible.builtin.copy:
     dest: /etc/ld.so.conf.d/dss_host.conf
     content: |
       # DSS libs for dss-sdk host

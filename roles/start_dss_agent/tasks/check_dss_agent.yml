@@ -30,7 +30,7 @@
 ---
 
 - name: Identify agent RPM
-  find:
+  ansible.builtin.find:
     path: "{{ artifacts_dir }}"
     patterns: 'nkvagent-*.rpm'
   delegate_to: localhost
@@ -38,12 +38,12 @@
   register: dss_agent_rpm
 
 - name: Identify newest version of agent RPM
-  set_fact:
+  ansible.builtin.set_fact:
     agent_rpm_file: "{{ (dss_agent_rpm.files | sort(attribute='mtime', reverse=true) | first).path }}"
   run_once: true
 
 - name: Check if agent RPM is installed
-  shell: "rpm -qa | grep {{ agent_rpm_file | basename | splitext | first }}"
+  ansible.builtin.shell: "rpm -qa | grep {{ agent_rpm_file | basename | splitext | first }}"
   args:
     warn: false
   register: agent_rpm_qa
@@ -51,10 +51,10 @@
   failed_when: false
 
 - name: Set agent_rpms_missing var
-  set_fact:
+  ansible.builtin.set_fact:
     agent_rpms_missing: true
   when: agent_rpm_qa.rc != 0
 
 - name: Install agent
-  include_tasks: install_dss_agent.yml
+  ansible.builtin.include_tasks: install_dss_agent.yml
   when: agent_rpms_missing is defined

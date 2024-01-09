@@ -30,17 +30,17 @@
 ---
 
 - name: Stat XRT script
-  stat:
+  ansible.builtin.stat:
     path: "{{ xrt_setenv }}"
   register: xrt_setenv_script
 
 - name: Assert XRT script exists
-  assert:
+  ansible.builtin.assert:
     that: xrt_setenv_script.stat.exists
   when: hpos
 
 - name: Create format_disks.sh script
-  template:
+  ansible.builtin.template:
     src: format_disks.sh.j2
     dest: "{{ target_bin_dir }}/format_disks.sh"
     mode: 0751
@@ -48,18 +48,18 @@
   become: true
 
 - name: Check presence of existing format_disks.sh output
-  stat:
+  ansible.builtin.stat:
     path: "{{ target_bin_dir }}/format_disks.out"
   register: format_disks_out_file
 
 - name: Check output of existing format_disks.sh
-  command: "cat {{ target_bin_dir }}/format_disks.out"
+  ansible.builtin.command: "cat {{ target_bin_dir }}/format_disks.out"
   changed_when: false
   when: format_disks_out_file.stat.exists
   register: pre_format_disks
 
 - name: Execute format_disks.sh script
-  shell: ./format_disks.sh > format_disks.out 2>&1
+  ansible.builtin.shell: ./format_disks.sh > format_disks.out 2>&1
   register: execute_format_disks
   args:
     chdir: "{{ target_bin_dir }}"
@@ -81,13 +81,13 @@
   become: true
 
 - name: Read output of format_disks.sh
-  command: "cat {{ target_bin_dir }}/format_disks.out"
+  ansible.builtin.command: "cat {{ target_bin_dir }}/format_disks.out"
   changed_when: false
   when: execute_format_disks is not skipped
   register: format_disks
 
 - name: Assert filesystem initialized successfully
-  assert:
+  ansible.builtin.assert:
     that: format_disks.stdout is not search(item)
     fail_msg: |
       *ERROR* {{ item }}

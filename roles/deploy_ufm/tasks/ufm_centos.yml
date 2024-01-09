@@ -30,7 +30,7 @@
 ---
 
 - name: Copy UFM RPMs to CentOS Fabric Manager Hosts
-  copy:
+  ansible.builtin.copy:
     src: "{{ item }}"
     dest: "{{ ufm_staging_dir }}"
     mode: 0644
@@ -41,7 +41,7 @@
     label: "{{ item }}"
 
 - name: Install UFM RPMs
-  yum:
+  ansible.builtin.yum:
     name: "{{ ufm_staging_dir }}/{{ item | basename }}"
     disable_gpg_check: true
   register: ufm_rpm_status

@@ -30,12 +30,12 @@
 ---
 
 - name: Set target/host group vars
-  set_fact:
+  ansible.builtin.set_fact:
     target_hostnames: "{{ (groups['servers'] | d([]) + groups['targets'] | d([])) | unique }}"
     host_hostnames: "{{ (groups['servers'] | d([]) + groups['hosts'] | d([])) | unique }}"
 
 - name: Assert collocated deployment
-  assert:
+  ansible.builtin.assert:
     that: (groups['hosts'] | d([])) | length == 0
     msg: |
       Choose either collocated or disaggregated deployment.
@@ -44,7 +44,7 @@
   when: inventory_hostname in (groups['servers'] | d([]))
 
 - name: Assert disaggregated deployment
-  assert:
+  ansible.builtin.assert:
     that: (groups['servers'] | d([])) | length == 0
     msg: |
       Choose either collocated or disaggregated deployment.
@@ -53,31 +53,31 @@
   when: inventory_hostname in (groups['hosts'] | d([]))
 
 - name: Stat DSS Minio path
-  stat:
+  ansible.builtin.stat:
     path: "{{ minio_dir }}"
   register: dss_minio_path
   when: inventory_hostname in host_hostnames
 
 - name: Assert DSS Minio path exists
-  assert:
+  ansible.builtin.assert:
     that: dss_minio_path.stat.exists
     fail_msg: DSS Minio is not installed. Execute 'deploy_dss_software.yml' playbook first.
   when: inventory_hostname in host_hostnames
 
 - name: Stat DSS Host path
-  stat:
+  ansible.builtin.stat:
     path: "{{ nkv_sdk_bin_dir }}"
   register: dss_host_path
   when: inventory_hostname in host_hostnames
 
 - name: Assert DSS Host path exists
-  assert:
+  ansible.builtin.assert:
     that: dss_host_path.stat.exists
     fail_msg: DSS Host is not installed. Execute 'deploy_dss_software.yml' playbook first.
   when: inventory_hostname in host_hostnames
 
 - name: Set cluster_num_list var
-  set_fact:
+  ansible.builtin.set_fact:
     cluster_num_list: "{{ cluster_num_list | default([]) }} +
       [
         {% for host in ansible_play_hosts %}
@@ -88,19 +88,19 @@
   run_once: true
 
 - name: Get all RoCEv2 IP Addresses
-  include_role:
+  ansible.builtin.include_role:
     name: get_vlan_ips
   vars:
     vlan_list: "{{ rocev2_vlans }}"
   when: rocev2_ip_list is not defined
 
 - name: Set rocev2_ip_list var if IP's auto-discovered
-  set_fact:
+  ansible.builtin.set_fact:
     rocev2_ip_list: "{{ vlan_ip_list }}"
   when: rocev2_ip_list is not defined
 
 - name: Start minio by cluster
-  include_tasks: start_minio_clusters.yml
+  ansible.builtin.include_tasks: start_minio_clusters.yml
   loop: "{{ cluster_num_list | unique }}"
   loop_control:
     loop_var: current_cluster_num

@@ -30,27 +30,27 @@
 ---
 
 - name: Stat DSS Target path
-  stat:
+  ansible.builtin.stat:
     path: "{{ target_dir }}"
   register: dss_target_path
 
 - name: Assert DSS Target path exists
-  assert:
+  ansible.builtin.assert:
     that: dss_target_path.stat.exists
     fail_msg: DSS Target is not installed. Execute 'deploy_dss_software.yml' playbook first.
 
 - name: Stat nvmf.in.conf
-  stat:
+  ansible.builtin.stat:
     path: "{{ target_conf_file }}"
   register: nvmf_in_conf
 
 - name: Stat dss_target.out
-  stat:
+  ansible.builtin.stat:
     path: "{{ target_dir }}/bin/dss_target.out"
   register: dss_target_out
 
 - name: Get spdk status
-  command: ./setup.sh status
+  ansible.builtin.command: ./setup.sh status
   changed_when: false
   args:
     chdir: "{{ target_dir }}/scripts"
@@ -58,47 +58,47 @@
   become: true
 
 - name: Run dss_target.py script
-  include_tasks: dss_target.yml
+  ansible.builtin.include_tasks: dss_target.yml
 
 - name: Find NVMe PCIe addresses in nvmf.in.conf
-  command: >
+  ansible.builtin.command: >
     grep 'TransportID "trtype:PCIe traddr' {{ target_conf_file }}
   register: pcie_addrs
   changed_when: false
   failed_when: false
 
 - name: Assert PCIe addresses found
-  assert:
+  ansible.builtin.assert:
     that: pcie_addrs.stdout_lines | length > 0
     msg: |
       Disk serial numbers not found in nvmf.in.conf for firmware {{ target_fw_version }}
       Please verify that 'target_fw_version' var matches desired firmware.
 
 - name: Format BlobFS
-  include_role:
+  ansible.builtin.include_role:
     name: format_blobfs
   when: dss_target_mode is search('kv_block')
 
 - name: Read dss_target.out
-  command: "cat {{ target_dir }}/bin/dss_target.out"
+  ansible.builtin.command: "cat {{ target_dir }}/bin/dss_target.out"
   become: true
   changed_when: false
   register: dss_target_out
 
 - name: Get nvmf_tgt command from dss_target.py script
-  set_fact:
+  ansible.builtin.set_fact:
     nvmf_tgt_cmd: "{{ dss_target_out.stdout | regex_search(nvmf_tgt_re, '\\1') | first }}"
   vars:
     nvmf_tgt_re: 'Execute the following command to start the target application: (.+)'
 
 - name: Insert nohup into nvmf_tgt_cmd var
-  set_fact:
+  ansible.builtin.set_fact:
     nvmf_tgt_cmd: "{{ nvmf_tgt_cmd | regex_replace(nvmf_tgt_re, 'nohup \\1') }}"
   vars:
     nvmf_tgt_re: '(\/[^ ]+nvmf_tgt)'
 
 - name: Set nvmf_tgt command if custom_coremask is defined
-  set_fact:
+  ansible.builtin.set_fact:
     nvmf_tgt_cmd: >-
       nohup
       {{ target_dir }}/bin/nvmf_tgt
@@ -108,23 +108,23 @@
   when: custom_coremask is defined
 
 - name: Find running target process
-  command: "pgrep reactor_"
+  ansible.builtin.command: "pgrep reactor_"
   register: nvmf_ps
   changed_when: false
   failed_when: false
 
 - name: Stat XRT script
-  stat:
+  ansible.builtin.stat:
     path: "{{ xrt_setenv }}"
   register: xrt_setenv_script
 
 - name: Assert XRT script exists
-  assert:
+  ansible.builtin.assert:
     that: xrt_setenv_script.stat.exists
   when: hpos
 
 - name: Start DSS target process
-  shell: >
+  ansible.builtin.shell: >
     {% if xrt_setenv_script.stat.exists %}
     source {{ xrt_setenv }} &&
     {% endif %}
@@ -136,7 +136,7 @@
   become: true
 
 - name: Wait for subsystems to initialize
-  command: "cat {{ dss_log_dir }}/nkv-target.log"
+  ansible.builtin.command: "cat {{ dss_log_dir }}/nkv-target.log"
   changed_when: false
   failed_when: false
   register: subsystem_initialized
@@ -150,7 +150,7 @@
   delay: 5
 
 - name: Assert subsystems initialized
-  assert:
+  ansible.builtin.assert:
     that: not subsystem_initialized.failed
     fail_msg: |
       One or more subsystems failed to initialize.

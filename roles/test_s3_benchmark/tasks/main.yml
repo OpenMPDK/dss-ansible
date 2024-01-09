@@ -30,43 +30,43 @@
 ---
 
 - name: Set target/host group vars
-  set_fact:
+  ansible.builtin.set_fact:
     target_hostnames: "{{ (groups['servers'] | d([]) + groups['targets'] | d([])) | unique }}"
     host_hostnames: "{{ (groups['servers'] | d([]) + groups['hosts'] | d([])) | unique }}"
 
 - name: Install numactl
-  yum:
+  ansible.builtin.yum:
     name: numactl
   become: true
 
-- name: Stat DSS Minio path
-  stat:
-    path: "{{ minio_dir }}"
-  register: dss_minio_path
+- name: Stat DSS Client path
+  ansible.builtin.stat:
+    path: "{{ client_library_dir }}"
+  register: dss_client_path
   when: inventory_hostname in host_hostnames
 
 - name: Assert DSS Minio path exists
-  assert:
-    that: dss_minio_path.stat.exists
+  ansible.builtin.assert:
+    that: dss_client_path.stat.exists
     fail_msg: DSS Minio is not installed. Execute 'deploy_dss_software.yml' playbook first.
   when: inventory_hostname in host_hostnames
 
 - name: Get TCP IP lists and NUMA
-  include_role:
+  ansible.builtin.include_role:
     name: get_tcp_numa
   when: >
     inventory_hostname in host_hostnames or
     inventory_hostname in groups['clients']
 
 - name: Get clusters
-  include_role:
+  ansible.builtin.include_role:
     name: get_clusters
   when: >-
     inventory_hostname in host_hostnames or
     inventory_hostname in target_hostnames
 
 - name: Set minio_endpoints var
-  set_fact:
+  ansible.builtin.set_fact:
     minio_endpoints: >-
       [
         {% for cluster in clusters %}
@@ -88,7 +88,7 @@
   run_once: true
 
 - name: Set all_assigned_endpoints var
-  set_fact:
+  ansible.builtin.set_fact:
     all_assigned_endpoints: >-
       {%- set assigned_endpoints = [] -%}
       {%- for minio_endpoint in minio_endpoints | shuffle -%}
@@ -139,62 +139,62 @@
   run_once: true
 
 - name: Set assigned_endpoints var
-  set_fact:
+  ansible.builtin.set_fact:
     assigned_endpoints: "{{ all_assigned_endpoints | selectattr('client', 'equalto', inventory_hostname) | list }}"
   when: inventory_hostname in groups['clients']
 
 - name: Set num_s3_endpoints var
-  set_fact:
+  ansible.builtin.set_fact:
     num_s3_endpoints: "{{ num_s3_endpoints | d(0) | int + (hostvars[client].assigned_endpoints | length) }}"
   loop: "{{ groups['clients'] }}"
   loop_control:
     loop_var: client
   run_once: true
 
-- name: s3-benchmark PUT
-  include_tasks: s3_benchmark.yml
+- name: Execute s3-benchmark PUT
+  ansible.builtin.include_tasks: s3_benchmark.yml
   vars:
     operation: PUT
   when: inventory_hostname in groups['clients']
 
 - name: Start Compaction
-  include_role:
+  ansible.builtin.include_role:
     name: start_compaction
   when:
     - inventory_hostname in target_hostnames
     - dss_target_mode is search('kv_block')
 
 - name: Set s3_put_speed var
-  set_fact:
+  ansible.builtin.set_fact:
     s3_put_speed: "{{ s3_speed }}"
   run_once: true
 
-- name: s3-benchmark GET
-  include_tasks: s3_benchmark.yml
+- name: Execute s3-benchmark GET
+  ansible.builtin.include_tasks: s3_benchmark.yml
   vars:
     operation: GET
   when: inventory_hostname in groups['clients']
 
 - name: Set s3_get_speed var
-  set_fact:
+  ansible.builtin.set_fact:
     s3_get_speed: "{{ s3_speed }}"
   run_once: true
 
-- name: s3-benchmark DEL
-  include_tasks: s3_benchmark.yml
+- name: Execute s3-benchmark DEL
+  ansible.builtin.include_tasks: s3_benchmark.yml
   vars:
     operation: DEL
   when: inventory_hostname in groups['clients']
 
 - name: Start Compaction
-  include_role:
+  ansible.builtin.include_role:
     name: start_compaction
   when:
     - inventory_hostname in target_hostnames
     - dss_target_mode is search('kv_block')
 
 - name: Print combined s3_benchmark PUT and GET throughput
-  debug:
+  ansible.builtin.debug:
     msg: |
       Num. MinIO Hosts: {{ host_hostnames | length }}
       Num. MinIO Endpoints: {{ minio_endpoints | length }}
