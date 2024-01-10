@@ -37,4 +37,5 @@ xrt_dir: /opt/xilinx
 ### Remove DSS defaults
 remove_dss_software_dir_list:
   - "{{ dss_dir }}"
+  - "{{ target_conf_dir }}"
   - "{{ xrt_dir }}"
