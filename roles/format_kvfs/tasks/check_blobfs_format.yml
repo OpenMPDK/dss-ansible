@@ -8,7 +8,6 @@
   ansible.builtin.slurp:
     src: "{{ dss_log_dir }}/format_disks.out"
   changed_when: false
-  when: format_disks_out_file.stat.exists
   register: previous_format
 
 - name: Check for mkfs_blobfs errors
