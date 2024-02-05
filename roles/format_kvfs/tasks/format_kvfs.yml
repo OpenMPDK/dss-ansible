@@ -56,7 +56,9 @@
 
 - name: Check previous format_disks.sh output
   ansible.builtin.include_tasks: check_blobfs_format.yml
-  when: not dss_formatter.stat.exists
+  when:
+    - format_disks_out_file.stat.exists
+    - not dss_formatter.stat.exists
 
 - name: Execute format_disks.sh script
   ansible.builtin.command: "{{ target_conf_dir }}//format_disks.sh"
