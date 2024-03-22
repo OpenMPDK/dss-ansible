@@ -223,13 +223,20 @@
 # iperf_duration: 10
 
 ### nkv_test_cli defaults
+# nkv_test_cli_port: 1030
+# nkv_test_cli_prefix: meta/ansible
 # nkv_test_cli_keysize: 60
 # nkv_test_cli_valsize: 1048576
 # nkv_test_cli_threads: 128
 # nkv_test_cli_objects: 2000
-# nkv_test_cli_vm_objects: 100
 # nkv_test_cli_async_timeout: 600
 # nkv_test_cli_async_retry_delay: 5
+# nkv_test_cli_test: smoke
+# nkv_test_cli_test: suite
+# nkv_test_cli_suite: suite001
+# nkv_test_cli_integrity: false
+# nkv_test_cli_mixed_io: false
+# nkv_test_cli_simulate_minio: false
 
 ### EPEL defaults
 # skip_epel: false

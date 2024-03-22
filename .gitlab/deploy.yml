@@ -1,0 +1,27 @@
+include: .gitlab/ansible.yml
+
+deploy DSS with upstream dss-sdk artifacts:
+  extends: deploy DSS
+  stage: deploy
+  script:
+    - |
+      ansible-playbook -i $ANSIBLE_INVENTORY playbooks/download_artifacts.yml \
+        -e "download_artifacts=true" \
+        -e "artifacts_url=$MINIO_HOST_URL/dss-artifacts" \
+        -e "artifacts_branch=$BRANCH_NAME"
+    - rm -f artifacts/nkv-target*
+    - rm -f artifacts/nkv-sdk-bin*
+    - cp $CI_PROJECT_DIR/df_out/nkv-target-*.tgz artifacts/
+    - cp $CI_PROJECT_DIR/host_out/nkv-sdk-bin-*.tgz artifacts/
+    - ansible-playbook -i $ANSIBLE_INVENTORY playbooks/remove_dss_software.yml
+    - ansible-playbook -i $ANSIBLE_INVENTORY playbooks/deploy_dss_software.yml
+    - ansible-playbook -i $ANSIBLE_INVENTORY playbooks/test_nkv_test_cli.yml -e nkv_test_cli_test=suite -e nkv_test_cli_suite=suite003
+    - ansible-playbook -i $ANSIBLE_INVENTORY playbooks/test_s3_benchmark.yml
+  needs:
+    - build docker
+    - project: dfs/dss/dss-sdk
+      job: build dss-sdk
+      ref: $UPSTREAM_REF
+      artifacts: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "parent_pipeline" && $CI_MERGE_REQUEST_SOURCE_PROJECT_PATH == "dfs/dss/dss-sdk"

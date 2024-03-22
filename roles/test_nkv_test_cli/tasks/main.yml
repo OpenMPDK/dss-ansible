@@ -34,56 +34,38 @@
     target_hostnames: "{{ (groups['servers'] | d([]) + groups['targets'] | d([])) | unique }}"
     host_hostnames: "{{ (groups['servers'] | d([]) + groups['hosts'] | d([])) | unique }}"
 
+- name: Set host_id var from inventory
+  ansible.builtin.set_fact:
+    host_id: "{{ ansible_loop.index }}"
+  when: >
+    item == inventory_hostname
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    extended: true
+
 - name: Get RoCEv2 IP lists and NUMA
   ansible.builtin.include_tasks: get_ip_numa.yml
   when: inventory_hostname in host_hostnames
 
-- name: Execute nkv_test_cli put
-  ansible.builtin.include_tasks: nkv_test_cli.yml
-  vars:
-    operation: "{{ test_nkv_test_cli_put }}"
-  when: inventory_hostname in host_hostnames
+- name: Create log dir
+  ansible.builtin.file:
+    path: "{{ dss_log_dir }}"
+    state: directory
+    mode: 0755
+    owner: "{{ ansible_effective_user_id }}"
+    group: "{{ ansible_effective_group_id }}"
+  become: true
 
-- name: Set put_throughput
+- name: Set nkv_test_cli_objects default - vm
   ansible.builtin.set_fact:
-    put_throughput: "{{ combined_throughput }}"
-  when: inventory_hostname in host_hostnames
+    nkv_test_cli_objects: "{{ nkv_test_cli_objects | d(nkv_test_cli_vm_objects_vm) }}"
+  when: ansible_virtualization_role == 'guest'
 
-- name: Start Compaction
-  ansible.builtin.include_role:
-    name: start_compaction
-  when:
-    - inventory_hostname in target_hostnames
-    - dss_target_mode is search('kv_block')
-
-- name: Execute nkv_test_cli get
-  ansible.builtin.include_tasks: nkv_test_cli.yml
-  vars:
-    operation: "{{ test_nkv_test_cli_get }}"
-  when: inventory_hostname in host_hostnames
-
-- name: Set get_throughput
+- name: Set nkv_test_cli_objects default - physical
   ansible.builtin.set_fact:
-    get_throughput: "{{ combined_throughput }}"
-  when: inventory_hostname in host_hostnames
+    nkv_test_cli_objects: "{{ nkv_test_cli_objects | d(nkv_test_cli_objects_phys) }}"
+  when: ansible_virtualization_role != 'guest'
 
-- name: Execute nkv_test_cli delete
-  ansible.builtin.include_tasks: nkv_test_cli.yml
-  vars:
-    operation: "{{ test_nkv_test_cli_delete }}"
-  when: inventory_hostname in host_hostnames
 
-- name: Start Compaction
-  ansible.builtin.include_role:
-    name: start_compaction
-  when:
-    - inventory_hostname in target_hostnames
-    - dss_target_mode is search('kv_block')
-
-- name: Print throughput
-  ansible.builtin.debug:
-    msg: |
-      Put throughput:    {{ '%0.2f' | format(put_throughput | float) }} GB/s
-      Get throughput:    {{ '%0.2f' | format(get_throughput | float) }} GB/s
-  run_once: true
-  when: inventory_hostname in host_hostnames
+- name: Execute nkv_test_cli test
+  ansible.builtin.include_tasks: "{{ nkv_test_cli_test }}.yml"

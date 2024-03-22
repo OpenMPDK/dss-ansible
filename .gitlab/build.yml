@@ -1,0 +1,47 @@
+build docker:
+  stage: build
+  image: docker:25.0.3-git
+  variables:
+    ANSIBLE_PROJECT_PATH: dfs/dss/dss-ansible
+    ANSIBLE_BRANCH: MIN-2148-add-deploy-stage
+    GIT_STRATEGY: none
+    DOCKERFILE_NAME: rocky8
+    DOCKERFILE_PATH: scripts/docker/$DOCKERFILE_NAME.DOCKERFILE
+    # IMAGE_TAG: $CI_REGISTRY_IMAGE/$BRANCH_NAME:$DOCKERFILE_NAME
+    IMAGE_TAG: $CI_REGISTRY/$ANSIBLE_PROJECT_PATH/$BRANCH_NAME:$DOCKERFILE_NAME
+    CACHE_TAG: ${IMAGE_TAG}-cache
+  before_script:
+    # Clone dss-ansible repo
+    - git config --global http.sslVerify false
+    - git config --global user.name "$CI_USERNAME"
+    - git config --global user.email "$CI_EMAIL"
+    - git clone https://$CI_USERNAME:$CI_TOKEN@$CI_SERVER_HOST/$ANSIBLE_PROJECT_PATH.git --branch $ANSIBLE_BRANCH .
+    # Install certs so buildkit can access Gitlab container registry
+    - echo "$SSI_ROOTCA_CERT" > /usr/local/share/ca-certificates/SSI-RootCA.crt
+    - echo "$SSI_ISSUINGCA_CERT" > /usr/local/share/ca-certificates/SSI-ISSUINGCA.crt
+    - echo "$MSL_ETX_CERT" > /usr/local/share/ca-certificates/msl-etx.samsung.com.crt
+    - update-ca-certificates --fresh > /dev/null
+    # Configure buildkitd.toml to use newly-installed certs
+    - |
+      cat <<EOF > /buildkitd.toml
+      [registry."$CI_REGISTRY"]
+        ca=["/etc/ssl/certs/ca-certificates.crt"]
+      EOF
+    # Initialize buildkit with custom config
+    - docker buildx create --driver=docker-container --name=buildkit-builder --use --config /buildkitd.toml
+    # Login to Gitlab container registry
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - |
+      docker buildx build \
+        --cache-from type=registry,ref=$CACHE_TAG \
+        --cache-to type=registry,ref=$CACHE_TAG \
+        --push \
+        --tag $IMAGE_TAG \
+        --file $DOCKERFILE_PATH . \
+        --provenance false
+  rules:
+    - !reference [.default_rules, merge_and_push]
+    - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
+      when: always
+
