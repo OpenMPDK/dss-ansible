@@ -1,0 +1,8 @@
+ansible-lint:
+  stage: lint
+  script: ansible-lint *
+  needs: []
+  rules:
+    - !reference [.default_rules, merge_and_push]
+    - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
+      when: never

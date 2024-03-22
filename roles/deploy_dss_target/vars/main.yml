@@ -1,0 +1,6 @@
+---
+
+additional_gcov_packages:
+  - rdma-core-devel
+  - cppunit-devel
+  - libstdc++-devel

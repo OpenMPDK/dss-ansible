@@ -1,0 +1,26 @@
+---
+
+# suite002 - Test suite targeting gen2 specific nkv_test_cli features
+# To use - make sure cluster is deployed with `gen2=true`
+
+nkv_test_cli_keysize: 60
+nkv_test_cli_valsize: 1048576
+nkv_test_cli_threads: 32
+nkv_test_cli_objects: 1000
+
+test_cases:
+  - id: G2001
+    description: RDD put and get
+    steps:
+      - rdd_put
+      - rdd_get
+  - id: G2002
+    description: Chunked put then RDD chunked get
+    steps:
+      - chunked_put
+      - rdd_chunked_get
+  - id: G2003
+    description: Chunked put then chunked delete
+    steps:
+      - chunked_put
+      - chunked_del

@@ -1,0 +1,99 @@
+---
+
+# Default nkv_test_cli values to be used by all tests
+nkv_test_cli_keysize: 60
+nkv_test_cli_valsize: 1048576
+nkv_test_cli_threads: 5
+nkv_test_cli_objects: 5
+
+# List of test cases to execute.
+# Test cases must include:
+#   - id: ID of test case to run - may be a JIRA ticket # in case of regression/defect
+#   - description: Plain-English description of test case (objective of the test case)
+#   - steps: A list of steps to perform. Can be one of the following in any order:
+#     - put
+#     - get
+#     - delete
+#     - put_get_delete
+#     - list
+#     - put_list
+#     - lock_unlock
+#     - chunked_put
+#     - rdd_get
+#     - rdd_chunked_get
+#     - chunked_del
+#     - rdd_put
+# Note:
+#   - list operation will validate the number of objects at the unique key prefix of the test case.
+#     It is expected to perform "list" after "put" to validate keys exist.
+#     By default it is asserted that "list" will find a number of keys equaling threads x objects.
+#     If a different number of keys is expected (eg: list before put, list after delete) you can
+#     specify the expected num. keys by setting "expected_list_keys" for each test case.
+# Optional settings for each test case:
+#   - keysize: key size of each object in bytes (min: 1, max: 1024)
+#   - valsize: value size of each object in bytes (min: 1, max: 1048576)
+#   - threads: number of threads
+#   - objects: number of objects to write (per thread)
+#   - integrity: use data-integrity test
+#   - mixed_io: small meta io before doing a big io
+#   - simulate_minio: generate IO pattern similar to MinIO
+#   - assert_num_keys: Expected number of keys to find during list operation (default: num. objects x num. threads)
+
+test_cases:
+  # - id: MIN-1761
+  #   description: put single object with 255-byte key
+  #   keysize: 255
+  #   threads: 1
+  #   objects: 1
+  #   steps:
+  #     - put
+  - id: N001
+    description: put and list
+    steps:
+      - put
+      - list
+  - id: N002
+    description: put, delete, list
+    expected_list_keys: 0
+    steps:
+      - put
+      - delete
+      - list
+  - id: N003
+    description: put, get, delete objects with data integrity check
+    integrity: true
+    steps:
+      - put_get_delete
+  - id: N004
+    description: mixed_io testing
+    mixed_io: true
+    steps:
+      - put
+  - id: N005
+    description: simulate minio io testing
+    simulate_minio: true
+    steps:
+      - put
+  - id: N006a-N007a
+    description: large key test - put and get objects with 160-byte key
+    keysize: 160
+    steps:
+      - put
+      - get
+  # - id: N006b-N007b
+  #   description: large key test - put and get objects with 255-byte key
+  #   keysize: 255
+  #   steps:
+  #     - put
+  #     - get
+  - id: N006c-N007c
+    description: large key test - put and get objects with 1024-byte key
+    keysize: 1024
+    steps:
+      - put
+      - get
+  - id: N008
+    description: chunked put and del
+    steps:
+      - chunked_put
+      - chunked_del
