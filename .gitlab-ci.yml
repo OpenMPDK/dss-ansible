@@ -7,3 +7,7 @@ stages:
   - deploy
   - test
   - sync
+
+sync-github:
+  variables:
+    GITHUB_REPO: dss-ansible
