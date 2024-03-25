@@ -35,6 +35,7 @@ rdd_port: 1234
 
 ### Path defaults
 dss_dir: /usr/dss
+dss_log_dir: /var/log/dss
 nkv_sdk_dir: "{{ dss_dir }}/nkv-sdk"
 nkv_sdk_bin_dir: "{{ nkv_sdk_dir }}/bin"
 target_conf_dir: /etc/dss

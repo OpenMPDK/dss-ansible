@@ -31,5 +31,22 @@
 
 ### Path defaults
 dss_dir: /usr/dss
-target_conf_dir: /etc/dss
 target_dir: "{{ dss_dir }}/nkv-target"
+target_bin_dir: "{{ target_dir }}/bin"
+target_conf_dir: /etc/dss
+target_conf_file: "{{ target_conf_dir }}/nvmf.in.conf"
+target_lib_dir: "{{ target_dir }}/lib"
+dss_log_dir: /var/log/dss
+
+### GCC defaults
+gcc_setenv: /usr/local/bin/setenv-for-gcc510.sh
+gcc_restore: /usr/local/bin/restore-default-paths-gcc510.sh
+
+### XRT defaults
+hpos: false
+xrt_setenv: /opt/xilinx/xrt/set_up_xrt_env.sh
+
+### Target defaults
+### dss_target_mode valid values: [kv, kv_block_vm, kv_block_perf, block]
+dss_target_mode: kv_block_perf
+target_fw_version: ETA51KCB

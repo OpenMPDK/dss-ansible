@@ -1,0 +1,10 @@
+include:
+  - project: dfs/dss/dss
+    ref: master
+    file: .gitlab/defaults.yml
+  - project: dfs/dss/dss
+    ref: master
+    file: .gitlab/sync-github.yml
+  - .gitlab/lint.yml
+  - .gitlab/build.yml
+  - .gitlab/deploy.yml

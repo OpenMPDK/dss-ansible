@@ -1,0 +1,46 @@
+deploy DSS:
+  stage: deploy
+  image: 
+    name: $CI_REGISTRY/$ANSIBLE_PROJECT_PATH/$BRANCH_NAME:$DOCKERFILE_NAME
+    pull_policy: always
+  environment:
+    name: $ANSIBLE_INVENTORY
+    url: $CI_SERVER_URL/dfs/dss/dss-ansible/-/blob/inventory/$ANSIBLE_INVENTORY
+  before_script:
+    # Clone ansible repo
+    - git config --global http.sslVerify false
+    - git config --global user.name "$CI_USERNAME"
+    - git config --global user.email "$CI_EMAIL"
+    - git clone https://$CI_USERNAME:$CI_TOKEN@$CI_SERVER_HOST/$ANSIBLE_PROJECT_PATH.git --branch $ANSIBLE_BRANCH ../dss-ansible
+    - cd ../dss-ansible
+    # Get inventory file
+    - git fetch origin inventory
+    - git restore --source origin/inventory -- $ANSIBLE_INVENTORY
+    # Hack to disregard task output from JUNIT callback module
+    - sed -i -E "s/dump =.+/dump = ''/g" /usr/local/lib/python3.11/site-packages/ansible/plugins/callback/junit.py
+  script:
+    - |
+      ansible-playbook -i $ANSIBLE_INVENTORY playbooks/download_artifacts.yml \
+        -e "download_artifacts=true" \
+        -e "artifacts_url=$MINIO_HOST_URL/dss-artifacts" \
+        -e "artifacts_branch=$BRANCH_NAME"
+    - ansible-playbook -i $ANSIBLE_INVENTORY playbooks/remove_dss_software.yml
+    - ansible-playbook -i $ANSIBLE_INVENTORY playbooks/deploy_dss_software.yml
+  artifacts:
+    when: always
+    reports:
+      junit: "*.xml"
+  variables:
+    ANSIBLE_PROJECT_PATH: dfs/dss/dss-ansible
+    ANSIBLE_BRANCH: MIN-2148-add-deploy-stage
+    GIT_STRATEGY: none
+    DOCKERFILE_NAME: rocky8
+    ANSIBLE_CONFIG: ../dss-ansible/ansible.cfg
+    ANSIBLE_INVENTORY: inv_$CI_PROJECT_NAME.ini
+    ANSIBLE_FORCE_COLOR: "true"
+    JUNIT_OUTPUT_DIR: $CI_PROJECT_DIR
+    JUNIT_TASK_CLASS: "yes"
+    JUNIT_INCLUDE_SETUP_TASKS_IN_REPORT: "no"
+    ANSIBLE_CALLBACK_WHITELIST: junit
+  rules:
+    - !reference [.default_rules, merge_and_push]

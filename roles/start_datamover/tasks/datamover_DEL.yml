@@ -31,14 +31,11 @@
 
 - name: Delete data with datamover
   ansible.builtin.shell: >
-    source {{ gcc_setenv }} &&
     python3 {{ datamover_dir }}/master_application.py
     {{ datamover_operation }}
     --config {{ datamover_conf_dir }}/config.json
     {{ compaction_string }}
     {{ dryrun_string }}
     {{ prefix_string }}
-  args:
-    chdir: "{{ datamover_dir }}"
   run_once: true
   register: master_application

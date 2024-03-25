@@ -36,11 +36,9 @@ datamover_get_path: "{{ ansible_env.HOME }}/datamover"
 target_conf_dir: /etc/dss
 datamover_conf_dir: "{{ target_conf_dir }}/datamover"
 dss_dir: /usr/dss
+target_dir: "{{ dss_dir }}/nkv-target"
+target_bin_dir: "{{ target_dir }}/bin"
 datamover_dir: "{{ dss_dir }}/nkv-datamover"
-
-### GCC defaults
-gcc_setenv: /usr/local/bin/setenv-for-gcc510.sh
-gcc_restore: /usr/local/bin/restore-default-paths-gcc510.sh
 
 ### Datamover defaults
 # datamover_operation possible values: ['PUT', 'GET', 'LIST', 'DEL', 'TEST']

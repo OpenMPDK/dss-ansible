@@ -67,6 +67,7 @@
       -u http://{{ endpoint.endpoint }}:{{ minio_port }}
       -t {{ s3_benchmark_num_threads }}
       -z {{ s3_benchmark_object_size }}
+      -dss_lib {{ s3_benchmark_dss_lib }}
       -{% if operation != 'GET' %}n{% else %}c{% endif %}
       {% if ansible_virtualization_role == 'guest' -%}
         {{ s3_benchmark_num_objects_vm }}

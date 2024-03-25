@@ -35,9 +35,7 @@
   register: dss_target_path
 
 - name: Move disks back to kernel mode (spdk reset)
-  ansible.builtin.command: /usr/bin/python2 ./dss_target.py reset
-  args:
-    chdir: "{{ target_bin_dir }}"
+  ansible.builtin.command: "{{ target_dir }}/scripts/setup.sh reset"
   register: target_reset
   changed_when: target_reset.stdout is search('uio_pci_generic -> nvme')
   when: dss_target_path.stat.exists

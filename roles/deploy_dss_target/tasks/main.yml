@@ -29,12 +29,23 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Set target_dir for gcov
+  ansible.builtin.set_fact:
+    original_target_dir: "{{ target_dir }}"
+    target_dir: "{{ (target_dir.split('/df_out')).0 }}"
+  when: target_dir is search('df_out')
+
 - name: Install epel-release repo
   ansible.builtin.include_role:
     name: deploy_epel
 
 - name: Include vars
   ansible.builtin.include_vars: "{{ ansible_distribution_file_variety | lower }}_{{ ansible_distribution_major_version }}.yml"
+
+- name: Append additional packages for gcov deploy
+  ansible.builtin.set_fact:
+    dss_target_deps: "{{ dss_target_deps + additional_gcov_packages }}"
+  when: original_target_dir is defined
 
 - name: Install target runtime dependencies
   ansible.builtin.yum:
@@ -139,3 +150,18 @@
     state: directory
     mode: 0755
   become: true
+
+- name: Restore target_dir for gcov
+  ansible.builtin.set_fact:
+    target_dir: "{{ original_target_dir }}"
+  when: original_target_dir is defined
+
+- name: Stat dss_formatter
+  ansible.builtin.stat:
+    path: "{{ target_dir }}/bin/dss_formatter"
+  register: dss_formatter
+
+- name: Deploy GCC
+  ansible.builtin.include_role:
+    name: deploy_gcc
+  when: not dss_formatter.stat.exists

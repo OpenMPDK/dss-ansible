@@ -1,3 +1,8 @@
 # Internal testing inventory files
 inv_*
-.vscode/**
+
+# VS Code config
+.vscode
+
+# JUNIT XML Test Results
+*.xml

@@ -95,7 +95,6 @@
   hosts: clients
   gather_facts: false
   roles:
-    - deploy_gcc
     - deploy_aws_sdk_cpp
     - deploy_dss_host
     - deploy_client_library

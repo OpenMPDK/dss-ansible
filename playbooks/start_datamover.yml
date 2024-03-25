@@ -91,7 +91,6 @@
 # * datamover_client_lib - Datamover client library
 # * datamover_logging_path - Path of datamover logs
 # * datamover_logging_level - Datamover logging level
-# * datamover_gcc_version - Datamover GCC version
 # * datamover_index_data_queue_size - Number of entries in datamover index queue
 # * datamover_awslib_log_debug - Enable or disable AWS lib debugging
 #

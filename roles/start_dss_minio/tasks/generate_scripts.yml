@@ -48,7 +48,7 @@
 - name: Create minio scripts
   ansible.builtin.template:
     src: minio_startup.sh.j2
-    dest: "{{ nkv_sdk_bin_dir }}/minio_startup_{{ tcp_alias }}.sh"
+    dest: "{{ target_conf_dir }}/minio_startup_{{ tcp_alias }}.sh"
     mode: 0751
   become: true
   loop: "{{ range(0, adjacent_numa_list | length) | list }}"

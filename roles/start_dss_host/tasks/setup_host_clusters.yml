@@ -106,8 +106,18 @@
 
 - name: Create dss_host_config_host.sh script
   ansible.builtin.copy:
-    content: >
-      /usr/bin/python2 ./dss_host.py config_host -a
+    content: |
+      #! /usr/bin/env bash
+      pushd {{ nkv_sdk_bin_dir }}
+      {
+        {{ dss_host_py_cmd }}
+      } 2>&1 | tee {{ dss_log_dir }}/dss_host.py.out
+      popd
+    mode: 0755
+    dest: "{{ target_conf_dir }}/dss_host_config_host.sh"
+  vars:
+    dss_host_py_cmd: >-
+      /usr/bin/python2 {{ nkv_sdk_bin_dir }}/dss_host.py config_host -a
       {% for ip in first_vlan_ip_list %}{{ ip }}{% if not loop.last %} {% endif %}{% endfor %}
       -p {{ start_dss_host_port }}
       -i {{ start_dss_host_qpairs }} -m {{ start_dss_host_mem_align }}
@@ -121,13 +131,11 @@
       --rdd_port {{ rdd_port }}
       --gen2
       {% endif %}
-    mode: 0755
-    dest: "{{ nkv_sdk_bin_dir }}/dss_host_config_host.sh"
   when: inventory_hostname in host_hostnames
   become: true
 
 - name: Configure Driver
-  ansible.builtin.include_tasks: configure_driver.yml
+  ansible.builtin.include_tasks: check_and_configure_driver.yml
   loop: "{{ range(1,4) | list }}"
   loop_control:
     loop_var: config_num
@@ -143,12 +151,3 @@
       Expected number of subsystems: {{ combined_expected_num_subsystems }}
       Actual number of mounted subsystems: {{ post_subsystems_found }}
   when: inventory_hostname in host_hostnames
-
-- name: Execute dss_host_config_host.sh script
-  ansible.builtin.command: sh ./dss_host_config_host.sh
-  args:
-    chdir: "{{ nkv_sdk_bin_dir }}"
-  when:
-    - subsystems_found is not defined
-    - inventory_hostname in host_hostnames
-  become: true

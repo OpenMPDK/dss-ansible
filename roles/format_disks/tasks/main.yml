@@ -29,9 +29,9 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Remove BlobFS Files
+- name: Remove KV Filesystem files
   ansible.builtin.include_role:
-    name: remove_blobfs_files
+    name: remove_kvfs_files
   when: dss_target_mode is search('kv_block')
 
 - name: Format KVSSD

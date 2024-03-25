@@ -1,3 +1,4 @@
+#!/bin/bash
 # The Clear BSD License
 #
 # Copyright (c) 2022 Samsung Electronics Co., Ltd.
@@ -27,26 +28,22 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
----
 
-### Path defaults
-dss_dir: /usr/dss
-target_dir: "{{ dss_dir }}/nkv-target"
-target_bin_dir: "{{ target_dir }}/bin"
-target_conf_dir: /etc/dss
-target_conf_file: "{{ target_conf_dir }}/nvmf.in.conf"
-target_lib_dir: "{{ target_dir }}/lib"
+set -e
+{
+{% if not dss_formatter.stat.exists %}
+{% if xrt_setenv_script.stat.exists %}
+source {{ xrt_setenv }}
+{% endif %}
+source {{ gcc_setenv }}
+{% endif %}
+{% for pcie_addr in pcie_addrs.stdout_lines -%}
+    {% set sn_regex = '^.+traddr:[^"]+" "([^"]+)"$' -%}
+    {{ target_bin_dir}}/{{ format_bin }} {% if dss_formatter.stat.exists %}--config {% endif %}{{ target_conf_dir }}/{{ format_type}}-{{ loop.index0 }}.conf {% if dss_formatter.stat.exists %}--dev_name {% endif %}"{{ pcie_addr | regex_replace(sn_regex, '\\1') }}n1"
 
-
-### GCC defaults
-gcc_setenv: /usr/local/bin/setenv-for-gcc510.sh
-gcc_restore: /usr/local/bin/restore-default-paths-gcc510.sh
-
-### XRT defaults
-hpos: false
-xrt_setenv: /opt/xilinx/xrt/set_up_xrt_env.sh
-
-### Target defaults
-### dss_target_mode valid values: [kv, kv_block_vm, kv_block_perf, block]
-dss_target_mode: kv_block_perf
-target_fw_version: ETA51KCB
+{% endfor %}
+wait
+{% if not dss_formatter.stat.exists %}
+source {{ gcc_restore }}
+{% endif %}
+} 2>&1 | tee {{ dss_log_dir }}/format_disks.out

@@ -70,9 +70,7 @@
     label: "{{ item.item }}"
 
 - name: Configure Driver
-  ansible.builtin.command: /usr/bin/python2 ./dss_host.py config_driver
-  args:
-    chdir: "{{ nkv_sdk_bin_dir }}"
+  ansible.builtin.command: "/usr/bin/python2 {{ nkv_sdk_bin_dir }}/dss_host.py config_driver"
   when:
     - inventory_hostname in host_hostnames
     - missing_drivers is defined

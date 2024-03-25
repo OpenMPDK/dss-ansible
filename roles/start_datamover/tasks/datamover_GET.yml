@@ -31,14 +31,11 @@
 
 - name: Get data with datamover
   ansible.builtin.shell: >
-    source {{ gcc_setenv }} &&
     python3 {{ datamover_dir }}/master_application.py
     {{ datamover_operation }}
     --config {{ datamover_conf_dir }}/config.json
     --dest_path {{ datamover_get_path }}
     {{ dryrun_string }}
     {{ prefix_string }}
-  args:
-    chdir: "{{ datamover_dir }}"
   register: master_application
   run_once: true

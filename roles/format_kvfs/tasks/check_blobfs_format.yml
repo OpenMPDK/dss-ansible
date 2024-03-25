@@ -1,0 +1,38 @@
+---
+
+- name: Initialize blobfs_format_error variable
+  ansible.builtin.set_fact:
+    blobfs_format_error: false
+
+- name: Check output of existing format_disks.sh
+  ansible.builtin.slurp:
+    src: "{{ dss_log_dir }}/format_disks.out"
+  changed_when: false
+  register: previous_format
+
+- name: Check for mkfs_blobfs errors
+  ansible.builtin.set_fact:
+    blobfs_format_error: true
+  when: format_disks_stdout is search(item)
+  loop:
+    - Failed to initialize filesystem
+    - io_device bdev_nvme_poll_groups not unregistered
+    - bdev modules init failed
+    - Init subsystem bdev failed
+    - nvme_identify_controller failed
+    - Failed to initialize SSD
+    - error while loading shared libraries
+    - core dumped
+    - Illegal instruction
+    - error while loading shared libraries
+  vars:
+    format_disks_stdout: "{{ previous_format.content | b64decode }}"
+
+- name: Check filesystem initialized
+  ansible.builtin.set_fact:
+    blobfs_format_error: false
+  vars:
+    format_disks_stdout: "{{ previous_format.content | b64decode }}"
+  when:
+    - not blobfs_format_error
+    - format_disks_stdout is search('Initializing filesystem on bdev')

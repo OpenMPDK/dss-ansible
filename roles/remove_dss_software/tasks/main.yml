@@ -29,6 +29,12 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
+- name: Set target_dir for gcov
+  ansible.builtin.set_fact:
+    original_target_dir: "{{ target_dir }}"
+    target_dir: "{{ (target_dir.split('/df_out')).0 }}"
+  when: target_dir is search('df_out')
+
 - name: Remove DSS Software
   ansible.builtin.file:
     path: "{{ dss_path }}"
@@ -37,3 +43,8 @@
   loop_control:
     loop_var: dss_path
   become: true
+
+- name: Restore target_dir for gcov
+  ansible.builtin.set_fact:
+    target_dir: "{{ original_target_dir }}"
+  when: original_target_dir is defined

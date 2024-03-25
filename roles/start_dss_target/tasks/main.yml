@@ -44,16 +44,14 @@
     path: "{{ target_conf_file }}"
   register: nvmf_in_conf
 
-- name: Stat dss_target.out
+- name: Stat dss_target.py.out
   ansible.builtin.stat:
-    path: "{{ target_dir }}/bin/dss_target.out"
+    path: "{{ dss_log_dir }}/dss_target.py.out"
   register: dss_target_out
 
 - name: Get spdk status
-  ansible.builtin.command: ./setup.sh status
+  ansible.builtin.command: "{{ target_dir }}/scripts/setup.sh status"
   changed_when: false
-  args:
-    chdir: "{{ target_dir }}/scripts"
   register: spdk_status
   become: true
 
@@ -74,13 +72,13 @@
       Disk serial numbers not found in nvmf.in.conf for firmware {{ target_fw_version }}
       Please verify that 'target_fw_version' var matches desired firmware.
 
-- name: Format BlobFS
+- name: Format KV File System
   ansible.builtin.include_role:
-    name: format_blobfs
+    name: format_kvfs
   when: dss_target_mode is search('kv_block')
 
-- name: Read dss_target.out
-  ansible.builtin.command: "cat {{ target_dir }}/bin/dss_target.out"
+- name: Read dss_target.py.out
+  ansible.builtin.command: "cat {{ dss_log_dir }}/dss_target.py.out"
   become: true
   changed_when: false
   register: dss_target_out
@@ -123,15 +121,20 @@
     that: xrt_setenv_script.stat.exists
   when: hpos
 
+- name: Stat dss_formatter
+  ansible.builtin.stat:
+    path: "{{ target_dir }}/bin/dss_formatter"
+  register: dss_formatter
+
 - name: Start DSS target process
   ansible.builtin.shell: >
     {% if xrt_setenv_script.stat.exists %}
     source {{ xrt_setenv }} &&
     {% endif %}
+    {% if not dss_formatter.stat.exists %}
     source {{ gcc_setenv }} &&
+    {% endif %}
     {{ nvmf_tgt_cmd }} > {{ dss_log_dir }}/nkv-target.log 2>&1 &
-  args:
-    chdir: "{{ target_dir }}/bin"
   when: nvmf_ps.rc != 0
   become: true
 
