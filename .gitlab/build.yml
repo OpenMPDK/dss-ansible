@@ -3,7 +3,7 @@ build docker:
   image: docker:25.0.3-git
   variables:
     ANSIBLE_PROJECT_PATH: dfs/dss/dss-ansible
-    ANSIBLE_BRANCH: MIN-2148-add-deploy-stage
+    ANSIBLE_BRANCH: master
     GIT_STRATEGY: none
     DOCKERFILE_NAME: rocky8
     DOCKERFILE_PATH: scripts/docker/$DOCKERFILE_NAME.DOCKERFILE
