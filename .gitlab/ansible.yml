@@ -32,7 +32,7 @@ deploy DSS:
       junit: "*.xml"
   variables:
     ANSIBLE_PROJECT_PATH: dfs/dss/dss-ansible
-    ANSIBLE_BRANCH: MIN-2148-add-deploy-stage
+    ANSIBLE_BRANCH: master
     GIT_STRATEGY: none
     DOCKERFILE_NAME: rocky8
     ANSIBLE_CONFIG: ../dss-ansible/ansible.cfg
