@@ -105,6 +105,11 @@
       -m {{ custom_coremask }}
   when: custom_coremask is defined
 
+- name: Append tpoint_group_mask if defined
+  ansible.builtin.set_fact:
+    nvmf_tgt_cmd: "{{ nvmf_tgt_cmd }} --tpoint-group-mask {{ tpoint_group_mask }}"
+  when: tpoint_group_mask is defined
+
 - name: Find running target process
   ansible.builtin.command: "pgrep reactor_"
   register: nvmf_ps
