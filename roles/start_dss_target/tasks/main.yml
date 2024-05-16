@@ -154,7 +154,7 @@
   until:
     - subsystem_initialized.stdout is search(search_string)
     - subsystem_initialized.stdout | regex_findall(search_string) | length == num_subsystems
-  retries: 60
+  retries: 200
   delay: 5
 
 - name: Assert subsystems initialized
