@@ -28,14 +28,15 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-{% set num_mountpoints = { 'value': 0 } %}
+{% set num_mountpoints = { 'value': my_subsys_list | length } %}
+{# {% set num_mountpoints = { 'value': 0 } %}
 {% if standalone_minio %}
     {%- for vlan in vlan_ip_map -%}
         {%- if num_mountpoints.update({ 'value': num_mountpoints.value + (subsys_range[loop.index0].max | int - subsys_range[loop.index0].min | int + 1) }) %}{% endif -%}
     {% endfor %}
 {% else %}
     {% if num_mountpoints.update({ 'value': num_mountpoints.value + (my_range.max | int - my_range.min | int + 1) }) %}{% endif %}
-{% endif %}
+{% endif %} #}
 
 export MINIO_NKV_CONFIG="{{ nkv_sdk_conf_dir }}/nkv_config_{{ rocev2_ip }}.json"
 {% if standalone_minio %}#{% endif %}export MINIO_INSTANCE_HOST_PORT={{ tcp_alias }}:{{ minio_port }}
@@ -75,16 +76,20 @@ ulimit -c unlimited
 {{ minio_dir }}/minio server --address {{ tcp_alias }}:{{ minio_port }}
     {%- for vlan in combined_vlan_ip_map -%}
         {%- set vlan_index = loop.index0 -%}
-        {%- if min_subsystem_list[vlan_index] == min_subsystem -%}
+        {# {%- if min_subsystem_list[vlan_index] == min_subsystem -%} #}
             {%- if standalone_minio -%}
-                {%- for mountpoint in range(subsys_range[vlan_index].min | int, subsys_range[vlan_index].max | int + 1) -%}
+                {# {%- for mountpoint in range(subsys_range[vlan_index].min | int, subsys_range[vlan_index].max | int + 1) -%} #}
+                {% for mountpoint in my_subsys_list %}
                     {{ ' ' }}/dev/nvme{{ mountpoint }}n1
                 {%- endfor -%}
             {%- else -%}
                 {%- for alias in vlan.tcp -%}
-                        {{ ' ' }}http://{{ alias }}:{{ minio_port }}/dev/nvme{{ '{' }}{{ subsys_range[vlan_index].min }}...{{ subsys_range[vlan_index].max }}{{ '}' }}n1
+                        {# {{ ' ' }}http://{{ alias }}:{{ minio_port }}/dev/nvme{{ '{' }}{{ subsys_range[vlan_index].min }}...{{ subsys_range[vlan_index].max }}{{ '}' }}n1 #}
+                    {%- for mountpoint in my_subsys_list -%}
+                        {{ ' ' }}http://{{ alias }}:{{ minio_port }}/dev/nvme{{ mountpoint }}n1
+                    {%- endfor -%}
                 {%- endfor -%}
             {%- endif -%}
-        {%- endif -%}
+        {# {%- endif -%} #}
     {%- endfor -%}
 {{ ' ' }}| grep -v 'Pool count' --line-buffered
