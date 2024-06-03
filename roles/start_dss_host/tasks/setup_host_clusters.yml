@@ -108,6 +108,7 @@
   ansible.builtin.copy:
     content: |
       #! /usr/bin/env bash
+      export INTEGRATED_DRIVER={{ integrated_driver | d(False) }}
       pushd {{ nkv_sdk_bin_dir }}
       {
         {{ dss_host_py_cmd }}

@@ -57,12 +57,15 @@
     - nvme-rdma.ko
     - nvme-tcp.ko
     - nvme.ko
-  when: inventory_hostname in host_hostnames
+  when:
+    - not integrated_driver | d(false)
+    - inventory_hostname in host_hostnames
 
 - name: Check for missing KV kernel drivers
   ansible.builtin.set_fact:
     missing_drivers: true
   when:
+    - not integrated_driver | d(false)
     - inventory_hostname in host_hostnames
     - not item.stat.exists
   loop: "{{ kv_kernel_drivers.results }}"
@@ -72,6 +75,7 @@
 - name: Configure Driver
   ansible.builtin.command: "/usr/bin/python2 {{ nkv_sdk_bin_dir }}/dss_host.py config_driver"
   when:
+    - not integrated_driver | d(false)
     - inventory_hostname in host_hostnames
     - missing_drivers is defined
   become: true

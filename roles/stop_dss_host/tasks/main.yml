@@ -36,6 +36,8 @@
 
 - name: Execute dss_host.py remove script
   ansible.builtin.command: /usr/bin/python2 ./dss_host.py remove
+  environment:
+    INTEGRATED_DRIVER: "{{ integrated_driver | d(False) }}"
   args:
     chdir: "{{ nkv_sdk_bin_dir }}"
   when: dss_host_path.stat.exists
