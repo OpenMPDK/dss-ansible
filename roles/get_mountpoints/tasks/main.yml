@@ -117,6 +117,23 @@
     label: "{{ ansible_loop.index0 }}"
   when: inventory_hostname in host_hostnames
 
+- name: set subsys_list var
+  ansible.builtin.set_fact:
+    subsys_list: >-
+      {%- set dev_list = [] -%}
+      {%- for subsys in nvme_mountpoints -%}
+        {%- if subsys.ip in vlan_pair.rocev2 -%}
+        {%- set dev_list = dev_list.append(subsys.dev | int) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ subsys_list | d([]) + [ dev_list] }}
+  loop: "{{ combined_vlan_ip_map }}"
+  loop_control:
+    loop_var: vlan_pair
+    extended: true
+    label: "{{ ansible_loop.index0 }}"
+  when: inventory_hostname in host_hostnames
+
 - name: Assert mountpoints found for each VLAN
   ansible.builtin.assert:
     that: item.min != 999
