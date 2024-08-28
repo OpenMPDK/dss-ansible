@@ -224,7 +224,7 @@
 
 ### nkv_test_cli defaults
 # nkv_test_cli_port: 1030
-# nkv_test_cli_prefix: meta/ansible
+# nkv_test_cli_prefix: data/ansible
 # nkv_test_cli_keysize: 60
 # nkv_test_cli_valsize: 1048576
 # nkv_test_cli_threads: 128
