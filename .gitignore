@@ -6,3 +6,6 @@ inv_*
 
 # JUNIT XML Test Results
 *.xml
+
+# Python cache
+__pycache__

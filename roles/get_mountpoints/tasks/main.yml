@@ -126,12 +126,18 @@
         {%- set dev_list = dev_list.append(subsys.dev | int) -%}
         {%- endif -%}
       {%- endfor -%}
-      {{ subsys_list | d([]) + [ dev_list] }}
+      {{ subsys_list | d([]) + [dev_list] }}
   loop: "{{ combined_vlan_ip_map }}"
   loop_control:
     loop_var: vlan_pair
     extended: true
     label: "{{ ansible_loop.index0 }}"
+  when: inventory_hostname in host_hostnames
+
+- name: Set minio_nvme_ranges var
+  ansible.builtin.set_fact:
+    minio_nvme_ranges: "{{ minio_nvme_ranges | d([]) + [item | minio_nvme_ranges] }}"
+  loop: "{{ subsys_list }}"
   when: inventory_hostname in host_hostnames
 
 - name: Assert mountpoints found for each VLAN

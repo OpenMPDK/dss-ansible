@@ -29,23 +29,21 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
-- name: Get range of mountpoints
+- name: Get list of mountpoints
   ansible.builtin.command: >-
     grep -oP "mount_point\"\: \"/dev/nvme\K\d+" {{ nkv_sdk_conf_dir }}/nkv_config_{{ rocev2_ip }}.json
-  register: mountpoint_range
+  register: mountpoints
   changed_when: false
 
-- name: Set min_mountpoint and max_mountpoint vars
-  ansible.builtin.set_fact:
-    min_mountpoint: "{{ mountpoint_range.stdout_lines[0] }}"
-    max_mountpoint: "{{ mountpoint_range.stdout_lines[-1] }}"
-
-- name: Execute minio_cleanup.sh
+- name: Execute minio_cleanup.sh once for each mountpoint
   ansible.builtin.shell: >-
-    sh {{ nkv_sdk_bin_dir }}/minio_cleanup.sh {{ min_mountpoint }} {{ max_mountpoint }} nkv_config_{{ rocev2_ip }}.json
+    sh {{ nkv_sdk_bin_dir }}/minio_cleanup.sh {{ endpoint }} {{ endpoint }} nkv_config_{{ rocev2_ip }}.json
     > {{ dss_log_dir }}/minio_cleanup.log 2>&1
   args:
     # chdir required to support legacy cleanup script
     chdir: "{{ nkv_sdk_bin_dir }}"
+  loop: "{{ mountpoints.stdout_lines }}"
+  loop_control:
+    loop_var: endpoint
   become: true
   run_once: true
